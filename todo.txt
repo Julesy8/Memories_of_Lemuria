@@ -1,7 +1,6 @@
 -----
 TO DO
 -----
--fix entities being able to walk through walls
 -iron out max overlapping rooms, make ai which has its own fov for looking and hearing
 -import entities depending on level
 -adjust entity spawn rate

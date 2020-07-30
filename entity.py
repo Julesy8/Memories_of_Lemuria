@@ -49,6 +49,7 @@ class Entity:  # generic entity
 
         # Scan the current map each turn and set all the walls as unwalkable
         # thanks hexdecimal for this one
+        #fov.walkable.T[:] = [[not tile.blocked for tile in column] for column in game_map.tiles]
         fov.walkable.T[:] = ((not tile.blocked for tile in column) for column in game_map.tiles)
 
         # Scan all the objects to see if there are objects that must be navigated around
