@@ -16,6 +16,8 @@ placeholder_common = Humanoid(5, 10, 5, 0, 0, 0, 0,
                               libtcod.white,
                               libtcod.BKGND_NONE,
                               'Placeholder',
+                              movement_phase=0, movement_phase_max=1,
+                              movements_per_turn=1,
                               fighter=placeholder_fighter,
                               ai=Melee())
 
@@ -25,6 +27,8 @@ placeholder_uncommon = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                 libtcod.green,
                                 libtcod.BKGND_NONE,
                                 'Placeholder',
+                                movement_phase=0, movement_phase_max=1,
+                                movements_per_turn=1,
                                 fighter=placeholder_fighter,
                                 ai=Melee())
 
@@ -34,6 +38,8 @@ placeholder_rare = Humanoid(5, 10, 5, 0, 0, 0, 0,
                             libtcod.blue,
                             libtcod.BKGND_NONE,
                             'Placeholder',
+                            movement_phase=0, movement_phase_max=1,
+                            movements_per_turn=1,
                             fighter=placeholder_fighter,
                             ai=Melee())
 
@@ -43,6 +49,8 @@ placeholder_v_rare = Humanoid(5, 10, 5, 0, 0, 0, 0,
                               libtcod.purple,
                               libtcod.BKGND_NONE,
                               'Placeholder',
+                              movement_phase=0, movement_phase_max=1,
+                              movements_per_turn=1,
                               fighter=placeholder_fighter,
                               ai=Melee())
 
@@ -52,6 +60,8 @@ placeholder_legendary = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                  libtcod.orange,
                                  libtcod.BKGND_NONE,
                                  'Placeholder',
+                                 movement_phase=0, movement_phase_max=1,
+                                 movements_per_turn=1,
                                  fighter=placeholder_fighter,
                                  ai=Melee())
 
@@ -60,6 +70,8 @@ placeholder_common_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                   libtcod.cyan,
                                   libtcod.BKGND_NONE,
                                   'Placeholder',
+                                  movement_phase=0, movement_phase_max=1,
+                                  movements_per_turn=1,
                                   fighter=placeholder_fighter,
                                   ai=Melee())
 
@@ -69,6 +81,8 @@ placeholder_uncommon_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                     libtcod.red,
                                     libtcod.BKGND_NONE,
                                     'Placeholder',
+                                    movement_phase=0, movement_phase_max=1,
+                                    movements_per_turn=1,
                                     fighter=placeholder_fighter,
                                     ai=Melee())
 
@@ -78,6 +92,8 @@ placeholder_rare_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                 libtcod.pink,
                                 libtcod.BKGND_NONE,
                                 'Placeholder',
+                                movement_phase=0, movement_phase_max=1,
+                                movements_per_turn=1,
                                 fighter=placeholder_fighter,
                                 ai=Melee())
 
@@ -87,6 +103,8 @@ placeholder_v_rare_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                   libtcod.violet,
                                   libtcod.BKGND_NONE,
                                   'Placeholder',
+                                  movement_phase=0, movement_phase_max=1,
+                                  movements_per_turn=1,
                                   fighter=placeholder_fighter,
                                   ai=Melee())
 
@@ -96,5 +114,7 @@ placeholder_legendary_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                      libtcod.yellow,
                                      libtcod.BKGND_NONE,
                                      'Placeholder',
+                                     movement_phase=0, movement_phase_max=1,
+                                     movements_per_turn=1,
                                      fighter=placeholder_fighter,
                                      ai=Melee())
