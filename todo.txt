@@ -2,10 +2,9 @@
 TO DO
 -----
 -iron out max overlapping rooms, make ai which has its own fov for looking and hearing
--import entities depending on level
 -adjust entity spawn rate
 -make room player spawns in enclosed rather than open so the player can't see any enemies on spawn
--fix variable entity walkspeed error, something to do with the new A* algorithm
+-energy system to handle varible entity walk speed (attack cost, movement cost, modify in engine take turn)
 -change rendering options to make window non-resizable
 -random wall obstacles generated within rooms
 

@@ -42,7 +42,7 @@ def main():
     # making the player character
     fighter_component = Fighter(power=5, volume_blood=100)
     player = Humanoid(5, 10, 5, 0, 0, 0, 0, 0, 0, '@', libtcod.white, libtcod.BKGND_NONE,
-                      'Player', movement_phase=0, movement_phase_max=1, movements_per_turn=1, blocks=True,
+                      'Player', 100, blocks=True,
                       fighter=fighter_component)
     entities = [player]
 
