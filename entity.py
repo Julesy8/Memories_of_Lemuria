@@ -4,7 +4,7 @@ import math
 
 
 class Entity:  # generic entity
-    def __init__(self, x, y, char, fg_colour, bg_colour, name, energy,
+    def __init__(self, x, y, char, fg_colour, bg_colour, name, energy, move_cost, attack_cost,
                  blocks=False, fighter=None, ai=None):
         self.x = x
         self.y = y
@@ -13,6 +13,8 @@ class Entity:  # generic entity
         self.bg_colour = bg_colour
         self.name = name
         self.energy = energy
+        self.move_cost = move_cost
+        self.attack_cost = attack_cost
         self.blocks = blocks
         self.fighter = fighter
         self.ai = ai
@@ -71,8 +73,10 @@ class Entity:  # generic entity
         libtcod.path_compute(my_path, self.x, self.y, target.x, target.y)
 
         # Check if the path exists, and in this case, also the path is shorter than 25 tiles
-        # The path size matters if you want the monster to use alternative longer paths (for example through other rooms) if for example the player is in a corridor
-        # It makes sense to keep path size relatively low to keep the monsters from running around the map if there's an alternative path really far away
+        # The path size matters if you want the monster to use alternative longer paths
+        # (for example through other rooms) if for example the player is in a corridor
+        # It makes sense to keep path size relatively low to keep the monsters from running around
+        # the map if there's an alternative path really far away
         if not libtcod.path_is_empty(my_path) and libtcod.path_size(my_path) < 25:
             # Find the next coordinates in the computed full path
             x, y = libtcod.path_walk(my_path, True)
@@ -81,13 +85,13 @@ class Entity:  # generic entity
                 self.x = x
                 self.y = y
         else:
-            # Keep the old move function as a backup so that if there are no paths (for example another monster blocks a corridor)
+            # Keep the old move function as a backup so that if there are no
+            # paths (for example another monster blocks a corridor)
             # it will still try to move towards the player (closer to the corridor opening)
             self.move_towards(target.x, target.y, game_map, entities)
 
             # Delete the path to free memory
         libtcod.path_delete(my_path)
-
 
     def spawn(self, entities, x, y):  # thanks hexdecimal for this one as well
         """Spawn a copy of this instance at the given location."""
