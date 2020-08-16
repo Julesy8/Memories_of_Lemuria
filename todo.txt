@@ -6,7 +6,8 @@ TO DO
 -make room player spawns in enclosed rather than open so the player can't see any enemies on spawn
 -change rendering options to make window non-resizable
 -random wall obstacles generated within rooms
-
+-player variable walk speed
+-check to see if new ai works
 
 
 

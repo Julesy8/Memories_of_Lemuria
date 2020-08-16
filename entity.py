@@ -4,10 +4,12 @@ import math
 
 
 class Entity:  # generic entity
-    def __init__(self, x, y, char, fg_colour, bg_colour, name, energy, move_cost, attack_cost,
-                 blocks=False, fighter=None, ai=None):
+    def __init__(self, x, y, char, fg_colour, bg_colour, name, energy,
+                 move_cost, attack_cost, fov_radius, turns_inactive, blocks=False, fighter=None, ai=None, active=False):
         self.x = x
         self.y = y
+        self.spawn_x = x
+        self.spawn_y = y
         self.char = char
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
@@ -15,9 +17,12 @@ class Entity:  # generic entity
         self.energy = energy
         self.move_cost = move_cost
         self.attack_cost = attack_cost
+        self.fov_radius = fov_radius
+        self.turns_inactive = turns_inactive
         self.blocks = blocks
         self.fighter = fighter
         self.ai = ai
+        self.active = active
 
         if self.fighter:
             self.fighter.owner = self
