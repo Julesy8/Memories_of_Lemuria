@@ -8,7 +8,7 @@ y = 1
 
 
 def placeholder_fighter():
-    return Fighter(1, 100, True, True)
+    return Fighter(1, 100, 100, 100, 100, True, True)
 
 
 placeholder_common = Humanoid(5, 10, 5, 0, 0, 0, 0,
@@ -16,9 +16,8 @@ placeholder_common = Humanoid(5, 10, 5, 0, 0, 0, 0,
                               libtcod.white,
                               libtcod.BKGND_NONE,
                               'Placeholder',
-                              0, 100, 100,
-                              fighter=placeholder_fighter,
-                              ai=Melee())
+                              fighter=placeholder_fighter(),
+                              ai=Melee(5))
 
 
 placeholder_uncommon = Humanoid(5, 10, 5, 0, 0, 0, 0,
@@ -26,29 +25,24 @@ placeholder_uncommon = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                 libtcod.green,
                                 libtcod.BKGND_NONE,
                                 'Placeholder',
-                                0, 100, 100,
-                                fighter=placeholder_fighter,
-                                ai=Melee())
-
+                                fighter=placeholder_fighter(),
+                                ai=Melee(5))
 
 placeholder_rare = Humanoid(5, 10, 5, 0, 0, 0, 0,
                             x, y, 'N',
                             libtcod.blue,
                             libtcod.BKGND_NONE,
                             'Placeholder',
-                            0, 100, 100,
-                            fighter=placeholder_fighter,
-                            ai=Melee())
-
+                            fighter=placeholder_fighter(),
+                            ai=Melee(5))
 
 placeholder_v_rare = Humanoid(5, 10, 5, 0, 0, 0, 0,
                               x, y, 'N',
                               libtcod.purple,
                               libtcod.BKGND_NONE,
                               'Placeholder',
-                              0, 100, 100,
-                              fighter=placeholder_fighter,
-                              ai=Melee())
+                              fighter=placeholder_fighter(),
+                              ai=Melee(5))
 
 
 placeholder_legendary = Humanoid(5, 10, 5, 0, 0, 0, 0,
@@ -56,55 +50,45 @@ placeholder_legendary = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                  libtcod.orange,
                                  libtcod.BKGND_NONE,
                                  'Placeholder',
-                                 0, 100, 100,
-                                 fighter=placeholder_fighter,
-                                 ai=Melee())
+                                 fighter=placeholder_fighter(),
+                                 ai=Melee(5))
 
 placeholder_common_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                   x, y, 'N',
                                   libtcod.cyan,
                                   libtcod.BKGND_NONE,
                                   'Placeholder',
-                                  0, 100, 100,
-                                  fighter=placeholder_fighter,
-                                  ai=Melee())
-
+                                  fighter=placeholder_fighter(),
+                                  ai=Melee(5))
 
 placeholder_uncommon_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                     x, y, 'N',
                                     libtcod.red,
                                     libtcod.BKGND_NONE,
                                     'Placeholder',
-                                    0, 100, 100,
-                                    fighter=placeholder_fighter,
-                                    ai=Melee())
-
+                                    fighter=placeholder_fighter(),
+                                    ai=Melee(5))
 
 placeholder_rare_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                 x, y, 'N',
                                 libtcod.pink,
                                 libtcod.BKGND_NONE,
                                 'Placeholder',
-                                0, 100, 100,
-                                fighter=placeholder_fighter,
-                                ai=Melee())
-
+                                fighter=placeholder_fighter(),
+                                ai=Melee(5))
 
 placeholder_v_rare_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                   x, y, 'N',
                                   libtcod.violet,
                                   libtcod.BKGND_NONE,
                                   'Placeholder',
-                                  0, 100, 100,
-                                  fighter=placeholder_fighter,
-                                  ai=Melee())
-
+                                  fighter=placeholder_fighter(),
+                                  ai=Melee(5))
 
 placeholder_legendary_alt = Humanoid(5, 10, 5, 0, 0, 0, 0,
                                      x, y, 'N',
                                      libtcod.yellow,
                                      libtcod.BKGND_NONE,
                                      'Placeholder',
-                                     0, 100, 100,
-                                     fighter=placeholder_fighter,
-                                     ai=Melee())
+                                     fighter=placeholder_fighter(),
+                                     ai=Melee(5))

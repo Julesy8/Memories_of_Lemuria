@@ -38,12 +38,11 @@ def main():
     # sets the value for where the player will be at game start to be the middle of the screen
     player_x = int(screen_width / 2)
     player_y = int(screen_height / 2)
-
+    #     def __init__(self, power, volume_blood, energy, move_cost, attack_cost, bleeds=True, alive=True):
     # making the player character
-    fighter_component = Fighter(power=5, volume_blood=100)
+    fighter_component = Fighter(1, 100, 100, 100, 100)
     player = Humanoid(5, 10, 5, 0, 0, 0, 0, 0, 0, '@', libtcod.white, libtcod.BKGND_NONE,
-                      'Player', 100, 100, 100, blocks=True,
-                      fighter=fighter_component)
+                      'Player', blocks=True, fighter=fighter_component)
     entities = [player]
 
     # tells root console what font to use, initialisation of the root console

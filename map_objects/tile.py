@@ -59,7 +59,7 @@ wall, multiple floor tiles or single, floor, floor, floor, where values after th
 """
 tile_colour = {
     0: [[63, 63, 63], [31, 31, 31], [45, 45, 45], [63, 63, 63],  # light
-                [32, 32, 32], [16, 16, 16], [23, 23, 23], [32, 32, 32]]  # dark
+        [32, 32, 32], [16, 16, 16], [23, 23, 23], [32, 32, 32]]  # dark
 }
 
 tile_character = {
