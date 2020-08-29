@@ -6,6 +6,7 @@ from map_objects.game_map import GameMap
 from fov_functions import initialise_fov, recompute_fov
 from game_states import GameStates
 from components.npc_templates import Fighter, Humanoid
+from camera import Camera
 
 
 def main():
@@ -19,7 +20,7 @@ def main():
 
     # width and height of the map
     map_width = 80
-    map_height = 50
+    map_height = 80
 
     # room variables, going to want to replace this with a class that detects lvl at some point
     room_max_size = 9
@@ -35,9 +36,6 @@ def main():
     # defines what level of the dungeon the player is currently on
     current_level = 0
 
-    # sets the value for where the player will be at game start to be the middle of the screen
-    player_x = int(screen_width / 2)
-    player_y = int(screen_height / 2)
     #     def __init__(self, power, volume_blood, energy, move_cost, attack_cost, bleeds=True, alive=True):
     # making the player character
     fighter_component = Fighter(1, 100, 100, 100, 100)
@@ -69,19 +67,29 @@ def main():
 
     fov_map = initialise_fov(game_map)
 
+    camera = Camera(
+        x=0,
+        y=0,
+        width=screen_width,
+        height=screen_height,
+        map_width=map_width,
+        map_height=map_height,
+    )
+    camera.update(player)
+
     while not libtcod.console_is_window_closed():  # main game loop
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)  # capture new user inputs
 
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
 
-        render_all(con, entities, fov_map, fov_recompute,  game_map, screen_width, screen_height)
+        render_all(con, entities, fov_map, fov_recompute,  game_map, screen_width, screen_height, camera)
         libtcod.console_set_default_foreground(0, libtcod.white)  # sets console 0 foreground to white
         # player character placed on console 0
         libtcod.console_put_char(0, player.x, player.y, '@', libtcod.BKGND_NONE)
         libtcod.console_flush()  # applies changes to console
 
-        render_all(con, entities, fov_map, fov_recompute,  game_map, screen_width, screen_height)
+        render_all(con, entities, fov_map, fov_recompute,  game_map, screen_width, screen_height, camera)
         libtcod.console_put_char(0, player.x, player.y, ' ', libtcod.BKGND_NONE)
 
         # key handling
@@ -102,7 +110,7 @@ def main():
                     print('Melee attack on ' + target.name + '!')
                 else:
                     player.move(dx, dy)
-
+                    camera.update(player)
                     fov_recompute = True
 
                 game_state = GameStates.ENEMY_TURN

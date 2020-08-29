@@ -8,6 +8,7 @@ TO DO
 -random wall obstacles generated within rooms
 -player variable walk speed
 -check to see if new ai works
+-map scrolling
 
 
 

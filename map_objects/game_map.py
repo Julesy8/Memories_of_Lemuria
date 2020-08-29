@@ -127,10 +127,10 @@ class GameMap:
 
         # for safety's sake, once all the rooms are generated creates a box of walls around the map perimeter to
         # ensure that there are no holes
-        self.create_h_wall(0, 79, 0)
-        self.create_h_wall(0, 79, 49)
-        self.create_v_wall(0, 49, 0)
-        self.create_v_wall(0, 49, 79)
+        #self.create_h_wall(0, 79, 0)
+        #self.create_h_wall(0, 79, 49)
+        #self.create_v_wall(0, 49, 0)
+        #self.create_v_wall(0, 49, 79)
 
     def place_entities(self, room, entities, max_monsters_per_room, level):
         num_monsters = randint(0, max_monsters_per_room)
@@ -162,7 +162,7 @@ class GameMap:
 
                 else:                            # ultra rare
                     enemy = Enemies_by_level[level][4][randint(0, len(Enemies_by_level[level][0]) - 1)]
-                enemy.spawn(entities, x, y)
+                #enemy.spawn(entities, x, y)
 
     def generate_room(self):
         w = randint(self.room_min_size, self.room_max_size)
