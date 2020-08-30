@@ -1,34 +1,69 @@
-import tcod as libtcod
+from typing import Optional
+
+import tcod.event
+
+from actions import Action, EscapeAction, MovementAction
 
 
-def handle_keys(key):
-    key_char = chr(key.c)
+class EventHandler(tcod.event.EventDispatch[Action]):
+    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
+        raise SystemExit()
 
-    # Movement keys
-    if key.vk == libtcod.KEY_UP or key.vk == libtcod.KEY_KP8:  # up
-        return {'move': (0, -1)}
-    elif key.vk == libtcod.KEY_DOWN or key.vk == libtcod.KEY_KP2:  # down
-        return {'move': (0, 1)}
-    elif key.vk == libtcod.KEY_LEFT or key.vk == libtcod.KEY_KP4:  # left
-        return {'move': (-1, 0)}
-    elif key.vk == libtcod.KEY_RIGHT or key.vk == libtcod.KEY_KP6:  # right
-        return {'move': (1, 0)}
-    elif key_char == 'j' or key.vk == libtcod.KEY_KP7:  # up left
-        return {'move': (-1, -1)}
-    elif key_char == 'k' or key.vk == libtcod.KEY_KP9:  # up right
-        return {'move': (1, -1)}
-    elif key_char == 'n' or key.vk == libtcod.KEY_KP1:  # down left
-        return {'move': (-1, 1)}
-    elif key_char == 'm' or key.vk == libtcod.KEY_KP3:  # down right
-        return {'move': (1, 1)}
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        action: Optional[Action] = None
 
-    if key.vk == libtcod.KEY_F11:
-        # enter full screen
-        return {'fullscreen': True}
+        key = event.sym
 
-    elif key.vk == libtcod.KEY_ESCAPE:
-        # Exit the game
-        return {'exit': True}
+        # Arrow movement
+        if key == tcod.event.K_UP:
+            action = MovementAction(dx=0, dy=-1)
+        elif key == tcod.event.K_DOWN:
+            action = MovementAction(dx=0, dy=1)
+        elif key == tcod.event.K_LEFT:
+            action = MovementAction(dx=-1, dy=0)
+        elif key == tcod.event.K_RIGHT:
+            action = MovementAction(dx=1, dy=0)
 
-    # No key was pressed
-    return {}
+        # Numpad movement
+        if key == tcod.event.K_KP_1:
+            action = MovementAction(dx=-1, dy=1)
+        elif key == tcod.event.K_KP_2:
+            action = MovementAction(dx=0, dy=1)
+        elif key == tcod.event.K_KP_3:
+            action = MovementAction(dx=1, dy=1)
+        elif key == tcod.event.K_KP_4:
+            action = MovementAction(dx=-1, dy=0)
+        elif key == tcod.event.K_KP_5:
+            action = MovementAction(dx=0, dy=0)
+        elif key == tcod.event.K_KP_6:
+            action = MovementAction(dx=1, dy=0)
+        elif key == tcod.event.K_KP_7:
+            action = MovementAction(dx=-1, dy=-1)
+        elif key == tcod.event.K_KP_8:
+            action = MovementAction(dx=0, dy=-1)
+        elif key == tcod.event.K_KP_9:
+            action = MovementAction(dx=1, dy=-1)
+
+        # Keyboard movement
+        elif key == tcod.event.K_h:
+            action = MovementAction(dx=-1, dy=0)
+        elif key == tcod.event.K_j:
+            action = MovementAction(dx=0, dy=1)
+        elif key == tcod.event.K_k:
+            action = MovementAction(dx=0, dy=-1)
+        elif key == tcod.event.K_l:
+            action = MovementAction(dx=1, dy=0)
+        elif key == tcod.event.K_y:
+            action = MovementAction(dx=-1, dy=-1)
+        elif key == tcod.event.K_u:
+            action = MovementAction(dx=1, dy=-1)
+        elif key == tcod.event.K_b:
+            action = MovementAction(dx=-1, dy=1)
+        elif key == tcod.event.K_n:
+            action = MovementAction(dx=1, dy=1)
+
+        elif key == tcod.event.K_ESCAPE:
+            action = EscapeAction()
+
+        # No valid key was pressed
+        return action
