@@ -15,12 +15,6 @@ class Camera:
         return (x, y)
 
     def update(self, entity):
-        if entity.x < int(self.width / 2):
-            y = -entity.y + int(self.height / 2)
-            x = self.x
-            self.x, self.y = (x, y)
-
-        if entity.y < int(self.width / 2):
-            x = -entity.x + int(self.width / 2)
-            y = self.y
-            self.x, self.y = (x, y)
+        x = -entity.x + int(self.width / 2)
+        y = -entity.y + int(self.height / 2)
+        self.x, self.y = (x, y)
