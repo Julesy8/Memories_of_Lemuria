@@ -1,7 +1,13 @@
 import tcod
 
+from engine import Engine
 from actions import EscapeAction, MovementAction
 from input_handlers import EventHandler
+
+from components.npc_templates import Fighter, Humanoid
+from entity import Entity
+
+from game_map import GameMap
 
 
 def main():
@@ -12,7 +18,7 @@ def main():
 
     # width and height of the map
     map_width = 80
-    map_height = 80
+    map_height = 50
 
     # room variables, going to want to replace this with a class that detects lvl at some point
     room_max_size = 9
@@ -29,7 +35,6 @@ def main():
     current_level = 0
 
     """
-    #     def __init__(self, power, volume_blood, energy, move_cost, attack_cost, bleeds=True, alive=True):
     # making the player character
     fighter_component = Fighter(1, 100, 100, 100, 100)
     player = Humanoid(5, 10, 5, 0, 0, 0, 0, 0, 0, '@', tcod.white, tcod.BKGND_NONE,
@@ -48,7 +53,6 @@ def main():
 
     # initialises game map
     max_monsters_per_room = 3
-    game_map = GameMap(map_width, map_height, current_level, room_min_size, room_max_size)
     game_map.make_map(max_rooms, player, entities, max_monsters_per_room, current_level, max_overlapping_rooms)
 
     fov_recompute = True
@@ -66,13 +70,19 @@ def main():
     camera.update(player)
     """
 
-    player_x = int(screen_width / 2)
-    player_y = int(screen_height / 2)
-
     # tells root console what font to use, initialisation of the root console
     tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
     event_handler = EventHandler()
+
+    fighter_component = Fighter(1, 100, 100, 100, 100)
+    player = Humanoid(5, 10, 5, 0, 0, 0, 0, int(screen_width / 2), int(screen_height / 2), '@',
+                      tcod.white, None, 'Player', blocks=True, fighter=fighter_component)
+    entities = {player}
+
+    game_map = GameMap(map_width, map_height)
+
+    engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 
     with tcod.context.new_terminal(
         screen_width,
@@ -83,25 +93,11 @@ def main():
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            root_console.print(x=player_x, y=player_y, string="@")
+            engine.render(console=root_console, context=context)
 
-            context.present(root_console)
+            events = tcod.event.wait()
 
-            root_console.clear()
-
-            for event in tcod.event.wait():
-                action = event_handler.dispatch(event)
-
-                if action is None:
-                    continue
-
-                if isinstance(action, MovementAction):
-                    player_x += action.dx
-                    player_y += action.dy
-
-                elif isinstance(action, EscapeAction):
-                    raise SystemExit()
-
+            engine.handle_events(events)
 
 if __name__ == "__main__":
     main()
