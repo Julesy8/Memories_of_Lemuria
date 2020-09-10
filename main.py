@@ -80,7 +80,7 @@ def main():
                       tcod.white, None, 'Player', blocks=True, fighter=fighter_component)
     entities = {player}
 
-    game_map = GameMap(map_width, map_height)
+    game_map = GameMap(map_width, map_height, current_level)
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 
