@@ -7,7 +7,7 @@ from input_handlers import EventHandler
 from components.npc_templates import Fighter, Humanoid
 from entity import Entity
 
-from game_map import GameMap
+from procgen import generate_dungeon
 
 
 def main():
@@ -80,7 +80,7 @@ def main():
                       tcod.white, None, 'Player', blocks=True, fighter=fighter_component)
     entities = {player}
 
-    game_map = GameMap(map_width, map_height, current_level)
+    game_map = generate_dungeon(map_width, map_height, current_level)
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 

@@ -9,6 +9,8 @@ TO DO
 -player variable walk speed
 -check to see if new ai works
 -map scrolling
+-random tile colour creation mechanism
+-rooms generated with different floor/wall tiles/colours
 
 
 
