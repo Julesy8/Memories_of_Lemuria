@@ -1,3 +1,5 @@
+
+
 # level 0
 level_0 = {
     1:  # wall colour
@@ -11,5 +13,5 @@ level_0 = {
 
     3: [35],  # wall tile
 
-    4: [3, 46, 96, 44]  # floor tile
+    4: [46, 96, 44]  # floor tile
 }

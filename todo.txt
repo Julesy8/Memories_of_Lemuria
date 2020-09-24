@@ -1,6 +1,9 @@
 -----
 TO DO
 -----
+-variable floor colours
+-weighted floor colour + char combinations
+
 -iron out max overlapping rooms, make ai which has its own fov for looking and hearing
 -adjust entity spawn rate
 -make room player spawns in enclosed rather than open so the player can't see any enemies on spawn
