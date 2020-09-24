@@ -40,7 +40,7 @@ class GameMap:
         char_arrays = generate_char_arrays(self.floor_fg_dark, self.floor_bg_dark, self.floor_tile)
 
         self.floor = select_random_tile(char_arrays)
-        self.wall = tile_types.new_floor(self.wall_fg_dark, self.wall_bg_dark, self.wall_tile)
+        self.wall = tile_types.new_wall(self.wall_fg_dark, self.wall_bg_dark, self.wall_tile)
         self.width, self.height = width, height
         self.tiles = np.full((width, height), fill_value=self.wall, order="F")  # fills game map with wall tiles
 
