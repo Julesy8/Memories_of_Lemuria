@@ -1,8 +1,6 @@
 from typing import Tuple
 
 from game_map import GameMap
-import level_importer
-import tile_types
 
 
 class RectangularRoom:
@@ -26,14 +24,17 @@ class RectangularRoom:
 
 
 def generate_dungeon(map_width, map_height, level) -> GameMap:
-    colours_and_tiles = level_importer.level_dependent_import(level)
     dungeon = GameMap(map_width, map_height, level)
 
     room_1 = RectangularRoom(x=20, y=15, width=10, height=15)
     room_2 = RectangularRoom(x=35, y=15, width=10, height=15)
 
-    dungeon.tiles[room_1.inner] = dungeon.floor
+    for x in range(int(room_1.x1) + 1, int(room_1.x2)):
+        for y in range(int(room_1.y1) + 1, int(room_1.y2)):
+            room_1 = dungeon.floor  # unsure how to get this working so that it uses random tiles for each floor tile
 
-    dungeon.tiles[room_2.inner] = dungeon.floor
+    for x in range(int(room_2.x1) + 1, int(room_2.x2)):
+        for y in range(int(room_2.y1) + 1, int(room_2.y2)):
+            room_2.y = dungeon.floor
 
     return dungeon
