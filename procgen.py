@@ -31,10 +31,6 @@ def generate_dungeon(map_width, map_height, level) -> GameMap:
 
     for x in range(int(room_1.x1) + 1, int(room_1.x2)):
         for y in range(int(room_1.y1) + 1, int(room_1.y2)):
-            room_1 = dungeon.floor  # unsure how to get this working so that it uses random tiles for each floor tile
-
-    for x in range(int(room_2.x1) + 1, int(room_2.x2)):
-        for y in range(int(room_2.y1) + 1, int(room_2.y2)):
-            room_2.y = dungeon.floor
+            [x,y]["dark"]["ch"] = dungeon.floor
 
     return dungeon
