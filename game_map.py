@@ -10,9 +10,12 @@ class GameMap:
         self.level = level
 
         colours_chars = MapColoursChars(self.level)
+
+        # defines the colours and characters used for wall tiles:
         self.wall = tile_types.new_wall(colours_chars.wall_fg_dark(),
                                         colours_chars.wall_bg_dark(),
                                         colours_chars.wall_tile())
+
         self.width, self.height = width, height
         self.tiles = np.full((width, height), fill_value=self.wall, order="F")  # fills game map with wall tiles
 

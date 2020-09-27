@@ -4,6 +4,7 @@ import level_importer
 class MapColoursChars:
     def __init__(self, level: int):
         self.level = level
+
         cols_chars = level_importer.level_dependent_import(level)
 
         # floor colours
