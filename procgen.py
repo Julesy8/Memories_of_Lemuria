@@ -44,24 +44,22 @@ def select_random_tile(character_array):
 def generate_dungeon(map_width, map_height, current_level) -> GameMap:
     dungeon = GameMap(map_width, map_height, current_level)
 
-    colours_chars = MapColoursChars(current_level)
+    colours_chars_tuple = MapColoursChars(current_level)
 
-    floor_tiles = generate_char_arrays(colours_chars.floor_fg_dark(),
-                                       colours_chars.floor_bg_dark(),
-                                       colours_chars.floor_tile())
+    colours_chars_array = generate_char_arrays(colours_chars_tuple.floor_fg_dark(),
+                                               colours_chars_tuple.floor_bg_dark(),
+                                               colours_chars_tuple.floor_tile()
+                                               )
 
     room_1 = RectangularRoom(x=20, y=15, width=10, height=15)
     room_2 = RectangularRoom(x=35, y=15, width=10, height=15)
 
-    # dungeon.tiles[room_1.inner] = dungeon.floor
-    # dungeon.tiles[room_2.inner] = dungeon.floor
-
     for x in range(int(room_1.x1) + 1, int(room_1.x2)):
         for y in range(int(room_1.y1) + 1, int(room_1.y2)):
-            dungeon.tiles[x, y] = floor_tiles
+            dungeon.tiles[x, y] = select_random_tile(colours_chars_array)
 
     for x in range(int(room_2.x1) + 1, int(room_2.x2)):
         for y in range(int(room_2.y1) + 1, int(room_2.y2)):
-            dungeon.tiles[x, y] = floor_tiles
+            dungeon.tiles[x, y] = select_random_tile(colours_chars_array)
 
     return dungeon
