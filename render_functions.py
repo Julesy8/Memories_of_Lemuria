@@ -1,5 +1,4 @@
 import tcod as libtcod
-from map_objects.tile import Tile
 
 
 def render_all(con, entities, fov_map, fov_recompute, game_map, screen_width, screen_height, camera):

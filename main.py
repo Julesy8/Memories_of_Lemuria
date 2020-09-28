@@ -80,7 +80,14 @@ def main():
                       tcod.white, None, 'Player', blocks=True, fighter=fighter_component)
     entities = {player}
 
-    game_map = generate_dungeon(map_width, map_height, current_level)
+    game_map = generate_dungeon(map_width,
+                                map_height,
+                                current_level,
+                                max_rooms,
+                                max_overlapping_rooms,
+                                room_max_size,
+                                room_min_size,
+                                player)
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 
