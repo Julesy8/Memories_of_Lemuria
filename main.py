@@ -21,9 +21,10 @@ def main():
     map_height = 50
 
     # room variables, going to want to replace this with a class that detects lvl at some point
-    room_max_size = 9
+    room_max_size = 6
     room_min_size = 4
-    max_rooms = 40
+    max_rooms = 50
+    min_rooms = 40
     max_overlapping_rooms = 2
 
     # fov settings
@@ -84,10 +85,12 @@ def main():
                                 map_height,
                                 current_level,
                                 max_rooms,
+                                min_rooms,
                                 max_overlapping_rooms,
                                 room_max_size,
                                 room_min_size,
-                                player)
+                                player
+                                )
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 

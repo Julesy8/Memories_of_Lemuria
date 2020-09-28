@@ -1,6 +1,7 @@
 from typing import Iterator, Tuple, List, TYPE_CHECKING
 import random
 import numpy as np
+from math import floor
 
 import tcod
 
@@ -38,6 +39,10 @@ class RectangularRoom:
             and self.y1 <= other.y2
             and self.y2 >= other.y1
         )
+
+
+def round_up(n):
+    return floor(n + 0.5)
 
 
 def generate_char_arrays(floor_fg_l, floor_bg_l, floor_chars):
@@ -89,6 +94,7 @@ def generate_dungeon(
         map_height,
         current_level,
         max_rooms,
+        min_rooms,
         max_overlapping_rooms,
         room_max_size,
         room_min_size,
@@ -107,7 +113,6 @@ def generate_dungeon(
                                                )
 
     rooms: List[RectangularRoom] = []
-    overlapping_rooms: List[RectangularRoom] = []
 
     for r in range(max_rooms):
 
@@ -146,15 +151,15 @@ def generate_dungeon(
 
         for r in range(max_overlapping_rooms):
 
-            overlapping_room_width = random.randint(room_min_size, new_room.width)
-            overlapping_room_height = random.randint(room_min_size, new_room.height)
+            overlapping_room_width = random.randint(room_min_size, room_max_size)
+            overlapping_room_height = random.randint(room_min_size, room_max_size)
 
-            overlapping_room_x = room_centre_x + random.randint(-room_width + 1, room_width - 1)
+            overlapping_room_x = room_centre_x + random.randint(round_up(-room_width / 2), round_up(room_width / 2))
             if overlapping_room_width + overlapping_room_x >= dungeon.width - 1 or \
                     overlapping_room_x - overlapping_room_width <= 1:
                 continue
 
-            overlapping_room_y = room_centre_y + random.randint(-room_height + 1, room_height - 1)
+            overlapping_room_y = room_centre_y + random.randint(round_up(-room_height / 2), round_up(room_height / 2))
             if overlapping_room_height + overlapping_room_y >= dungeon.height - 1 or \
                     overlapping_room_y - overlapping_room_height <= 1:
                 continue
@@ -172,5 +177,7 @@ def generate_dungeon(
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
+        if len(rooms) < min_rooms:
+            continue
 
     return dungeon
