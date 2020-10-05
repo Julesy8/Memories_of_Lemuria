@@ -53,7 +53,7 @@ class MapColoursChars:
 
 
 # level 0
-level_0 = {  # maybe at some point replace tuples / lists with arrays
+level_0 = {
     1:  # wall colour
         # foreground, background
         ((45, 45, 45), (63, 63, 63),   # light
@@ -65,5 +65,5 @@ level_0 = {  # maybe at some point replace tuples / lists with arrays
 
     3: [35],  # wall tile
 
-    4: [46, 96, 44]  # floor tile
+    4: [46, 96, 44]  # floor tile, to weight this add multiple of the same value
 }

@@ -3,9 +3,9 @@ TO DO
 -----
 -variable floor colours
 -weighted floor colour + char combinations
+-bsp dungeon generation
 
--iron out max overlapping rooms, make ai which has its own fov for looking and hearing
--adjust entity spawn rate
+-make ai which has its own fov for looking and hearing
 -make room player spawns in enclosed rather than open so the player can't see any enemies on spawn
 -change rendering options to make window non-resizable
 -random wall obstacles generated within rooms
@@ -13,7 +13,3 @@ TO DO
 -check to see if new ai works
 -map scrolling
 -random tile colour creation mechanism
--rooms generated with different floor/wall tiles/colours
-
-
-
