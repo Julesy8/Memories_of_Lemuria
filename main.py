@@ -7,8 +7,7 @@ from input_handlers import EventHandler
 from components.npc_templates import Fighter, Humanoid
 from entity import Entity
 
-from level_gen_params import generate_dungeon
-
+import level_gen_params
 
 def main():
     # initialises values for screen width and height used when rendering the root console, placing player
@@ -28,7 +27,24 @@ def main():
                       tcod.white, None, 'Player', blocks=True, fighter=fighter_component)
     entities = {player}
 
-    game_map = generate_dungeon("square_rooms", current_level, player)
+    """
+            DEFAULTS
+            self.level = []
+            self.room = None
+            self.MAX_LEAF_SIZE = 24
+            self.ROOM_MAX_SIZE = 15
+            self.ROOM_MIN_SIZE = 6
+            self.smoothEdges = True
+            self.smoothing = 1
+            self.filling = 3
+            
+             def __init__(self, map_width, map_height, current_level, MAX_LEAF_SIZE, ROOM_MAX_SIZE,
+                 ROOM_MIN_SIZE, smoothEdges, smoothing, filling, player):
+            
+            """
+
+    map_class = level_gen_params.MessyBSPTree(80, 50, 0, 24, 15, 6, True, 1, 3, player)
+    game_map = map_class.generateLevel()
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 

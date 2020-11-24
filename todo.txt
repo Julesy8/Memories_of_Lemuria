@@ -1,6 +1,7 @@
 -----
 TO DO
 -----
+-clean up level gen and param files they are a mess
 -variable floor colours
 -weighted floor colour + char combinations
 -bsp dungeon generation
