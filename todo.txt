@@ -1,10 +1,7 @@
 -----
 TO DO
 -----
--clean up level gen and param files they are a mess
--variable floor colours
 -weighted floor colour + char combinations
--bsp dungeon generation
 
 -make ai which has its own fov for looking and hearing
 -make room player spawns in enclosed rather than open so the player can't see any enemies on spawn
