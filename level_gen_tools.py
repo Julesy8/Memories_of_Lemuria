@@ -3,7 +3,7 @@ import numpy as np
 
 import tile_types
 
-def generate_char_arrays(floor_fg_l, floor_bg_l, floor_chars):
+def generate_char_arrays(floor_fg_d, floor_bg_d, floor_fg_l, floor_bg_l, floor_chars):
     """
     From tuples representing the colours of the tiles and possible floor characters (from dictionary in
     colours_and_chars), generates a series of lists representing possible combinations of floor colours and characters,
@@ -13,7 +13,7 @@ def generate_char_arrays(floor_fg_l, floor_bg_l, floor_chars):
     """
     floor_list = []
     for x in floor_chars:
-        floor_list.append(tile_types.new_floor(floor_fg_l, floor_bg_l, x))
+        floor_list.append(tile_types.new_floor(floor_fg_d, floor_bg_d, floor_fg_l, floor_bg_l, x))
     floor_arrays = np.array(floor_list)
     return floor_arrays
 

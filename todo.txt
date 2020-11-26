@@ -1,7 +1,9 @@
 -----
 TO DO
 -----
+-BSP generation non-square rooms (overlapping like in old algorithm)
 -weighted floor colour + char combinations
+-doors at ends of tunnels
 
 -make ai which has its own fov for looking and hearing
 -make room player spawns in enclosed rather than open so the player can't see any enemies on spawn

@@ -41,10 +41,14 @@ class MessyBSPTree:
         # makes tuple of colours and characters into an array usable by new_tile
         self.colours_chars_array = tools.generate_char_arrays(self.colours_chars_tuple.floor_fg_dark(),
                                                               self.colours_chars_tuple.floor_bg_dark(),
+                                                              self.colours_chars_tuple.floor_fg_light(),
+                                                              self.colours_chars_tuple.floor_bg_light(),
                                                               self.colours_chars_tuple.floor_tile()
                                                               )
 
-        self.dungeon = GameMap(map_width, map_height, current_level)
+        # change debug_fov to True to disable fov, False to enable
+        self.dungeon = GameMap(map_width, map_height, current_level, debug_fov=True)
+
 
     def generateLevel(self):
         # Creates an empty 2D array or clears existing array
