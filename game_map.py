@@ -1,12 +1,18 @@
+from __future__ import annotations
+
+from typing import Iterable, TYPE_CHECKING
+
 import numpy as np  # type: ignore
 from tcod.console import Console
 
 import tile_types
 from colours_and_chars import MapColoursChars
 
+if TYPE_CHECKING:
+    from entity import Entity
 
 class GameMap:
-    def __init__(self, width: int, height: int, level: int, debug_fov: bool):
+    def __init__(self, width: int, height: int, level: int, debug_fov: bool, entities: Iterable[Entity] = ()):
         self.level = level
         self.debug_fov = debug_fov  # to disable fov, set to 'True' in level_generator
 
@@ -19,11 +25,20 @@ class GameMap:
                                         colours_chars.wall_bg_light(),
                                         colours_chars.wall_tile())
 
+        self.entities = set(entities)
         self.width, self.height = width, height
         self.tiles = np.full((width, height), fill_value=self.wall, order="F")  # fills game map with wall tiles
 
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
         self.explored = np.full((width, height), fill_value=False, order="F")  # Tiles the player has seen before
+
+    def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
+        for entity in self.entities:
+            if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
+                return entity
+
+        return None
+
 
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
@@ -45,3 +60,8 @@ class GameMap:
             )
         else:
             console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
+
+        for entity in self.entities:
+            # Only print entities that are in the FOV
+            if self.visible[entity.x, entity.y]:
+                console.print(entity.x, entity.y, entity.char, entity.fg_colour, entity.bg_colour)

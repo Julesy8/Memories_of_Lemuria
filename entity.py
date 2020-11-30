@@ -4,7 +4,7 @@ import math
 
 
 class Entity:  # generic entity
-    def __init__(self, x, y, char, fg_colour, bg_colour, name, blocks=False, fighter=None, ai=None):
+    def __init__(self, x, y, char, fg_colour, bg_colour, name, blocks_movement=False, fighter=None, ai=None):
         self.x = x
         self.y = y
         self.spawn_x = x
@@ -13,7 +13,7 @@ class Entity:  # generic entity
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
         self.name = name
-        self.blocks = blocks
+        self.blocks_movement = blocks_movement
         self.fighter = fighter
         self.ai = ai
 
@@ -91,12 +91,12 @@ class Entity:  # generic entity
             # Delete the path to free memory
         libtcod.path_delete(my_path)
 
-    def spawn(self, entities, x, y):  # thanks hexdecimal for this one as well
+    def spawn(self, gamemap, x, y):
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
-        entities.append(clone)
+        gamemap.entities.add(clone)
         return clone
 
 

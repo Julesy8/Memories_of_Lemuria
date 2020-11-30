@@ -1,20 +1,12 @@
 import numpy as np
-import random
+from random import random, randint, choice
 from typing import List
 
 import level_gen_tools as tools
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
-
-level_params = {
-    0: np.array([0,   # tunnel type (0 = drunkard, 1 = straight)
-                 80,  # map width
-                 50,  # map height
-                 24,  # MAX_LEAF_SIZE
-                 15,  # ROOM_MAX_SIZE
-                 6    # ROOM_MIN_SIZE
-                 ])
-}
+from level_parameters import Enemies_by_level
+from entity import Entity
 
 class MessyBSPTree:
     """
@@ -23,7 +15,7 @@ class MessyBSPTree:
     """
 
     def __init__(self, tunnel_type, map_width, map_height, MAX_LEAF_SIZE, ROOM_MAX_SIZE,
-                 ROOM_MIN_SIZE, player, current_level):
+                 ROOM_MIN_SIZE, max_monsters_per_room, player, current_level):
         self.tunnel_type = tunnel_type
         self.map_width = map_width
         self.map_height = map_height
@@ -32,6 +24,7 @@ class MessyBSPTree:
         self.MAX_LEAF_SIZE = MAX_LEAF_SIZE
         self.ROOM_MAX_SIZE = ROOM_MAX_SIZE
         self.ROOM_MIN_SIZE = ROOM_MIN_SIZE
+        self.max_monsters_per_room = max_monsters_per_room
         self.player = player
         self._rooms = []
 
@@ -47,7 +40,7 @@ class MessyBSPTree:
                                                               )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(map_width, map_height, current_level, debug_fov=True)
+        self.dungeon = GameMap(map_width, map_height, current_level, debug_fov=False, entities=[player])
 
 
     def generateLevel(self):
@@ -65,7 +58,7 @@ class MessyBSPTree:
                 if (l.child_1 is None) and (l.child_2 is None):
                     if ((l.width > self.MAX_LEAF_SIZE) or
                             (l.height > self.MAX_LEAF_SIZE) or
-                            (random.random() > 0.8)):
+                            (random() > 0.8)):
                         if l.splitLeaf():  # try to split the leaf
                             self._leafs.append(l.child_1)
                             self._leafs.append(l.child_2)
@@ -79,6 +72,8 @@ class MessyBSPTree:
         if len(self._rooms) == 0:
             # The first room, where the player starts.
             self.player.x, self.player.y = room.centre()
+        else:
+            place_entities(room, self.dungeon, self.max_monsters_per_room, self.current_level)
         self._rooms.append(room)
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
@@ -116,7 +111,7 @@ class MessyBSPTree:
                 west /= total
 
                 # choose direction
-                choice = random.random()
+                choice = random()
                 if 0 <= choice < north:
                     dx = 0
                     dy = -1
@@ -143,7 +138,7 @@ class MessyBSPTree:
             x1, y1 = room1.centre()
             x2, y2 = room2.centre()
             # 50% chance that a tunnel will start horizontally
-            if random.randint(0, 1) == 1:
+            if randint(0, 1) == 1:
                 self.createHorTunnel(x1, x2, y1)
                 self.createVirTunnel(y1, y2, x2)
 
@@ -207,7 +202,7 @@ class Leaf:  # used for the BSP tree algorithm
         Otherwise, choose the direction at random.
         '''
 
-        splitHorizontally = random.choice([True, False])
+        splitHorizontally = choice([True, False])
         if self.width / self.height >= 1.25:
             splitHorizontally = False
         elif self.height / self.width >= 1.25:
@@ -221,7 +216,7 @@ class Leaf:  # used for the BSP tree algorithm
         if max <= self.MIN_LEAF_SIZE:
             return False  # the leaf is too small to split further
 
-        split = random.randint(self.MIN_LEAF_SIZE, max)  # determine where to split the leaf
+        split = randint(self.MIN_LEAF_SIZE, max)  # determine where to split the leaf
 
         if splitHorizontally:
             self.child_1 = Leaf(self.x, self.y, self.width, split, self.tunnel_type)
@@ -246,10 +241,10 @@ class Leaf:  # used for the BSP tree algorithm
 
         else:
             # Create rooms in the end branches of the bsp tree
-            w = random.randint(bspTree.ROOM_MIN_SIZE, min(bspTree.ROOM_MAX_SIZE, self.width - 1))
-            h = random.randint(bspTree.ROOM_MIN_SIZE, min(bspTree.ROOM_MAX_SIZE, self.height - 1))
-            x = random.randint(self.x, self.x + (self.width - 1) - w)
-            y = random.randint(self.y, self.y + (self.height - 1) - h)
+            w = randint(bspTree.ROOM_MIN_SIZE, min(bspTree.ROOM_MAX_SIZE, self.width - 1))
+            h = randint(bspTree.ROOM_MIN_SIZE, min(bspTree.ROOM_MAX_SIZE, self.height - 1))
+            x = randint(self.x, self.x + (self.width - 1) - w)
+            y = randint(self.y, self.y + (self.height - 1) - h)
             self.room = Rect(x, y, w, h)
             bspTree.createRoom(self.room)
 
@@ -276,7 +271,32 @@ class Leaf:  # used for the BSP tree algorithm
                 return self.room_2
 
             # If both room_1 and room_2 exist, pick one
-            elif random.random() < 0.5:
+            elif random() < 0.5:
                 return self.room_1
             else:
                 return self.room_2
+
+def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, level: int):
+    number_of_monsters = randint(0, maximum_monsters)
+
+    for i in range(number_of_monsters):
+        x = randint(room.x1 + 1, room.x2 - 1)
+        y = randint(room.y1 + 1, room.y2 - 1)
+
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+            entity_rarity = randint(1, 100)
+            if entity_rarity <= 60:          # common
+                enemy = Enemies_by_level[level][0][randint(0, len(Enemies_by_level[level][0]) - 1)]
+
+            elif 60 <= entity_rarity <= 80:  # uncommon
+                enemy = Enemies_by_level[level][1][randint(0, len(Enemies_by_level[level][0]) - 1)]
+
+            elif 80 <= entity_rarity <= 95:  # rare
+                enemy = Enemies_by_level[level][2][randint(0, len(Enemies_by_level[level][0]) - 1)]
+
+            elif 95 <= entity_rarity <= 99:  # very rare
+                enemy = Enemies_by_level[level][3][randint(0, len(Enemies_by_level[level][0]) - 1)]
+
+            else:                            # ultra rare
+                enemy = Enemies_by_level[level][4][randint(0, len(Enemies_by_level[level][0]) - 1)]
+            enemy.spawn(dungeon, x, y)
