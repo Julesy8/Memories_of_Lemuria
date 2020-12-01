@@ -15,25 +15,25 @@ def main():
     # defines what level of the dungeon the player is currently on
     current_level = 0
 
+
     # tells root console what font to use, initialisation of the root console
     tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
-
-    event_handler = EventHandler()
 
     fighter_component = Fighter(1, 100, 100, 100, 100)
     player = Humanoid(5, 10, 5, 0, 0, 0, 0, int(screen_width / 2), int(screen_height / 2), '@',
                       tcod.white, None, 'Player', blocks_movement=True, fighter=fighter_component)
-    entities = {player}
+
+    engine = Engine(player=player)
 
     map_class = MessyBSPTree(level_params[current_level][0], level_params[current_level][1],
                              level_params[current_level][2], level_params[current_level][3],
                              level_params[current_level][4], level_params[current_level][5],
                              level_params[current_level][6],
-                             player, current_level)
+                             engine, current_level)
     
-    game_map = map_class.generateLevel()
+    engine.game_map = map_class.generateLevel()
 
-    engine = Engine(event_handler=event_handler, game_map=game_map, player=player)
+    engine.update_fov()
 
     with tcod.context.new_terminal(
             screen_width,
@@ -46,9 +46,7 @@ def main():
         while True:
             engine.render(console=root_console, context=context)
 
-            events = tcod.event.wait()
-
-            engine.handle_events(events)
+            engine.event_handler.handle_events()
 
 
 if __name__ == "__main__":

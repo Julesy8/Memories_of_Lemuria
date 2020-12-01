@@ -4,7 +4,9 @@ import math
 
 
 class Entity:  # generic entity
-    def __init__(self, x, y, char, fg_colour, bg_colour, name, blocks_movement=False, fighter=None, ai=None):
+    def __init__(self, x, y, char, fg_colour, bg_colour, name,
+                 blocks_movement=False, fighter=None, ai=None, gamemap = None):
+
         self.x = x
         self.y = y
         self.spawn_x = x
@@ -16,6 +18,10 @@ class Entity:  # generic entity
         self.blocks_movement = blocks_movement
         self.fighter = fighter
         self.ai = ai
+        if gamemap:
+            # If gamemap isn't provided now then it will be set later.
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
         if self.fighter:
             self.fighter.owner = self
@@ -96,8 +102,19 @@ class Entity:  # generic entity
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
+        clone.gamemap = gamemap
         gamemap.entities.add(clone)
         return clone
+
+    def place(self, x, y, gamemap = None):
+        """Place this entity at a new location.  Handles moving across GameMaps."""
+        self.x = x
+        self.y = y
+        if gamemap:
+            if hasattr(self, "gamemap"):  # Possibly uninitialized.
+                self.gamemap.entities.remove(self)
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
 
 def get_blocking_entities_at_location(entities, destination_x, destination_y):
