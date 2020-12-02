@@ -20,7 +20,7 @@ def main():
     tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
     fighter_component = Fighter(1, 100, 100, 100, 100)
-    player = Humanoid(5, 10, 5, 0, 0, 0, 0, int(screen_width / 2), int(screen_height / 2), '@',
+    player = Humanoid(5, 10, 5, 0, 0, 0, 0, 0, 0, '@',
                       tcod.white, None, 'Player', blocks_movement=True, fighter=fighter_component)
 
     engine = Engine(player=player)
@@ -30,7 +30,8 @@ def main():
                              level_params[current_level][4], level_params[current_level][5],
                              level_params[current_level][6],
                              engine, current_level)
-    
+
+
     engine.game_map = map_class.generateLevel()
 
     engine.update_fov()

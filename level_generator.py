@@ -70,7 +70,7 @@ class MessyBSPTree:
         if len(self._rooms) == 0:
             # The first room, where the player starts.
             room_centre = room.centre()
-            self.player.place(room_centre, self.dungeon)
+            self.player.x, self.player.y = room.centre()
         else:
             place_entities(room, self.dungeon, self.max_monsters_per_room, self.current_level)
         self._rooms.append(room)
