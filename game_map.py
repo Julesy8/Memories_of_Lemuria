@@ -9,14 +9,12 @@ import tile_types
 from colours_and_chars import MapColoursChars
 
 if TYPE_CHECKING:
-    from engine import Engine
     from entity import Entity
 
 class GameMap:
-    def __init__(self, engine: Engine, width: int, height: int, level: int, debug_fov: bool, entities: Iterable[Entity] = ()):
+    def __init__(self, width: int, height: int, level: int, debug_fov: bool, entities: Iterable[Entity] = ()):
         self.level = level
         self.debug_fov = debug_fov  # to disable fov, set to 'True' in level_generator
-        self.engine = engine
 
         colours_chars = MapColoursChars(self.level)
 
@@ -34,7 +32,7 @@ class GameMap:
         self.visible = np.full((width, height), fill_value=False, order="F")  # Tiles the player can currently see
         self.explored = np.full((width, height), fill_value=False, order="F")  # Tiles the player has seen before
 
-    def get_blocking_entity_at_location(self, location_x, location_y):
+    def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
         for entity in self.entities:
             if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
                 return entity

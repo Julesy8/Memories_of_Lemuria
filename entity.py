@@ -4,9 +4,7 @@ import math
 
 
 class Entity:  # generic entity
-    def __init__(self, x, y, char, fg_colour, bg_colour, name,
-                 blocks_movement=False, fighter=None, ai=None, gamemap = None):
-
+    def __init__(self, x, y, char, fg_colour, bg_colour, name, blocks_movement=False, fighter=None, ai=None):
         self.x = x
         self.y = y
         self.spawn_x = x
@@ -18,7 +16,6 @@ class Entity:  # generic entity
         self.blocks_movement = blocks_movement
         self.fighter = fighter
         self.ai = ai
-        self.gamemap = gamemap
 
         if self.fighter:
             self.fighter.owner = self
@@ -99,7 +96,6 @@ class Entity:  # generic entity
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
-        clone.gamemap = gamemap
         gamemap.entities.add(clone)
         return clone
 

@@ -1,10 +1,12 @@
+import numpy as np
 from random import random, randint, choice
+from typing import List
 
 import level_gen_tools as tools
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level
-from engine import Engine
+from entity import Entity
 
 class MessyBSPTree:
     """
@@ -13,7 +15,7 @@ class MessyBSPTree:
     """
 
     def __init__(self, tunnel_type, map_width, map_height, MAX_LEAF_SIZE, ROOM_MAX_SIZE,
-                 ROOM_MIN_SIZE, max_monsters_per_room, engine, current_level):
+                 ROOM_MIN_SIZE, max_monsters_per_room, player, current_level):
         self.tunnel_type = tunnel_type
         self.map_width = map_width
         self.map_height = map_height
@@ -23,7 +25,7 @@ class MessyBSPTree:
         self.ROOM_MAX_SIZE = ROOM_MAX_SIZE
         self.ROOM_MIN_SIZE = ROOM_MIN_SIZE
         self.max_monsters_per_room = max_monsters_per_room
-        self.player = engine.player
+        self.player = player
         self._rooms = []
 
         # makes tuple of possible combinations of tile colours and characters
@@ -38,7 +40,7 @@ class MessyBSPTree:
                                                               )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=False, entities=[self.player])
+        self.dungeon = GameMap(map_width, map_height, current_level, debug_fov=False, entities=[player])
 
 
     def generateLevel(self):
@@ -69,7 +71,6 @@ class MessyBSPTree:
         # set all tiles within a rectangle to be floors
         if len(self._rooms) == 0:
             # The first room, where the player starts.
-            room_centre = room.centre()
             self.player.x, self.player.y = room.centre()
         else:
             place_entities(room, self.dungeon, self.max_monsters_per_room, self.current_level)
