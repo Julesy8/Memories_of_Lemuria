@@ -1,12 +1,17 @@
 import numpy as np
+import copy
+from typing import Iterator, List, Tuple, TYPE_CHECKING
+
 from random import random, randint, choice
-from typing import List
 
 import level_gen_tools as tools
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level
-from entity import Entity
+
+
+if TYPE_CHECKING:
+    from engine import Engine
 
 class MessyBSPTree:
     """
@@ -15,7 +20,7 @@ class MessyBSPTree:
     """
 
     def __init__(self, tunnel_type, map_width, map_height, MAX_LEAF_SIZE, ROOM_MAX_SIZE,
-                 ROOM_MIN_SIZE, max_monsters_per_room, player, current_level):
+                 ROOM_MIN_SIZE, max_monsters_per_room, engine, current_level):
         self.tunnel_type = tunnel_type
         self.map_width = map_width
         self.map_height = map_height
@@ -25,7 +30,7 @@ class MessyBSPTree:
         self.ROOM_MAX_SIZE = ROOM_MAX_SIZE
         self.ROOM_MIN_SIZE = ROOM_MIN_SIZE
         self.max_monsters_per_room = max_monsters_per_room
-        self.player = player
+        self.player = engine.player
         self._rooms = []
 
         # makes tuple of possible combinations of tile colours and characters
@@ -40,7 +45,7 @@ class MessyBSPTree:
                                                               )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(map_width, map_height, current_level, debug_fov=False, entities=[player])
+        self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=True, entities=[self.player])
 
 
     def generateLevel(self):
@@ -71,7 +76,9 @@ class MessyBSPTree:
         # set all tiles within a rectangle to be floors
         if len(self._rooms) == 0:
             # The first room, where the player starts.
-            self.player.x, self.player.y = room.centre()
+            room_centre = room.centre()
+            self.player.place(*room_centre, self.dungeon)
+
         else:
             place_entities(room, self.dungeon, self.max_monsters_per_room, self.current_level)
         self._rooms.append(room)
@@ -286,17 +293,18 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, level: i
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             entity_rarity = randint(1, 100)
             if entity_rarity <= 60:          # common
-                enemy = Enemies_by_level[level][0][randint(0, len(Enemies_by_level[level][0]) - 1)]
+                enemy = copy.deepcopy(Enemies_by_level[level][0][randint(0, len(Enemies_by_level[level][0]) - 1)])
 
             elif 60 <= entity_rarity <= 80:  # uncommon
-                enemy = Enemies_by_level[level][1][randint(0, len(Enemies_by_level[level][0]) - 1)]
+                enemy = copy.deepcopy(Enemies_by_level[level][1][randint(0, len(Enemies_by_level[level][0]) - 1)])
 
             elif 80 <= entity_rarity <= 95:  # rare
-                enemy = Enemies_by_level[level][2][randint(0, len(Enemies_by_level[level][0]) - 1)]
+                enemy = copy.deepcopy(Enemies_by_level[level][2][randint(0, len(Enemies_by_level[level][0]) - 1)])
 
             elif 95 <= entity_rarity <= 99:  # very rare
-                enemy = Enemies_by_level[level][3][randint(0, len(Enemies_by_level[level][0]) - 1)]
+                enemy = copy.deepcopy(Enemies_by_level[level][3][randint(0, len(Enemies_by_level[level][0]) - 1)])
 
             else:                            # ultra rare
-                enemy = Enemies_by_level[level][4][randint(0, len(Enemies_by_level[level][0]) - 1)]
-            enemy.spawn(dungeon, x, y)
+                enemy = copy.deepcopy(Enemies_by_level[level][4][randint(0, len(Enemies_by_level[level][0]) - 1)])
+
+            enemy.place(x, y, dungeon)

@@ -1,10 +1,8 @@
 from components.npc_templates import Fighter, Humanoid
 from components.ai import Melee
-# going to want to import from ai also at some point
 
 x = 1
 y = 1
-
 
 def placeholder_fighter():
     return Fighter(1, 100, 100, 100, 100, True, True)

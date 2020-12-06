@@ -1,10 +1,23 @@
+from __future__ import annotations
+
+import copy
+from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from game_map import GameMap
+
+T = TypeVar("T", bound="Entity")
+
 import copy
 import tcod as libtcod
 import math
 
-
 class Entity:  # generic entity
-    def __init__(self, x, y, char, fg_colour, bg_colour, name, blocks_movement=False, fighter=None, ai=None):
+
+    gamemap: GameMap
+
+    def __init__(self, x, y, char, fg_colour, bg_colour, name, blocks_movement=False,
+                 fighter=None, ai=None, gamemap: Optional[GameMap] = None):
         self.x = x
         self.y = y
         self.spawn_x = x
@@ -16,6 +29,10 @@ class Entity:  # generic entity
         self.blocks_movement = blocks_movement
         self.fighter = fighter
         self.ai = ai
+        if gamemap:
+            # If gamemap isn't provided now then it will be set later.
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
 
         if self.fighter:
             self.fighter.owner = self
@@ -23,7 +40,7 @@ class Entity:  # generic entity
         if self.ai:
             self.ai.owner = self
 
-    def move(self, dx, dy):
+    def move(self, dx: int, dy: int) -> None:
         # Move the entity by a given amount
         self.x += dx
         self.y += dy
@@ -91,18 +108,21 @@ class Entity:  # generic entity
             # Delete the path to free memory
         libtcod.path_delete(my_path)
 
-    def spawn(self, gamemap, x, y):
+    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
+        clone.gamemap = gamemap
         gamemap.entities.add(clone)
         return clone
 
-
-def get_blocking_entities_at_location(entities, destination_x, destination_y):
-    for entity in entities:
-        if entity.blocks and entity.x == destination_x and entity.y == destination_y:
-            return entity
-
-    return None
+    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+        """Place this entity at a new location.  Handles moving across GameMaps."""
+        self.x = x
+        self.y = y
+        if gamemap:
+            if hasattr(self, "gamemap"):  # Possibly uninitialized.
+                self.gamemap.entities.remove(self)
+            self.gamemap = gamemap
+            gamemap.entities.add(self)
