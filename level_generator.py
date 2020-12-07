@@ -1,6 +1,4 @@
-import numpy as np
 import copy
-from typing import Iterator, List, Tuple, TYPE_CHECKING
 
 from random import random, randint, choice
 
@@ -10,8 +8,8 @@ from game_map import GameMap
 from level_parameters import Enemies_by_level
 
 
-if TYPE_CHECKING:
-    from engine import Engine
+#if TYPE_CHECKING:
+#    from engine import Engine
 
 class MessyBSPTree:
     """

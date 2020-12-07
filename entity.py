@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import copy
-from typing import Optional, Tuple, TypeVar, TYPE_CHECKING
+from typing import Optional, TypeVar, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from game_map import GameMap
