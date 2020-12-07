@@ -1,7 +1,8 @@
 import tcod
 
 from engine import Engine
-from components.npc_templates import Fighter, Humanoid
+from components.npc_templates import Fighter, Basic
+from components.bodyparts import Bodypart
 from level_parameters import level_params
 from level_generator import MessyBSPTree
 
@@ -9,7 +10,7 @@ def main():
 
     """
     Main:
-    - handles main game loop through engine
+    -handles main game loop through engine
     -Initialises player
     -Initialises engine
     -Initialises gamemap
@@ -48,8 +49,35 @@ def main():
 
     # initialises player entity
     fighter_component = Fighter(1, 100, 100, 100, 100)
-    player = Humanoid(5, 10, 5, 0, 0, 0, 0, 0, 0, '@', [255,255,255], None,
-                      'Player', blocks_movement=True, fighter=fighter_component)
+
+    head = Bodypart(5, 5, 5, True, False, False, False, 'Head')
+    body = Bodypart(10, 10, 5, True, False, False, False, 'Body')
+    r_arm = Bodypart(5, 5, 5, False, False, False, True, 'Right Arm')
+    l_arm = Bodypart(5, 5, 5, False, False, False, True, 'Left Arm')
+    r_leg = Bodypart(5, 5, 5, False, False, True, False, 'Right Leg')
+    l_leg = Bodypart(5, 5, 5, False, False, True, False, 'Left Leg')
+
+    """
+    x: int,
+                 y: int,
+                 char: str,
+                 fg_colour,
+                 bg_colour,
+                 name: str,
+                 head: Bodypart,
+                 body: Bodypart,
+                 limb_1: Bodypart,
+                 limb_2: Bodypart,
+                 limb_3: Bodypart,
+                 limb_4: Bodypart,
+                 blocks_movement: bool = True,
+                 fighter: Fighter = None,
+                 ai=None
+    """
+
+    player = Basic(0,0,'@', [255,255,255], None, 'Player', head=head, body=body, limb_1=r_arm, limb_2=l_arm,
+                   limb_3=r_leg, limb_4=l_leg, blocks_movement=True, fighter=fighter_component
+                   )
 
     engine = Engine(player=player)
 
