@@ -2,8 +2,8 @@ class Bodypart:
     # a basic bodypart
     def __init__(self,
                  max_hp: int,
-                 hp: int,
-                 defence: int,
+                 _hp: int,
+                 _defence: int,
                  vital: bool,
                  walking: bool,
                  flying:bool,
@@ -11,8 +11,8 @@ class Bodypart:
                  name: str
                  ):
         self.max_hp = max_hp
-        self.hp = hp
-        self.defence = defence
+        self.hp = _hp
+        self.defence = _defence
         self.vital = vital
         self.walking = walking
         self.flying = flying
@@ -29,8 +29,8 @@ class Bodypart:
 
     @hp.setter
     def hp(self, value: int) -> None:
-        self.hp = max(0, min(value, self.max_hp))
+        self._hp = max(0, min(value, self.max_hp))
 
     @defence.setter
     def defence(self, value):
-        self.defence = value
+        self._defence = value
