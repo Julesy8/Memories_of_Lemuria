@@ -5,6 +5,7 @@ from components.npc_templates import Fighter, Basic
 from components.bodyparts import Bodypart
 from level_parameters import level_params
 from level_generator import MessyBSPTree
+from components.ai import HostileEnemy
 
 def main():
 
@@ -46,37 +47,18 @@ def main():
     # tells root console what font to use, initialisation of the root console
     tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
-
     # initialises player entity
-    fighter_component = Fighter(1, 100, 100, 100, 100)
+    fighter_component = Fighter(power=1)
 
-    head = Bodypart(5, 5, 5, True, False, False, False, 'Head')
-    body = Bodypart(10, 10, 5, True, False, False, False, 'Body')
-    r_arm = Bodypart(5, 5, 5, False, False, False, True, 'Right Arm')
-    l_arm = Bodypart(5, 5, 5, False, False, False, True, 'Left Arm')
-    r_leg = Bodypart(5, 5, 5, False, False, True, False, 'Right Leg')
-    l_leg = Bodypart(5, 5, 5, False, False, True, False, 'Left Leg')
-
-    """
-    x: int,
-                 y: int,
-                 char: str,
-                 fg_colour,
-                 bg_colour,
-                 name: str,
-                 head: Bodypart,
-                 body: Bodypart,
-                 limb_1: Bodypart,
-                 limb_2: Bodypart,
-                 limb_3: Bodypart,
-                 limb_4: Bodypart,
-                 blocks_movement: bool = True,
-                 fighter: Fighter = None,
-                 ai=None
-    """
+    head = Bodypart(5, 5, True, False, False, False, 'Head')
+    body = Bodypart(10, 10, True, False, False, False, 'Body')
+    r_arm = Bodypart(5, 5, False, False, False, True, 'Right Arm')
+    l_arm = Bodypart(5, 5,False, False, False, True, 'Left Arm')
+    r_leg = Bodypart(5, 5, False, False, True, False, 'Right Leg')
+    l_leg = Bodypart(5, 5, False, False, True, False, 'Left Leg')
 
     player = Basic(0,0,'@', [255,255,255], None, 'Player', head=head, body=body, limb_1=r_arm, limb_2=l_arm,
-                   limb_3=r_leg, limb_4=l_leg, blocks_movement=True, fighter=fighter_component
+                   limb_3=r_leg, limb_4=l_leg, ai=HostileEnemy,fighter=fighter_component
                    )
 
     engine = Engine(player=player)

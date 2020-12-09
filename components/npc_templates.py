@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from engine import Engine
-from entity import Entity
+from entity import Entity, Actor
 
 from components.bodyparts import Bodypart
 
@@ -16,13 +16,12 @@ class BaseComponent:
 class Fighter(BaseComponent):
     # basic class for entities that fight
     def __init__(self,
-                 power: int,
-                 volume_blood: int,
-                 energy: int,
-                 move_cost:int,
-                 attack_cost:int,
+                 power: int = 0,
+                 volume_blood: int = 100,
+                 energy: int = 100,
+                 move_cost:int = 100,
+                 attack_cost:int = 100,
                  bleeds: bool = True,
-                 alive: bool = True
                  ):
 
         self.power = power
@@ -33,9 +32,8 @@ class Fighter(BaseComponent):
         self.move_cost = move_cost
         self.attack_cost = attack_cost
         self.bleeds = bleeds
-        self.alive = alive
 
-class Basic(Entity):
+class Basic(Actor):
     # basic body class for normal bipeds/quadropeds
     def __init__(self,
                  x: int,
@@ -50,7 +48,6 @@ class Basic(Entity):
                  limb_2: Bodypart,
                  limb_3: Bodypart,
                  limb_4: Bodypart,
-                 blocks_movement: bool = True,
                  fighter: Fighter = None,
                  ai=None
                  ):
@@ -67,7 +64,6 @@ class Basic(Entity):
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
         self.name = name
-        self.blocks_movement = blocks_movement
         self.fighter = fighter
         self.ai = ai
         super().__init__(x,
@@ -76,7 +72,6 @@ class Basic(Entity):
                          fg_colour,
                          bg_colour,
                          name,
-                         blocks_movement=blocks_movement,
                          fighter=fighter,
                          ai=ai
                          )
