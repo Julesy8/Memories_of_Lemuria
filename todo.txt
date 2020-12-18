@@ -1,11 +1,10 @@
 -----
 TO DO
 -----
--BSP generation non-square rooms (overlapping like in old algorithm)
--doors at ends of tunnels
--special importer function for level_params
+-way for player to target areas of the body
 
 -make ai which has its own fov for looking and hearing
 -random wall obstacles generated within rooms
 -player variable walk speed
 -map scrolling
+

@@ -1,3 +1,5 @@
+from entity import Actor
+
 class Bodypart:
     # a basic bodypart
     def __init__(self,
@@ -7,7 +9,8 @@ class Bodypart:
                  walking: bool,
                  flying:bool,
                  grasping: bool,
-                 name: str
+                 name: str,
+                 type: str # can be 'Body', 'Head', 'Arms' or 'Legs'
                  ):
         self.max_hp = hp
         self._hp = hp
@@ -17,6 +20,7 @@ class Bodypart:
         self.flying = flying
         self.grasping = grasping
         self.name = name
+        self.type = type
 
     @property
     def hp(self) -> int:

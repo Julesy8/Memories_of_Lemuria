@@ -1,105 +1,76 @@
-from components.npc_templates import Fighter, Basic
+from components.npc_templates import Fighter
+from entity import Actor
 from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
 
 def placeholder_fighter():
     return Fighter(power= 1, bleeds = True)
 
-def placeholder_head():
-    return Bodypart(5, 5, True, False, False, False, 'Head')
+Head = Bodypart(5, 5, True, False, False, False, 'Head', 'Head')
 
-def placeholder_body():
-    return Bodypart(10, 5, True, False, False, False, 'Body')
+Body = Bodypart(10, 5, True, False, False, False, 'Body', 'Body')
 
-def placeholder_r_arm():
-    return Bodypart(5, 5, False, False, False, True, 'Right Arm')
+R_Arm =  Bodypart(5, 5, False, False, False, True, 'Right Arm', 'Arms')
 
-def placeholder_l_arm():
-    return Bodypart(5, 5, False, False, False, True, 'Left Arm')
+L_Arm = Bodypart(5, 5, False, False, False, True, 'Left Arm', 'Arms')
 
-def placeholder_r_leg():
-    return Bodypart(5, 5, False, False, True, False, 'Right Leg')
+R_Leg = Bodypart(5, 5, False, False, True, False, 'Right Leg', 'Legs')
 
-def placeholder_l_leg():
-    return Bodypart(5, 5, False, False, True, False, 'Left Leg')
+L_Leg = Bodypart(5, 5, False, False, True, False, 'Left Leg', 'Legs')
 
-placeholder_common = Basic(
+body_parts = [Head, Body, R_Arm, L_Arm, R_Leg, L_Leg]
+
+placeholder_common = Actor(
     x=0, y=0,
     char = 'N',
     fg_colour = [255, 255, 255],
     bg_colour = None,
     name = 'Placeholder',
     fighter=placeholder_fighter(),
-    head = placeholder_head(),
-    body = placeholder_body(),
-    limb_1 = placeholder_r_arm(),
-    limb_2 = placeholder_l_arm(),
-    limb_3 = placeholder_r_leg(),
-    limb_4 = placeholder_l_leg(),
-    ai=HostileEnemy
+    ai=HostileEnemy,
+    bodyparts = body_parts
 )
 
-placeholder_uncommon = Basic(
+placeholder_uncommon = Actor(
     x=0, y=0,
     char = 'N',
     fg_colour = [0, 255, 0],
     bg_colour = None,
     name = 'Placeholder',
     fighter=placeholder_fighter(),
-    head = placeholder_head(),
-    body = placeholder_body(),
-    limb_1 = placeholder_r_arm(),
-    limb_2 = placeholder_l_arm(),
-    limb_3 = placeholder_r_leg(),
-    limb_4 = placeholder_l_leg(),
-    ai=HostileEnemy
+    ai=HostileEnemy,
+    bodyparts = body_parts
 )
 
-placeholder_rare = Basic(
+placeholder_rare = Actor(
     x=0, y=0,
     char = 'N',
     fg_colour = [0, 0, 255],
     bg_colour = None,
     name = 'Placeholder',
     fighter=placeholder_fighter(),
-    head = placeholder_head(),
-    body = placeholder_body(),
-    limb_1 = placeholder_r_arm(),
-    limb_2 = placeholder_l_arm(),
-    limb_3 = placeholder_r_leg(),
-    limb_4 = placeholder_l_leg(),
-    ai=HostileEnemy
+    ai=HostileEnemy,
+    bodyparts = body_parts
 )
 
-placeholder_v_rare = Basic(
+placeholder_v_rare = Actor(
     x=0, y=0,
     char = 'N',
     fg_colour = [255,0,255],
     bg_colour = None,
     name = 'Placeholder',
     fighter=placeholder_fighter(),
-    head = placeholder_head(),
-    body = placeholder_body(),
-    limb_1 = placeholder_r_arm(),
-    limb_2 = placeholder_l_arm(),
-    limb_3 = placeholder_r_leg(),
-    limb_4 = placeholder_l_leg(),
-    ai = HostileEnemy
+    ai = HostileEnemy,
+    bodyparts = body_parts
 )
 
-placeholder_legendary = Basic(
+placeholder_legendary = Actor(
     x=0, y=0,
     char = 'N',
     fg_colour = [255, 128, 0],
     bg_colour = None,
     name = 'Placeholder',
     fighter=placeholder_fighter(),
-    head = placeholder_head(),
-    body = placeholder_body(),
-    limb_1 = placeholder_r_arm(),
-    limb_2 = placeholder_l_arm(),
-    limb_3 = placeholder_r_leg(),
-    limb_4 = placeholder_l_leg(),
-    ai = HostileEnemy
+    ai = HostileEnemy,
+    bodyparts = body_parts
 )
-

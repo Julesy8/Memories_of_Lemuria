@@ -4,11 +4,12 @@ from typing import Optional, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
+    from entity import Actor, Entity
+
 
 
 class Action:
-    def __init__(self, entity: Entity) -> None:
+    def __init__(self, entity: Actor) -> None:
         super().__init__()
         self.entity = entity
 
@@ -37,9 +38,16 @@ class EscapeAction(Action):
     def perform(self) -> None:
         raise SystemExit()
 
+class ChangeTarget(Action):
+    # cycles through which body part is targeted by the player to attack
+    def perform(self) -> None:
+        self.entity.selected_target += 1
+        if self.entity.selected_target > 3:
+            self.entity.selected_target = 0
+        print('now targeting ', self.entity.selected_target)
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Entity, dx: int, dy: int):
+    def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -55,16 +63,21 @@ class ActionWithDirection(Action):
         """Return the blocking entity at this actions destination.."""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
+    @property
+    def target_actor(self) -> Optional[Actor]:
+        """Return the actor at this actions destination."""
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+
     def perform(self) -> None:
         raise NotImplementedError()
 
+
 class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
-        target = self.blocking_entity
+        target = self.target_actor
         if not target:
             return  # No entity to attack.
 
-        print(f"Attack on {target.name}!")
 
 class MovementAction(ActionWithDirection):
 

@@ -1,7 +1,8 @@
 import tcod
 
 from engine import Engine
-from components.npc_templates import Fighter, Basic
+from components.npc_templates import Fighter
+from entity import Actor
 from components.bodyparts import Bodypart
 from level_parameters import level_params
 from level_generator import MessyBSPTree
@@ -50,16 +51,17 @@ def main():
     # initialises player entity
     fighter_component = Fighter(power=1)
 
-    head = Bodypart(5, 5, True, False, False, False, 'Head')
-    body = Bodypart(10, 10, True, False, False, False, 'Body')
-    r_arm = Bodypart(5, 5, False, False, False, True, 'Right Arm')
-    l_arm = Bodypart(5, 5,False, False, False, True, 'Left Arm')
-    r_leg = Bodypart(5, 5, False, False, True, False, 'Right Leg')
-    l_leg = Bodypart(5, 5, False, False, True, False, 'Left Leg')
+    head = Bodypart(5, 5, True, False, False, False, 'Head', 'Head')
+    body = Bodypart(10, 10, True, False, False, False, 'Body', 'Body')
+    r_arm = Bodypart(5, 5, False, False, False, True, 'Right Arm', 'Arms')
+    l_arm = Bodypart(5, 5,False, False, False, True, 'Left Arm', 'Arms')
+    r_leg = Bodypart(5, 5, False, False, True, False, 'Right Leg', 'Legs')
+    l_leg = Bodypart(5, 5, False, False, True, False, 'Left Leg', 'Legs')
 
-    player = Basic(0,0,'@', [255,255,255], None, 'Player', head=head, body=body, limb_1=r_arm, limb_2=l_arm,
-                   limb_3=r_leg, limb_4=l_leg, ai=HostileEnemy,fighter=fighter_component
-                   )
+    body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
+
+    player = Actor(0,0,'@', [255,255,255], None, 'Player', ai=HostileEnemy,fighter=fighter_component,
+                   bodyparts = body_parts)
 
     engine = Engine(player=player)
 
