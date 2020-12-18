@@ -41,10 +41,13 @@ class EscapeAction(Action):
 class ChangeTarget(Action):
     # cycles through which body part is targeted by the player to attack
     def perform(self) -> None:
-        self.entity.selected_target += 1
-        if self.entity.selected_target > 3:
-            self.entity.selected_target = 0
-        print('now targeting ', self.entity.selected_target)
+        index = self.entity.targeting.index(self.entity.selected_target)
+        if index >= 3:
+            self.entity.selected_target = self.entity.targeting[0]
+        else:
+            self.entity.selected_target = self.entity.targeting[index + 1]
+
+        print('now targeting', self.entity.selected_target.lower())
 
 class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dx: int, dy: int):
