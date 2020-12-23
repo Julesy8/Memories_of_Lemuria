@@ -27,7 +27,8 @@ class Entity:  # generic entity
                  name,
                  blocks_movement=False,
                  gamemap: Optional[GameMap] = None,
-                 render_order = RenderOrder.CORPSE):
+                 render_order = RenderOrder.CORPSE,
+                 ):
         self.x = x
         self.y = y
         self.spawn_x = x
@@ -67,7 +68,7 @@ class Entity:  # generic entity
         self.x = x
         self.y = y
         if gamemap:
-            if hasattr(self, "gamemap"):  # Possibly uninitialized.
+            if hasattr(self, "gamemap"):
                 self.gamemap.entities.remove(self)
             self.gamemap = gamemap
             gamemap.entities.add(self)
@@ -83,9 +84,11 @@ class Actor(Entity):
         name,
         ai,
         fighter,
-        bodyparts # list of bodyparts belonging to the entity
+        bodyparts, # list of bodyparts belonging to the entity
+        player = False
     ):
         self.identifier = randint(1,999)
+        self.render_order = RenderOrder.ACTOR
         super().__init__(
             x=x,
             y=y,
@@ -97,12 +100,13 @@ class Actor(Entity):
             blocks_movement=True,
         )
 
-        self.ai = ai(self)
+        self.ai = ai
         self.fighter = fighter
         self.fighter.entity = self
         self.targeting = ['Body', 'Head', 'Arms', 'Legs']
         self.selected_target = self.targeting[0]
         self.bodyparts = bodyparts
+        self.player = player
 
     @property
     def is_alive(self) -> bool:

@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from engine import Engine
-from entity import Entity, Actor
-
-from components.bodyparts import Bodypart
+from entity import Entity
 
 class BaseComponent:
     entity: Entity  # Owning entity instance.

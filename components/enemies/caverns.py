@@ -4,19 +4,19 @@ from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
 
 def placeholder_fighter():
-    return Fighter(power= 1, bleeds = True)
+    return Fighter(power= 6, bleeds = True)
 
-Head = Bodypart(5, 5, True, False, False, False, 'Head', 'Head')
+Head = Bodypart(5, 5, True, False, False, False, True, 'Head', 'Head')
 
-Body = Bodypart(10, 5, True, False, False, False, 'Body', 'Body')
+Body = Bodypart(10, 5, True, False, False, False, True, 'Body', 'Body')
 
-R_Arm =  Bodypart(5, 5, False, False, False, True, 'Right Arm', 'Arms')
+R_Arm =  Bodypart(5, 5, False, False, False, True, True, 'Right Arm', 'Arms')
 
-L_Arm = Bodypart(5, 5, False, False, False, True, 'Left Arm', 'Arms')
+L_Arm = Bodypart(5, 5, False, False, False, True, True, 'Left Arm', 'Arms')
 
-R_Leg = Bodypart(5, 5, False, False, True, False, 'Right Leg', 'Legs')
+R_Leg = Bodypart(5, 5, False, False, True, False, True, 'Right Leg', 'Legs')
 
-L_Leg = Bodypart(5, 5, False, False, True, False, 'Left Leg', 'Legs')
+L_Leg = Bodypart(5, 5, False, False, True, False, True, 'Left Leg', 'Legs')
 
 body_parts = [Head, Body, R_Arm, L_Arm, R_Leg, L_Leg]
 
