@@ -103,8 +103,8 @@ class Actor(Entity):
         self.targeting = ['Body', 'Head', 'Arms', 'Legs']
         self.selected_target = self.targeting[0]
         self.player = player
-        self.bodyparts = bodyparts
-        for bodypart in bodyparts:
+        self.bodyparts = copy.deepcopy(bodyparts)
+        for bodypart in self.bodyparts:
             bodypart.owner_instance = self
 
     @property
