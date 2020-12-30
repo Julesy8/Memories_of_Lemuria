@@ -49,19 +49,19 @@ def main():
     tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
     # initialises player entity
-    fighter_component = Fighter(power=1)
+    fighter_component = Fighter(power=20, hp=10, defence=5)
 
-    head = Bodypart(5, 5, True, False, False, False, 'Head', 'Head')
-    body = Bodypart(10, 10, True, False, False, False, 'Body', 'Body')
-    r_arm = Bodypart(5, 5, False, False, False, True, 'Right Arm', 'Arms')
-    l_arm = Bodypart(5, 5,False, False, False, True, 'Left Arm', 'Arms')
-    r_leg = Bodypart(5, 5, False, False, True, False, 'Right Leg', 'Legs')
-    l_leg = Bodypart(5, 5, False, False, True, False, 'Left Leg', 'Legs')
+    head = Bodypart(None, 50, 5, True, False, False, False, 'Head', 'Head')
+    body = Bodypart(None, 50, 5, True, False, False, False, 'Body', 'Body')
+    r_arm = Bodypart(None, 50, 5, False, False, False, True, 'Right Arm', 'Arms')
+    l_arm = Bodypart(None, 50, 5,False, False, False, True, 'Left Arm', 'Arms')
+    r_leg = Bodypart(None, 50, 5, False, False, True, False, 'Right Leg', 'Legs')
+    l_leg = Bodypart(None, 50, 5, False, False, True, False, 'Left Leg', 'Legs')
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 
-    player = Actor(0,0,'@', [255,255,255], None, 'Player', ai=HostileEnemy,fighter=fighter_component,
-                   bodyparts = body_parts)
+    player = Actor(0,0,'@', [255,255,255], None, 'Player', ai=HostileEnemy, fighter=fighter_component,
+                   bodyparts = body_parts, player=True)
 
     engine = Engine(player=player)
 

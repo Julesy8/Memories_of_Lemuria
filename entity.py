@@ -1,33 +1,32 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar, TYPE_CHECKING
+from typing import Optional, TypeVar, TYPE_CHECKING, Type
 
 if TYPE_CHECKING:
+    from components.ai import BaseAI
     from game_map import GameMap
 
-from RenderOrder import RenderOrder
-from random import randint
+from render_order import RenderOrder
 
 T = TypeVar("T", bound="Entity")
 
 import copy
 import math
 
-
 class Entity:  # generic entity
 
     gamemap: GameMap
 
     def __init__(self,
-                 x,
-                 y,
-                 char,
+                 x: int,
+                 y: int,
+                 char: str,
                  fg_colour,
                  bg_colour,
-                 name,
+                 name: str,
                  blocks_movement=False,
                  gamemap: Optional[GameMap] = None,
-                 render_order = RenderOrder.CORPSE):
+                 render_order: RenderOrder = RenderOrder.CORPSE):
         self.x = x
         self.y = y
         self.spawn_x = x
@@ -75,26 +74,27 @@ class Entity:  # generic entity
 class Actor(Entity):
     def __init__(
         self,
-        x,
-        y,
-        char,
+        x: int,
+        y: int,
+        char: str,
         fg_colour,
         bg_colour,
-        name,
+        name: str,
         ai,
         fighter,
-        bodyparts # list of bodyparts belonging to the entity
+        bodyparts, # list of bodyparts belonging to the entity
+        player: bool = False
     ):
-        self.identifier = randint(1,999)
+
         super().__init__(
             x=x,
             y=y,
             char=char,
             fg_colour=fg_colour,
             bg_colour=bg_colour,
-            name=name + ' (' + str(self.identifier) + ')',
-            # just gives the entity a random number its associated with so it can be easily identified
+            name=name,
             blocks_movement=True,
+            render_order=RenderOrder.ACTOR
         )
 
         self.ai = ai(self)
@@ -102,7 +102,10 @@ class Actor(Entity):
         self.fighter.entity = self
         self.targeting = ['Body', 'Head', 'Arms', 'Legs']
         self.selected_target = self.targeting[0]
+        self.player = player
         self.bodyparts = bodyparts
+        for bodypart in bodyparts:
+            bodypart.owner_instance = self
 
     @property
     def is_alive(self) -> bool:

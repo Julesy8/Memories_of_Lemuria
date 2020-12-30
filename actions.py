@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
+from random import randint
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -76,11 +77,56 @@ class ActionWithDirection(Action):
 
 
 class MeleeAction(ActionWithDirection):
+
     def perform(self) -> None:
         target = self.target_actor
         if not target:
             return  # No entity to attack.
 
+        # body part selected by the entity
+        targeted_bodypart = self.entity.selected_target
+
+        # list of body parts able to be attacked by the entity
+        targetable_bodyparts = []
+
+        # if the entity attacking is has AI, randomly selects a bodypart to be targeted
+        if not self.entity.player:
+            targeted_by_enemy = randint(1, 10)
+            if targeted_by_enemy <= 5:
+                self.entity.selected_target = "Body"
+            elif 5 < targeted_by_enemy <= 8:
+                self.entity.selected_target = "Head"
+            elif targeted_by_enemy == 9:
+                self.entity.selected_target = "Arms"
+            elif targeted_by_enemy == 10:
+                self.entity.selected_target = "Legs"
+
+        # finds viable bodyparts of the type specified by targeted_bodypart and appends them to targetable_bodyparts
+        for bodypart in target.bodyparts:
+            if bodypart.type == targeted_bodypart:
+                targetable_bodyparts.append(bodypart)
+
+        # if there are no viable bodyparts of this type, default to the body of the entity
+        if len(targetable_bodyparts) == 0:
+            for bodypart in target.bodyparts:
+                if bodypart.type == "Body":
+                    targetable_bodyparts.append(bodypart)
+
+        # of the viable bodyparts in targetable_bodyparts, randomly selects one of them
+        selected_bodypart = randint(0, len(targetable_bodyparts) - 1)
+        part = targetable_bodyparts[selected_bodypart]
+        part_index = target.bodyparts.index(targetable_bodyparts[selected_bodypart])
+
+        # calculates damage (system right now is placeholder)
+        damage = self.entity.fighter.power - target.bodyparts[part_index].defence
+        print(f"damage value: {damage}")
+        if damage > 0:
+         target.bodyparts[part_index].hp -= damage
+         # result printed to console
+         print(f"{self.entity.name} strikes {target.name} on the {part.name} for {str(damage)} points!")
+        else:
+            print(f"{self.entity.name} strikes {target.name} on the {part.name} but does no damage!")
+        print(f"{target.name} {target.bodyparts[part_index].name} HP: {target.bodyparts[part_index].hp}")
 
 class MovementAction(ActionWithDirection):
 

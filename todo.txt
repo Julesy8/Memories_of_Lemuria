@@ -1,6 +1,17 @@
 -----
 TO DO
 -----
+-fix issue in actions where player attacks do no damage
+
+-proper type checking
+-central camera, 16x16 tiles
+-softer colours, add blue to black background
+-display limb health graphically
+-rememberung item + enemy last position when out of line of sight
+-enemies spawning in groups
+-some enemies run away when low on health
+-save gun sto look at in main menu
+-gun test range
 -way for player to target areas of the body
 
 -make ai which has its own fov for looking and hearing
