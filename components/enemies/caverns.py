@@ -4,7 +4,7 @@ from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
 
 def placeholder_fighter():
-    return Fighter(hp = 10, defence = 5, power = 10, bleeds = True)
+    return Fighter(power = 10, bleeds = True)
 
 Head = Bodypart(None, 10, 5, True, False, False, False, 'Head', 'Head')
 
@@ -28,7 +28,10 @@ placeholder_common = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    bodyparts=body_parts
+    bodyparts=body_parts,
+    energy=100,
+    attack_cost=100,
+    move_cost=50
 )
 
 placeholder_uncommon = Actor(
@@ -39,7 +42,11 @@ placeholder_uncommon = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    bodyparts=body_parts
+    bodyparts=body_parts,
+    energy=100,
+    attack_cost=100,
+    move_cost=100
+
 )
 
 placeholder_rare = Actor(
@@ -50,7 +57,10 @@ placeholder_rare = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    bodyparts=body_parts
+    bodyparts=body_parts,
+    energy=100,
+    attack_cost=100,
+    move_cost=100
 )
 
 placeholder_v_rare = Actor(
@@ -61,7 +71,10 @@ placeholder_v_rare = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    bodyparts=body_parts
+    bodyparts=body_parts,
+    energy=100,
+    attack_cost=100,
+    move_cost=100
 )
 
 placeholder_legendary = Actor(
@@ -72,5 +85,8 @@ placeholder_legendary = Actor(
     name = 'Placeholder',
     fighter=placeholder_fighter(),
     ai = HostileEnemy,
-    bodyparts = body_parts
+    bodyparts = body_parts,
+    energy=100,
+    attack_cost=100,
+    move_cost=100
 )

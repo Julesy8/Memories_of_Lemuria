@@ -83,6 +83,9 @@ class Actor(Entity):
         ai,
         fighter,
         bodyparts, # list of bodyparts belonging to the entity
+        energy,
+        attack_cost,
+        move_cost,
         player: bool = False
     ):
 
@@ -104,6 +107,10 @@ class Actor(Entity):
         self.selected_target = self.targeting[0]
         self.player = player
         self.bodyparts = copy.deepcopy(bodyparts)
+        self._energy = energy
+        self.attack_cost = attack_cost
+        self.move_cost = move_cost
+        self.max_energy = energy
         for bodypart in self.bodyparts:
             bodypart.owner_instance = self
 
@@ -111,3 +118,11 @@ class Actor(Entity):
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
+
+    @property
+    def energy(self) -> int:
+        return self._energy
+
+    @energy.setter
+    def energy(self, value: int) -> None:
+        self._energy = max(0, min(value, self.max_energy))

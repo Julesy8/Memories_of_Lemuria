@@ -1,8 +1,12 @@
 -----
 TO DO
 -----
--fix issue in actions where player attacks do no damage
-
+-moves don't keep happening when player moving towards a wall
+-fix crash when player dies
+-monsters follow the player for a time after losing direct line of sight, after a time get distracted and walk
+away in random direction
+-accuracy, ability to miss
+-limb targeting system that works by hovering over an enemy with the cursor to target it
 -proper type checking
 -central camera, 16x16 tiles
 -softer colours, add blue to black background
