@@ -57,22 +57,35 @@ class HostileEnemy(BaseAI):
         while self.entity.energy > 0:
 
             if self.engine.game_map.visible[self.entity.x, self.entity.y]:
-                if distance <= 1:
-                    while self.entity.energy >= self.entity.attack_cost:
-                        MeleeAction(self.entity, dx, dy).perform()
-                        self.entity.energy -= self.entity.attack_cost
+
+                if not self.entity.active:
+                    self.entity.active = True
+
+                if distance <= 1 and self.entity.energy >= self.entity.attack_cost:
+                    MeleeAction(self.entity, dx, dy).perform()
+                    self.entity.energy -= self.entity.attack_cost
                 self.path = self.get_path_to(target.x, target.y)
 
-            if self.path:
-                while self.entity.energy >= self.entity.move_cost:
-                    dest_x, dest_y = self.path.pop(0)
-                    MovementAction(
-                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                    ).perform()
-                    print('move action called')
-                    self.entity.energy -= self.entity.move_cost
+                self.path_to()
 
-            if not self.path or self.engine.game_map.visible[self.entity.x, self.entity.y]:
-                break
+            else:
+                if self.entity.active and distance < 15:
+                    self.path = self.get_path_to(target.x, target.y)
+
+                    self.path_to()
+
+                elif self.entity.active and distance > 15:
+                    self.entity.active = False
+
+                else:
+                    break
 
         return WaitAction(self.entity).perform()
+
+    def path_to(self):
+        if self.path and self.entity.energy >= self.entity.move_cost:
+            dest_x, dest_y = self.path.pop(0)
+            MovementAction(
+                self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+            ).perform()
+            self.entity.energy -= self.entity.move_cost

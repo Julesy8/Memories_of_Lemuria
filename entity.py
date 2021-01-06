@@ -86,7 +86,8 @@ class Actor(Entity):
         energy,
         attack_cost,
         move_cost,
-        player: bool = False
+        player: bool = False,
+        active: bool = False
     ):
 
         super().__init__(
@@ -111,6 +112,7 @@ class Actor(Entity):
         self.attack_cost = attack_cost
         self.move_cost = move_cost
         self.max_energy = energy
+        self.active = active
         for bodypart in self.bodyparts:
             bodypart.owner_instance = self
 
