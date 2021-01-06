@@ -4,7 +4,7 @@ from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
 
 def placeholder_fighter():
-    return Fighter(power = 10, bleeds = True)
+    return Fighter(power = 10)
 
 Head = Bodypart(None, 10, 5, True, False, False, False, 'Head', 'Head')
 

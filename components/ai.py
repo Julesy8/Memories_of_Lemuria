@@ -66,15 +66,31 @@ class HostileEnemy(BaseAI):
                     self.entity.energy -= self.entity.attack_cost
                 self.path = self.get_path_to(target.x, target.y)
 
-                self.path_to()
+                if self.path and self.entity.energy >= self.entity.move_cost:
+                    dest_x, dest_y = self.path.pop(0)
+                    self.entity.energy -= self.entity.move_cost
+                    MovementAction(
+                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                    ).perform()
+                    print(f'entity energy = {self.entity.energy}')
+                else:
+                    break
 
             else:
-                if self.entity.active and distance < 15:
+                if self.entity.active and distance < 10:
                     self.path = self.get_path_to(target.x, target.y)
 
-                    self.path_to()
+                    if self.path and self.entity.energy >= self.entity.move_cost:
+                        dest_x, dest_y = self.path.pop(0)
+                        self.entity.energy -= self.entity.move_cost
+                        MovementAction(
+                            self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                        ).perform()
+                        print(f'entity energy = {self.entity.energy}')
+                    else:
+                        break
 
-                elif self.entity.active and distance > 15:
+                elif self.entity.active and distance > 10:
                     self.entity.active = False
 
                 else:
@@ -83,9 +99,13 @@ class HostileEnemy(BaseAI):
         return WaitAction(self.entity).perform()
 
     def path_to(self):
+        print('got to path_to')
         if self.path and self.entity.energy >= self.entity.move_cost:
             dest_x, dest_y = self.path.pop(0)
+            self.entity.energy -= self.entity.move_cost
             MovementAction(
                 self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
             ).perform()
-            self.entity.energy -= self.entity.move_cost
+            print(f'entity energy = {self.entity.energy}')
+        else:
+            return
