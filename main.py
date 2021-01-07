@@ -51,12 +51,12 @@ def main():
     # initialises player entity
     fighter_component = Fighter(power=20)
 
-    head = Bodypart(None, 50, 5, True, False, False, False, 'Head', 'Head')
-    body = Bodypart(None, 50, 5, True, False, False, False, 'Body', 'Body')
-    r_arm = Bodypart(None, 50, 5, False, False, False, True, 'Right Arm', 'Arms')
-    l_arm = Bodypart(None, 50, 5,False, False, False, True, 'Left Arm', 'Arms')
-    r_leg = Bodypart(None, 50, 5, False, False, True, False, 'Right Leg', 'Legs')
-    l_leg = Bodypart(None, 50, 5, False, False, True, False, 'Left Leg', 'Legs')
+    head = Bodypart(None, 50, 5, True, False, False, False, 'Head', 'Head', base_chance_to_hit=80)
+    body = Bodypart(None, 50, 5, True, False, False, False, 'Body', 'Body', base_chance_to_hit=90)
+    r_arm = Bodypart(None, 50, 5, False, False, False, True, 'Right Arm', 'Arms', base_chance_to_hit=80)
+    l_arm = Bodypart(None, 50, 5,False, False, False, True, 'Left Arm', 'Arms', base_chance_to_hit=80)
+    r_leg = Bodypart(None, 50, 5, False, False, True, False, 'Right Leg', 'Legs', base_chance_to_hit=80)
+    l_leg = Bodypart(None, 50, 5, False, False, True, False, 'Left Leg', 'Legs', base_chance_to_hit=80)
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 

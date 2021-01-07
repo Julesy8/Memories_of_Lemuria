@@ -17,8 +17,10 @@ class Fighter(BaseComponent):
     # basic class for entities that fight
     def __init__(self,
                  power: int = 0,
-                 melee_accuracy: int = 80,
-                 ranged_accuracy: int = 80,
+                 melee_accuracy: float = 0.9,
+                 ranged_accuracy: float = 0.9,
                  ):
 
         self.power = power
+        self.melee_accuracy = melee_accuracy
+        self.ranged_accuracy = ranged_accuracy

@@ -6,17 +6,17 @@ from components.bodyparts import Bodypart
 def placeholder_fighter():
     return Fighter(power = 10)
 
-Head = Bodypart(None, 10, 5, True, False, False, False, 'Head', 'Head')
+Head = Bodypart(None, 10, 5, True, False, False, False, 'Head', 'Head', base_chance_to_hit=80)
 
-Body = Bodypart(None, 10, 5, True, False, False, False, 'Body', 'Body')
+Body = Bodypart(None, 10, 5, True, False, False, False, 'Body', 'Body', base_chance_to_hit=90)
 
-R_Arm =  Bodypart(None, 10, 5, False, False, False, True, 'Right Arm', 'Arms')
+R_Arm =  Bodypart(None, 10, 5, False, False, False, True, 'Right Arm', 'Arms', base_chance_to_hit=80)
 
-L_Arm = Bodypart(None, 10, 5, False, False, False, True, 'Left Arm', 'Arms')
+L_Arm = Bodypart(None, 10, 5, False, False, False, True, 'Left Arm', 'Arms', base_chance_to_hit=80)
 
-R_Leg = Bodypart(None, 10, 5, False, False, True, False, 'Right Leg', 'Legs')
+R_Leg = Bodypart(None, 10, 5, False, False, True, False, 'Right Leg', 'Legs', base_chance_to_hit=80)
 
-L_Leg = Bodypart(None, 10, 5, False, False, True, False, 'Left Leg', 'Legs')
+L_Leg = Bodypart(None, 10, 5, False, False, True, False, 'Left Leg', 'Legs', base_chance_to_hit=80)
 
 body_parts = (Head, Body, R_Arm, L_Arm, R_Leg, L_Leg)
 

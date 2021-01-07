@@ -117,16 +117,25 @@ class MeleeAction(ActionWithDirection):
         part = targetable_bodyparts[selected_bodypart]
         part_index = target.bodyparts.index(targetable_bodyparts[selected_bodypart])
 
-        # calculates damage (system right now is placeholder)
-        damage = self.entity.fighter.power - target.bodyparts[part_index].defence
-        print(f"damage value: {damage}")
-        if damage > 0:
-         target.bodyparts[part_index].hp -= damage
-         # result printed to console
-         print(f"{self.entity.name} strikes {target.name} on the {part.name} for {str(damage)} points!")
+        # chance to hit calculation
+        hitchance = randint(0,100)
+        if hitchance <= float(target.bodyparts[part_index].base_chance_to_hit) * self.entity.fighter.melee_accuracy:
+
+            # calculates damage (system right now is placeholder) if successfully hits
+            damage = self.entity.fighter.power - target.bodyparts[part_index].defence
+            print(f"damage value: {damage}")
+            if damage > 0:
+             target.bodyparts[part_index].hp -= damage
+             # result printed to console
+             print(f"{self.entity.name} strikes {target.name} on the {part.name} for {str(damage)} points!")
+            else:
+                print(f"{self.entity.name} strikes {target.name} on the {part.name} but does no damage!")
+            print(f"{target.name} {target.bodyparts[part_index].name} HP: {target.bodyparts[part_index].hp}")
+
+        # miss
         else:
-            print(f"{self.entity.name} strikes {target.name} on the {part.name} but does no damage!")
-        print(f"{target.name} {target.bodyparts[part_index].name} HP: {target.bodyparts[part_index].hp}")
+            print(f"{self.entity.name} tries to strike {target.name} on the {part.name}, but misses!")
+
 
 class MovementAction(ActionWithDirection):
 

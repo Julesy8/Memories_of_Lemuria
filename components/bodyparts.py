@@ -19,6 +19,7 @@ class Bodypart(BaseComponent):  # a basic bodypart
                  grasping: bool,
                  name: str,
                  type: str, # can be 'Body', 'Head', 'Arms' or 'Legs'
+                 base_chance_to_hit: int,
                 functional: bool = True):
         self.owner_instance = owner_instance
         self.max_hp = hp
@@ -30,6 +31,7 @@ class Bodypart(BaseComponent):  # a basic bodypart
         self.grasping = grasping
         self.name = name
         self.type = type
+        self.base_chance_to_hit = base_chance_to_hit
         self.functional = functional
 
     @property
