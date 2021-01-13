@@ -2,6 +2,7 @@ from components.npc_templates import Fighter
 from entity import Actor
 from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
+import colour
 
 def placeholder_fighter():
     return Fighter(power = 10)
@@ -23,7 +24,7 @@ body_parts = (Head, Body, R_Arm, L_Arm, R_Leg, L_Leg)
 placeholder_common = Actor(
     x=0, y=0,
     char = 'N',
-    fg_colour = (255, 255, 255),
+    fg_colour = colour.WHITE,
     bg_colour=None,
     name='Placeholder',
     fighter=placeholder_fighter(),
@@ -37,7 +38,7 @@ placeholder_common = Actor(
 placeholder_uncommon = Actor(
     x=0, y=0,
     char = 'N',
-    fg_colour = (0, 255, 0),
+    fg_colour = colour.JADE,
     bg_colour=None,
     name='Placeholder',
     fighter=placeholder_fighter(),
@@ -52,7 +53,7 @@ placeholder_uncommon = Actor(
 placeholder_rare = Actor(
     x=0, y=0,
     char = 'N',
-    fg_colour = (0, 0, 255),
+    fg_colour = colour.BLUE,
     bg_colour=None,
     name='Placeholder',
     fighter=placeholder_fighter(),
@@ -66,7 +67,7 @@ placeholder_rare = Actor(
 placeholder_v_rare = Actor(
     x=0, y=0,
     char = 'N',
-    fg_colour = (255,0,255),
+    fg_colour = colour.PURPLE,
     bg_colour=None,
     name='Placeholder',
     fighter=placeholder_fighter(),
@@ -80,7 +81,7 @@ placeholder_v_rare = Actor(
 placeholder_legendary = Actor(
     x=0, y=0,
     char = 'N',
-    fg_colour = (255, 128, 0),
+    fg_colour = colour.ORANGE,
     bg_colour = None,
     name = 'Placeholder',
     fighter=placeholder_fighter(),

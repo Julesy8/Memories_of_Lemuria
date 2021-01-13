@@ -1,5 +1,5 @@
 import level_importer
-
+import colour
 
 class MapColoursChars:
     def __init__(self, level: int):
@@ -56,24 +56,15 @@ class MapColoursChars:
 level_0 = {
     1:  # wall colour
         # foreground, background
-        ((32, 32, 32), (16, 16, 16),   # light
-         (63, 63, 63), (31, 31, 31)),  # dark
+        (colour.DARK_GRAY, colour.BLACK,   # dark
+         colour.LIGHT_BROWN, colour.BROWN),  # light
 
     2:  # floor colour
         # foreground, background
-        ((23, 23, 23), (32, 32, 32),   # light
-         (45, 45, 45), (63, 63, 63)),  # dark
+        (colour.DARK_GRAY, colour.BLACK,   # dark
+         colour.LIGHT_GREY, colour.DARK_GRAY),  # light
 
     3: [35],  # wall tile
 
     4: [46, 96, 44]  # floor tile, to weight this add multiple of the same value
 }
-"""
-((63, 63, 63), (31, 31, 31),   # light
-         (32, 32, 32), (16, 16, 16)),  # dark
-
-    2:  # floor colour
-        # foreground, background
-        ((45, 45, 45), (63, 63, 63),   # light
-         (23, 23, 23), (32, 32, 32)),  # dark
-"""

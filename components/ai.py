@@ -72,7 +72,6 @@ class HostileEnemy(BaseAI):
                     MovementAction(
                         self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
                     ).perform()
-                    print(f'entity energy = {self.entity.energy}')
                 else:
                     break
 
@@ -86,7 +85,6 @@ class HostileEnemy(BaseAI):
                         MovementAction(
                             self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
                         ).perform()
-                        print(f'entity energy = {self.entity.energy}')
                     else:
                         break
 
@@ -99,13 +97,11 @@ class HostileEnemy(BaseAI):
         return WaitAction(self.entity).perform()
 
     def path_to(self):
-        print('got to path_to')
         if self.path and self.entity.energy >= self.entity.move_cost:
             dest_x, dest_y = self.path.pop(0)
             self.entity.energy -= self.entity.move_cost
             MovementAction(
                 self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
             ).perform()
-            print(f'entity energy = {self.entity.energy}')
         else:
             return

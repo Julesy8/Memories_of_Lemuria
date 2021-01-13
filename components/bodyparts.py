@@ -3,10 +3,10 @@ from __future__ import annotations
 from entity import Actor
 from render_order import RenderOrder
 from input_handlers import GameOverEventHandler
-from components.npc_templates import BaseComponent
+from engine import Engine
+import colour
 
-
-class Bodypart(BaseComponent):  # a basic bodypart
+class Bodypart:  # a basic bodypart
 
     entity: Actor
     def __init__(self,
@@ -35,6 +35,10 @@ class Bodypart(BaseComponent):  # a basic bodypart
         self.functional = functional
 
     @property
+    def engine(self) -> Engine:
+        return self.owner_instance.gamemap.engine
+
+    @property
     def hp(self) -> int:
         return self._hp
 
@@ -50,16 +54,18 @@ class Bodypart(BaseComponent):  # a basic bodypart
 
         elif self._hp == 0 and self.owner_instance.ai and self.vital == False:
             self.functional = False
-            print(f"{self.owner_instance.name}'s {self.name} is destroyed!")
+            self.engine.message_log.add_message(f"{self.owner_instance.name}'s {self.name} is destroyed!")
 
     def die(self) -> None:
 
         if self.owner_instance.player:
             death_message = "You died!"
-            self.engine.event_handler = GameOverEventHandler
+            death_message_colour = colour.MAGENTA
+            self.engine.event_handler = GameOverEventHandler(self.engine)
 
         else:
             death_message = f"{self.owner_instance.name} is dead!"
+            death_message_colour = colour.CYAN
             self.owner_instance.fg_colour = (191,0,0)
             self.owner_instance.bg_colour = (255,255,255)
             self.owner_instance.blocks_movement = False
@@ -67,7 +73,7 @@ class Bodypart(BaseComponent):  # a basic bodypart
             self.owner_instance.name = f"remains of {self.owner_instance.name}"
             self.owner_instance.render_order = RenderOrder.CORPSE
 
-        print(death_message)
+        self.engine.message_log.add_message(death_message, death_message_colour)
 
     @defence.setter
     def defence(self, value):

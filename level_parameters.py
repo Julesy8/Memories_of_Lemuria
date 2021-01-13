@@ -5,7 +5,7 @@ from components.enemies.caverns import *
 level_params = {
     0: array([0,   # tunnel type (0 = drunkard, 1 = straight)
               80,  # map width
-              50,  # map height
+              45,  # map height
               24,  # MAX_LEAF_SIZE
               15,  # ROOM_MAX_SIZE
               6,   # ROOM_MIN_SIZE

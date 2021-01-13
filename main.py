@@ -7,6 +7,7 @@ from components.bodyparts import Bodypart
 from level_parameters import level_params
 from level_generator import MessyBSPTree
 from components.ai import HostileEnemy
+import colour
 
 def main():
 
@@ -60,7 +61,7 @@ def main():
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 
-    player = Actor(0,0,'@', [255,255,255], None, 'Player', ai=HostileEnemy, fighter=fighter_component,
+    player = Actor(0,0,'@', colour.WHITE, None, 'Player', ai=HostileEnemy, fighter=fighter_component,
                    bodyparts = body_parts, player=True, attack_cost=100, move_cost=100, energy=100)
 
     engine = Engine(player=player)
@@ -85,9 +86,11 @@ def main():
     ) as context:
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
-            engine.render(console=root_console, context=context)
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
 
-            engine.event_handler.handle_events()
+            engine.event_handler.handle_events(context)
 
 if __name__ == "__main__":
     main()

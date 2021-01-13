@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import Optional, Tuple, TYPE_CHECKING
 from random import randint
 
+import colour
+
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity
-
-
 
 class Action:
     def __init__(self, entity: Actor) -> None:
@@ -117,25 +117,30 @@ class MeleeAction(ActionWithDirection):
         part = targetable_bodyparts[selected_bodypart]
         part_index = target.bodyparts.index(targetable_bodyparts[selected_bodypart])
 
+        if self.entity.player:
+            attack_colour = colour.LIGHT_GREEN
+        else:
+            attack_colour = colour.LIGHT_RED
+
         # chance to hit calculation
         hitchance = randint(0,100)
         if hitchance <= float(target.bodyparts[part_index].base_chance_to_hit) * self.entity.fighter.melee_accuracy:
 
             # calculates damage (system right now is placeholder) if successfully hits
             damage = self.entity.fighter.power - target.bodyparts[part_index].defence
-            print(f"damage value: {damage}")
             if damage > 0:
-             target.bodyparts[part_index].hp -= damage
-             # result printed to console
-             print(f"{self.entity.name} strikes {target.name} on the {part.name} for {str(damage)} points!")
+                # result printed to console
+                self.engine.message_log.add_message(f"{self.entity.name} strikes {target.name} on the "
+                                                    f"{part.name} for {str(damage)} points!", attack_colour)
+                target.bodyparts[part_index].hp -= damage
             else:
-                print(f"{self.entity.name} strikes {target.name} on the {part.name} but does no damage!")
-            print(f"{target.name} {target.bodyparts[part_index].name} HP: {target.bodyparts[part_index].hp}")
+                self.engine.message_log.add_message(f"{self.entity.name} strikes {target.name} on the "
+                                                    f"{part.name} but does no damage!", attack_colour)
 
         # miss
         else:
-            print(f"{self.entity.name} tries to strike {target.name} on the {part.name}, but misses!")
-
+            self.engine.message_log.add_message(f"{self.entity.name} tries to strike {target.name} on the "
+                                                f"{part.name}, but misses!", attack_colour)
 
 class MovementAction(ActionWithDirection):
 
