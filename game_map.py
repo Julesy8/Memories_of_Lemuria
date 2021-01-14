@@ -7,6 +7,7 @@ from tcod.console import Console
 
 import tile_types
 from colours_and_chars import MapColoursChars
+import colour
 from entity import Actor
 
 if TYPE_CHECKING:
@@ -90,7 +91,6 @@ class GameMap:
         else:
             console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
 
-
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda x: x.render_order.value
         )
@@ -99,6 +99,18 @@ class GameMap:
             if self.debug_fov == False:
                 # Only print entities that are in the FOV
                 if self.visible[entity.x, entity.y]:
+
                     console.print(entity.x, entity.y, entity.char, entity.fg_colour, entity.bg_colour)
+
+                    entity.last_seen_x = entity.x
+                    entity.last_seen_y = entity.y
+
+                    if not entity.seen:
+                        entity.seen = True
+                        entity.active = True
+
+                if not self.visible[entity.x, entity.y] and entity.seen:
+                    console.print(entity.last_seen_x, entity.last_seen_y, entity.char, colour.DARK_GRAY, colour.BLACK)
+
             else:
                 console.print(entity.x, entity.y, entity.char, entity.fg_colour, entity.bg_colour)

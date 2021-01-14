@@ -57,12 +57,12 @@ level_0 = {
     1:  # wall colour
         # foreground, background
         (colour.DARK_GRAY, colour.BLACK,   # dark
-         colour.LIGHT_BROWN, colour.BROWN),  # light
+         colour.DARK_GRAY, colour.LIGHT_GREY),  # light
 
     2:  # floor colour
         # foreground, background
         (colour.DARK_GRAY, colour.BLACK,   # dark
-         colour.LIGHT_GREY, colour.DARK_GRAY),  # light
+         colour.LIGHT_GREY, colour.BLACK),  # light
 
     3: [35],  # wall tile
 

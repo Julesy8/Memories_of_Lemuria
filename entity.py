@@ -20,23 +20,31 @@ class Entity:  # generic entity
     def __init__(self,
                  x: int,
                  y: int,
+
                  char: str,
                  fg_colour,
                  bg_colour,
                  name: str,
                  blocks_movement=False,
                  gamemap: Optional[GameMap] = None,
-                 render_order: RenderOrder = RenderOrder.CORPSE):
+                 last_seen_x=None,
+                 last_seen_y=None,
+                 render_order: RenderOrder = RenderOrder.CORPSE,
+                 active:bool = False,
+                 seen: bool = False
+                 ):
         self.x = x
         self.y = y
-        self.spawn_x = x
-        self.spawn_y = y
+        self.last_seen_x = last_seen_x
+        self.last_seen_y = last_seen_y
         self.char = char
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
         self.name = name
         self.blocks_movement = blocks_movement
         self.render_order = render_order
+        self.active = active
+        self.seen = seen
         if gamemap:
             # If gamemap isn't provided now then it will be set later.
             self.gamemap = gamemap
@@ -76,6 +84,7 @@ class Actor(Entity):
         self,
         x: int,
         y: int,
+
         char: str,
         fg_colour,
         bg_colour,
@@ -83,22 +92,28 @@ class Actor(Entity):
         ai,
         fighter,
         bodyparts, # list of bodyparts belonging to the entity
-        energy,
-        attack_cost,
-        move_cost,
+        energy = 100,
+        attack_cost = 100,
+        move_cost = 100,
+        energy_regain = 100,
         player: bool = False,
-        active: bool = False
+        last_seen_x=None,
+        last_seen_y=None
     ):
 
         super().__init__(
-            x=x,
-            y=y,
-            char=char,
-            fg_colour=fg_colour,
-            bg_colour=bg_colour,
-            name=name,
-            blocks_movement=True,
-            render_order=RenderOrder.ACTOR
+            x = x,
+            y = y,
+            char = char,
+            fg_colour = fg_colour,
+            bg_colour = bg_colour,
+            name = name,
+            blocks_movement = True,
+            render_order = RenderOrder.ACTOR,
+            seen = False,
+            active = False,
+            last_seen_x= last_seen_x,
+            last_seen_y= last_seen_y
         )
 
         self.ai = ai(self)
@@ -111,8 +126,8 @@ class Actor(Entity):
         self._energy = energy
         self.attack_cost = attack_cost
         self.move_cost = move_cost
+        self.energy_regain = energy_regain
         self.max_energy = energy
-        self.active = active
         for bodypart in self.bodyparts:
             bodypart.owner_instance = self
 

@@ -43,7 +43,7 @@ class MessyBSPTree:
                                                               )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=True, entities=[self.player])
+        self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=False, entities=[self.player])
 
 
     def generateLevel(self):

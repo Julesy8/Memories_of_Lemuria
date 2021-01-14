@@ -52,14 +52,11 @@ class HostileEnemy(BaseAI):
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-        self.entity.energy += 100
+        self.entity.energy += self.entity.energy_regain
 
         while self.entity.energy > 0:
 
             if self.engine.game_map.visible[self.entity.x, self.entity.y]:
-
-                if not self.entity.active:
-                    self.entity.active = True
 
                 if distance <= 1 and self.entity.energy >= self.entity.attack_cost:
                     MeleeAction(self.entity, dx, dy).perform()

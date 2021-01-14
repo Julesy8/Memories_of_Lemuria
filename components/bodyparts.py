@@ -53,8 +53,7 @@ class Bodypart:  # a basic bodypart
             self.die()
 
         elif self._hp == 0 and self.owner_instance.ai and self.vital == False:
-            self.functional = False
-            self.engine.message_log.add_message(f"{self.owner_instance.name}'s {self.name} is destroyed!")
+            self.destroy()
 
     def die(self) -> None:
 
@@ -66,14 +65,19 @@ class Bodypart:  # a basic bodypart
         else:
             death_message = f"{self.owner_instance.name} is dead!"
             death_message_colour = colour.CYAN
-            self.owner_instance.fg_colour = (191,0,0)
-            self.owner_instance.bg_colour = (255,255,255)
+            self.owner_instance.fg_colour = colour.WHITE
+            self.owner_instance.bg_colour = colour.LIGHT_RED
             self.owner_instance.blocks_movement = False
             self.owner_instance.ai = None
             self.owner_instance.name = f"remains of {self.owner_instance.name}"
             self.owner_instance.render_order = RenderOrder.CORPSE
 
         self.engine.message_log.add_message(death_message, death_message_colour)
+
+    def destroy(self) -> None:
+        if self.functional:
+            self.functional = False
+            self.engine.message_log.add_message(f"{self.owner_instance.name}'s {self.name} is destroyed!")
 
     @defence.setter
     def defence(self, value):

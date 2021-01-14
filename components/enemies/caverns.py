@@ -30,8 +30,6 @@ placeholder_common = Actor(
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
     bodyparts=body_parts,
-    energy=100,
-    attack_cost=100,
     move_cost=50
 )
 
@@ -44,10 +42,8 @@ placeholder_uncommon = Actor(
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
     bodyparts=body_parts,
-    energy=100,
-    attack_cost=100,
-    move_cost=100
-
+    energy_regain = 50,
+    attack_cost = 50,
 )
 
 placeholder_rare = Actor(
@@ -59,9 +55,6 @@ placeholder_rare = Actor(
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
     bodyparts=body_parts,
-    energy=100,
-    attack_cost=100,
-    move_cost=100
 )
 
 placeholder_v_rare = Actor(
@@ -73,9 +66,6 @@ placeholder_v_rare = Actor(
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
     bodyparts=body_parts,
-    energy=100,
-    attack_cost=100,
-    move_cost=100
 )
 
 placeholder_legendary = Actor(
@@ -87,7 +77,4 @@ placeholder_legendary = Actor(
     fighter=placeholder_fighter(),
     ai = HostileEnemy,
     bodyparts = body_parts,
-    energy=100,
-    attack_cost=100,
-    move_cost=100
 )
