@@ -3,6 +3,7 @@ from __future__ import annotations
 from engine import Engine
 from entity import Entity, Actor
 
+
 class BaseComponent:
     entity: Entity  # Owning entity instance.
 

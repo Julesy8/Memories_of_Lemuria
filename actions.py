@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity
 
+
 class Action:
     def __init__(self, entity: Actor) -> None:
         super().__init__()
@@ -30,6 +31,7 @@ class Action:
         """
         raise NotImplementedError()
 
+
 class WaitAction(Action):
     def perform(self) -> None:
         pass
@@ -38,6 +40,7 @@ class WaitAction(Action):
 class EscapeAction(Action):
     def perform(self) -> None:
         raise SystemExit()
+
 
 class ChangeTarget(Action):
     # cycles through which body part is targeted by the player to attack
@@ -49,6 +52,7 @@ class ChangeTarget(Action):
             self.entity.selected_target = self.entity.targeting[index + 1]
 
         print('now targeting', self.entity.selected_target.lower())
+
 
 class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dx: int, dy: int):
@@ -142,6 +146,7 @@ class MeleeAction(ActionWithDirection):
             self.engine.message_log.add_message(f"{self.entity.name} tries to strike {target.name} on the "
                                                 f"{part.name}, but misses!", attack_colour)
 
+
 class MovementAction(ActionWithDirection):
 
     def perform(self) -> None:
@@ -155,6 +160,7 @@ class MovementAction(ActionWithDirection):
             return  # Destination is blocked by an entity.
 
         self.entity.move(self.dx, self.dy)
+
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:

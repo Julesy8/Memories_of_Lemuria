@@ -9,6 +9,7 @@ from level_generator import MessyBSPTree
 from components.ai import HostileEnemy
 import colour
 
+
 def main():
 
     """
@@ -91,6 +92,7 @@ def main():
             context.present(root_console)
 
             engine.event_handler.handle_events(context)
+
 
 if __name__ == "__main__":
     main()

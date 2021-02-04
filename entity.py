@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 from typing import Optional, TypeVar, TYPE_CHECKING, Type
+import copy
+import math
 
 if TYPE_CHECKING:
-    from components.ai import BaseAI
     from game_map import GameMap
 
 from render_order import RenderOrder
 
 T = TypeVar("T", bound="Entity")
 
-import copy
-import math
 
 class Entity:  # generic entity
 
@@ -25,12 +24,13 @@ class Entity:  # generic entity
                  fg_colour,
                  bg_colour,
                  name: str,
+
                  blocks_movement=False,
                  gamemap: Optional[GameMap] = None,
                  last_seen_x=None,
                  last_seen_y=None,
                  render_order: RenderOrder = RenderOrder.CORPSE,
-                 active:bool = False,
+                 active: bool = False,
                  seen: bool = False
                  ):
         self.x = x
@@ -38,6 +38,7 @@ class Entity:  # generic entity
         self.last_seen_x = last_seen_x
         self.last_seen_y = last_seen_y
         self.char = char
+        self.hidden_char = char
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
         self.name = name
@@ -79,41 +80,41 @@ class Entity:  # generic entity
             self.gamemap = gamemap
             gamemap.entities.add(self)
 
+
 class Actor(Entity):
     def __init__(
-        self,
-        x: int,
-        y: int,
+            self,
+            x: int,
+            y: int,
 
-        char: str,
-        fg_colour,
-        bg_colour,
-        name: str,
-        ai,
-        fighter,
-        bodyparts, # list of bodyparts belonging to the entity
-        energy = 100,
-        attack_cost = 100,
-        move_cost = 100,
-        energy_regain = 100,
-        player: bool = False,
-        last_seen_x=None,
-        last_seen_y=None
+            char: str,
+            fg_colour,
+            bg_colour,
+            name: str,
+            ai,
+            fighter,
+            bodyparts,  # list of bodyparts belonging to the entity
+            energy=100,
+            attack_cost=100,
+            move_cost=100,
+            energy_regain=100,
+            player: bool = False,
+            last_seen_x=None,
+            last_seen_y=None
     ):
-
         super().__init__(
-            x = x,
-            y = y,
-            char = char,
-            fg_colour = fg_colour,
-            bg_colour = bg_colour,
-            name = name,
-            blocks_movement = True,
-            render_order = RenderOrder.ACTOR,
-            seen = False,
-            active = False,
-            last_seen_x= last_seen_x,
-            last_seen_y= last_seen_y
+            x=x,
+            y=y,
+            char=char,
+            fg_colour=fg_colour,
+            bg_colour=bg_colour,
+            name=name,
+            blocks_movement=True,
+            render_order=RenderOrder.ACTOR,
+            seen=False,
+            active=False,
+            last_seen_x=last_seen_x,
+            last_seen_y=last_seen_y
         )
 
         self.ai = ai(self)

@@ -1,6 +1,7 @@
 import level_importer
 import colour
 
+
 class MapColoursChars:
     def __init__(self, level: int):
         self.level = level
@@ -57,12 +58,12 @@ level_0 = {
     1:  # wall colour
         # foreground, background
         (colour.DARK_GRAY, colour.BLACK,   # dark
-         colour.DARK_GRAY, colour.LIGHT_GREY),  # light
+         colour.DARK_GRAY, colour.LIGHT_GRAY),  # light
 
     2:  # floor colour
         # foreground, background
         (colour.DARK_GRAY, colour.BLACK,   # dark
-         colour.LIGHT_GREY, colour.BLACK),  # light
+         colour.LIGHT_GRAY, colour.BLACK),  # light
 
     3: [35],  # wall tile
 

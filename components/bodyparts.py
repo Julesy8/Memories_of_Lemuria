@@ -6,21 +6,23 @@ from input_handlers import GameOverEventHandler
 from engine import Engine
 import colour
 
+
 class Bodypart:  # a basic bodypart
 
     entity: Actor
+
     def __init__(self,
                  owner_instance,
                  hp: int,
                  defence: int,
                  vital: bool,
                  walking: bool,
-                 flying:bool,
+                 flying: bool,
                  grasping: bool,
                  name: str,
-                 type: str, # can be 'Body', 'Head', 'Arms' or 'Legs'
+                 type: str,  # can be 'Body', 'Head', 'Arms' or 'Legs'
                  base_chance_to_hit: int,
-                functional: bool = True):
+                 functional: bool = True):
         self.owner_instance = owner_instance
         self.max_hp = hp
         self._hp = hp
@@ -52,7 +54,8 @@ class Bodypart:  # a basic bodypart
         if self._hp == 0 and self.owner_instance.ai and self.vital:
             self.die()
 
-        elif self._hp == 0 and self.owner_instance.ai and self.vital == False:
+        elif self._hp == 0 and self.owner_instance.ai and self.vital is False:
+            # couldn't this theoretically occur multiple times to the same part?
             self.destroy()
 
     def die(self) -> None:
@@ -67,6 +70,7 @@ class Bodypart:  # a basic bodypart
             death_message_colour = colour.CYAN
             self.owner_instance.fg_colour = colour.WHITE
             self.owner_instance.bg_colour = colour.LIGHT_RED
+            self.owner_instance.hidden_char = '%'
             self.owner_instance.blocks_movement = False
             self.owner_instance.ai = None
             self.owner_instance.name = f"remains of {self.owner_instance.name}"

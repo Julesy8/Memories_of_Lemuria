@@ -14,8 +14,10 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
 
+
 class GameMap:
-    def __init__(self, engine:Engine, width: int, height: int, level: int, debug_fov: bool, entities: Iterable[Entity] = ()):
+    def __init__(self, engine: Engine, width: int, height: int, level: int, debug_fov: bool,
+                 entities: Iterable[Entity] = ()):
         self.level = level
         self.debug_fov = debug_fov  # to disable fov, set to 'True' in level_generator
         self.engine = engine
@@ -51,13 +53,13 @@ class GameMap:
         )
 
     def get_blocking_entity_at_location(
-        self, location_x: int, location_y: int,
+            self, location_x: int, location_y: int,
     ) -> Optional[Entity]:
         for entity in self.entities:
             if (
-                entity.blocks_movement
-                and entity.x == location_x
-                and entity.y == location_y
+                    entity.blocks_movement
+                    and entity.x == location_x
+                    and entity.y == location_y
             ):
                 return entity
 
@@ -82,7 +84,7 @@ class GameMap:
         If it isn't, but it's in the "explored" array, then draw it with the "dark" colors.
         Otherwise, the default is "SHROUD".
         """
-        if self.debug_fov == False:
+        if not self.debug_fov:
             console.tiles_rgb[0: self.width, 0: self.height] = np.select(
                 condlist=[self.visible, self.explored],
                 choicelist=[self.tiles["light"], self.tiles["dark"]],
@@ -96,7 +98,7 @@ class GameMap:
         )
 
         for entity in entities_sorted_for_rendering:
-            if self.debug_fov == False:
+            if not self.debug_fov:
                 # Only print entities that are in the FOV
                 if self.visible[entity.x, entity.y]:
 
@@ -110,7 +112,8 @@ class GameMap:
                         entity.active = True
 
                 if not self.visible[entity.x, entity.y] and entity.seen:
-                    console.print(entity.last_seen_x, entity.last_seen_y, entity.char, colour.DARK_GRAY, colour.BLACK)
+                    console.print(entity.last_seen_x, entity.last_seen_y, entity.hidden_char,
+                                  colour.DARK_GRAY, colour.BLACK)
 
             else:
                 console.print(entity.x, entity.y, entity.char, entity.fg_colour, entity.bg_colour)
