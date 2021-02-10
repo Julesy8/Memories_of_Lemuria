@@ -1,7 +1,10 @@
 -----
 TO DO
 -----
--ability to change shroud colour
+-minimal testing environment fork
+- fix display of unseen entities with scrolling map
+- constrain scrolling map to the limits of the map
+
 -bodypart functionality
 -some enemies run away when low on health
 -better player room spawn selection
@@ -9,7 +12,7 @@ TO DO
 -quick targeting by clycing through the enemies in the players line of sight
 -central camera, 16x16 tiles
 -display limb health graphically
--rememberung item + enemy last position when out of line of sight
+-remembering item + enemy last position when out of line of sight
 -enemies spawning in groups
 -save guns to look at in main menu
 -gun test range

@@ -5,6 +5,8 @@ from typing import Optional, TYPE_CHECKING
 import tcod.event
 
 from actions import Action, BumpAction, EscapeAction, WaitAction, ChangeTarget
+from scrolling_map import Camera
+
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -66,8 +68,8 @@ class EventHandler(tcod.event.EventDispatch[Action]):
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
 
-    def on_render(self, console: tcod.Console) -> None:
-        self.engine.render(console)
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        self.engine.render(console, camera)
 
 
 class MainGameEventHandler(EventHandler):

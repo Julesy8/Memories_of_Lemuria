@@ -7,11 +7,11 @@ from components.bodyparts import Bodypart
 from level_parameters import level_params
 from level_generator import MessyBSPTree
 from components.ai import HostileEnemy
+from scrolling_map import Camera
 import colour
 
 
 def main():
-
     """
     Main:
     -handles main game loop through engine
@@ -56,14 +56,14 @@ def main():
     head = Bodypart(None, 50, 5, True, False, False, False, 'Head', 'Head', base_chance_to_hit=80)
     body = Bodypart(None, 50, 5, True, False, False, False, 'Body', 'Body', base_chance_to_hit=90)
     r_arm = Bodypart(None, 50, 5, False, False, False, True, 'Right Arm', 'Arms', base_chance_to_hit=80)
-    l_arm = Bodypart(None, 50, 5,False, False, False, True, 'Left Arm', 'Arms', base_chance_to_hit=80)
+    l_arm = Bodypart(None, 50, 5, False, False, False, True, 'Left Arm', 'Arms', base_chance_to_hit=80)
     r_leg = Bodypart(None, 50, 5, False, False, True, False, 'Right Leg', 'Legs', base_chance_to_hit=80)
     l_leg = Bodypart(None, 50, 5, False, False, True, False, 'Left Leg', 'Legs', base_chance_to_hit=80)
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 
-    player = Actor(0,0,'@', colour.WHITE, None, 'Player', ai=HostileEnemy, fighter=fighter_component,
-                   bodyparts = body_parts, player=True, attack_cost=100, move_cost=100, energy=100)
+    player = Actor(0, 0, '@', colour.WHITE, None, 'Player', ai=HostileEnemy, fighter=fighter_component,
+                   bodyparts=body_parts, player=True, attack_cost=100, move_cost=100, energy=100)
 
     engine = Engine(player=player)
 
@@ -73,8 +73,19 @@ def main():
                              level_params[current_level][4], level_params[current_level][5],
                              level_params[current_level][6],
                              engine, current_level)
-    
+
     engine.game_map = map_class.generateLevel()
+
+    camera = Camera(
+        x=0,
+        y=0,
+        width=screen_width,
+        height=screen_height,
+        map_width=level_params[current_level][1],
+        map_height=level_params[current_level][2],
+    )
+
+    camera.update(player)
 
     engine.update_fov()
 
@@ -88,10 +99,11 @@ def main():
         root_console = tcod.Console(screen_width, screen_height, order="F")
         while True:
             root_console.clear()
-            engine.event_handler.on_render(console=root_console)
+            engine.event_handler.on_render(console=root_console, camera=camera)
             context.present(root_console)
 
             engine.event_handler.handle_events(context)
+            camera.update(player)
 
 
 if __name__ == "__main__":

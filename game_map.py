@@ -9,6 +9,7 @@ import tile_types
 from colours_and_chars import MapColoursChars
 import colour
 from entity import Actor
+from scrolling_map import Camera
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -22,14 +23,14 @@ class GameMap:
         self.debug_fov = debug_fov  # to disable fov, set to 'True' in level_generator
         self.engine = engine
 
-        colours_chars = MapColoursChars(self.level)
+        self.colours_chars = MapColoursChars(self.level)
 
         # defines the colours and characters used for wall tiles:
-        self.wall = tile_types.new_wall(colours_chars.wall_fg_dark(),
-                                        colours_chars.wall_bg_dark(),
-                                        colours_chars.wall_fg_light(),
-                                        colours_chars.wall_bg_light(),
-                                        colours_chars.wall_tile())
+        self.wall = tile_types.new_wall(self.colours_chars.wall_fg_dark(),
+                                        self.colours_chars.wall_bg_dark(),
+                                        self.colours_chars.wall_fg_light(),
+                                        self.colours_chars.wall_bg_light(),
+                                        self.colours_chars.wall_tile())
 
         self.entities = set(entities)
         self.width, self.height = width, height
@@ -76,22 +77,35 @@ class GameMap:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def render(self, console: Console) -> None:
-        """
-        Renders the map.
+    def render(self, console: Console, camera: Camera) -> None:
 
-        If a tile is in the "visible" array, then draw it with the "light" colors.
-        If it isn't, but it's in the "explored" array, then draw it with the "dark" colors.
-        Otherwise, the default is "SHROUD".
-        """
         if not self.debug_fov:
-            console.tiles_rgb[0: self.width, 0: self.height] = np.select(
-                condlist=[self.visible, self.explored],
-                choicelist=[self.tiles["light"], self.tiles["dark"]],
-                default=tile_types.SHROUD,
-            )
+
+            for y in range(self.height):
+                for x in range(self.width):
+
+                    x_in_camera, y_in_camera = camera.apply(x, y)
+
+                    if self.visible[x, y]:
+                        console.print(x_in_camera, y_in_camera,
+                                      chr(self.tiles[x, y]["light"]["ch"]),
+                                      tuple(self.tiles[x, y]["light"]["fg"]),
+                                      tuple(self.tiles[x, y]["light"]["bg"]))
+
+                    elif self.explored[x, y]:
+                        console.print(x_in_camera, y_in_camera,
+                                      chr(self.tiles[x, y]["dark"]["ch"]),
+                                      tuple(self.tiles[x, y]["dark"]["fg"]),
+                                      tuple(self.tiles[x, y]["dark"]["bg"]))
+
         else:
-            console.tiles_rgb[0:self.width, 0:self.height] = self.tiles["light"]
+            for y in range(self.height):
+                for x in range(self.width):
+                    x_in_camera, y_in_camera = camera.apply(x, y)
+                    console.print(x_in_camera, y_in_camera,
+                                  chr(self.tiles[x, y]["light"]["ch"]),
+                                  tuple(self.tiles[x, y]["light"]["fg"]),
+                                  tuple(self.tiles[x, y]["light"]["bg"]))
 
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda x: x.render_order.value
@@ -101,19 +115,20 @@ class GameMap:
             if not self.debug_fov:
                 # Only print entities that are in the FOV
                 if self.visible[entity.x, entity.y]:
+                    x, y = camera.apply(entity.x, entity.y)
+                    console.print(x, y, entity.char, entity.fg_colour, entity.bg_colour)
 
-                    console.print(entity.x, entity.y, entity.char, entity.fg_colour, entity.bg_colour)
-
-                    entity.last_seen_x = entity.x
-                    entity.last_seen_y = entity.y
+                    entity.last_seen_x = x
+                    entity.last_seen_y = y
 
                     if not entity.seen:
                         entity.seen = True
                         entity.active = True
 
                 if not self.visible[entity.x, entity.y] and entity.seen:
-                    console.print(entity.last_seen_x, entity.last_seen_y, entity.hidden_char,
-                                  colour.DARK_GRAY, colour.BLACK)
+                    x, y = camera.apply(entity.last_seen_x, entity.last_seen_y)
+                    console.print(x, y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
 
             else:
-                console.print(entity.x, entity.y, entity.char, entity.fg_colour, entity.bg_colour)
+                x, y = camera.apply(entity.x, entity.y)
+                console.print(x, y, entity.char, entity.fg_colour, entity.bg_colour)

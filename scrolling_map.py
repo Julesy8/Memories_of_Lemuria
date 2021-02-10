@@ -1,6 +1,5 @@
+
 class Camera:
-    # courtesy of Harry Wykman
-    # https://code.harrywykman.com/the-python-revised-roguelike-tutorial-with-a-scrolling-map.html
     def __init__(self, x: int, y: int, width: int, height: int, map_width: int, map_height: int):
         self.x = x
         self.y = y
@@ -17,4 +16,5 @@ class Camera:
     def update(self, entity):
         x = -entity.x + int(self.width / 2)
         y = -entity.y + int(self.height / 2)
+
         self.x, self.y = (x, y)

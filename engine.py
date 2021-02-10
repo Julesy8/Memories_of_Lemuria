@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from tcod.console import Console
 from tcod.map import compute_fov
+from scrolling_map import Camera
 
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
     from entity import Actor
     from game_map import GameMap
     from input_handlers import EventHandler
+
 
 class Engine:
     game_map: GameMap
@@ -38,8 +40,8 @@ class Engine:
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
 
-    def render(self, console: Console) -> None:
-        self.game_map.render(console)
+    def render(self, console: Console, camera: Camera) -> None:
+        self.game_map.render(console, camera)
         console.hline(x=0, y= 45, width=80)
         self.message_log.render(console=console, x=21, y=46, width=60, height=4)
 
