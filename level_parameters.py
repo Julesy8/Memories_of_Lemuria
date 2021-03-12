@@ -2,10 +2,11 @@ from numpy import array
 from components.enemies.caverns import *
 
 # this dictionary has the parameters for all the levels in the game
+# NOTE: map width/height must be larger than screen size!
 level_params = {
     0: array([0,   # tunnel type (0 = drunkard, 1 = straight)
-              80,  # map width
-              45,  # map height
+              100,  # map width
+              100,  # map height
               24,  # MAX_LEAF_SIZE
               15,  # ROOM_MAX_SIZE
               6,   # ROOM_MIN_SIZE

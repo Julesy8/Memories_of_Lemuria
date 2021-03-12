@@ -79,56 +79,38 @@ class GameMap:
 
     def render(self, console: Console, camera: Camera) -> None:
 
-        if not self.debug_fov:
+        for screen_y in range(camera.screen_height):
+            for screen_x in range(camera.screen_width):
+                map_x, map_y = camera.screen_to_map(screen_x, screen_y)
 
-            for y in range(self.height):
-                for x in range(self.width):
+                if self.visible[map_x, map_y]:
+                    console.print(screen_x, screen_y,
+                                  chr(self.tiles[map_x, map_y]["light"]["ch"]),
+                                  tuple(self.tiles[map_x, map_y]["light"]["fg"]),
+                                  tuple(self.tiles[map_x, map_y]["light"]["bg"]))
 
-                    x_in_camera, y_in_camera = camera.apply(x, y)
-
-                    if self.visible[x, y]:
-                        console.print(x_in_camera, y_in_camera,
-                                      chr(self.tiles[x, y]["light"]["ch"]),
-                                      tuple(self.tiles[x, y]["light"]["fg"]),
-                                      tuple(self.tiles[x, y]["light"]["bg"]))
-
-                    elif self.explored[x, y]:
-                        console.print(x_in_camera, y_in_camera,
-                                      chr(self.tiles[x, y]["dark"]["ch"]),
-                                      tuple(self.tiles[x, y]["dark"]["fg"]),
-                                      tuple(self.tiles[x, y]["dark"]["bg"]))
-
-        else:
-            for y in range(self.height):
-                for x in range(self.width):
-                    x_in_camera, y_in_camera = camera.apply(x, y)
-                    console.print(x_in_camera, y_in_camera,
-                                  chr(self.tiles[x, y]["light"]["ch"]),
-                                  tuple(self.tiles[x, y]["light"]["fg"]),
-                                  tuple(self.tiles[x, y]["light"]["bg"]))
+                elif self.explored[map_x, map_y]:
+                    console.print(screen_x, screen_y,
+                                  chr(self.tiles[map_x, map_y]["dark"]["ch"]),
+                                  tuple(self.tiles[map_x, map_y]["dark"]["fg"]),
+                                  tuple(self.tiles[map_x, map_y]["dark"]["bg"]))
 
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda x: x.render_order.value
         )
 
         for entity in entities_sorted_for_rendering:
-            if not self.debug_fov:
-                # Only print entities that are in the FOV
-                if self.visible[entity.x, entity.y]:
-                    x, y = camera.apply(entity.x, entity.y)
-                    console.print(x, y, entity.char, entity.fg_colour, entity.bg_colour)
+            if self.visible[entity.x, entity.y]:
+                screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
+                console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
 
-                    entity.last_seen_x = x
-                    entity.last_seen_y = y
+                entity.last_seen_x = entity.x
+                entity.last_seen_y = entity.y
 
-                    if not entity.seen:
-                        entity.seen = True
-                        entity.active = True
+                if not entity.seen:
+                    entity.seen = True
+                    entity.active = True
 
-                if not self.visible[entity.x, entity.y] and entity.seen:
-                    x, y = camera.apply(entity.last_seen_x, entity.last_seen_y)
-                    console.print(x, y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
-
-            else:
-                x, y = camera.apply(entity.x, entity.y)
-                console.print(x, y, entity.char, entity.fg_colour, entity.bg_colour)
+            #if not self.visible[entity.x, entity.y] and entity.seen:
+            #    screen_x, screen_y = camera.map_to_screen(entity.last_seen_x, entity.last_seen_y)
+            #    console.print(screen_x, screen_y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)

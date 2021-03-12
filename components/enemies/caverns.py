@@ -1,6 +1,6 @@
 from components.npc_templates import Fighter
 from entity import Actor
-from components.ai import HostileEnemy
+from components.ai import HostileEnemy, BaseAI
 from components.bodyparts import Bodypart
 import colour
 

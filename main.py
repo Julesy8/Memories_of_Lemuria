@@ -53,12 +53,12 @@ def main():
     # initialises player entity
     fighter_component = Fighter(power=20)
 
-    head = Bodypart(None, 50, 5, True, False, False, False, 'Head', 'Head', base_chance_to_hit=80)
-    body = Bodypart(None, 50, 5, True, False, False, False, 'Body', 'Body', base_chance_to_hit=90)
-    r_arm = Bodypart(None, 50, 5, False, False, False, True, 'Right Arm', 'Arms', base_chance_to_hit=80)
-    l_arm = Bodypart(None, 50, 5, False, False, False, True, 'Left Arm', 'Arms', base_chance_to_hit=80)
-    r_leg = Bodypart(None, 50, 5, False, False, True, False, 'Right Leg', 'Legs', base_chance_to_hit=80)
-    l_leg = Bodypart(None, 50, 5, False, False, True, False, 'Left Leg', 'Legs', base_chance_to_hit=80)
+    head = Bodypart(None, 500, 50, True, False, False, False, 'Head', 'Head', base_chance_to_hit=80)
+    body = Bodypart(None, 500, 50, True, False, False, False, 'Body', 'Body', base_chance_to_hit=90)
+    r_arm = Bodypart(None, 500, 50, False, False, False, True, 'Right Arm', 'Arms', base_chance_to_hit=80)
+    l_arm = Bodypart(None, 500, 50, False, False, False, True, 'Left Arm', 'Arms', base_chance_to_hit=80)
+    r_leg = Bodypart(None, 500, 50, False, False, True, False, 'Right Leg', 'Legs', base_chance_to_hit=80)
+    l_leg = Bodypart(None, 500, 50, False, False, True, False, 'Left Leg', 'Legs', base_chance_to_hit=80)
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 
@@ -77,10 +77,10 @@ def main():
     engine.game_map = map_class.generateLevel()
 
     camera = Camera(
-        x=0,
-        y=0,
-        width=screen_width,
-        height=screen_height,
+        camera_x=0,
+        camera_y=0,
+        screen_width=screen_width,
+        screen_height=screen_height,
         map_width=level_params[current_level][1],
         map_height=level_params[current_level][2],
     )

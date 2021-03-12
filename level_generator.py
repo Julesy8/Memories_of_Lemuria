@@ -43,13 +43,13 @@ class MessyBSPTree:
                                                               )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=False, entities=[self.player])
+        self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=True, entities=[self.player])
 
     def generateLevel(self):
         # Creates an empty 2D array or clears existing array
         self._leafs = []
 
-        rootLeaf = Leaf(0, 0, self.map_width, self.map_height, self.tunnel_type)
+        rootLeaf = Leaf(0, 0, self.map_width, self.map_height - 4, self.tunnel_type)
         self._leafs.append(rootLeaf)
 
         splitSuccessfully = True
@@ -130,7 +130,7 @@ class MessyBSPTree:
                     dy = 0
 
                 # check collision at edges
-                if (0 < drunkardX + dx < self.map_width - 1) and (0 < drunkardY + dy < self.map_height - 1):
+                if (0 < drunkardX + dx < self.map_width - 1) and (0 < drunkardY + dy < self.map_height - 5):
                     drunkardX += dx
                     drunkardY += dy
                     drunkardX = int(drunkardX)

@@ -1,9 +1,8 @@
 -----
 TO DO
 -----
--minimal testing environment fork
 - fix display of unseen entities with scrolling map
-- constrain scrolling map to the limits of the map
+- fix map overlapping with UI elements
 
 -bodypart functionality
 -some enemies run away when low on health

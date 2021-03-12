@@ -42,7 +42,7 @@ class Engine:
 
     def render(self, console: Console, camera: Camera) -> None:
         self.game_map.render(console, camera)
-        console.hline(x=0, y= 45, width=80)
+        console.draw_rect(0, 46, 80, 4, 219, fg=(0,0,0), bg=(0,0,0))
         self.message_log.render(console=console, x=21, y=46, width=60, height=4)
 
-        render_names_at_mouse_location(console=console, x=21, y=44, engine = self)
+        render_names_at_mouse_location(console=console, x=21, y=44, engine=self)

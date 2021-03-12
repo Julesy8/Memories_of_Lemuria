@@ -146,8 +146,8 @@ class HistoryViewer(EventHandler):
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
 
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)  # Draw the main state as the background.
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)  # Draw the main state as the background.
 
         log_console = tcod.Console(console.width - 6, console.height - 6)
 
