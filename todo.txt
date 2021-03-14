@@ -1,9 +1,6 @@
 -----
 TO DO
 -----
-- fix display of unseen entities with scrolling map
-- fix map overlapping with UI elements
-
 -bodypart functionality
 -some enemies run away when low on health
 -better player room spawn selection

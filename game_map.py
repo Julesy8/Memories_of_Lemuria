@@ -111,6 +111,8 @@ class GameMap:
                     entity.seen = True
                     entity.active = True
 
-            #if not self.visible[entity.x, entity.y] and entity.seen:
-            #    screen_x, screen_y = camera.map_to_screen(entity.last_seen_x, entity.last_seen_y)
-            #    console.print(screen_x, screen_y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
+            else:
+                if entity.seen:
+                    screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
+                    if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
+                        console.print(screen_x, screen_y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
