@@ -1,6 +1,8 @@
 -----
 TO DO
 -----
+-numbered identifiers for enemy names
+
 -bodypart functionality
 -some enemies run away when low on health
 -better player room spawn selection

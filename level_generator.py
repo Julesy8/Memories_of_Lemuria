@@ -8,18 +8,15 @@ from game_map import GameMap
 from level_parameters import Enemies_by_level
 
 
-#if TYPE_CHECKING:
-#    from engine import Engine
-
 class MessyBSPTree:
     """
     A Binary Space Partition connected by a severely weighted
     drunkards walk algorithm.
     """
 
-    def __init__(self, tunnel_type, map_width, map_height, MAX_LEAF_SIZE, ROOM_MAX_SIZE,
-                 ROOM_MIN_SIZE, max_monsters_per_room, engine, current_level):
-        self.tunnel_type = tunnel_type
+    def __init__(self, messy_tunnels, map_width, map_height, MAX_LEAF_SIZE, ROOM_MAX_SIZE,
+                 ROOM_MIN_SIZE, max_monsters_per_room, engine, current_level, min_rooms, max_rooms, messy_rooms):
+        self.messy_tunnels = messy_tunnels
         self.map_width = map_width
         self.map_height = map_height
         self.current_level = current_level
@@ -29,6 +26,9 @@ class MessyBSPTree:
         self.ROOM_MIN_SIZE = ROOM_MIN_SIZE
         self.max_monsters_per_room = max_monsters_per_room
         self.player = engine.player
+        self.room_amount = randint(min_rooms, max_rooms)
+        self.player_spawn_room = randint(0, self.room_amount)
+        self.messy_rooms = messy_rooms
         self._rooms = []
 
         # makes tuple of possible combinations of tile colours and characters
@@ -49,7 +49,7 @@ class MessyBSPTree:
         # Creates an empty 2D array or clears existing array
         self._leafs = []
 
-        rootLeaf = Leaf(0, 0, self.map_width, self.map_height - 4, self.tunnel_type)
+        rootLeaf = Leaf(0, 0, self.map_width, self.map_height - 4, self.messy_tunnels)
         self._leafs.append(rootLeaf)
 
         splitSuccessfully = True
@@ -71,20 +71,28 @@ class MessyBSPTree:
 
     def createRoom(self, room):
         # set all tiles within a rectangle to be floors
-        if len(self._rooms) == 0:
-            # The first room, where the player starts.
+        if len(self._rooms) == self.player_spawn_room:
+            # if the room being generated is the designated player_spawn_room, spawn player
             room_centre = room.centre()
             self.player.place(*room_centre, self.dungeon)
 
         else:
             place_entities(room, self.dungeon, self.max_monsters_per_room, self.current_level)
+
+        if len(self._rooms) == self.room_amount:
+            return
+
         self._rooms.append(room)
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
                 self.dungeon.tiles[x, y] = tools.select_random_tile(self.colours_chars_array)
 
-    def createHall(self, room1, room2, tunnel_type):
-        if tunnel_type == 0:
+                #self.dungeon.tiles[x, y] = tile_types.new_floor((130,130,130), (145,145,145), (89,106,222), (204,209,64), 123)
+                #uncomment to see the exact location of rooms
+
+    def createHall(self, room1, room2):
+
+        if self.messy_tunnels:
             # drunkards walk from room 1 to room 2
             drunkardX, drunkardY = room2.centre()
             goalX, goalY = room1.centre()
@@ -180,12 +188,12 @@ class Rect:  # used for the tunneling algorithm
 
 
 class Leaf:  # used for the BSP tree algorithm
-    def __init__(self, x, y, width, height, tunnel_type):  # as in MessyBSPTree, tunnel type 0 = drunkard, 1 = straight
+    def __init__(self, x, y, width, height, messy_tunnels):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.tunnel_type = tunnel_type
+        self.messy_tunnels = messy_tunnels
         self.MIN_LEAF_SIZE = 10
         self.child_1 = None
         self.child_2 = None
@@ -223,11 +231,11 @@ class Leaf:  # used for the BSP tree algorithm
         split = randint(self.MIN_LEAF_SIZE, max)  # determine where to split the leaf
 
         if splitHorizontally:
-            self.child_1 = Leaf(self.x, self.y, self.width, split, self.tunnel_type)
-            self.child_2 = Leaf(self.x, self.y + split, self.width, self.height - split, self.tunnel_type)
+            self.child_1 = Leaf(self.x, self.y, self.width, split, self.messy_tunnels)
+            self.child_2 = Leaf(self.x, self.y + split, self.width, self.height - split, self.messy_tunnels)
         else:
-            self.child_1 = Leaf(self.x, self.y, split, self.height, self.tunnel_type)
-            self.child_2 = Leaf(self.x + split, self.y, self.width - split, self.height, self.tunnel_type)
+            self.child_1 = Leaf(self.x, self.y, split, self.height, self.messy_tunnels)
+            self.child_2 = Leaf(self.x + split, self.y, self.width - split, self.height, self.messy_tunnels)
 
         return True
 
@@ -241,7 +249,7 @@ class Leaf:  # used for the BSP tree algorithm
 
             if self.child_1 and self.child_2:
                 bspTree.createHall(self.child_1.getRoom(),
-                                self.child_2.getRoom(), self.tunnel_type)
+                                self.child_2.getRoom())
 
         else:
             # Create rooms in the end branches of the bsp tree
@@ -279,6 +287,7 @@ class Leaf:  # used for the BSP tree algorithm
                 return self.room_1
             else:
                 return self.room_2
+
 
 def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, level: int):
     number_of_monsters = randint(0, maximum_monsters)

@@ -72,7 +72,8 @@ def main():
                              level_params[current_level][2], level_params[current_level][3],
                              level_params[current_level][4], level_params[current_level][5],
                              level_params[current_level][6],
-                             engine, current_level)
+                             engine, current_level, level_params[current_level][7], level_params[current_level][8],
+                             level_params[current_level][9])
 
     engine.game_map = map_class.generateLevel()
 
