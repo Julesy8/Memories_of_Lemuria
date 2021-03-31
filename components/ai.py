@@ -104,3 +104,30 @@ class HostileEnemy(BaseAI):
             ).perform()
         else:
             return
+
+    def flee(self):
+        # http://www.roguebasin.com/index.php?title=Dijkstra_Maps_Visualized#--_Fleeing_AI_--
+        # makes the AI flee from the player
+        if self.entity.energy >= self.entity.move_cost:
+            cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
+
+            distance = tcod.path.maxarray((self.entity.gamemap.width, self.entity.gamemap.height), order="F")
+            distance[self.engine.player.x, self.engine.player.y] = 0
+
+            dijkstra_map = tcod.path.dijkstra2d(distance, cost, cardinal=2, diagonal=3)
+            max_int = np.iinfo(dijkstra_map.dtype).max
+            touched = (dijkstra_map != max_int)
+            dijkstra_map[touched] *= -6
+            dijkstra_map[touched] //= 5
+            tcod.path.dijkstra2d(distance, cost, cardinal=2, diagonal=3)
+            path_xy = tcod.path.hillclimb2d(distance, (self.entity.x, self.entity.y),
+                                            cardinal=True, diagonal=True)[1:].tolist()
+            if path_xy:
+                dest_x, dest_y = path_xy.pop(0)
+                self.entity.energy -= self.entity.move_cost
+                MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y,).perform()
+            else:
+                return
+
+        else:
+            return

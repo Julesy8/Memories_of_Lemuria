@@ -9,6 +9,7 @@ import tile_types
 from colours_and_chars import MapColoursChars
 from entity import Actor
 from scrolling_map import Camera
+import colour
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -82,12 +83,6 @@ class GameMap:
             for screen_x in range(camera.screen_width):
                 map_x, map_y = camera.screen_to_map(screen_x, screen_y)
 
-                console.print(screen_x, screen_y,
-                              chr(self.tiles[map_x, map_y]["light"]["ch"]),
-                              tuple(self.tiles[map_x, map_y]["light"]["fg"]),
-                              tuple(self.tiles[map_x, map_y]["light"]["bg"]))
-
-                """
                 if self.visible[map_x, map_y]:
                     console.print(screen_x, screen_y,
                                   chr(self.tiles[map_x, map_y]["light"]["ch"]),
@@ -99,17 +94,13 @@ class GameMap:
                                   chr(self.tiles[map_x, map_y]["dark"]["ch"]),
                                   tuple(self.tiles[map_x, map_y]["dark"]["fg"]),
                                   tuple(self.tiles[map_x, map_y]["dark"]["bg"]))
-                """
 
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda x: x.render_order.value
         )
 
         for entity in entities_sorted_for_rendering:
-            screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
-            if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
-                console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
-            """
+
             if self.visible[entity.x, entity.y]:
                 screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
                 if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
@@ -127,4 +118,3 @@ class GameMap:
                     screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
                     if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
                         console.print(screen_x, screen_y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
-            """
