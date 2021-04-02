@@ -25,7 +25,7 @@ class MessageLog:
         self.messages: List[Message] = []
 
     def add_message(
-        self, text: str, fg: Tuple[int, int, int] = colour.white, *, stack: bool = True,
+        self, text: str, fg: Tuple[int, int, int] = colour.WHITE, *, stack: bool = True,
     ) -> None:
         """Add a message to this log.
         `text` is the message text, `fg` is the text color.

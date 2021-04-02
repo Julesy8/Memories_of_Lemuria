@@ -3,6 +3,7 @@ import numpy as np
 
 import tile_types
 
+
 def generate_char_arrays(floor_fg_d, floor_bg_d, floor_fg_l, floor_bg_l, floor_chars):
     """
     From tuples representing the colours of the tiles and possible floor characters (from dictionary in

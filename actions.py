@@ -127,7 +127,7 @@ class MeleeAction(ActionWithDirection):
             attack_colour = colour.LIGHT_RED
 
         # chance to hit calculation
-        hitchance = randint(0,100)
+        hitchance = randint(0, 100)
         if hitchance <= float(target.bodyparts[part_index].base_chance_to_hit) * self.entity.fighter.melee_accuracy:
 
             # calculates damage (system right now is placeholder) if successfully hits
@@ -148,7 +148,6 @@ class MeleeAction(ActionWithDirection):
 
 
 class MovementAction(ActionWithDirection):
-
     def perform(self) -> None:
         dest_x, dest_y = self.dest_xy
 

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from tcod.console import Console
 from tcod.map import compute_fov
 from scrolling_map import Camera
+import colour
 
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
@@ -42,7 +43,7 @@ class Engine:
 
     def render(self, console: Console, camera: Camera) -> None:
         self.game_map.render(console, camera)
-        console.draw_rect(0, 46, 80, 4, 219, fg=(0,0,0), bg=(0,0,0))
+        console.draw_rect(0, 46, 80, 4, 219, fg=colour.BLACK, bg=colour.BLACK)
         self.message_log.render(console=console, x=21, y=46, width=60, height=4)
 
         render_names_at_mouse_location(console=console, x=21, y=44, engine=self)

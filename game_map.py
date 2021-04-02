@@ -9,7 +9,6 @@ import tile_types
 from colours_and_chars import MapColoursChars
 from entity import Actor
 from scrolling_map import Camera
-import colour
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -106,15 +105,16 @@ class GameMap:
                 if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
                     console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
 
-                entity.last_seen_x = entity.x
-                entity.last_seen_y = entity.y
+                # entity.last_seen_x = entity.x
+                # entity.last_seen_y = entity.y
 
                 if not entity.seen:
-                    entity.seen = True
+                    # entity.seen = True
                     entity.active = True
 
-            else:
-                if entity.seen:
-                    screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
-                    if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
-                        console.print(screen_x, screen_y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
+            """
+            if entity.seen and not self.visible[entity.last_seen_x, entity.last_seen_y]:
+                screen_x, screen_y = camera.map_to_screen(entity.last_seen_x, entity.last_seen_y)
+                if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
+                    console.print(screen_x, screen_y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
+            """

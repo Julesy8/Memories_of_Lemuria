@@ -15,7 +15,8 @@ class BaseAI(Action, BaseComponent):
         raise NotImplementedError()
 
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
-        """Compute and return a path to the target position.
+        """
+        Compute and return a path to the target position.
 
         If there is no valid path then returns an empty list.
         """
@@ -58,76 +59,83 @@ class HostileEnemy(BaseAI):
 
         while self.entity.energy > 0:
 
-            if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            entity_fleeing = False
 
-                if distance <= 1 and self.entity.energy >= self.entity.attack_cost:
-                    MeleeAction(self.entity, dx, dy).perform()
-                    self.entity.energy -= self.entity.attack_cost
-                self.path = self.get_path_to(target.x, target.y)
+            # checks if entity should be fleeing
+            if self.entity.fears_death:
+                for bodypart in self.entity.bodyparts:
+                    if bodypart.vital and bodypart.hp < bodypart.max_hp/3:
+                        entity_fleeing = True
+                        break
 
-                if self.path and self.entity.energy >= self.entity.move_cost:
+            # perform melee action
+            if distance <= 1 and self.entity.energy >= self.entity.attack_cost and not entity_fleeing:
+                MeleeAction(self.entity, dx, dy).perform()
+                self.entity.energy -= self.entity.attack_cost
+
+            # any kind of move action occurring
+            elif self.entity.energy >= self.entity.move_cost:
+
+                # entity fleeing from target
+                if entity_fleeing and self.entity.active:
+                    cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
+                    distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
+                                                            self.entity.gamemap.height), order="F")
+                    distance_dijkstra[target.x, target.y] = 0
+                    tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
+                    max_int = np.iinfo(distance_dijkstra.dtype).max
+                    touched = (distance_dijkstra != max_int)
+                    distance_dijkstra[touched] *= -6
+                    distance_dijkstra[touched] //= 5
+                    tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
+                    path_xy = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
+                                                    cardinal=True, diagonal=True)[1:].tolist()
+                    if path_xy:
+                        dest_x, dest_y = path_xy.pop(0)
+                        self.entity.energy -= self.entity.move_cost
+                        MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y, ).perform()
+                    else:
+                        break
+
+                # path towards player given player is visible and entity is not fleeing
+                elif self.path and self.engine.game_map.visible[self.entity.x, self.entity.y] \
+                        and self.entity.energy >= self.entity.move_cost:
                     dest_x, dest_y = self.path.pop(0)
                     self.entity.energy -= self.entity.move_cost
                     MovementAction(
                         self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
                     ).perform()
+
                 else:
-                    break
-
-            else:
-                if self.entity.active and distance < 10:
-                    self.path = self.get_path_to(target.x, target.y)
-
-                    if self.path and self.entity.energy >= self.entity.move_cost:
-                        dest_x, dest_y = self.path.pop(0)
-                        self.entity.energy -= self.entity.move_cost
-                        MovementAction(
-                            self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                        ).perform()
+                    # move towards the target if not too far away and entity is active
+                    if self.entity.active and distance < self.entity.active_radius:
+                        self.path = self.get_path_to(target.x, target.y)
+                        if self.path:
+                            dest_x, dest_y = self.path.pop(0)
+                            self.entity.energy -= self.entity.move_cost
+                            MovementAction(
+                                self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                            ).perform()
+                        else:
+                            break
                     else:
                         break
 
-                elif self.entity.active and distance > 10:
-                    self.entity.active = False
+            # if target too far away, become inactive (stop following)
+            elif self.entity.active and distance > 10:
+                self.entity.active = False
 
-                else:
-                    break
+            else:
+                break
 
         return WaitAction(self.entity).perform()
 
-    def path_to(self):
-        if self.path and self.entity.energy >= self.entity.move_cost:
+    def move_towards(self):
+        if self.path:
             dest_x, dest_y = self.path.pop(0)
             self.entity.energy -= self.entity.move_cost
             MovementAction(
                 self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
             ).perform()
-        else:
-            return
-
-    def flee(self):
-        # http://www.roguebasin.com/index.php?title=Dijkstra_Maps_Visualized#--_Fleeing_AI_--
-        # makes the AI flee from the player
-        if self.entity.energy >= self.entity.move_cost:
-            cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
-
-            distance = tcod.path.maxarray((self.entity.gamemap.width, self.entity.gamemap.height), order="F")
-            distance[self.engine.player.x, self.engine.player.y] = 0
-
-            dijkstra_map = tcod.path.dijkstra2d(distance, cost, cardinal=2, diagonal=3)
-            max_int = np.iinfo(dijkstra_map.dtype).max
-            touched = (dijkstra_map != max_int)
-            dijkstra_map[touched] *= -6
-            dijkstra_map[touched] //= 5
-            tcod.path.dijkstra2d(distance, cost, cardinal=2, diagonal=3)
-            path_xy = tcod.path.hillclimb2d(distance, (self.entity.x, self.entity.y),
-                                            cardinal=True, diagonal=True)[1:].tolist()
-            if path_xy:
-                dest_x, dest_y = path_xy.pop(0)
-                self.entity.energy -= self.entity.move_cost
-                MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y,).perform()
-            else:
-                return
-
         else:
             return

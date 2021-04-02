@@ -19,12 +19,10 @@ class Entity:  # generic entity
     def __init__(self,
                  x: int,
                  y: int,
-
                  char: str,
                  fg_colour,
                  bg_colour,
                  name: str,
-
                  blocks_movement=False,
                  gamemap: Optional[GameMap] = None,
                  last_seen_x=None,
@@ -98,9 +96,11 @@ class Actor(Entity):
             attack_cost=100,
             move_cost=100,
             energy_regain=100,
+            active_radius=10,
             player: bool = False,
             last_seen_x=None,
-            last_seen_y=None
+            last_seen_y=None,
+            fears_death=True
     ):
         super().__init__(
             x=x,
@@ -114,7 +114,7 @@ class Actor(Entity):
             seen=False,
             active=False,
             last_seen_x=last_seen_x,
-            last_seen_y=last_seen_y
+            last_seen_y=last_seen_y,
         )
 
         self.ai = ai(self)
@@ -129,6 +129,8 @@ class Actor(Entity):
         self.move_cost = move_cost
         self.energy_regain = energy_regain
         self.max_energy = energy
+        self.active_radius = active_radius
+        self.fears_death = fears_death
         for bodypart in self.bodyparts:
             bodypart.owner_instance = self
 

@@ -34,12 +34,13 @@ def new_tile(
     """Helper function for defining individual tile types """
     return np.array((walkable, transparent, dark, light), dtype=tile_dt)
 
+
 # SHROUD represents unexplored, unseen tiles
 SHROUD = np.array((ord(" "), colour.WHITE, colour.BLACK), dtype=graphic_dt)
 
 
 def new_floor(fg_colour_d: Tuple[int, int, int], bg_colour_d: Tuple[int, int, int],
-             fg_colour_l:Tuple[int, int, int], bg_colour_l: Tuple[int, int, int], tile: int):
+              fg_colour_l: Tuple[int, int, int], bg_colour_l: Tuple[int, int, int], tile: int):
     floor = new_tile(
         walkable=True, transparent=True, dark=(tile, fg_colour_d, bg_colour_d), light=(tile, fg_colour_l, bg_colour_l)
     )
@@ -47,7 +48,7 @@ def new_floor(fg_colour_d: Tuple[int, int, int], bg_colour_d: Tuple[int, int, in
 
 
 def new_wall(fg_colour_d: Tuple[int, int, int], bg_colour_d: Tuple[int, int, int],
-             fg_colour_l:Tuple[int, int, int], bg_colour_l: Tuple[int, int, int], tile: int):
+             fg_colour_l: Tuple[int, int, int], bg_colour_l: Tuple[int, int, int], tile: int):
     wall = new_tile(
         walkable=False, transparent=False, dark=(tile, fg_colour_d, bg_colour_d), light=(tile, fg_colour_l, bg_colour_l)
     )

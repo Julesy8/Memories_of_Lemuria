@@ -51,7 +51,7 @@ def main():
     tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
     # initialises player entity
-    fighter_component = Fighter(power=20)
+    fighter_component = Fighter(power=6)
 
     head = Bodypart(None, 500, 50, True, False, False, False, 'Head', 'Head', base_chance_to_hit=80)
     body = Bodypart(None, 500, 50, True, False, False, False, 'Body', 'Body', base_chance_to_hit=90)

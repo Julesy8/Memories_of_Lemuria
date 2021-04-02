@@ -1,6 +1,7 @@
 -----
 TO DO
 -----
+-fix map making places it shouldn't 
 -numbered identifiers for enemy names
 
 -bodypart functionality

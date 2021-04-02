@@ -7,22 +7,24 @@ from engine import Engine
 import colour
 
 
-class Bodypart:  # a basic bodypart
+class Bodypart:
 
     entity: Actor
 
     def __init__(self,
-                 owner_instance,
+                 owner_instance,           # the entity that 'owns' the body part
                  hp: int,
                  defence: int,
-                 vital: bool,
-                 walking: bool,
+                 vital: bool,              # whether when the body part gets destroyed, the entity should die
+                 walking: bool,            # whether the body part is required for walking
                  flying: bool,
                  grasping: bool,
                  name: str,
-                 type: str,  # can be 'Body', 'Head', 'Arms' or 'Legs'
-                 base_chance_to_hit: int,
-                 functional: bool = True):
+                 type: str,                # can be 'Body', 'Head', 'Arms' or 'Legs'
+                 base_chance_to_hit: int,  # base modifier of how likely the body part is to be hit when attacked
+                 functional: bool = True   # whether the body part should be working or not
+                 ):
+
         self.owner_instance = owner_instance
         self.max_hp = hp
         self._hp = hp
@@ -55,8 +57,12 @@ class Bodypart:  # a basic bodypart
             self.die()
 
         elif self._hp == 0 and self.owner_instance.ai and self.vital is False:
-            # couldn't this theoretically occur multiple times to the same part?
+            # this is broke
             self.destroy()
+
+    @defence.setter
+    def defence(self, value):
+        self._defence = value
 
     def die(self) -> None:
 
@@ -82,7 +88,3 @@ class Bodypart:  # a basic bodypart
         if self.functional:
             self.functional = False
             self.engine.message_log.add_message(f"{self.owner_instance.name}'s {self.name} is destroyed!")
-
-    @defence.setter
-    def defence(self, value):
-        self._defence = value
