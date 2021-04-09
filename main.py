@@ -8,7 +8,9 @@ from level_parameters import level_params
 from level_generator import MessyBSPTree
 from components.ai import HostileEnemy
 from scrolling_map import Camera
+from components.inventory import Inventory
 import colour
+import traceback
 
 
 def main():
@@ -62,18 +64,27 @@ def main():
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 
-    player = Actor(0, 0, '@', colour.WHITE, None, 'Player', ai=HostileEnemy, fighter=fighter_component,
-                   bodyparts=body_parts, player=True, attack_cost=100, move_cost=100, energy=100)
+    player = Actor(0, 0, '@', colour.WHITE, None, 'Player', ai=HostileEnemy, inventory=Inventory(capacity=26),
+                   fighter=fighter_component, bodyparts=body_parts, player=True, attack_cost=100, move_cost=100,
+                   energy=100)
 
     engine = Engine(player=player)
 
-    # initialises map
-    map_class = MessyBSPTree(level_params[current_level][0], level_params[current_level][1],
-                             level_params[current_level][2], level_params[current_level][3],
-                             level_params[current_level][4], level_params[current_level][5],
+    # generates a map
+    map_class = MessyBSPTree(level_params[current_level][0],
+                             level_params[current_level][1],
+                             level_params[current_level][2],
+                             level_params[current_level][3],
+                             level_params[current_level][4],
+                             level_params[current_level][5],
                              level_params[current_level][6],
-                             engine, current_level, level_params[current_level][7], level_params[current_level][8],
-                             level_params[current_level][9])
+                             level_params[current_level][7],
+                             engine,
+                             current_level,
+                             level_params[current_level][8],
+                             level_params[current_level][9],
+                             level_params[current_level][10]
+                             )
 
     engine.game_map = map_class.generateLevel()
 
@@ -103,7 +114,15 @@ def main():
             engine.event_handler.on_render(console=root_console, camera=camera)
             context.present(root_console)
 
-            engine.event_handler.handle_events(context)
+            try:
+                for event in tcod.event.wait():
+                    context.convert_event(event)
+                    engine.event_handler.handle_events(event)
+            except Exception:  # Handle exceptions in game.
+                traceback.print_exc()  # Print error to stderr.
+                # Then print the error to the message log.
+                engine.message_log.add_message(traceback.format_exc(), colour.ORANGE)
+                
             camera.update(player)
 
 

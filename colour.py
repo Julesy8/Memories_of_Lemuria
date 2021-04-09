@@ -1,3 +1,4 @@
+# colours taken from various dwarf fortress player made colour sets
 BLACK = (10, 10, 12)  # custom
 BLUE = (13, 103, 196)  # "natural"
 GREEN = (68, 158, 53)  # "natural"

@@ -1,7 +1,7 @@
 -----
 TO DO
 -----
--fix map making places it shouldn't 
+-better, more flexible limb targeting
 -numbered identifiers for enemy names
 
 -bodypart functionality

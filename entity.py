@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar, TYPE_CHECKING, Type
+from typing import Optional, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
 
 if TYPE_CHECKING:
     from game_map import GameMap
+    from components.inventory import Inventory
 
 from render_order import RenderOrder
 
@@ -14,7 +15,7 @@ T = TypeVar("T", bound="Entity")
 
 class Entity:  # generic entity
 
-    gamemap: GameMap
+    parent: Union[GameMap, Inventory]
 
     def __init__(self,
                  x: int,
@@ -24,12 +25,13 @@ class Entity:  # generic entity
                  bg_colour,
                  name: str,
                  blocks_movement=False,
-                 gamemap: Optional[GameMap] = None,
+                 parent: Optional[GameMap] = None,
                  last_seen_x=None,
                  last_seen_y=None,
                  render_order: RenderOrder = RenderOrder.CORPSE,
                  active: bool = False,
-                 seen: bool = False
+                 seen: bool = False,
+
                  ):
         self.x = x
         self.y = y
@@ -44,10 +46,14 @@ class Entity:  # generic entity
         self.render_order = render_order
         self.active = active
         self.seen = seen
-        if gamemap:
-            # If gamemap isn't provided now then it will be set later.
-            self.gamemap = gamemap
-            gamemap.entities.add(self)
+        if parent:
+            # If parent isn't provided now then it will be set later.
+            self.parent = parent
+            parent.entities.add(self)
+
+    @property
+    def gamemap(self) -> GameMap:
+        return self.parent.gamemap
 
     def move(self, dx: int, dy: int) -> None:
         # Move the entity by a given amount
@@ -64,7 +70,7 @@ class Entity:  # generic entity
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
-        clone.gamemap = gamemap
+        clone.parent = gamemap
         gamemap.entities.add(clone)
         return clone
 
@@ -73,9 +79,10 @@ class Entity:  # generic entity
         self.x = x
         self.y = y
         if gamemap:
-            if hasattr(self, "gamemap"):  # Possibly uninitialized.
-                self.gamemap.entities.remove(self)
-            self.gamemap = gamemap
+            if hasattr(self, "parent"):  # Possibly uninitialized.
+                if self.parent is self.gamemap:
+                    self.gamemap.entities.remove(self)
+            self.parent = gamemap
             gamemap.entities.add(self)
 
 
@@ -89,6 +96,7 @@ class Actor(Entity):
             fg_colour,
             bg_colour,
             name: str,
+            inventory: Inventory,
             ai,
             fighter,
             bodyparts,  # list of bodyparts belonging to the entity
@@ -117,9 +125,11 @@ class Actor(Entity):
             last_seen_y=last_seen_y,
         )
 
+        self.inventory = inventory
+        self.inventory.parent = self
         self.ai = ai(self)
         self.fighter = fighter
-        self.fighter.entity = self
+        self.fighter.parent = self
         self.targeting = ['Body', 'Head', 'Arms', 'Legs']
         self.selected_target = self.targeting[0]
         self.player = player
@@ -146,3 +156,30 @@ class Actor(Entity):
     @energy.setter
     def energy(self, value: int) -> None:
         self._energy = max(0, min(value, self.max_energy))
+
+
+class Item(Entity):
+    def __init__(
+        self,
+        *,
+        x: int = 0,
+        y: int = 0,
+        char: str = "?",
+        fg_colour,
+        bg_colour,
+        name: str = "<Unnamed>",
+        consumable,
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            fg_colour=fg_colour,
+            bg_colour=bg_colour,
+            name=name,
+            blocks_movement=False,
+            render_order=RenderOrder.ITEM,
+        )
+
+        self.consumable = consumable
+        self.consumable.parent = self

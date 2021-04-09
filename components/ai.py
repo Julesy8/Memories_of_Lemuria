@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 import tcod
 
 from actions import Action, MeleeAction, MovementAction, WaitAction
-from components.npc_templates import BaseComponent
-from entity import Actor
+
+if TYPE_CHECKING:
+    from entity import Actor
 
 
-class BaseAI(Action, BaseComponent):
+class BaseAI(Action):
     def perform(self) -> None:
         raise NotImplementedError()
 
@@ -77,6 +78,7 @@ class HostileEnemy(BaseAI):
             elif self.entity.energy >= self.entity.move_cost:
 
                 # entity fleeing from target
+                """
                 if entity_fleeing and self.entity.active:
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                     distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
@@ -96,9 +98,11 @@ class HostileEnemy(BaseAI):
                         MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y, ).perform()
                     else:
                         break
+                """
 
                 # path towards player given player is visible and entity is not fleeing
-                elif self.path and self.engine.game_map.visible[self.entity.x, self.entity.y] \
+                # make elif if fleeing enabled
+                if self.path and self.engine.game_map.visible[self.entity.x, self.entity.y] \
                         and self.entity.energy >= self.entity.move_cost:
                     dest_x, dest_y = self.path.pop(0)
                     self.entity.energy -= self.entity.move_cost
