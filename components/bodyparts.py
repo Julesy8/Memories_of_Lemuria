@@ -1,16 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from entity import Actor
-    from engine import Engine
-
+from entity import Actor
 from render_order import RenderOrder
 from input_handlers import GameOverEventHandler
+from engine import Engine
 import colour
 
 
-# in the future split into separate classes for distinct bodyparts
 class Bodypart:
 
     entity: Actor
@@ -41,24 +37,6 @@ class Bodypart:
         self.type = type
         self.base_chance_to_hit = base_chance_to_hit
         self.functional = functional
-
-    def heal(self, amount: int) -> int:
-        if self.hp == self.max_hp:
-            return 0
-
-        new_hp_value = self.hp + amount
-
-        if new_hp_value > self.max_hp:
-            new_hp_value = self.max_hp
-
-        amount_recovered = new_hp_value - self.hp
-
-        self.hp = new_hp_value
-
-        return amount_recovered
-
-    def take_damage(self, amount: int) -> None:
-        self.hp -= amount
 
     @property
     def engine(self) -> Engine:

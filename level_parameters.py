@@ -1,19 +1,16 @@
 from numpy import array
 from components.enemies.caverns import *
-from components.items import*
 
 # this dictionary has the parameters for all the levels in the game
-# NOTE: map width/height must be same/larger than screen size!
-
+# NOTE: map width/height must be larger than screen size!
 level_params = {
     0: array([True,   # messy tunnels (bool)
-              80,    # map width
+              100,    # map width
               50,     # map height
               24,     # MAX_LEAF_SIZE
               15,     # ROOM_MAX_SIZE
               6,      # ROOM_MIN_SIZE
-              2,      # max monsters per room
-              2,      # max items per room
+              2,      # Max monsters per room
               15,     # min rooms
               20,     # max rooms
               True,   # messy rooms (bool)
@@ -35,20 +32,5 @@ Enemies_by_level = {
         [placeholder_v_rare],
         # legendary
         [placeholder_legendary]
-    ]
-}
-
-Items_by_level = {
-    0: [
-        # common
-        [medkit],
-        # uncommon
-        [medkit],
-        # rare
-        [medkit],
-        # very rare
-        [medkit],
-        # legendary
-        [medkit]
     ]
 }

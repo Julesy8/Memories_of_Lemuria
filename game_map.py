@@ -7,7 +7,7 @@ from tcod.console import Console
 
 import tile_types
 from colours_and_chars import MapColoursChars
-from entity import Actor, Item
+from entity import Actor
 from scrolling_map import Camera
 
 if TYPE_CHECKING:
@@ -16,8 +16,10 @@ if TYPE_CHECKING:
 
 
 class GameMap:
-    def __init__(self, engine: Engine, width: int, height: int, level: int, entities: Iterable[Entity] = ()):
+    def __init__(self, engine: Engine, width: int, height: int, level: int, debug_fov: bool,
+                 entities: Iterable[Entity] = ()):
         self.level = level
+        self.debug_fov = debug_fov  # to disable fov, set to 'True' in level_generator
         self.engine = engine
 
         self.colours_chars = MapColoursChars(self.level)
@@ -42,10 +44,6 @@ class GameMap:
         )  # Tiles the player has seen before
 
     @property
-    def gamemap(self) -> GameMap:
-        return self
-
-    @property
     def actors(self) -> Iterator[Actor]:
         """Iterate over this maps living actors."""
         yield from (
@@ -53,10 +51,6 @@ class GameMap:
             for entity in self.entities
             if isinstance(entity, Actor) and entity.is_alive
         )
-
-    @property
-    def items(self) -> Iterator[Item]:
-        yield from (entity for entity in self.entities if isinstance(entity, Item))
 
     def get_blocking_entity_at_location(
             self, location_x: int, location_y: int,
@@ -111,12 +105,12 @@ class GameMap:
                 if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
                     console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
 
-            # entity.last_seen_x = entity.x
-            # entity.last_seen_y = entity.y
+                # entity.last_seen_x = entity.x
+                # entity.last_seen_y = entity.y
 
-            if not entity.seen:
-                # entity.seen = True
-                entity.active = True
+                if not entity.seen:
+                    # entity.seen = True
+                    entity.active = True
 
             """
             if entity.seen and not self.visible[entity.last_seen_x, entity.last_seen_y]:

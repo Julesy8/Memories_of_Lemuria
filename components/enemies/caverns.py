@@ -2,7 +2,6 @@ from components.npc_templates import Fighter
 from entity import Actor
 from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
-from components.inventory import Inventory
 import colour
 
 
@@ -27,7 +26,6 @@ placeholder_common = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    inventory=Inventory(capacity=0),
     bodyparts=body_parts,
     move_cost=50
 )
@@ -40,7 +38,6 @@ placeholder_uncommon = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    inventory=Inventory(capacity=0),
     bodyparts=body_parts,
     energy_regain = 50,
     attack_cost = 50,
@@ -54,7 +51,6 @@ placeholder_rare = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    inventory=Inventory(capacity=0),
     bodyparts=body_parts,
 )
 
@@ -66,7 +62,6 @@ placeholder_v_rare = Actor(
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
-    inventory=Inventory(capacity=0),
     bodyparts=body_parts,
 )
 
@@ -78,6 +73,5 @@ placeholder_legendary = Actor(
     name = 'Placeholder',
     fighter=placeholder_fighter(),
     ai = HostileEnemy,
-    inventory=Inventory(capacity=0),
     bodyparts = body_parts,
 )

@@ -1,28 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from entity import Entity, Actor
-    from engine import Engine
-    from game_map import GameMap
+from engine import Engine
+from entity import Entity, Actor
 
 
 class BaseComponent:
-    parent: Entity  # Owning entity instance.
-
-    @property
-    def gamemap(self) -> GameMap:
-        return self.parent.gamemap
+    entity: Entity  # Owning entity instance.
 
     @property
     def engine(self) -> Engine:
-        return self.gamemap.engine
+        return self.entity.gamemap.engine
 
 
 class Fighter(BaseComponent):
-    parent: Actor
+    entity: Actor
 
     # basic class for entities that fight
     def __init__(self,
