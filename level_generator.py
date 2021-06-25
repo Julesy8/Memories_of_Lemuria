@@ -7,7 +7,6 @@ from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level
 
-
 class MessyBSPTree:
     """
     A Binary Space Partition connected by a severely weighted
@@ -73,8 +72,9 @@ class MessyBSPTree:
         # set all tiles within a rectangle to be floors
         if len(self._rooms) == self.player_spawn_room:
             # if the room being generated is the designated player_spawn_room, spawn player
-            room_centre = room.centre()
-            self.player.place(*room_centre, self.dungeon)
+            room_centre_x, room_centre_y = room.centre()
+            self.dungeon.tiles[room_centre_x, room_centre_y] = tools.select_random_tile(self.colours_chars_array)
+            self.player.place(room_centre_x, room_centre_y, self.dungeon)
 
         else:
             place_entities(room, self.dungeon, self.max_monsters_per_room, self.current_level)
@@ -86,9 +86,6 @@ class MessyBSPTree:
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
                 self.dungeon.tiles[x, y] = tools.select_random_tile(self.colours_chars_array)
-
-                #self.dungeon.tiles[x, y] = tile_types.new_floor((130,130,130), (145,145,145), (89,106,222), (204,209,64), 123)
-                #uncomment to see the exact location of rooms
 
     def createHall(self, room1, room2):
 
@@ -143,7 +140,7 @@ class MessyBSPTree:
                     drunkardY += dy
                     drunkardX = int(drunkardX)
                     drunkardY = int(drunkardY)
-                    if self.dungeon.tiles[drunkardX, drunkardY] == self.dungeon.wall:
+                    if not self.dungeon.tiles[drunkardX, drunkardY][0]:
                         self.dungeon.tiles[drunkardX, drunkardY] = tools.select_random_tile(self.colours_chars_array)
         else:
             # connect two rooms by straight hallways
@@ -296,6 +293,7 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, level: i
         x = randint(room.x1 + 1, room.x2 - 1)
         y = randint(room.y1 + 1, room.y2 - 1)
 
+        # change to also check for walls
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             entity_rarity = randint(1, 100)
             if entity_rarity <= 60:          # common

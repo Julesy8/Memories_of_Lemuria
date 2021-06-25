@@ -6,11 +6,10 @@ import numpy as np  # type: ignore
 import tcod
 
 from actions import Action, MeleeAction, MovementAction, WaitAction
-from components.npc_templates import BaseComponent
 from entity import Actor
 
 
-class BaseAI(Action, BaseComponent):
+class BaseAI(Action):
     def perform(self) -> None:
         raise NotImplementedError()
 
@@ -51,31 +50,39 @@ class HostileEnemy(BaseAI):
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
+        self.entity.turn_counter += 1
+        move_turns = self.entity.moves_per_turn
+        attack_turns = self.entity.attacks_per_turn
+
         target = self.engine.player
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-        self.entity.energy += self.entity.energy_regain
 
-        while self.entity.energy > 0:
+        while move_turns > 0 and attack_turns > 0:
 
+            """
             entity_fleeing = False
-
+            
             # checks if entity should be fleeing
             if self.entity.fears_death:
                 for bodypart in self.entity.bodyparts:
                     if bodypart.vital and bodypart.hp < bodypart.max_hp/3:
                         entity_fleeing = True
                         break
+            """
 
             # perform melee action
-            if distance <= 1 and self.entity.energy >= self.entity.attack_cost and not entity_fleeing:
+            if distance <= 1 and attack_turns > 0 and self.entity.last_attack_turn + self.entity.attack_interval <= \
+                    self.entity.turn_counter:
                 MeleeAction(self.entity, dx, dy).perform()
-                self.entity.energy -= self.entity.attack_cost
+                attack_turns -= 1
+                self.entity.last_attack_turn = self.entity.turn_counter
 
             # any kind of move action occurring
-            elif self.entity.energy >= self.entity.move_cost:
+            elif move_turns > 0 and self.entity.last_move_turn + self.entity.move_interval <= self.entity.turn_counter:
 
+                """
                 # entity fleeing from target
                 if entity_fleeing and self.entity.active:
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
@@ -96,46 +103,39 @@ class HostileEnemy(BaseAI):
                         MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y, ).perform()
                     else:
                         break
+                """
 
                 # path towards player given player is visible and entity is not fleeing
-                elif self.path and self.engine.game_map.visible[self.entity.x, self.entity.y] \
-                        and self.entity.energy >= self.entity.move_cost:
+                if self.path and self.engine.game_map.visible[self.entity.x, self.entity.y]:
                     dest_x, dest_y = self.path.pop(0)
-                    self.entity.energy -= self.entity.move_cost
                     MovementAction(
                         self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
                     ).perform()
+                    self.entity.last_move_turn = self.entity.turn_counter
+                    move_turns -= 1
 
-                else:
                     # move towards the target if not too far away and entity is active
-                    if self.entity.active and distance < self.entity.active_radius:
-                        self.path = self.get_path_to(target.x, target.y)
-                        if self.path:
-                            dest_x, dest_y = self.path.pop(0)
-                            self.entity.energy -= self.entity.move_cost
-                            MovementAction(
-                                self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                            ).perform()
-                        else:
-                            break
+                elif self.entity.active and distance < self.entity.active_radius:
+                    self.path = self.get_path_to(target.x, target.y)
+                    if self.path:
+                        dest_x, dest_y = self.path.pop(0)
+                        MovementAction(
+                            self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                        ).perform()
+                        self.entity.last_move_turn = self.entity.turn_counter
+                        move_turns -= 1
                     else:
                         break
 
-            # if target too far away, become inactive (stop following)
-            elif self.entity.active and distance > 10:
-                self.entity.active = False
+                # if target too far away and not visible, become inactive (stop following)
+                elif self.entity.active and distance > 10 and not \
+                        self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                    self.entity.active = False
+
+                else:
+                    break
 
             else:
                 break
 
         return WaitAction(self.entity).perform()
-
-    def move_towards(self):
-        if self.path:
-            dest_x, dest_y = self.path.pop(0)
-            self.entity.energy -= self.entity.move_cost
-            MovementAction(
-                self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-            ).perform()
-        else:
-            return

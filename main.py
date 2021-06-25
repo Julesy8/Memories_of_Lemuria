@@ -1,5 +1,7 @@
 import tcod
 
+import traceback
+
 from engine import Engine
 from components.npc_templates import Fighter
 from entity import Actor
@@ -12,33 +14,6 @@ import colour
 
 
 def main():
-    """
-    Main:
-    -handles main game loop through engine
-    -Initialises player
-    -Initialises engine
-    -Initialises gamemap
-    -Initialises terminal
-
-    GameMap:
-    -gets information from engine
-    -handles rendering
-    -handles colour/s of walls
-    -initialises game map as just walls
-    -prints to terminal
-    -handles FOV
-    -handles entity blocking
-
-    Engine
-    -gets information from gamemap
-    -handles enemy turns
-    -updates FOV through GameMap
-    -Renders through gamemap
-
-    Level_generator
-    -from gamemap generates level
-    -places player + entities
-    """
 
     # initialises values for screen width and height used when rendering the root console, placing player
     screen_width = 80
@@ -53,17 +28,18 @@ def main():
     # initialises player entity
     fighter_component = Fighter(power=6)
 
-    head = Bodypart(None, 500, 50, True, False, False, False, 'Head', 'Head', base_chance_to_hit=80)
-    body = Bodypart(None, 500, 50, True, False, False, False, 'Body', 'Body', base_chance_to_hit=90)
-    r_arm = Bodypart(None, 500, 50, False, False, False, True, 'Right Arm', 'Arms', base_chance_to_hit=80)
-    l_arm = Bodypart(None, 500, 50, False, False, False, True, 'Left Arm', 'Arms', base_chance_to_hit=80)
-    r_leg = Bodypart(None, 500, 50, False, False, True, False, 'Right Leg', 'Legs', base_chance_to_hit=80)
-    l_leg = Bodypart(None, 500, 50, False, False, True, False, 'Left Leg', 'Legs', base_chance_to_hit=80)
+    head = Bodypart(None, 500, 50, True, False, False, 'Head', 'Head', base_chance_to_hit=80)
+    body = Bodypart(None, 500, 50, True, False, False, 'Body', 'Body', base_chance_to_hit=90)
+    r_arm = Bodypart(None, 500, 50, False, False, False, 'Right Arm', 'Arms', base_chance_to_hit=80)
+    l_arm = Bodypart(None, 500, 50, False, False, False, 'Left Arm', 'Arms', base_chance_to_hit=80)
+    r_leg = Bodypart(None, 500, 50, False, False, True, 'Right Leg', 'Legs', base_chance_to_hit=80)
+    l_leg = Bodypart(None, 500, 50, False, False, True, 'Left Leg', 'Legs', base_chance_to_hit=80)
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 
     player = Actor(0, 0, '@', colour.WHITE, None, 'Player', ai=HostileEnemy, fighter=fighter_component,
-                   bodyparts=body_parts, player=True, attack_cost=100, move_cost=100, energy=100)
+                   bodyparts=body_parts, attack_interval=0, attacks_per_turn=1, move_interval=0, moves_per_turn=1,
+                   player=True)
 
     engine = Engine(player=player)
 

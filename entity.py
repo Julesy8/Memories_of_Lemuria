@@ -25,16 +25,11 @@ class Entity:  # generic entity
                  name: str,
                  blocks_movement=False,
                  gamemap: Optional[GameMap] = None,
-                 last_seen_x=None,
-                 last_seen_y=None,
                  render_order: RenderOrder = RenderOrder.CORPSE,
                  active: bool = False,
-                 seen: bool = False
                  ):
         self.x = x
         self.y = y
-        self.last_seen_x = last_seen_x
-        self.last_seen_y = last_seen_y
         self.char = char
         self.hidden_char = char
         self.fg_colour = fg_colour
@@ -43,7 +38,6 @@ class Entity:  # generic entity
         self.blocks_movement = blocks_movement
         self.render_order = render_order
         self.active = active
-        self.seen = seen
         if gamemap:
             # If gamemap isn't provided now then it will be set later.
             self.gamemap = gamemap
@@ -84,7 +78,6 @@ class Actor(Entity):
             self,
             x: int,
             y: int,
-
             char: str,
             fg_colour,
             bg_colour,
@@ -92,15 +85,12 @@ class Actor(Entity):
             ai,
             fighter,
             bodyparts,  # list of bodyparts belonging to the entity
-            energy=100,
-            attack_cost=100,
-            move_cost=100,
-            energy_regain=100,
+            attack_interval=0,  # how many turns the entity waits before attacking
+            attacks_per_turn=1,  # when the entity attacks, how many times?
+            move_interval=0,  # how many turns the entity waits before moving
+            moves_per_turn=1,  # when the entity moves, how many times?
             active_radius=10,
             player: bool = False,
-            last_seen_x=None,
-            last_seen_y=None,
-            fears_death=True
     ):
         super().__init__(
             x=x,
@@ -111,10 +101,7 @@ class Actor(Entity):
             name=name,
             blocks_movement=True,
             render_order=RenderOrder.ACTOR,
-            seen=False,
             active=False,
-            last_seen_x=last_seen_x,
-            last_seen_y=last_seen_y,
         )
 
         self.ai = ai(self)
@@ -124,13 +111,14 @@ class Actor(Entity):
         self.selected_target = self.targeting[0]
         self.player = player
         self.bodyparts = copy.deepcopy(bodyparts)
-        self._energy = energy
-        self.attack_cost = attack_cost
-        self.move_cost = move_cost
-        self.energy_regain = energy_regain
-        self.max_energy = energy
         self.active_radius = active_radius
-        self.fears_death = fears_death
+        self.turn_counter = 0
+        self.last_move_turn = 0
+        self.last_attack_turn = 0
+        self.attack_interval = attack_interval
+        self.attacks_per_turn = attacks_per_turn
+        self.move_interval = move_interval
+        self.moves_per_turn = moves_per_turn
         for bodypart in self.bodyparts:
             bodypart.owner_instance = self
 
@@ -138,11 +126,3 @@ class Actor(Entity):
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
-
-    @property
-    def energy(self) -> int:
-        return self._energy
-
-    @energy.setter
-    def energy(self, value: int) -> None:
-        self._energy = max(0, min(value, self.max_energy))

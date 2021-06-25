@@ -6,6 +6,7 @@ from input_handlers import GameOverEventHandler
 from engine import Engine
 import colour
 
+import math
 
 class Bodypart:
 
@@ -17,10 +18,9 @@ class Bodypart:
                  defence: int,
                  vital: bool,              # whether when the body part gets destroyed, the entity should die
                  walking: bool,            # whether the body part is required for walking
-                 flying: bool,
                  grasping: bool,
                  name: str,
-                 type: str,                # can be 'Body', 'Head', 'Arms' or 'Legs'
+                 type: str,
                  base_chance_to_hit: int,  # base modifier of how likely the body part is to be hit when attacked
                  functional: bool = True   # whether the body part should be working or not
                  ):
@@ -31,7 +31,6 @@ class Bodypart:
         self._defence = defence
         self.vital = vital
         self.walking = walking
-        self.flying = flying
         self.grasping = grasping
         self.name = name
         self.type = type
@@ -53,12 +52,12 @@ class Bodypart:
     @hp.setter
     def hp(self, value: int) -> None:
         self._hp = max(0, min(value, self.max_hp))
-        if self._hp == 0 and self.owner_instance.ai and self.vital:
-            self.die()
 
-        elif self._hp == 0 and self.owner_instance.ai and self.vital is False:
-            # this is broke
+        if self._hp == 0 and self.owner_instance.ai and self.functional:
             self.destroy()
+
+            if self.vital:
+                self.die()
 
     @defence.setter
     def defence(self, value):
@@ -76,7 +75,6 @@ class Bodypart:
             death_message_colour = colour.CYAN
             self.owner_instance.fg_colour = colour.WHITE
             self.owner_instance.bg_colour = colour.LIGHT_RED
-            self.owner_instance.hidden_char = '%'
             self.owner_instance.blocks_movement = False
             self.owner_instance.ai = None
             self.owner_instance.name = f"remains of {self.owner_instance.name}"
@@ -85,6 +83,46 @@ class Bodypart:
         self.engine.message_log.add_message(death_message, death_message_colour)
 
     def destroy(self) -> None:
-        if self.functional:
-            self.functional = False
-            self.engine.message_log.add_message(f"{self.owner_instance.name}'s {self.name} is destroyed!")
+        self.functional = False
+        self.engine.message_log.add_message(f"{self.owner_instance.name}'s {self.name} is destroyed!")
+
+        '''
+        if self.walking:
+
+            total_legs = 1
+            functional_legs = 1
+
+            for parts in self.owner_instance.bodyparts:
+                if parts.walking:
+                    total_legs += 1
+                    if parts.functional:
+                        functional_legs += 1
+            movement_penalty = (total_legs - functional_legs) / functional_legs
+
+            if self.owner_instance.moves_per_turn > 1:
+                self.owner_instance.moves_per_turn = math.ceil(movement_penalty * self.owner_instance.moves_per_turn)
+
+            else:
+                self.owner_instance.move_interval = math.ceil(movement_penalty * self.owner_instance.move_interval)
+        '''
+
+    def heal(self, amount: int) -> int:
+        if self.hp == self.max_hp:
+            return 0
+
+        new_hp_value = self.hp + amount
+
+        if new_hp_value > self.max_hp:
+            new_hp_value = self.max_hp
+
+        amount_recovered = new_hp_value - self.hp
+
+        self.hp = new_hp_value
+
+        return amount_recovered
+
+    def cripple(self) -> None:
+        pass
+
+    def restore(self):
+        pass

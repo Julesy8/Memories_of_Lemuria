@@ -67,5 +67,5 @@ level_0 = {
 
     3: [35],  # wall tile
 
-    4: [46, 96, 44]  # floor tile, to weight this add multiple of the same value
+    4: [46]  # floor tile, to weight this add multiple of the same value
 }

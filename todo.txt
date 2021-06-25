@@ -1,7 +1,7 @@
 -----
 TO DO
 -----
--fix map making places it shouldn't 
+-prevent player + entities spawning in walls - check at spawn if the spawn location is walkable
 -numbered identifiers for enemy names
 
 -bodypart functionality

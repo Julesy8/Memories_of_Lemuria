@@ -44,6 +44,10 @@ class GameMap:
         )  # Tiles the player has seen before
 
     @property
+    def gamemap(self) -> GameMap:
+        return self
+
+    @property
     def actors(self) -> Iterator[Actor]:
         """Iterate over this maps living actors."""
         yield from (
@@ -104,17 +108,4 @@ class GameMap:
                 screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
                 if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
                     console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
-
-                # entity.last_seen_x = entity.x
-                # entity.last_seen_y = entity.y
-
-                if not entity.seen:
-                    # entity.seen = True
                     entity.active = True
-
-            """
-            if entity.seen and not self.visible[entity.last_seen_x, entity.last_seen_y]:
-                screen_x, screen_y = camera.map_to_screen(entity.last_seen_x, entity.last_seen_y)
-                if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
-                    console.print(screen_x, screen_y, entity.hidden_char, colour.DARK_GRAY, colour.BLACK)
-            """
