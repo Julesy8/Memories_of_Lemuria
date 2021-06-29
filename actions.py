@@ -219,3 +219,13 @@ class ItemAction(Action):
 class DropItem(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.drop(self.item)
+
+
+class EquipWeapon(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.equip_weapon(self.item)
+
+
+class UnequipWeapon(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.unequip_weapon(self.item)

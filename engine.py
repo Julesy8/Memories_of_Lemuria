@@ -10,7 +10,7 @@ import colour
 import exceptions
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
-from render_functions import render_names_at_mouse_location
+from render_functions import render_names_at_mouse_location, render_mouse_location
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -50,4 +50,5 @@ class Engine:
         console.draw_rect(0, 46, 80, 4, 219, fg=colour.BLACK, bg=colour.BLACK)
         self.message_log.render(console=console, x=21, y=46, width=60, height=4)
 
-        render_names_at_mouse_location(console=console, x=21, y=44, engine=self)
+        render_names_at_mouse_location(console=console, x=1, y=45, engine=self)
+        #render_mouse_location(console=console, engine=self, game_map=self.game_map)

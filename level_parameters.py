@@ -39,14 +39,14 @@ Enemies_by_level = {
 Items_by_level = {
     0: [
         # common
-        [health_potion],
+        [placeholder_item],
         # uncommon
-        [health_potion],
+        [placeholder_item],
         # rare
-        [health_potion],
+        [placeholder_item],
         # very rare
-        [health_potion],
+        [placeholder_item],
         # legendary
-        [health_potion]
+        [placeholder_item]
     ]
 }

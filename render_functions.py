@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import tcod
+
+import colour
+
 if TYPE_CHECKING:
     from tcod import Console
     from engine import Engine
@@ -28,3 +32,13 @@ def render_names_at_mouse_location(
     )
 
     console.print(x=x, y=y, string=names_at_mouse_location)
+
+
+def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -> None:
+    mouse_x, mouse_y = engine.mouse_location
+
+    if game_map.in_bounds(mouse_x, mouse_y):
+        tcod.console_put_char_ex(console, mouse_x, mouse_y, 43, colour.YELLOW, colour.BLACK)
+
+    else:
+        return

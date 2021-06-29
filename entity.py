@@ -148,7 +148,7 @@ class Item(Entity):
         fg_colour,
         bg_colour,
         name: str = "<Unnamed>",
-        consumable: Consumable,
+        consumable: Optional[Consumable],
     ):
         super().__init__(
             x=x,
@@ -162,4 +162,5 @@ class Item(Entity):
         )
 
         self.consumable = consumable
-        self.consumable.parent = self
+        if consumable:
+            self.consumable.parent = self

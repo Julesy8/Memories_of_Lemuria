@@ -309,7 +309,6 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
 
             enemy.place(x, y, dungeon)
 
-    '''
     for i in range(number_of_items):
         x = randint(room.x1 + 1, room.x2 - 1)
         y = randint(room.y1 + 1, room.y2 - 1)
@@ -332,4 +331,4 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
                 item = copy.deepcopy(Items_by_level[level][4][randint(0, len(Items_by_level[level][0]) - 1)])
 
             item.place(x, y, dungeon)
-    '''
+

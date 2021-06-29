@@ -93,6 +93,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
+
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
 
@@ -127,6 +128,8 @@ class MainGameEventHandler(EventHandler):
             self.engine.event_handler = InventoryActivateHandler(self.engine)
         elif key == tcod.event.K_d:
             self.engine.event_handler = InventoryDropHandler(self.engine)
+        elif key == tcod.event.K_e:
+            self.engine.event_handler = InventoryEquipWeaponHandler(self.engine)
 
         # No valid key was pressed
         return action
@@ -307,7 +310,11 @@ class InventoryActivateHandler(InventoryEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Return the action for the selected item."""
-        return item.consumable.get_action(self.engine.player)
+        if item.consumable:
+            return item.consumable.get_action(self.engine.player)
+
+        else:
+            return
 
 
 class InventoryDropHandler(InventoryEventHandler):
@@ -318,3 +325,16 @@ class InventoryDropHandler(InventoryEventHandler):
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Drop this item."""
         return actions.DropItem(self.engine.player, item)
+
+
+class InventoryEquipWeaponHandler(InventoryEventHandler):
+
+    TITLE = "Select an item to equip"
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        return actions.EquipWeapon(self.engine.player, item)
+
+'''
+class EquipmentEventHandler(AskUserEventHandler):
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+'''

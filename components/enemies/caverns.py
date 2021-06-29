@@ -96,3 +96,12 @@ health_potion = Item(
     name="Health Potion",
     consumable=HealingConsumable(amount=4),
 )
+
+placeholder_item = Item(
+    x=0, y=0,
+    char="?",
+    fg_colour=colour.MAGENTA,
+    bg_colour=None,
+    name="Placeholder Item",
+    consumable=None
+)
