@@ -7,7 +7,7 @@ from tcod.console import Console
 
 import tile_types
 from colours_and_chars import MapColoursChars
-from entity import Actor
+from entity import Actor, Item
 from scrolling_map import Camera
 
 if TYPE_CHECKING:
@@ -55,6 +55,10 @@ class GameMap:
             for entity in self.entities
             if isinstance(entity, Actor) and entity.is_alive
         )
+
+    @property
+    def items(self) -> Iterator[Item]:
+        yield from (entity for entity in self.entities if isinstance(entity, Item))
 
     def get_blocking_entity_at_location(
             self, location_x: int, location_y: int,

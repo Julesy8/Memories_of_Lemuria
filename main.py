@@ -10,6 +10,7 @@ from level_parameters import level_params
 from level_generator import MessyBSPTree
 from components.ai import HostileEnemy
 from scrolling_map import Camera
+from components.inventory import Inventory
 import colour
 
 
@@ -28,28 +29,45 @@ def main():
     # initialises player entity
     fighter_component = Fighter(power=6)
 
-    head = Bodypart(None, 500, 50, True, False, False, 'Head', 'Head', base_chance_to_hit=80)
-    body = Bodypart(None, 500, 50, True, False, False, 'Body', 'Body', base_chance_to_hit=90)
-    r_arm = Bodypart(None, 500, 50, False, False, False, 'Right Arm', 'Arms', base_chance_to_hit=80)
-    l_arm = Bodypart(None, 500, 50, False, False, False, 'Left Arm', 'Arms', base_chance_to_hit=80)
-    r_leg = Bodypart(None, 500, 50, False, False, True, 'Right Leg', 'Legs', base_chance_to_hit=80)
-    l_leg = Bodypart(None, 500, 50, False, False, True, 'Left Leg', 'Legs', base_chance_to_hit=80)
+    head = Bodypart(500, 50, True, False, False, 'Head', 'Head', base_chance_to_hit=80)
+    body = Bodypart(500, 50, True, False, False, 'Body', 'Body', base_chance_to_hit=90)
+    r_arm = Bodypart(500, 50, False, False, False, 'Right Arm', 'Arms', base_chance_to_hit=80)
+    l_arm = Bodypart(500, 50, False, False, False, 'Left Arm', 'Arms', base_chance_to_hit=80)
+    r_leg = Bodypart(500, 50, False, False, True, 'Right Leg', 'Legs', base_chance_to_hit=80)
+    l_leg = Bodypart(500, 50, False, False, True, 'Left Leg', 'Legs', base_chance_to_hit=80)
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
 
-    player = Actor(0, 0, '@', colour.WHITE, None, 'Player', ai=HostileEnemy, fighter=fighter_component,
-                   bodyparts=body_parts, attack_interval=0, attacks_per_turn=1, move_interval=0, moves_per_turn=1,
-                   player=True)
+    player = Actor(0, 0,
+                   '@',
+                   colour.WHITE,
+                   None,
+                   'Player',
+                   ai=HostileEnemy,
+                   fighter=fighter_component,
+                   bodyparts=body_parts,
+                   attack_interval=0,
+                   attacks_per_turn=1,
+                   move_interval=0,
+                   moves_per_turn=1,
+                   player=True,
+                   inventory=Inventory(capacity=26)
+                   )
 
     engine = Engine(player=player)
 
     # initialises map
-    map_class = MessyBSPTree(level_params[current_level][0], level_params[current_level][1],
-                             level_params[current_level][2], level_params[current_level][3],
-                             level_params[current_level][4], level_params[current_level][5],
-                             level_params[current_level][6],
-                             engine, current_level, level_params[current_level][7], level_params[current_level][8],
-                             level_params[current_level][9])
+    map_class = MessyBSPTree(level_params[current_level][0],  # messy tunnels
+                             level_params[current_level][1],  # map width
+                             level_params[current_level][2],  # map height
+                             level_params[current_level][3],  # max leaf size
+                             level_params[current_level][4],  # max room size
+                             level_params[current_level][5],  # room min size
+                             level_params[current_level][6],  # max monsters per room
+                             level_params[current_level][7],  # max items per room
+                             engine,
+                             current_level,
+                             )
 
     engine.game_map = map_class.generateLevel()
 
@@ -79,7 +97,14 @@ def main():
             engine.event_handler.on_render(console=root_console, camera=camera)
             context.present(root_console)
 
-            engine.event_handler.handle_events(context)
+            try:
+                for event in tcod.event.wait():
+                    context.convert_event(event)
+                    engine.event_handler.handle_events(event)
+            except Exception:  # Handle exceptions in game.
+                traceback.print_exc()  # Print error to stderr.
+                # Then print the error to the message log.
+                engine.message_log.add_message(traceback.format_exc(), colour.LIGHT_RED)
             camera.update(player)
 
 

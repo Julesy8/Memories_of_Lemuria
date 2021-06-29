@@ -5,7 +5,8 @@ from random import random, randint, choice
 import level_gen_tools as tools
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
-from level_parameters import Enemies_by_level
+from level_parameters import Enemies_by_level, Items_by_level
+
 
 class MessyBSPTree:
     """
@@ -13,21 +14,19 @@ class MessyBSPTree:
     drunkards walk algorithm.
     """
 
-    def __init__(self, messy_tunnels, map_width, map_height, MAX_LEAF_SIZE, ROOM_MAX_SIZE,
-                 ROOM_MIN_SIZE, max_monsters_per_room, engine, current_level, min_rooms, max_rooms, messy_rooms):
+    def __init__(self, messy_tunnels, map_width, map_height, max_leaf_size, room_max_size,
+                 room_min_size, max_monsters_per_room, max_items_per_room, engine, current_level):
         self.messy_tunnels = messy_tunnels
         self.map_width = map_width
         self.map_height = map_height
         self.current_level = current_level
         self.room = None
-        self.MAX_LEAF_SIZE = MAX_LEAF_SIZE
-        self.ROOM_MAX_SIZE = ROOM_MAX_SIZE
-        self.ROOM_MIN_SIZE = ROOM_MIN_SIZE
+        self.max_leaf_size = max_leaf_size
+        self.room_max_size = room_max_size
+        self.room_min_size = room_min_size
         self.max_monsters_per_room = max_monsters_per_room
+        self.max_items_per_room = max_items_per_room
         self.player = engine.player
-        self.room_amount = randint(min_rooms, max_rooms)
-        self.player_spawn_room = randint(0, self.room_amount)
-        self.messy_rooms = messy_rooms
         self._rooms = []
 
         # makes tuple of possible combinations of tile colours and characters
@@ -57,8 +56,8 @@ class MessyBSPTree:
             splitSuccessfully = False
             for l in self._leafs:
                 if (l.child_1 is None) and (l.child_2 is None):
-                    if ((l.width > self.MAX_LEAF_SIZE) or
-                            (l.height > self.MAX_LEAF_SIZE) or
+                    if ((l.width > self.max_leaf_size) or
+                            (l.height > self.max_leaf_size) or
                             (random() > 0.8)):
                         if l.splitLeaf():  # try to split the leaf
                             self._leafs.append(l.child_1)
@@ -70,17 +69,13 @@ class MessyBSPTree:
 
     def createRoom(self, room):
         # set all tiles within a rectangle to be floors
-        if len(self._rooms) == self.player_spawn_room:
+        if len(self._rooms) == 0:  # self.player_spawn_room:
             # if the room being generated is the designated player_spawn_room, spawn player
             room_centre_x, room_centre_y = room.centre()
-            self.dungeon.tiles[room_centre_x, room_centre_y] = tools.select_random_tile(self.colours_chars_array)
             self.player.place(room_centre_x, room_centre_y, self.dungeon)
 
         else:
-            place_entities(room, self.dungeon, self.max_monsters_per_room, self.current_level)
-
-        if len(self._rooms) == self.room_amount:
-            return
+            place_entities(room, self.dungeon, self.max_monsters_per_room, self.max_items_per_room, self.current_level)
 
         self._rooms.append(room)
         for x in range(room.x1 + 1, room.x2):
@@ -191,7 +186,7 @@ class Leaf:  # used for the BSP tree algorithm
         self.width = width
         self.height = height
         self.messy_tunnels = messy_tunnels
-        self.MIN_LEAF_SIZE = 10
+        self.min_leaf_size = 10
         self.child_1 = None
         self.child_2 = None
         self.room = None
@@ -218,14 +213,14 @@ class Leaf:  # used for the BSP tree algorithm
             splitHorizontally = True
 
         if splitHorizontally:
-            max = self.height - self.MIN_LEAF_SIZE
+            max = self.height - self.min_leaf_size
         else:
-            max = self.width - self.MIN_LEAF_SIZE
+            max = self.width - self.min_leaf_size
 
-        if max <= self.MIN_LEAF_SIZE:
+        if max <= self.min_leaf_size:
             return False  # the leaf is too small to split further
 
-        split = randint(self.MIN_LEAF_SIZE, max)  # determine where to split the leaf
+        split = randint(self.min_leaf_size, max)  # determine where to split the leaf
 
         if splitHorizontally:
             self.child_1 = Leaf(self.x, self.y, self.width, split, self.messy_tunnels)
@@ -250,8 +245,8 @@ class Leaf:  # used for the BSP tree algorithm
 
         else:
             # Create rooms in the end branches of the bsp tree
-            w = randint(bspTree.ROOM_MIN_SIZE, min(bspTree.ROOM_MAX_SIZE, self.width - 1))
-            h = randint(bspTree.ROOM_MIN_SIZE, min(bspTree.ROOM_MAX_SIZE, self.height - 1))
+            w = randint(bspTree.room_min_size, min(bspTree.room_max_size, self.width - 1))
+            h = randint(bspTree.room_min_size, min(bspTree.room_max_size, self.height - 1))
             x = randint(self.x, self.x + (self.width - 1) - w)
             y = randint(self.y, self.y + (self.height - 1) - h)
             self.room = Rect(x, y, w, h)
@@ -286,8 +281,9 @@ class Leaf:  # used for the BSP tree algorithm
                 return self.room_2
 
 
-def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, level: int):
+def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_items: int, level: int):
     number_of_monsters = randint(0, maximum_monsters)
+    number_of_items = randint(0, maximum_items)
 
     for i in range(number_of_monsters):
         x = randint(room.x1 + 1, room.x2 - 1)
@@ -312,3 +308,28 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, level: i
                 enemy = copy.deepcopy(Enemies_by_level[level][4][randint(0, len(Enemies_by_level[level][0]) - 1)])
 
             enemy.place(x, y, dungeon)
+
+    '''
+    for i in range(number_of_items):
+        x = randint(room.x1 + 1, room.x2 - 1)
+        y = randint(room.y1 + 1, room.y2 - 1)
+
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+            entity_rarity = randint(1, 100)
+            if entity_rarity <= 60:          # common
+                item = copy.deepcopy(Items_by_level[level][0][randint(0, len(Items_by_level[level][0]) - 1)])
+
+            elif 60 <= entity_rarity <= 80:  # uncommon
+                item = copy.deepcopy(Items_by_level[level][1][randint(0, len(Items_by_level[level][0]) - 1)])
+
+            elif 80 <= entity_rarity <= 95:  # rare
+                item = copy.deepcopy(Items_by_level[level][2][randint(0, len(Items_by_level[level][0]) - 1)])
+
+            elif 95 <= entity_rarity <= 99:  # very rare
+                item = copy.deepcopy(Items_by_level[level][3][randint(0, len(Items_by_level[level][0]) - 1)])
+
+            else:                            # ultra rare
+                item = copy.deepcopy(Items_by_level[level][4][randint(0, len(Items_by_level[level][0]) - 1)])
+
+            item.place(x, y, dungeon)
+    '''

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar, TYPE_CHECKING, Type
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
 
 if TYPE_CHECKING:
     from game_map import GameMap
+    from components.consumables import Consumable
+    from components.inventory import Inventory
 
 from render_order import RenderOrder
 
@@ -14,7 +16,7 @@ T = TypeVar("T", bound="Entity")
 
 class Entity:  # generic entity
 
-    gamemap: GameMap
+    parent: Union[GameMap, Inventory]
 
     def __init__(self,
                  x: int,
@@ -24,7 +26,7 @@ class Entity:  # generic entity
                  bg_colour,
                  name: str,
                  blocks_movement=False,
-                 gamemap: Optional[GameMap] = None,
+                 parent: Optional[GameMap] = None,
                  render_order: RenderOrder = RenderOrder.CORPSE,
                  active: bool = False,
                  ):
@@ -35,13 +37,17 @@ class Entity:  # generic entity
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
         self.name = name
-        self.blocks_movement = blocks_movement
         self.render_order = render_order
+        self.blocks_movement = blocks_movement
         self.active = active
-        if gamemap:
-            # If gamemap isn't provided now then it will be set later.
-            self.gamemap = gamemap
-            gamemap.entities.add(self)
+        if parent:
+            # If parent isn't provided now then it will be set later.
+            self.parent = parent
+            parent.entities.add(self)
+
+    @property
+    def gamemap(self) -> GameMap:
+        return self.parent.gamemap
 
     def move(self, dx: int, dy: int) -> None:
         # Move the entity by a given amount
@@ -58,7 +64,7 @@ class Entity:  # generic entity
         clone = copy.deepcopy(self)
         clone.x = x
         clone.y = y
-        clone.gamemap = gamemap
+        clone.parent = gamemap
         gamemap.entities.add(clone)
         return clone
 
@@ -67,9 +73,10 @@ class Entity:  # generic entity
         self.x = x
         self.y = y
         if gamemap:
-            if hasattr(self, "gamemap"):  # Possibly uninitialized.
-                self.gamemap.entities.remove(self)
-            self.gamemap = gamemap
+            if hasattr(self, "parent"):  # Possibly uninitialized.
+                if self.parent is self.gamemap:
+                    self.gamemap.entities.remove(self)
+            self.parent = gamemap
             gamemap.entities.add(self)
 
 
@@ -85,6 +92,7 @@ class Actor(Entity):
             ai,
             fighter,
             bodyparts,  # list of bodyparts belonging to the entity
+            inventory: Inventory,
             attack_interval=0,  # how many turns the entity waits before attacking
             attacks_per_turn=1,  # when the entity attacks, how many times?
             move_interval=0,  # how many turns the entity waits before moving
@@ -106,7 +114,7 @@ class Actor(Entity):
 
         self.ai = ai(self)
         self.fighter = fighter
-        self.fighter.entity = self
+        self.fighter.parent = self
         self.targeting = ['Body', 'Head', 'Arms', 'Legs']
         self.selected_target = self.targeting[0]
         self.player = player
@@ -119,10 +127,39 @@ class Actor(Entity):
         self.attacks_per_turn = attacks_per_turn
         self.move_interval = move_interval
         self.moves_per_turn = moves_per_turn
+        self.inventory = inventory
+        self.inventory.parent = self
         for bodypart in self.bodyparts:
-            bodypart.owner_instance = self
+            bodypart.parent = self
 
     @property
     def is_alive(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return bool(self.ai)
+
+
+class Item(Entity):
+    def __init__(
+        self,
+        *,
+        x: int = 0,
+        y: int = 0,
+        char: str = "?",
+        fg_colour,
+        bg_colour,
+        name: str = "<Unnamed>",
+        consumable: Consumable,
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            fg_colour=fg_colour,
+            bg_colour=bg_colour,
+            name=name,
+            blocks_movement=False,
+            render_order=RenderOrder.ITEM,
+        )
+
+        self.consumable = consumable
+        self.consumable.parent = self

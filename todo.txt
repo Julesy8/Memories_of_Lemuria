@@ -1,7 +1,6 @@
 -----
 TO DO
 -----
--prevent player + entities spawning in walls - check at spawn if the spawn location is walkable
 -numbered identifiers for enemy names
 
 -bodypart functionality

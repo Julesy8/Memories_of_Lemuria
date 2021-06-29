@@ -6,14 +6,12 @@ from input_handlers import GameOverEventHandler
 from engine import Engine
 import colour
 
-import math
 
 class Bodypart:
 
-    entity: Actor
+    parent: Actor
 
     def __init__(self,
-                 owner_instance,           # the entity that 'owns' the body part
                  hp: int,
                  defence: int,
                  vital: bool,              # whether when the body part gets destroyed, the entity should die
@@ -25,7 +23,6 @@ class Bodypart:
                  functional: bool = True   # whether the body part should be working or not
                  ):
 
-        self.owner_instance = owner_instance
         self.max_hp = hp
         self._hp = hp
         self._defence = defence
@@ -39,7 +36,7 @@ class Bodypart:
 
     @property
     def engine(self) -> Engine:
-        return self.owner_instance.gamemap.engine
+        return self.parent.gamemap.engine
 
     @property
     def hp(self) -> int:
@@ -53,7 +50,7 @@ class Bodypart:
     def hp(self, value: int) -> None:
         self._hp = max(0, min(value, self.max_hp))
 
-        if self._hp == 0 and self.owner_instance.ai and self.functional:
+        if self._hp == 0 and self.parent.ai and self.functional:
             self.destroy()
 
             if self.vital:
@@ -65,26 +62,26 @@ class Bodypart:
 
     def die(self) -> None:
 
-        if self.owner_instance.player:
+        if self.parent.player:
             death_message = "You died!"
             death_message_colour = colour.MAGENTA
             self.engine.event_handler = GameOverEventHandler(self.engine)
 
         else:
-            death_message = f"{self.owner_instance.name} is dead!"
+            death_message = f"{self.parent.name} is dead!"
             death_message_colour = colour.CYAN
-            self.owner_instance.fg_colour = colour.WHITE
-            self.owner_instance.bg_colour = colour.LIGHT_RED
-            self.owner_instance.blocks_movement = False
-            self.owner_instance.ai = None
-            self.owner_instance.name = f"remains of {self.owner_instance.name}"
-            self.owner_instance.render_order = RenderOrder.CORPSE
+            self.parent.fg_colour = colour.WHITE
+            self.parent.bg_colour = colour.LIGHT_RED
+            self.parent.blocks_movement = False
+            self.parent.ai = None
+            self.parent.name = f"remains of {self.parent.name}"
+            self.parent.render_order = RenderOrder.CORPSE
 
         self.engine.message_log.add_message(death_message, death_message_colour)
 
     def destroy(self) -> None:
         self.functional = False
-        self.engine.message_log.add_message(f"{self.owner_instance.name}'s {self.name} is destroyed!")
+        self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} is destroyed!")
 
         '''
         if self.walking:
