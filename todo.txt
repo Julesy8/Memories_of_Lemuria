@@ -1,6 +1,6 @@
 -----
 TO DO
------
+-working implementation of healing items (selecting where you want to apply the healing)
 -numbered identifiers for enemy names
 
 -bodypart functionality
