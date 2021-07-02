@@ -93,7 +93,6 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
-
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
 
@@ -125,12 +124,9 @@ class MainGameEventHandler(EventHandler):
             raise SystemExit()
 
         elif key == tcod.event.K_i:
-            self.engine.event_handler = InventoryActivateHandler(self.engine)
-        elif key == tcod.event.K_d:
-            self.engine.event_handler = InventoryDropHandler(self.engine)
+            self.engine.event_handler = InventoryInteractHandler(self.engine)
         elif key == tcod.event.K_e:
-            self.engine.event_handler = InventoryEquipWeaponHandler(self.engine)
-
+            self.engine.event_handler = EquipmentInteractHandler(self.engine)
         # No valid key was pressed
         return action
 
@@ -252,19 +248,20 @@ class InventoryEventHandler(AskUserEventHandler):
         super().on_render(console, camera)
         number_of_items_in_inventory = len(self.engine.player.inventory.items)
 
-        height = number_of_items_in_inventory + 2
-
-        if height <= 3:
-            height = 3
-
-        if self.engine.player.x <= 30:
-            x = 40
-        else:
-            x = 0
-
-        y = 0
+        longest_name_len = 0
 
         width = len(self.TITLE) + 4
+        height = number_of_items_in_inventory + 2
+
+        x = 1
+        y = 1
+
+        for item in self.engine.player.inventory.items:
+            if len(item.name) > longest_name_len:
+                longest_name_len = len(item.name)
+
+        if longest_name_len > width:
+            width = longest_name_len + 6
 
         console.draw_frame(
             x=x,
@@ -303,38 +300,161 @@ class InventoryEventHandler(AskUserEventHandler):
         raise NotImplementedError()
 
 
-class InventoryActivateHandler(InventoryEventHandler):
+class InventoryInteractHandler(InventoryEventHandler):
     """Handle using an inventory item."""
 
-    TITLE = "Select an item to use"
+    TITLE = "Inventory"
 
-    def on_item_selected(self, item: Item) -> Optional[Action]:
-        """Return the action for the selected item."""
-        if item.consumable:
-            return item.consumable.get_action(self.engine.player)
+    def on_item_selected(self, item: Item) -> None:
+        options = ('Activate', 'Equip', 'Drop')
+        self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
+
+
+class ItemInteractionHandler(AskUserEventHandler):
+    def __init__(self, item, options: tuple, engine: Engine):
+        super().__init__(engine)
+        self.item = item
+        self.options = options
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        """
+        Render an inventory menu, which displays the items in the inventory, and the letter to select them.
+        Will move to a different position based on where the player is located, so the player can always see where
+        they are.
+        """
+        super().on_render(console, camera)
+
+        x = 1
+        y = 1
+
+        longest_option_len = 0
+
+        height = len(self.options) + 2
+        width = len(self.item.name) + 4
+
+        for option in self.options:
+            if len(option) > longest_option_len:
+                longest_option_len = len(option)
+
+        if longest_option_len > width:
+            width = longest_option_len + 6
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            title=self.item.name,
+            clear=True,
+            fg=(255, 255, 255),
+            bg=(0, 0, 0),
+        )
+
+        for i, option in enumerate(self.options):
+            option_key = chr(ord("a") + i)
+            console.print(x + 1, y + i + 1, f"({option_key}) {option}")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if 0 <= index <= 26:
+            try:
+                selected_option = self.options[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.on_option_selected(selected_option)
+        return super().ev_keydown(event)
+
+    def on_option_selected(self, option) -> Optional[Action]:
+        """Called when the user selects a valid item."""
+        if option == 'Activate':
+            if self.item.consumable:
+                return self.item.consumable.get_action(self.engine.player)
+
+        elif option == 'Equip': # needs additonal statement to determine whether item being equipped like a weapon or worn when armour implemented
+            return actions.EquipWeapon(self.engine.player, self.item)
+
+        elif option == 'Unequip':
+            return actions.UnequipWeapon(self.engine.player, self.item)
+
+        elif option == 'Drop':
+            return actions.DropItem(self.engine.player, self.item)
 
         else:
-            return
+            self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
 
-class InventoryDropHandler(InventoryEventHandler):
-    """Handle dropping an inventory item."""
-
-    TITLE = "Select an item to drop"
-
-    def on_item_selected(self, item: Item) -> Optional[Action]:
-        """Drop this item."""
-        return actions.DropItem(self.engine.player, item)
-
-
-class InventoryEquipWeaponHandler(InventoryEventHandler):
-
-    TITLE = "Select an item to equip"
-
-    def on_item_selected(self, item: Item) -> Optional[Action]:
-        return actions.EquipWeapon(self.engine.player, item)
-
-'''
 class EquipmentEventHandler(AskUserEventHandler):
+
+    TITLE = "<missing title>"
+
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
-'''
+        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
+        Will move to a different position based on where the player is located, so the player can always see where
+        they are.
+        """
+        super().on_render(console, camera)
+        number_of_items_equipped = len(self.engine.player.inventory.held)
+
+        longest_name_len = 0
+
+        width = len(self.TITLE) + 4
+        height = number_of_items_equipped + 2
+
+        x = 1
+        y = 1
+
+        for item in self.engine.player.inventory.held:
+            if len(item.name) > longest_name_len:
+                longest_name_len = len(item.name)
+
+        if longest_name_len > width:
+            width = longest_name_len + 6
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=(255, 255, 255),
+            bg=(0, 0, 0),
+        )
+
+        if number_of_items_equipped > 0:
+            for i, item in enumerate(self.engine.player.inventory.held):
+                item_key = chr(ord("a") + i)
+                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+        else:
+            console.print(x + 1, y + 1, "(Empty)")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        player = self.engine.player
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if 0 <= index <= 26:
+            try:
+                selected_item = player.inventory.held[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.on_item_selected(selected_item)
+        return super().ev_keydown(event)
+
+    def on_item_selected(self, item: Item) -> Optional[Action]:
+        """Called when the user selects a valid item."""
+        raise NotImplementedError()
+
+
+class EquipmentInteractHandler(EquipmentEventHandler):
+    """Handle using an inventory item."""
+
+    TITLE = "Equipment"
+
+    def on_item_selected(self, item: Item) -> None:
+        options = ('Unequip', 'Drop')
+        self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
