@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing import Optional, TYPE_CHECKING
+
 from entity import Actor
 from render_order import RenderOrder
 from input_handlers import GameOverEventHandler
 from engine import Engine
 import colour
+
+if TYPE_CHECKING:
+    from entity import Item
 
 
 class Bodypart:
@@ -14,13 +19,15 @@ class Bodypart:
     def __init__(self,
                  hp: int,
                  defence: int,
-                 vital: bool,              # whether when the body part gets destroyed, the entity should die
-                 walking: bool,            # whether the body part is required for walking
+                 vital: bool,  # whether when the body part gets destroyed, the entity should die
+                 walking: bool,  # whether the body part is required for walking
                  grasping: bool,
+                 connected_to: list,  # list of other body parts to which the body part is connected
+                 equipped: Optional[Item],  # equipped item for the given body part
                  name: str,
-                 type: str,
+                 part_type: str,
                  base_chance_to_hit: int,  # base modifier of how likely the body part is to be hit when attacked
-                 functional: bool = True   # whether the body part should be working or not
+                 functional: bool = True  # whether the body part should be working or not
                  ):
 
         self.max_hp = hp
@@ -29,8 +36,10 @@ class Bodypart:
         self.vital = vital
         self.walking = walking
         self.grasping = grasping
+        self.connected_to = connected_to
+        self.equipped = equipped
         self.name = name
-        self.type = type
+        self.type = part_type
         self.base_chance_to_hit = base_chance_to_hit
         self.functional = functional
 

@@ -39,14 +39,14 @@ Enemies_by_level = {
 Items_by_level = {
     0: [
         # common
-        [placeholder_item],
+        [glock, ],
         # uncommon
-        [placeholder_item],
+        [glock, ],
         # rare
-        [placeholder_item],
+        [glock, ],
         # very rare
-        [placeholder_item],
+        [glock, ],
         # legendary
-        [placeholder_item]
+        [glock, ]
     ]
 }

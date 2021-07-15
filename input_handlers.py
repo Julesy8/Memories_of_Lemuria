@@ -311,6 +311,9 @@ class InventoryInteractHandler(InventoryEventHandler):
 
 
 class ItemInteractionHandler(AskUserEventHandler):
+
+    TITLE = "Inventory"
+
     def __init__(self, item, options: tuple, engine: Engine):
         super().__init__(engine)
         self.item = item
@@ -323,36 +326,39 @@ class ItemInteractionHandler(AskUserEventHandler):
         they are.
         """
         super().on_render(console, camera)
+        if self.item is not None:
+            x = 1
+            y = 1
 
-        x = 1
-        y = 1
+            longest_option_len = 0
 
-        longest_option_len = 0
+            height = len(self.options) + 2
+            width = len(self.item.name) + 4
 
-        height = len(self.options) + 2
-        width = len(self.item.name) + 4
+            for option in self.options:
+                if len(option) > longest_option_len:
+                    longest_option_len = len(option)
 
-        for option in self.options:
-            if len(option) > longest_option_len:
-                longest_option_len = len(option)
+            if longest_option_len > width:
+                width = longest_option_len + 6
 
-        if longest_option_len > width:
-            width = longest_option_len + 6
+            console.draw_frame(
+                x=x,
+                y=y,
+                width=width,
+                height=height,
+                title=self.item.name,
+                clear=True,
+                fg=(255, 255, 255),
+                bg=(0, 0, 0),
+            )
 
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width,
-            height=height,
-            title=self.item.name,
-            clear=True,
-            fg=(255, 255, 255),
-            bg=(0, 0, 0),
-        )
+            for i, option in enumerate(self.options):
+                option_key = chr(ord("a") + i)
+                console.print(x + 1, y + i + 1, f"({option_key}) {option}")
 
-        for i, option in enumerate(self.options):
-            option_key = chr(ord("a") + i)
-            console.print(x + 1, y + i + 1, f"({option_key}) {option}")
+        else:
+            self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         key = event.sym
@@ -372,6 +378,8 @@ class ItemInteractionHandler(AskUserEventHandler):
         if option == 'Activate':
             if self.item.consumable:
                 return self.item.consumable.get_action(self.engine.player)
+            if self.item.weapon:
+                return self.item.weapon.get_action(self.engine.player)
 
         elif option == 'Equip': # needs additonal statement to determine whether item being equipped like a weapon or worn when armour implemented
             return actions.EquipWeapon(self.engine.player, self.item)
@@ -396,17 +404,31 @@ class EquipmentEventHandler(AskUserEventHandler):
         they are.
         """
         super().on_render(console, camera)
-        number_of_items_equipped = len(self.engine.player.inventory.held)
+
+        equipped_list = []  # equipped items
+
+        equipment_dictionary = {}  # dictionary containing bodypart associated with the item equipped
+
+        # adds held item to the equipped list
+        if self.engine.player.inventory.held is not None:
+            equipped_list.append(self.engine.player.inventory.held)
+
+        # adds all items equipped by bodyparts of the entity to the equipped list
+        for bodypart in self.engine.player.bodyparts:
+            if bodypart.equipped is not None:
+                equipped_list.append(bodypart.equipped)
+                # from the item gives the name of the bodypart that it is equipped by, adds it to equipment_dictionary
+                equipment_dictionary[str(bodypart.equipped)] = bodypart.name
 
         longest_name_len = 0
 
         width = len(self.TITLE) + 4
-        height = number_of_items_equipped + 2
+        height = len(equipped_list) + 2
 
         x = 1
         y = 1
 
-        for item in self.engine.player.inventory.held:
+        for item in equipped_list:
             if len(item.name) > longest_name_len:
                 longest_name_len = len(item.name)
 
@@ -424,10 +446,17 @@ class EquipmentEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        if number_of_items_equipped > 0:
-            for i, item in enumerate(self.engine.player.inventory.held):
+        if len(equipped_list) > 0:
+            for i, item in enumerate(equipped_list):
+
                 item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+
+                if item == self.engine.player.inventory.held:
+                    console.print(x + 1, y + i + 1, f"({item_key}) | Held | {item.name}")
+
+                else:
+                    console.print(x + 1, y + i + 1, f"({item_key}) | {equipment_dictionary[item]} | {item.name}")
+
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
@@ -438,7 +467,7 @@ class EquipmentEventHandler(AskUserEventHandler):
 
         if 0 <= index <= 26:
             try:
-                selected_item = player.inventory.held[index]
+                selected_item = player.inventory.held
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
                 return None
@@ -456,5 +485,5 @@ class EquipmentInteractHandler(EquipmentEventHandler):
     TITLE = "Equipment"
 
     def on_item_selected(self, item: Item) -> None:
-        options = ('Unequip', 'Drop')
+        options = ('Activate','Unequip', 'Drop')
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)

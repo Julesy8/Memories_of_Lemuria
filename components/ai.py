@@ -5,7 +5,7 @@ from typing import List, Tuple
 import numpy as np  # type: ignore
 import tcod
 
-from actions import Action, MeleeAction, MovementAction, WaitAction
+from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction
 from entity import Actor
 
 
@@ -75,7 +75,15 @@ class HostileEnemy(BaseAI):
             # perform melee action
             if distance <= 1 and attack_turns > 0 and self.entity.last_attack_turn + self.entity.attack_interval <= \
                     self.entity.turn_counter:
-                MeleeAction(self.entity, dx, dy).perform()
+
+                if self.entity.inventory.held is not None and self.entity.inventory.held.weapon \
+                        and not self.entity.inventory.held.weapon.ranged:
+                    WeaponAttackAction(distance=distance, item=self.entity.inventory.held, entity=self.entity,
+                                       targeted_actor=target).attack()
+
+                else:
+                    UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target).attack()
+
                 attack_turns -= 1
                 self.entity.last_attack_turn = self.entity.turn_counter
 

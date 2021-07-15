@@ -76,9 +76,22 @@ class ActionWithDirection(Action):
         raise NotImplementedError()
 
 
-class MeleeAction(ActionWithDirection):
+class AttackAction(Action):
+
+    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor):
+        super().__init__(entity)
+
+        self.targeted_actor = targeted_actor
+        self.distance = distance
+        self.attack_colour = colour.LIGHT_RED
+        self.hitchance = randint(0, 100)
+
+        # set later in perform
+        self.part = None
+        self.part_index = None
+
     def perform(self) -> None:
-        target = self.target_actor
+        target = self.targeted_actor
         if not target:
             raise exceptions.Impossible("Nothing to attack.")
 
@@ -88,7 +101,7 @@ class MeleeAction(ActionWithDirection):
         # list of body parts able to be attacked by the entity
         targetable_bodyparts = []
 
-        # if the entity attacking is has AI, randomly selects a bodypart to be targeted
+        # if the entity attacking has AI, randomly selects a bodypart to be targeted
         if not self.entity.player:
             targeted_by_enemy = randint(1, 10)
             if targeted_by_enemy <= 5:
@@ -113,33 +126,106 @@ class MeleeAction(ActionWithDirection):
 
         # of the viable bodyparts in targetable_bodyparts, randomly selects one of them
         selected_bodypart = randint(0, len(targetable_bodyparts) - 1)
-        part = targetable_bodyparts[selected_bodypart]
-        part_index = target.bodyparts.index(targetable_bodyparts[selected_bodypart])
+        self.part = targetable_bodyparts[selected_bodypart]
+        self.part_index = target.bodyparts.index(targetable_bodyparts[selected_bodypart])
 
         if self.entity.player:
-            attack_colour = colour.LIGHT_GREEN
-        else:
-            attack_colour = colour.LIGHT_RED
+            self.attack_colour = colour.LIGHT_GREEN
 
-        # chance to hit calculation
-        hitchance = randint(0, 100)
-        if hitchance <= float(target.bodyparts[part_index].base_chance_to_hit) * self.entity.fighter.melee_accuracy:
+    def attack(self) -> None:
+        # attack method to be replaced by specific attack methods
+        raise NotImplementedError()
+
+
+class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
+
+    def attack(self) -> None:
+        self.perform()
+
+        if self.hitchance <= float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit) * \
+                self.entity.fighter.melee_accuracy:
 
             # calculates damage (system right now is placeholder) if successfully hits
-            damage = self.entity.fighter.power - target.bodyparts[part_index].defence
+            damage = self.entity.fighter.power - self.targeted_actor.bodyparts[self.part_index].defence
+
+            # hit and did damage
             if damage > 0:
                 # result printed to console
-                self.engine.message_log.add_message(f"{self.entity.name} strikes {target.name} on the "
-                                                    f"{part.name} for {str(damage)} points!", attack_colour)
-                target.bodyparts[part_index].hp -= damage
+                self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} on the "
+                                                    f"{self.part.name} for {str(damage)} points!", self.attack_colour)
+                self.targeted_actor.bodyparts[self.part_index].hp -= damage
+
+            # hit but dealt no damage
             else:
-                self.engine.message_log.add_message(f"{self.entity.name} strikes {target.name} on the "
-                                                    f"{part.name} but does no damage!", attack_colour)
+                self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} on the "
+                                                    f"{self.part.name} but does no damage!", self.attack_colour)
 
         # miss
         else:
-            self.engine.message_log.add_message(f"{self.entity.name} tries to strike {target.name} on the "
-                                                f"{part.name}, but misses!", attack_colour)
+            self.engine.message_log.add_message(f"{self.entity.name} tries to strike {self.targeted_actor.name}"
+                                                f", but misses!", self.attack_colour)
+
+
+class WeaponAttackAction(AttackAction):
+    def __init__(self, distance: int, item: Optional[Item], entity: Actor, targeted_actor: Actor):
+        super().__init__(distance, entity, targeted_actor)
+        self.item = item
+
+    def attack(self) -> None:
+        self.perform()
+
+        range_penalty = 0
+        if self.item.weapon.ranged:
+            print('test')
+            # if weapon is ranged (not melee) and dist > ranged_accuracy calculates penalty
+            if self.distance > self.item.weapon.ranged_accuracy:
+                range_penalty = self.distance - (self.item.weapon.ranged_accuracy * 2)
+
+        # successful hit
+        if self.hitchance <= (float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit)
+                              * self.item.weapon.base_accuracy) + range_penalty:
+
+            # calculates damage if successfully hits
+            damage = self.item.weapon.power - self.targeted_actor.bodyparts[self.part_index].defence
+
+            # attack dealt damage (melee)
+            if not self.item.weapon.ranged and damage > 0:
+                # result printed to console
+                self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} in the "
+                                                    f"{self.part.name} with the {self.item.name} for {str(damage)} "
+                                                    f"points",self.attack_colour)
+                self.targeted_actor.bodyparts[self.part_index].hp -= damage
+
+            # attack dealt damage (ranged)
+            elif damage > 0:
+                self.engine.message_log.add_message(f"{self.item.name} projectile hits {self.targeted_actor.name} "
+                                                    f"in the {self.part.name} for {str(damage)} points",
+                                                    self.attack_colour)
+                self.targeted_actor.bodyparts[self.part_index].hp -= damage
+
+            # attack hit but did no damage
+            else:
+                # ranged
+                if self.item.weapon.ranged:
+                    self.engine.message_log.add_message(f"{self.item.name} projectile hits {self.targeted_actor.name} "
+                                                        f"in the {self.part.name} but does no damage",
+                                                        self.attack_colour)
+                # melee
+                else:
+                    self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} in the "
+                                                        f"{self.part.name} with the {self.item.name} but does no damage"
+                                                        , self.attack_colour)
+
+        # miss
+        else:
+            # ranged
+            if self.item.weapon.ranged:
+                self.engine.message_log.add_message(f"{self.entity.name} tries to shoot {self.targeted_actor.name} "
+                                                    f"with {self.item.name} but misses", self.attack_colour)
+            # melee
+            else:
+                self.engine.message_log.add_message(f"{self.entity.name} tries to strike {self.targeted_actor.name} "
+                                                    f"with {self.item.name} but misses", self.attack_colour)
 
 
 class MovementAction(ActionWithDirection):
@@ -164,7 +250,12 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity:
-            return MeleeAction(self.entity, self.dx, self.dy).perform()
+            if self.entity.inventory.held is not None and self.entity.inventory.held.weapon and not \
+                    self.entity.inventory.held.weapon.ranged:
+                return WeaponAttackAction(distance=1, item=self.entity.inventory.held, entity=self.entity,
+                                          targeted_actor=self.target_actor).attack()
+            else:
+                return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor).attack()
 
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
@@ -213,7 +304,10 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        self.item.consumable.activate(self)
+        if self.item.consumable:  # test
+            self.item.consumable.activate(self)
+        if self.item.weapon:
+            self.item.weapon.activate(self)
 
 
 class DropItem(ItemAction):
@@ -229,3 +323,9 @@ class EquipWeapon(ItemAction):
 class UnequipWeapon(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.unequip_weapon(self.item)
+
+'''
+class ShootWeapon(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.held.weapon.activate
+'''

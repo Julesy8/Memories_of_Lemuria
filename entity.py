@@ -6,7 +6,7 @@ import math
 
 if TYPE_CHECKING:
     from game_map import GameMap
-    from components.consumables import Consumable
+    from components.consumables import Consumable, Weapon
     from components.inventory import Inventory
 
 from render_order import RenderOrder
@@ -155,6 +155,7 @@ class Item(Entity):
         bg_colour,
         name: str = "<Unnamed>",
         consumable: Optional[Consumable],
+        weapon: Optional[Weapon]
     ):
         super().__init__(
             x=x,
@@ -170,3 +171,7 @@ class Item(Entity):
         self.consumable = consumable
         if consumable:
             self.consumable.parent = self
+
+        self.weapon = weapon
+        if weapon:
+            self.weapon.parent = self
