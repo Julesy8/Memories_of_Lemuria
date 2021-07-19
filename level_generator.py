@@ -65,18 +65,33 @@ class MessyBSPTree:
                             splitSuccessfully = True
 
         rootLeaf.createRooms(self)
+
+        player_spawn_room = None
+        player_placed = False
+
+        for room in self._rooms:
+            if not player_placed:
+                # if player has not been placed, rolls to spawn player in the room
+                player_spawn_roll = randint(1, 6)
+                if player_spawn_roll == 1:
+                    room_centre_x, room_centre_y = room.centre()
+                    player_spawn_room = room
+                    player_placed = True
+                    self.player.place(room_centre_x, room_centre_y, self.dungeon)
+
+            if room != player_spawn_room:
+                # places entities as long as not the room the player spawns in
+                place_entities(room, self.dungeon, self.max_monsters_per_room,
+                               self.max_items_per_room, self.current_level)
+
+        if not player_placed:
+            # if player has not been placed, regenerates the level
+            self.generateLevel()
+
         return self.dungeon
 
     def createRoom(self, room):
         # set all tiles within a rectangle to be floors
-        if len(self._rooms) == 0:  # self.player_spawn_room:
-            # if the room being generated is the designated player_spawn_room, spawn player
-            room_centre_x, room_centre_y = room.centre()
-            self.player.place(room_centre_x, room_centre_y, self.dungeon)
-
-        else:
-            place_entities(room, self.dungeon, self.max_monsters_per_room, self.max_items_per_room, self.current_level)
-
         self._rooms.append(room)
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):

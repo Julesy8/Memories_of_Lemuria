@@ -1,16 +1,16 @@
 -----
 TO DO
--working implementation of healing items (selecting where you want to apply the healing)
--numbered identifiers for enemy names
--limb healing
--limb targeting system that works by hovering over an enemy with the cursor to target it
--quick targeting by clycing through the enemies in the players line of sight
--weapon ammo
--bodypart functionality
--display limb health graphically
 
+1) change menu system to allow more than 26 menu items (use history viewer code)
+2) display limb health graphically
+3) limb healing
+4) quick targeting by clycing through the enemies in the players line of sight
+5) limb targeting system that works by hovering over an enemy with the cursor to target it
+6) bodypart functionality
+
+-numbered identifiers for enemy names
+-weapon ammo
 -some enemies run away when low on health
--better player room spawn selection
 -remembering item + enemy last position when out of line of sight
 -enemies spawning in groups
 -save guns to look at in main menu

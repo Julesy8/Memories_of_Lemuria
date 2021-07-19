@@ -338,7 +338,10 @@ class ItemInteractionHandler(AskUserEventHandler):
                 if len(option) > longest_option_len:
                     longest_option_len = len(option)
 
-            width = longest_option_len + 6
+            if len (self.TITLE) + 4 > longest_option_len + 6:
+                width = longest_option_len + 6
+            else:
+                width = len (self.TITLE) + 4
 
             console.draw_frame(
                 x=x,

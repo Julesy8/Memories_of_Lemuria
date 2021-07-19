@@ -42,3 +42,20 @@ def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -
 
     else:
         return
+
+
+def render_bar(
+    console: Console, x: int, y: int, text: str, current_value: int, maximum_value: int, total_width: int
+) -> None:
+    bar_width = int(float(current_value) / maximum_value * total_width)
+
+    console.draw_rect(x=0, y=45, width=20, height=1, ch=1, bg=colour.RED)
+
+    if bar_width > 0:
+        console.draw_rect(
+            x=0, y=45, width=bar_width, height=1, ch=1, bg=colour.LIGHT_GREEN
+        )
+
+    console.print(
+        x=x, y=y, string=f"{text}: {current_value}/{maximum_value}", fg=colour.WHITE
+    )
