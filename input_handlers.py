@@ -333,14 +333,12 @@ class ItemInteractionHandler(AskUserEventHandler):
             longest_option_len = 0
 
             height = len(self.options) + 2
-            width = len(self.item.name) + 4
 
             for option in self.options:
                 if len(option) > longest_option_len:
                     longest_option_len = len(option)
 
-            if longest_option_len > width:
-                width = longest_option_len + 6
+            width = longest_option_len + 6
 
             console.draw_frame(
                 x=x,
@@ -413,14 +411,17 @@ class EquipmentEventHandler(AskUserEventHandler):
         if self.engine.player.inventory.held is not None:
             equipped_list.append(self.engine.player.inventory.held)
 
+        longest_part_len = 4  # set to 4 by defualt because of 'Held'
+
         # adds all items equipped by bodyparts of the entity to the equipped list
         for bodypart in self.engine.player.bodyparts:
             if bodypart.equipped is not None:
                 equipped_list.append(bodypart.equipped)
                 # from the item gives the name of the bodypart that it is equipped by, adds it to equipment_dictionary
                 equipment_dictionary[str(bodypart.equipped)] = bodypart.name
-
-        longest_name_len = 0
+                print(bodypart.name)
+                if len(bodypart.name) > longest_part_len:
+                    longest_part_len = len(bodypart.name)
 
         width = len(self.TITLE) + 4
         height = len(equipped_list) + 2
@@ -428,12 +429,14 @@ class EquipmentEventHandler(AskUserEventHandler):
         x = 1
         y = 1
 
+        longest_name_len = 0
+
         for item in equipped_list:
             if len(item.name) > longest_name_len:
                 longest_name_len = len(item.name)
 
-        if longest_name_len > width:
-            width = longest_name_len + 6
+        if longest_name_len + longest_part_len + 9 > len(self.TITLE) + 4:
+            width = longest_name_len + longest_part_len + 11
 
         console.draw_frame(
             x=x,
@@ -485,5 +488,5 @@ class EquipmentInteractHandler(EquipmentEventHandler):
     TITLE = "Equipment"
 
     def on_item_selected(self, item: Item) -> None:
-        options = ('Activate','Unequip', 'Drop')
+        options = ('Activate', 'Unequip', 'Drop')
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)

@@ -2,17 +2,15 @@
 TO DO
 -working implementation of healing items (selecting where you want to apply the healing)
 -numbered identifiers for enemy names
--try eliminating entity.player checks in favour of entity.ai checks and remove player AI?
--fix bug where enemies only approach player when they get a certain distance to them
--fix bugged menu display (item names length > menu width)
 -limb healing
 -limb targeting system that works by hovering over an enemy with the cursor to target it
 -quick targeting by clycing through the enemies in the players line of sight
-
+-weapon ammo
 -bodypart functionality
+-display limb health graphically
+
 -some enemies run away when low on health
 -better player room spawn selection
--display limb health graphically
 -remembering item + enemy last position when out of line of sight
 -enemies spawning in groups
 -save guns to look at in main menu
