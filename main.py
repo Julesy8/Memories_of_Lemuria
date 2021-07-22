@@ -24,7 +24,7 @@ def main():
     current_level = 0
 
     # tells root console what font to use, initialisation of the root console
-    tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
+    tileset = tcod.tileset.load_tilesheet("Md_curses_16x16.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
     # initialises player entity
     fighter_component = Fighter(power=6)

@@ -1,7 +1,7 @@
 -----
 TO DO
 
-1) change menu system to allow more than 26 menu items (use history viewer code)
+X 1) change menu system to allow more than 26 menu items (use history viewer code)
 2) display limb health graphically
 3) limb healing
 4) quick targeting by clycing through the enemies in the players line of sight

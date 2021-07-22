@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
+from math import ceil
 
 import tcod.event
 
@@ -124,7 +125,7 @@ class MainGameEventHandler(EventHandler):
             raise SystemExit()
 
         elif key == tcod.event.K_i:
-            self.engine.event_handler = InventoryInteractHandler(self.engine)
+            self.engine.event_handler = InventoryInteractHandler(self.engine, 0)
         elif key == tcod.event.K_e:
             self.engine.event_handler = EquipmentInteractHandler(self.engine)
         # No valid key was pressed
@@ -240,6 +241,11 @@ class InventoryEventHandler(AskUserEventHandler):
 
     TITLE = "<missing title>"
 
+    def __init__(self, engine: Engine, page: int):
+        super().__init__(engine)
+
+        self.page = page
+
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         Will move to a different position based on where the player is located, so the player can always see where
@@ -250,17 +256,24 @@ class InventoryEventHandler(AskUserEventHandler):
 
         longest_name_len = 0
 
+        self.max_list_length = 5  # defines the maximum amount of items to be displayed in the menu
+
         width = len(self.TITLE) + 4
         height = number_of_items_in_inventory + 2
+
+        if number_of_items_in_inventory > self.max_list_length:
+            height = self.max_list_length + 2
 
         x = 1
         y = 1
 
-        for item in self.engine.player.inventory.items:
+        index_range = self.page * self.max_list_length
+
+        for item in self.engine.player.inventory.items[index_range:index_range+self.max_list_length]:
             if len(item.name) > longest_name_len:
                 longest_name_len = len(item.name)
 
-        if longest_name_len > width:
+        if longest_name_len + 6 > width:
             width = longest_name_len + 6
 
         console.draw_frame(
@@ -275,18 +288,30 @@ class InventoryEventHandler(AskUserEventHandler):
         )
 
         if number_of_items_in_inventory > 0:
-            for i, item in enumerate(self.engine.player.inventory.items):
+            console.print(x + 1, y + height - 1, f"Page {self.page + 1}/{ceil(len(self.engine.player.inventory.items)/self.max_list_length)}")
+
+            for i, item in enumerate(self.engine.player.inventory.items[index_range:index_range+self.max_list_length]):
                 item_key = chr(ord("a") + i)
                 console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: tcod.event.KeyDown):
         player = self.engine.player
         key = event.sym
         index = key - tcod.event.K_a
 
-        if 0 <= index <= 26:
+        if key == tcod.event.K_DOWN:
+            if len(self.engine.player.inventory.items) > (self.page + 1) * self.max_list_length:
+                self.engine.event_handler = InventoryInteractHandler(self.engine, self.page + 1)
+                return
+
+        if key == tcod.event.K_UP:
+            if self.page > 0:
+                self.engine.event_handler = InventoryInteractHandler(self.engine, self.page - 1)
+                return
+
+        if 0 <= index <= self.max_list_length - 1:
             try:
                 selected_item = player.inventory.items[index]
             except IndexError:
@@ -306,7 +331,7 @@ class InventoryInteractHandler(InventoryEventHandler):
     TITLE = "Inventory"
 
     def on_item_selected(self, item: Item) -> None:
-        options = ('Activate', 'Equip', 'Drop')
+        options = ('Use', 'Equip', 'Drop')
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
@@ -376,7 +401,7 @@ class ItemInteractionHandler(AskUserEventHandler):
 
     def on_option_selected(self, option) -> Optional[Action]:
         """Called when the user selects a valid item."""
-        if option == 'Activate':
+        if option == 'Use':
             if self.item.consumable:
                 return self.item.consumable.get_action(self.engine.player)
             if self.item.weapon:
@@ -438,7 +463,7 @@ class EquipmentEventHandler(AskUserEventHandler):
             if len(item.name) > longest_name_len:
                 longest_name_len = len(item.name)
 
-        if longest_name_len + longest_part_len + 9 > len(self.TITLE) + 4:
+        if longest_name_len + longest_part_len + 9 > width:
             width = longest_name_len + longest_part_len + 11
 
         console.draw_frame(
@@ -491,5 +516,5 @@ class EquipmentInteractHandler(EquipmentEventHandler):
     TITLE = "Equipment"
 
     def on_item_selected(self, item: Item) -> None:
-        options = ('Activate', 'Unequip', 'Drop')
+        options = ('Use', 'Unequip', 'Drop')
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
