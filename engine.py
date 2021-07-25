@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from tcod import tileset
+
 from tcod.console import Console
 from tcod.map import compute_fov
 from scrolling_map import Camera
@@ -10,7 +12,7 @@ import colour
 import exceptions
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
-from render_functions import render_names_at_mouse_location, render_bar
+from render_functions import render_names_at_mouse_location, render_part
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -47,8 +49,30 @@ class Engine:
 
     def render(self, console: Console, camera: Camera) -> None:
         self.game_map.render(console, camera)
-        console.draw_rect(0, 46, 80, 4, 219, fg=colour.BLACK, bg=colour.BLACK)
-        self.message_log.render(console=console, x=21, y=46, width=60, height=4)
+        console.draw_rect(0, 46, 80, 4, 219)
+        self.message_log.render(console=console, x=5, y=46, width=60, height=4)
+
+        # head
+        render_part(console=console, x=2, y=46, character="O", current_value=self.player.bodyparts[0].hp,
+                    maximum_value=self.player.bodyparts[0].max_hp)
+        # body upper
+        render_part(console=console, x=2, y=47, character="┼", current_value=self.player.bodyparts[1].hp,
+                    maximum_value=self.player.bodyparts[1].max_hp)
+        # right arm
+        render_part(console=console, x=1, y=47, character="─", current_value=self.player.bodyparts[2].hp,
+                    maximum_value=self.player.bodyparts[2].max_hp)
+        # left arm
+        render_part(console=console, x=3, y=47, character="─", current_value=self.player.bodyparts[3].hp,
+                    maximum_value=self.player.bodyparts[3].max_hp)
+        # body lower
+        render_part(console=console, x=2, y=48, character="│", current_value=self.player.bodyparts[1].hp,
+                    maximum_value=self.player.bodyparts[1].max_hp)
+        # right leg
+        render_part(console=console, x=1, y=49, character="/", current_value=self.player.bodyparts[4].hp,
+                    maximum_value=self.player.bodyparts[4].max_hp)
+        # right leg
+        render_part(console=console, x=3, y=49, character=chr(tileset.CHARMAP_CP437[92]),
+                    current_value=self.player.bodyparts[5].hp, maximum_value=self.player.bodyparts[5].max_hp)
 
         render_names_at_mouse_location(console=console, x=1, y=45, engine=self)
-        #render_mouse_location(console=console, engine=self, game_map=self.game_map)
+        # render_mouse_location(console=console, engine=self, game_map=self.game_map)

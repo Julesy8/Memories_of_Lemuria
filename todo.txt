@@ -2,7 +2,7 @@
 TO DO
 
 X 1) change menu system to allow more than 26 menu items (use history viewer code)
-2) display limb health graphically
+X 2) display limb health graphically
 3) limb healing
 4) quick targeting by clycing through the enemies in the players line of sight
 5) limb targeting system that works by hovering over an enemy with the cursor to target it

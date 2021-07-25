@@ -49,13 +49,37 @@ def render_bar(
 ) -> None:
     bar_width = int(float(current_value) / maximum_value * total_width)
 
-    console.draw_rect(x=0, y=45, width=20, height=1, ch=1, bg=colour.RED)
+    console.draw_rect(x=x, y=y, width=total_width, height=1, ch=1, bg=colour.RED)
 
     if bar_width > 0:
         console.draw_rect(
-            x=0, y=45, width=bar_width, height=1, ch=1, bg=colour.LIGHT_GREEN
+            x=x, y=y, width=bar_width, height=1, ch=1, bg=colour.GREEN
         )
 
     console.print(
-        x=x, y=y, string=f"{text}: {current_value}/{maximum_value}", fg=colour.WHITE
+        x=x, y=y, string=f"{text}", fg=colour.WHITE
     )
+
+
+def render_part(
+        console: Console, x: int, y: int, character: str, current_value: int, maximum_value: int
+) -> None:
+    # used for graphically rendering body part health
+
+    if current_value == maximum_value:
+        console.print(x, y, character, colour.GREEN)
+
+    elif maximum_value * 0.75 <= current_value <= maximum_value:
+        console.print(x, y, character, colour.YELLOW)
+
+    elif maximum_value * 0.5 <= current_value <= maximum_value * 0.75:
+        console.print(x, y, character, colour.ORANGE)
+
+    elif maximum_value * 0.25 <= current_value <= maximum_value * 0.50:
+        console.print(x, y, character, colour.LIGHT_RED)
+
+    elif 0 < current_value <= maximum_value * 0.50:
+        console.print(x, y, character, colour.RED)
+
+    elif current_value == 0:
+        console.print(x, y, character, colour.DARK_GRAY)
