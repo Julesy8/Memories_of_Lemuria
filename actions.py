@@ -146,7 +146,8 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                 self.entity.fighter.melee_accuracy:
 
             # calculates damage (system right now is placeholder) if successfully hits
-            damage = self.entity.fighter.power - self.targeted_actor.bodyparts[self.part_index].defence
+            damage = self.entity.fighter.power - self.targeted_actor.bodyparts[self.part_index].defence - \
+                     self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
 
             # hit and did damage
             if damage > 0:
@@ -186,7 +187,8 @@ class WeaponAttackAction(AttackAction):
                               * self.item.weapon.base_accuracy) + range_penalty:
 
             # calculates damage if successfully hits
-            damage = self.item.weapon.power - self.targeted_actor.bodyparts[self.part_index].defence
+            damage = self.item.weapon.power - self.targeted_actor.bodyparts[self.part_index].defence - \
+                     self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
 
             # attack dealt damage (melee)
             if not self.item.weapon.ranged and damage > 0:
@@ -323,6 +325,17 @@ class EquipWeapon(ItemAction):
 class UnequipWeapon(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.unequip_weapon(self.item)
+
+
+class EquipArmour(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.equip_armour(self.item)
+
+
+class UnequipArmour(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.unequip_armour(self.item)
+
 
 '''
 class ShootWeapon(ItemAction):

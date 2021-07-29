@@ -32,14 +32,15 @@ class Inventory(BaseComponent):
         self.engine.message_log.add_message(f"You dropped the {item.name}.")
 
     def equip_weapon(self, item):
+        if item.weapon:
 
-        if self.held is not None:
-            raise Impossible(f"you are already holding an item")
+            if self.held is not None:
+                raise Impossible(f"you are already holding an item")
 
-        else:
-            self.items.remove(item)
-            self.held = item
-            self.engine.message_log.add_message(f"You are holding the {item.name}.")
+            else:
+                self.items.remove(item)
+                self.held = item
+                self.engine.message_log.add_message(f"You are holding the {item.name}.")
 
     def unequip_weapon(self, item):
         self.held = None
@@ -50,3 +51,33 @@ class Inventory(BaseComponent):
         else:
             self.items.append(item)
             self.engine.message_log.add_message(f"You moved your held item to your inventory ")
+
+    def equip_armour(self, item):
+
+        item_removed = False
+
+        for bodypart in self.parent.bodyparts:
+            if bodypart.type == item.wearable.fits_bodypart:
+
+                if bodypart.equipped is not None:
+                    raise Impossible(f"you are already wearing something there")
+
+                else:
+                    if not item_removed:
+                        self.items.remove(item)
+                        item_removed = True
+                    bodypart.equipped = item
+                    self.engine.message_log.add_message(f"You put on the {item.name}.")
+
+    def unequip_armour(self, item):
+
+        for bodypart in self.parent.bodyparts:
+            if bodypart.type == item.wearable.fits_bodypart:
+                bodypart.equipped = None
+
+        if len(self.items) + 1 > self.capacity:
+            raise Impossible(f"your inventory is full")
+
+        else:
+            self.items.append(item)
+            self.engine.message_log.add_message(f"You took off the {item.name}")

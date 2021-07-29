@@ -2,7 +2,7 @@ from components.npc_templates import Fighter
 from entity import Actor, Item
 from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
-from components.consumables import HealingConsumable, Weapon
+from components.consumables import HealingConsumable, Weapon, Wearable
 from components.inventory import Inventory
 import colour
 
@@ -101,7 +101,8 @@ health_potion = Item(
     bg_colour=None,
     name="Health Potion",
     consumable=HealingConsumable(amount=4),
-    weapon=None
+    weapon=None,
+    wearable=None
 )
 
 placeholder_item = Item(
@@ -111,7 +112,8 @@ placeholder_item = Item(
     bg_colour=None,
     name="Placeholder Item",
     consumable=None,
-    weapon=None
+    weapon=None,
+    wearable=None
 )
 
 glock = Item(
@@ -127,7 +129,8 @@ glock = Item(
         maximum_range=100,
         base_accuracy=0.9,
         ranged_accuracy=10
-    )
+    ),
+    wearable=None
 )
 
 sword = Item(
@@ -143,5 +146,62 @@ sword = Item(
         maximum_range=1,
         base_accuracy=0.9,
         ranged_accuracy=10
-    )
+    ),
+    wearable=None
+)
+
+helmet = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Helmet",
+    consumable=None,
+    weapon=None,
+    wearable=(Wearable(
+        protection=2,
+        fits_bodypart_type='Head'
+    ))
+)
+
+pauldron = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Pauldrons",
+    consumable=None,
+    weapon=None,
+    wearable=(Wearable(
+        protection=2,
+        fits_bodypart_type='Arms'
+    ))
+)
+
+greaves = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Greaves",
+    consumable=None,
+    weapon=None,
+    wearable=(Wearable(
+        protection=2,
+        fits_bodypart_type='Legs'
+    ))
+)
+
+chestplate = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Chestplate",
+    consumable=None,
+    weapon=None,
+    wearable=(Wearable(
+        protection=2,
+        fits_bodypart_type='Body'
+    ))
 )

@@ -11,7 +11,7 @@ level_params = {
               15,     # ROOM_MAX_SIZE
               9,      # ROOM_MIN_SIZE
               2,      # Max monsters per room
-              2,      # Max items per room
+              14,      # Max items per room
               ])
 }
 
@@ -39,14 +39,14 @@ Enemies_by_level = {
 Items_by_level = {
     0: [
         # common
-        [glock, ],
+        [helmet, pauldron, greaves, chestplate],
         # uncommon
-        [glock, ],
+        [helmet, pauldron, greaves, chestplate],
         # rare
-        [glock, ],
+        [helmet, pauldron, greaves, chestplate],
         # very rare
-        [glock, ],
+        [helmet, pauldron, greaves, chestplate],
         # legendary
-        [glock, ]
+        [helmet, pauldron, greaves, chestplate],
     ]
 }

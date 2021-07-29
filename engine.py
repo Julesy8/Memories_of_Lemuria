@@ -50,7 +50,7 @@ class Engine:
     def render(self, console: Console, camera: Camera) -> None:
         self.game_map.render(console, camera)
         console.draw_rect(0, 46, 80, 4, 219)
-        self.message_log.render(console=console, x=5, y=46, width=60, height=4)
+        self.message_log.render(console=console, x=6, y=46, width=60, height=4)
 
         # head
         render_part(console=console, x=2, y=46, character="O", current_value=self.player.bodyparts[0].hp,
@@ -73,6 +73,8 @@ class Engine:
         # right leg
         render_part(console=console, x=3, y=49, character=chr(tileset.CHARMAP_CP437[92]),
                     current_value=self.player.bodyparts[5].hp, maximum_value=self.player.bodyparts[5].max_hp)
+        console.print(x=0, y=46, string='R', fg=colour.WHITE)  # indicates right and left
+        console.print(x=4, y=46, string='L', fg=colour.WHITE)
 
         render_names_at_mouse_location(console=console, x=1, y=45, engine=self)
         # render_mouse_location(console=console, engine=self, game_map=self.game_map)

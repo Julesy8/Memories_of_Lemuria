@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
+from exceptions import Impossible
 from entity import Actor
 from render_order import RenderOrder
 from input_handlers import GameOverEventHandler

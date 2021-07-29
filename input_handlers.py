@@ -22,6 +22,7 @@ from scrolling_map import Camera
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Item
+    from components.bodyparts import Bodypart
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -366,7 +367,7 @@ class ItemInteractionHandler(AskUserEventHandler):
             if len (self.TITLE) + 4 > longest_option_len + 6:
                 width = longest_option_len + 6
             else:
-                width = len (self.TITLE) + 4
+                width = len(self.TITLE) + 4
 
             console.draw_frame(
                 x=x,
@@ -404,14 +405,22 @@ class ItemInteractionHandler(AskUserEventHandler):
         if option == 'Use':
             if self.item.consumable:
                 return self.item.consumable.get_action(self.engine.player)
-            if self.item.weapon:
+            elif self.item.weapon:
                 return self.item.weapon.get_action(self.engine.player)
 
-        elif option == 'Equip': # needs additonal statement to determine whether item being equipped like a weapon or worn when armour implemented
-            return actions.EquipWeapon(self.engine.player, self.item)
+        elif option == 'Equip':
+            if self.item.weapon:
+                return actions.EquipWeapon(self.engine.player, self.item)
+
+            elif self.item.wearable:
+                return actions.EquipArmour(self.engine.player, self.item)
 
         elif option == 'Unequip':
-            return actions.UnequipWeapon(self.engine.player, self.item)
+            if self.item.weapon:
+                return actions.UnequipWeapon(self.engine.player, self.item)
+
+            elif self.item.wearable:
+                return actions.UnequipArmour(self.engine.player, self.item)
 
         elif option == 'Drop':
             return actions.DropItem(self.engine.player, self.item)
@@ -440,16 +449,20 @@ class EquipmentEventHandler(AskUserEventHandler):
             equipped_list.append(self.engine.player.inventory.held)
 
         longest_part_len = 4  # set to 4 by defualt because of 'Held'
+        longest_name_len = 0  # for items
 
         # adds all items equipped by bodyparts of the entity to the equipped list
         for bodypart in self.engine.player.bodyparts:
-            if bodypart.equipped is not None:
-                equipped_list.append(bodypart.equipped)
+            if bodypart.equipped:
+                equipped_list.append(bodypart)
                 # from the item gives the name of the bodypart that it is equipped by, adds it to equipment_dictionary
-                equipment_dictionary[str(bodypart.equipped)] = bodypart.name
-                print(bodypart.name)
+
+                equipment_dictionary[bodypart.name] = bodypart.equipped.name
+
                 if len(bodypart.name) > longest_part_len:
                     longest_part_len = len(bodypart.name)
+                if len(bodypart.equipped.name) > longest_name_len:
+                    longest_name_len = len(bodypart.equipped.name)
 
         width = len(self.TITLE) + 4
         height = len(equipped_list) + 2
@@ -457,14 +470,8 @@ class EquipmentEventHandler(AskUserEventHandler):
         x = 1
         y = 1
 
-        longest_name_len = 0
-
-        for item in equipped_list:
-            if len(item.name) > longest_name_len:
-                longest_name_len = len(item.name)
-
         if longest_name_len + longest_part_len + 9 > width:
-            width = longest_name_len + longest_part_len + 11
+            width = longest_name_len + longest_part_len + 10
 
         console.draw_frame(
             x=x,
@@ -486,7 +493,7 @@ class EquipmentEventHandler(AskUserEventHandler):
                     console.print(x + 1, y + i + 1, f"({item_key}) | Held | {item.name}")
 
                 else:
-                    console.print(x + 1, y + i + 1, f"({item_key}) | {equipment_dictionary[item]} | {item.name}")
+                    console.print(x + 1, y + i + 1, f"({item_key}) | {item.name} | {item.equipped.name}")
 
         else:
             console.print(x + 1, y + 1, "(Empty)")
@@ -518,3 +525,71 @@ class EquipmentInteractHandler(EquipmentEventHandler):
     def on_item_selected(self, item: Item) -> None:
         options = ('Use', 'Unequip', 'Drop')
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
+
+
+class LimbInteractionHandler(AskUserEventHandler):  # for selecting a limb to be interacted with
+
+    TITLE = "<missing title>"
+
+    def __init__(self, item, engine: Engine):
+        super().__init__(engine)
+        self.item = item
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
+        Will move to a different position based on where the player is located, so the player can always see where
+        they are.
+        """
+        super().on_render(console, camera)
+
+        x = 1
+        y = 1
+
+        longest_name_len = 0
+
+        width = len(self.TITLE) + 4
+        height = len(self.engine.player.bodyparts) + 2
+
+        for bodypart in self.engine.player.bodyparts:
+            if bodypart.name > longest_name_len:
+                longest_name_len = len(bodypart.name)
+
+        if longest_name_len + 4 > width:
+            width = longest_name_len + 4
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=(255, 255, 255),
+            bg=(0, 0, 0),
+        )
+
+        if len(self.engine.player.bodyparts) > 0:
+            for i, bodypart in enumerate(self.engine.player.bodyparts):
+                item_key = chr(ord("a") + i)
+                console.print(x + 1, y + i + 1, f"({item_key}) {bodypart.name}")
+
+        else:
+            console.print(x + 1, y + 1, "this shouldn't ever happen")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        player = self.engine.player
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if 0 <= index <= 26:
+            try:
+                selected_item = player.bodyparts[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.on_item_selected(selected_item)
+        return super().ev_keydown(event)
+
+    def on_item_selected(self, bodypart):
+        """Called when the user selects a valid item."""
+        raise NotImplementedError()

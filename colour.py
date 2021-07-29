@@ -21,3 +21,5 @@ JADE = (35, 138, 100)  # snackfox green
 LIGHT_JADE = (23, 237, 166)  # snackfox light green
 PURPLE = (112, 98, 214)  # snackfox blue
 LIGHT_PURPLE = (164, 153, 250)  # snackfox light blue
+GUNMETAL = (51, 51, 51)
+LIGHT_GUNMETAL = (26, 26, 26)

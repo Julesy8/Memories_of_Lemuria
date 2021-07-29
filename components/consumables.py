@@ -85,3 +85,12 @@ class Weapon(Consumable):
 
         else:
             raise Impossible("No enemy is close enough to strike.")
+
+
+class Wearable(Consumable):  # in future add different types of protection i.e. projectile + melee
+    def __init__(self, protection: int, fits_bodypart_type: str):
+        self.protection = protection
+        self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
+
+    def activate(self, action: actions.ItemAction):
+        pass
