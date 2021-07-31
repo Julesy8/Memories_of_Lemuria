@@ -29,17 +29,17 @@ def main():
     # initialises player entity
     fighter_component = Fighter(power=6)
 
-    head = Bodypart(hp=100, defence=20, vital=True, walking=False, grasping=False,
+    head = Bodypart(hp=15, defence=9, vital=True, walking=False, grasping=False,
                     connected_to=[], equipped=None, name='Head', part_type='Head', base_chance_to_hit=80)
-    body = Bodypart(hp=100, defence=20, vital=True, walking=False, grasping=False,
+    body = Bodypart(hp=15, defence=9, vital=True, walking=False, grasping=False,
                     connected_to=[], equipped=None, name='Body', part_type='Body', base_chance_to_hit=90)
-    r_arm = Bodypart(hp=100, defence=20, vital=False, walking=False, grasping=True,
+    r_arm = Bodypart(hp=15, defence=9, vital=False, walking=False, grasping=True,
                      connected_to=[], equipped=None, name='Right Arm', part_type='Arms', base_chance_to_hit=80)
-    l_arm = Bodypart(hp=100, defence=20, vital=False, walking=False, grasping=True,
+    l_arm = Bodypart(hp=15, defence=9, vital=False, walking=False, grasping=True,
                      connected_to=[], equipped=None, name='Left Arm', part_type='Arms', base_chance_to_hit=80)
-    r_leg = Bodypart(hp=100, defence=20, vital=False, walking=False, grasping=False,
+    r_leg = Bodypart(hp=15, defence=9, vital=False, walking=False, grasping=False,
                      connected_to=[], equipped=None, name='Right Leg', part_type='Legs', base_chance_to_hit=80)
-    l_leg = Bodypart(hp=100, defence=20, vital=False, walking=False, grasping=False,
+    l_leg = Bodypart(hp=15, defence=9, vital=False, walking=False, grasping=False,
                      connected_to=[], equipped=None, name='Left Leg', part_type='Legs', base_chance_to_hit=80)
 
     body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]

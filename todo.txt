@@ -10,15 +10,17 @@ X 4) armour
 6) tutorial parts 9, 10, 11
 7) limb targeting system that works by hovering over an enemy with the cursor to target it
 8) bodypart functionality
-9) weapon firing graphics
-10) proper weapons implmentation (ammo and weapon parts)
-11) ranged enemies
-12) some enemies flee to regain health
-13) more room shapes on level generation
-14) enemy drops and xp + leveling
-15) weapon graphics
-16) config txt
+9) item stat screen
+10) weapon firing graphics
+11) proper weapons implmentation (ammo and weapon parts)
+12) ranged enemies
+13) some enemies flee to regain health
+14) more room shapes on level generation
+15) enemy drops and xp + leveling
+16) weapon graphics
+17) config txt
 
+-music
 -numbered identifiers for enemy names
 -remembering item + enemy last position when out of line of sight
 -enemies spawning in groups

@@ -172,17 +172,11 @@ class Item(Entity):
         self.consumable = consumable
         if consumable:
             self.consumable.parent = self
-        else:
-            self.consumable = None
 
         self.weapon = weapon
         if weapon:
             self.weapon.parent = self
-        else:
-            self.consumable = None
 
         self.wearable = wearable
         if wearable:
             self.wearable.parent = self
-        else:
-            self.consumable = None

@@ -17,9 +17,9 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
         return ""
 
     names = ", ".join(
-        entity.name for entity in game_map.entities if entity.x == x and entity.y == y
+        entity.name.capitalize() for entity in game_map.entities if entity.x == x and entity.y == y
     )
-    return names.capitalize()
+    return names
 
 
 def render_names_at_mouse_location(
@@ -31,7 +31,15 @@ def render_names_at_mouse_location(
         x=mouse_x, y=mouse_y, game_map=engine.game_map
     )
 
-    console.print(x=x, y=y, string=names_at_mouse_location, fg=colour.WHITE, bg=(0, 0, 0))
+    names_at_player = get_names_at_location(
+        x=engine.player.x, y=engine.player.y, game_map=engine.game_map
+    )
+
+    if names_at_mouse_location == "":
+        if not names_at_player == engine.player.name.capitalize():
+            console.print(x=x, y=y, string=names_at_player, fg=colour.WHITE, bg=(0, 0, 0))
+    else:
+        console.print(x=x, y=y, string=names_at_mouse_location, fg=colour.WHITE, bg=(0, 0, 0))
 
 
 def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -> None:

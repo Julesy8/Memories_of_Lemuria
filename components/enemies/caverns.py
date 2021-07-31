@@ -2,7 +2,7 @@ from components.npc_templates import Fighter
 from entity import Actor, Item
 from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
-from components.consumables import HealingConsumable, Weapon, Wearable
+from components import consumables
 from components.inventory import Inventory
 import colour
 
@@ -100,7 +100,7 @@ health_potion = Item(
     fg_colour=colour.LIGHT_GREEN,
     bg_colour=None,
     name="Health Potion",
-    consumable=HealingConsumable(amount=4),
+    consumable=consumables.HealingConsumable(amount=4),
     weapon=None,
     wearable=None
 )
@@ -123,7 +123,7 @@ glock = Item(
     bg_colour=None,
     name="Glock Fawty",
     consumable=None,
-    weapon=Weapon(
+    weapon=consumables.Weapon(
         damage=50,
         ranged=True,
         maximum_range=100,
@@ -140,7 +140,7 @@ sword = Item(
     bg_colour=None,
     name="Sword",
     consumable=None,
-    weapon=Weapon(
+    weapon=consumables.Weapon(
         damage=50,
         ranged=False,
         maximum_range=1,
@@ -158,7 +158,7 @@ helmet = Item(
     name="Helmet",
     consumable=None,
     weapon=None,
-    wearable=(Wearable(
+    wearable=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Head'
     ))
@@ -172,7 +172,7 @@ pauldron = Item(
     name="Pauldrons",
     consumable=None,
     weapon=None,
-    wearable=(Wearable(
+    wearable=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Arms'
     ))
@@ -186,7 +186,7 @@ greaves = Item(
     name="Greaves",
     consumable=None,
     weapon=None,
-    wearable=(Wearable(
+    wearable=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Legs'
     ))
@@ -200,8 +200,19 @@ chestplate = Item(
     name="Chestplate",
     consumable=None,
     weapon=None,
-    wearable=(Wearable(
+    wearable=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Body'
     ))
+)
+
+medkit = Item(
+    x=0, y=0,
+    char="+",
+    fg_colour=colour.GREEN,
+    bg_colour=None,
+    name="Medkit",
+    consumable=consumables.HealingConsumable(amount=20),
+    weapon=None,
+    wearable=None
 )

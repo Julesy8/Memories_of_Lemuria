@@ -145,9 +145,14 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
         if self.hitchance <= float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit) * \
                 self.entity.fighter.melee_accuracy:
 
+            # if armour on the given part, value set for armour protection
+            armour_protection = 0
+            if self.targeted_actor.bodyparts[self.part_index].equipped:
+                armour_protection = self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
+
             # calculates damage (system right now is placeholder) if successfully hits
             damage = self.entity.fighter.power - self.targeted_actor.bodyparts[self.part_index].defence - \
-                     self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
+                     armour_protection
 
             # hit and did damage
             if damage > 0:
@@ -186,9 +191,13 @@ class WeaponAttackAction(AttackAction):
         if self.hitchance <= (float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit)
                               * self.item.weapon.base_accuracy) + range_penalty:
 
+            # if armour on the given part, value set for armour protection
+            armour_protection = 0
+            if self.targeted_actor.bodyparts[self.part_index].equipped:
+                armour_protection = self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
+
             # calculates damage if successfully hits
-            damage = self.item.weapon.power - self.targeted_actor.bodyparts[self.part_index].defence - \
-                     self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
+            damage = self.item.weapon.power - self.targeted_actor.bodyparts[self.part_index].defence - armour_protection
 
             # attack dealt damage (melee)
             if not self.item.weapon.ranged and damage > 0:

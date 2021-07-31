@@ -41,16 +41,15 @@ class HealingConsumable(Consumable):
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
-        amount_recovered = consumer.fighter.heal(self.amount)
 
-        if amount_recovered > 0:
-            self.engine.message_log.add_message(
-                f"You consume the {self.parent.name}, and recover {amount_recovered} HP!",
-                colour.GREEN,
-            )
-            self.consume()
-        else:
-            raise Impossible(f"Your health is already full.")
+        for bodypart in consumer.bodyparts:
+            bodypart.heal(self.amount)
+
+        self.engine.message_log.add_message(
+            f"You use the {self.parent.name}",
+            colour.GREEN,
+        )
+        self.consume()
 
 
 class Weapon(Consumable):

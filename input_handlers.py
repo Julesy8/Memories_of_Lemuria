@@ -22,7 +22,6 @@ from scrolling_map import Camera
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Item
-    from components.bodyparts import Bodypart
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -336,9 +335,9 @@ class InventoryInteractHandler(InventoryEventHandler):
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
-class ItemInteractionHandler(AskUserEventHandler):
+class ItemInteractionHandler(AskUserEventHandler):  # options for interacting with an item
 
-    TITLE = "Inventory"
+    TITLE = "Item Options"
 
     def __init__(self, item, options: tuple, engine: Engine):
         super().__init__(engine)
@@ -364,7 +363,7 @@ class ItemInteractionHandler(AskUserEventHandler):
                 if len(option) > longest_option_len:
                     longest_option_len = len(option)
 
-            if len (self.TITLE) + 4 > longest_option_len + 6:
+            if len(self.TITLE) + 4 > longest_option_len + 6:
                 width = longest_option_len + 6
             else:
                 width = len(self.TITLE) + 4
@@ -403,34 +402,45 @@ class ItemInteractionHandler(AskUserEventHandler):
     def on_option_selected(self, option) -> Optional[Action]:
         """Called when the user selects a valid item."""
         if option == 'Use':
-            if self.item.consumable:
-                return self.item.consumable.get_action(self.engine.player)
-            elif self.item.weapon:
-                return self.item.weapon.get_action(self.engine.player)
+            try:
+                if self.item.consumable:
+                    return self.item.consumable.get_action(self.engine.player)
+                elif self.item.weapon:
+                    return self.item.weapon.get_action(self.engine.player)
+
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
         elif option == 'Equip':
-            if self.item.weapon:
-                return actions.EquipWeapon(self.engine.player, self.item)
-
-            elif self.item.wearable:
-                return actions.EquipArmour(self.engine.player, self.item)
+            try:
+                if self.item.weapon:
+                    return actions.EquipWeapon(self.engine.player, self.item)
+                elif self.item.wearable:
+                    return actions.EquipArmour(self.engine.player, self.item)
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
         elif option == 'Unequip':
-            if self.item.weapon:
-                return actions.UnequipWeapon(self.engine.player, self.item)
-
-            elif self.item.wearable:
-                return actions.UnequipArmour(self.engine.player, self.item)
+            try:
+                if self.item.weapon:
+                    return actions.UnequipWeapon(self.engine.player, self.item)
+                elif self.item.wearable:
+                    return actions.UnequipArmour(self.engine.player, self.item)
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
         elif option == 'Drop':
-            return actions.DropItem(self.engine.player, self.item)
+            try:
+                return actions.DropItem(self.engine.player, self.item)
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
         else:
             self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
 
 class EquipmentEventHandler(AskUserEventHandler):
-
+    # used for equipment screen
     TITLE = "<missing title>"
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
@@ -471,7 +481,7 @@ class EquipmentEventHandler(AskUserEventHandler):
         y = 1
 
         if longest_name_len + longest_part_len + 9 > width:
-            width = longest_name_len + longest_part_len + 10
+            width = longest_name_len + longest_part_len + 11
 
         console.draw_frame(
             x=x,
@@ -505,7 +515,7 @@ class EquipmentEventHandler(AskUserEventHandler):
 
         if 0 <= index <= 26:
             try:
-                selected_item = player.inventory.held
+                selected_item = player.bodyparts[index].equipped
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
                 return None
@@ -517,13 +527,11 @@ class EquipmentEventHandler(AskUserEventHandler):
         raise NotImplementedError()
 
 
-class EquipmentInteractHandler(EquipmentEventHandler):
-    """Handle using an inventory item."""
-
+class EquipmentInteractHandler(EquipmentEventHandler):  # equipment screen
     TITLE = "Equipment"
 
     def on_item_selected(self, item: Item) -> None:
-        options = ('Use', 'Unequip', 'Drop')
+        options = ('Unequip',)
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
