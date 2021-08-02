@@ -49,7 +49,9 @@ class HealingConsumable(Consumable):
             f"You use the {self.parent.name}",
             colour.GREEN,
         )
-        self.consume()
+        self.parent.stacking.stack_size -= 1
+        if self.parent.stacking.stack_size <= 0:
+            self.consume()
 
 
 class Weapon(Consumable):

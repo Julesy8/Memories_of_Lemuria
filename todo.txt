@@ -3,22 +3,24 @@ TO DO
 FIX BUG WHEN ATTEMPTING TO USE ARMOUR ITEMS FROM EQUIPMENT MENU
 X 1) change menu system to allow more than 26 menu items (use history viewer code)
 X 2) display limb health graphically
-3) limb healing
+X 3) limb healing
 X 4) armour
-5) item weight, item stackability
-5) quick targeting by clycing through the enemies in the players line of sight
-6) tutorial parts 9, 10, 11
-7) limb targeting system that works by hovering over an enemy with the cursor to target it
-8) bodypart functionality
-9) item stat screen
-10) weapon firing graphics
-11) proper weapons implmentation (ammo and weapon parts)
-12) ranged enemies
-13) some enemies flee to regain health
-14) more room shapes on level generation
-15) enemy drops and xp + leveling
-16) weapon graphics
-17) config txt
+X 5) item weight, item stackability
+6) quick targeting by clycing through the enemies in the players line of sight
+7) tutorial parts 9, 10, 11
+8) limb targeting system that works by hovering over an enemy with the cursor to target it
+9) bodypart functionality
+10) item stat screen
+11) weapon firing graphics
+12) proper weapons implmentation (ammo and weapon parts)
+13) ranged enemies
+14) some enemies flee to regain health
+15) more room shapes on level generation
+16) enemy drops and xp + leveling
+17) weapon graphics
+18) config txt
+
+ALSO: Item stat menu
 
 -music
 -numbered identifiers for enemy names

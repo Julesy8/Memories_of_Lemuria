@@ -39,14 +39,14 @@ Enemies_by_level = {
 Items_by_level = {
     0: [
         # common
-        [medkit,],
+        [medkit, glock, helmet, greaves, chestplate],
         # uncommon
-        [medkit,],
+        [medkit, glock, helmet, greaves, chestplate],
         # rare
-        [medkit,],
+        [medkit, glock, helmet, greaves, chestplate],
         # very rare
-        [medkit,],
+        [medkit, glock, helmet, greaves, chestplate],
         # legendary
-        [medkit,],
+        [medkit, glock, helmet, greaves, chestplate],
     ]
 }

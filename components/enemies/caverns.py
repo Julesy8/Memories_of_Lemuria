@@ -1,5 +1,5 @@
 from components.npc_templates import Fighter
-from entity import Actor, Item
+from entity import Actor, Item, Stacking
 from components.ai import HostileEnemy
 from components.bodyparts import Bodypart
 from components import consumables
@@ -100,6 +100,8 @@ health_potion = Item(
     fg_colour=colour.LIGHT_GREEN,
     bg_colour=None,
     name="Health Potion",
+    weight=1,
+    stacking=None,
     consumable=consumables.HealingConsumable(amount=4),
     weapon=None,
     wearable=None
@@ -111,6 +113,8 @@ placeholder_item = Item(
     fg_colour=colour.MAGENTA,
     bg_colour=None,
     name="Placeholder Item",
+    weight=1,
+    stacking=None,
     consumable=None,
     weapon=None,
     wearable=None
@@ -122,6 +126,8 @@ glock = Item(
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name="Glock Fawty",
+    weight=1,
+    stacking=None,
     consumable=None,
     weapon=consumables.Weapon(
         damage=50,
@@ -139,6 +145,8 @@ sword = Item(
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name="Sword",
+    weight=1,
+    stacking=None,
     consumable=None,
     weapon=consumables.Weapon(
         damage=50,
@@ -156,6 +164,8 @@ helmet = Item(
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name="Helmet",
+    weight=1,
+    stacking=None,
     consumable=None,
     weapon=None,
     wearable=(consumables.Wearable(
@@ -170,6 +180,8 @@ pauldron = Item(
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name="Pauldrons",
+    weight=1,
+    stacking=None,
     consumable=None,
     weapon=None,
     wearable=(consumables.Wearable(
@@ -184,6 +196,8 @@ greaves = Item(
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name="Greaves",
+    weight=1,
+    stacking=None,
     consumable=None,
     weapon=None,
     wearable=(consumables.Wearable(
@@ -198,6 +212,8 @@ chestplate = Item(
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name="Chestplate",
+    weight=1,
+    stacking=None,
     consumable=None,
     weapon=None,
     wearable=(consumables.Wearable(
@@ -212,6 +228,8 @@ medkit = Item(
     fg_colour=colour.GREEN,
     bg_colour=None,
     name="Medkit",
+    weight=1,
+    stacking=Stacking(stack_size=1),
     consumable=consumables.HealingConsumable(amount=20),
     weapon=None,
     wearable=None

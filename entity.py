@@ -154,20 +154,15 @@ class Item(Entity):
         fg_colour,
         bg_colour,
         name: str = "<Unnamed>",
+        weight: int,
+        stacking: Optional[Stacking],
         consumable: Optional[Consumable],
         weapon: Optional[Weapon],
         wearable: Optional[Wearable]
     ):
-        super().__init__(
-            x=x,
-            y=y,
-            char=char,
-            fg_colour=fg_colour,
-            bg_colour=bg_colour,
-            name=name,
-            blocks_movement=False,
-            render_order=RenderOrder.ITEM,
-        )
+
+        self.weight = weight
+        self.stacking = stacking
 
         self.consumable = consumable
         if consumable:
@@ -180,3 +175,19 @@ class Item(Entity):
         self.wearable = wearable
         if wearable:
             self.wearable.parent = self
+
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            fg_colour=fg_colour,
+            bg_colour=bg_colour,
+            name=name,
+            blocks_movement=False,
+            render_order=RenderOrder.ITEM,
+        )
+
+
+class Stacking:  # class for stacks of items
+    def __init__(self, stack_size):
+        self.stack_size = stack_size

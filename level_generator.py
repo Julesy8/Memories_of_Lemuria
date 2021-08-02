@@ -346,4 +346,3 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
                 item = copy.deepcopy(Items_by_level[level][4][randint(0, len(Items_by_level[level][0]) - 1)])
 
             item.place(x, y, dungeon)
-

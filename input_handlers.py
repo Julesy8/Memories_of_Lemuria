@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 from math import ceil
+from copy import deepcopy
 
 import tcod.event
 
@@ -243,7 +244,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
     def __init__(self, engine: Engine, page: int):
         super().__init__(engine)
-
+        self.max_list_length = 5  # defines the maximum amount of items to be displayed in the menu
         self.page = page
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
@@ -254,9 +255,9 @@ class InventoryEventHandler(AskUserEventHandler):
         super().on_render(console, camera)
         number_of_items_in_inventory = len(self.engine.player.inventory.items)
 
-        longest_name_len = 0
-
-        self.max_list_length = 5  # defines the maximum amount of items to be displayed in the menu
+        longest_name_len = None
+        if len(self.engine.player.inventory.items) > 0:
+            longest_name_len = self.engine.player.inventory.items[0]
 
         width = len(self.TITLE) + 4
         height = number_of_items_in_inventory + 2
@@ -270,16 +271,36 @@ class InventoryEventHandler(AskUserEventHandler):
         index_range = self.page * self.max_list_length
 
         for item in self.engine.player.inventory.items[index_range:index_range+self.max_list_length]:
-            if len(item.name) > longest_name_len:
-                longest_name_len = len(item.name)
+            try:
+                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
+                    longest_name_len = item
+            except AttributeError:
+                if len(item.name) > len(longest_name_len.name):
+                    longest_name_len = item
 
-        if longest_name_len + 6 > width:
-            width = longest_name_len + 6
+            if item.stacking:
+                try:
+                    if len(item.name) + len(str(item.stacking.stack_size)) > \
+                            len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)):
+                        longest_name_len = item
+                except AttributeError:
+                    if len(item.name) + len(str(item.stacking.stack_size)) + 2 > len(longest_name_len.name):
+                        longest_name_len = item
+
+        if longest_name_len:
+            if len(longest_name_len.name) + 6 > width:
+                width = len(longest_name_len.name) + 6
+
+        stack_str_len = 0
+
+        if longest_name_len:
+            if longest_name_len.stacking:
+                stack_str_len = len(str(longest_name_len.stacking.stack_size)) + 2
 
         console.draw_frame(
             x=x,
             y=y,
-            width=width,
+            width=width + stack_str_len,
             height=height,
             title=self.TITLE,
             clear=True,
@@ -288,11 +309,15 @@ class InventoryEventHandler(AskUserEventHandler):
         )
 
         if number_of_items_in_inventory > 0:
-            console.print(x + 1, y + height - 1, f"Page {self.page + 1}/{ceil(len(self.engine.player.inventory.items)/self.max_list_length)}")
+            console.print(x + 1, y + height - 1,
+                          f"Page {self.page + 1}/{ceil(len(self.engine.player.inventory.items)/self.max_list_length)}")
 
             for i, item in enumerate(self.engine.player.inventory.items[index_range:index_range+self.max_list_length]):
                 item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+                if item.stacking:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                else:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
@@ -431,7 +456,8 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
 
         elif option == 'Drop':
             try:
-                return actions.DropItem(self.engine.player, self.item)
+                self.engine.event_handler = DropItemEventHandler(item=self.item, engine=self.engine)
+                return
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
 
@@ -535,69 +561,98 @@ class EquipmentInteractHandler(EquipmentEventHandler):  # equipment screen
         self.engine.event_handler = ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
-class LimbInteractionHandler(AskUserEventHandler):  # for selecting a limb to be interacted with
-
-    TITLE = "<missing title>"
+class DropItemEventHandler(AskUserEventHandler):
 
     def __init__(self, item, engine: Engine):
         super().__init__(engine)
         self.item = item
+        self.engine = engine
+        self.drop_amount = 0
+        self.buffer = ''
+        self.console = None
+        self.camera = None
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
-        Will move to a different position based on where the player is located, so the player can always see where
-        they are.
-        """
         super().on_render(console, camera)
 
-        x = 1
-        y = 1
+        self.console = console
+        self.camera = camera
 
-        longest_name_len = 0
+        if self.item.stacking:
+            if self.item.stacking.stack_size > 1:
+                console.draw_frame(
+                    x=1,
+                    y=1,
+                    width=18 + len(self.buffer),
+                    height=3,
+                    clear=True,
+                    fg=(255, 255, 255),
+                    bg=(0, 0, 0),
+                )
+                console.print(x=2, y=2, string=f"amount to drop: {self.buffer}")
 
-        width = len(self.TITLE) + 4
-        height = len(self.engine.player.bodyparts) + 2
+    def ev_keydown(self, event):
 
-        for bodypart in self.engine.player.bodyparts:
-            if bodypart.name > longest_name_len:
-                longest_name_len = len(bodypart.name)
+        if self.item.stacking:
+            if self.item.stacking.stack_size > 1:
 
-        if longest_name_len + 4 > width:
-            width = longest_name_len + 4
+                for event in tcod.event.wait():
 
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width,
-            height=height,
-            title=self.TITLE,
-            clear=True,
-            fg=(255, 255, 255),
-            bg=(0, 0, 0),
-        )
+                    if isinstance(event, tcod.event.TextInput):
+                        self.buffer += event.text
 
-        if len(self.engine.player.bodyparts) > 0:
-            for i, bodypart in enumerate(self.engine.player.bodyparts):
-                item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {bodypart.name}")
+                    elif event.scancode == tcod.event.SCANCODE_ESCAPE:
+                        self.engine.event_handler = MainGameEventHandler(self.engine)
+                        return
 
-        else:
-            console.print(x + 1, y + 1, "this shouldn't ever happen")
+                    elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
+                        print('backspace')
+                        self.buffer = self.buffer[:-1]
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        player = self.engine.player
-        key = event.sym
-        index = key - tcod.event.K_a
+                    elif event.scancode == tcod.event.SCANCODE_RETURN:
+                        # buffer is ready to be used.
+                        try:
 
-        if 0 <= index <= 26:
-            try:
-                selected_item = player.bodyparts[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return None
-            return self.on_item_selected(selected_item)
-        return super().ev_keydown(event)
+                            # copy of the item to be dropped
+                            dropped_item = deepcopy(self.item)
 
-    def on_item_selected(self, bodypart):
-        """Called when the user selects a valid item."""
-        raise NotImplementedError()
+                            self.drop_amount = int(self.buffer, base=0)
+                            # sets dropped item to have correct stack size
+                            dropped_item.stacking.stack_size = self.drop_amount
+
+                            # more than 1 stack left in after drop
+                            if self.item.stacking.stack_size - self.drop_amount > 1:
+                                if self.item in self.engine.player.inventory.items:
+                                    self.item.stacking.stack_size -= self.drop_amount
+                                    dropped_item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+                                    self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
+                                    self.engine.event_handler = MainGameEventHandler(self.engine)
+
+                            # no stacks left after drop
+                            elif self.item.stacking.stack_size - self.drop_amount <= 0:
+                                self.drop_item(self.item)
+
+                        # invalid input
+                        except ValueError:
+                            self.engine.message_log.add_message(f"Invalid Input", fg=colour.RED)
+                            self.engine.event_handler = MainGameEventHandler(self.engine)
+                            return
+
+            else:  # item stacking, stack size = 1
+                self.drop_item(self.item)
+
+        else:  # item not stacking
+            self.drop_item(self.item)
+
+    def drop_item(self, item):
+        """
+        Removes an item from the inventory and restores it to the game map, at the player's current location.
+        """
+        if item in self.engine.player.inventory.items:
+            self.engine.player.inventory.items.remove(item)
+
+        item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+
+        self.engine.message_log.add_message(f"You dropped the {item.name}.")
+        self.engine.event_handler = MainGameEventHandler(self.engine)
+        return

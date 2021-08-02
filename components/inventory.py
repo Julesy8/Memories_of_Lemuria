@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import List, Optional, TYPE_CHECKING
+import tcod
+from copy import deepcopy
 
 from exceptions import Impossible
 from components.npc_templates import BaseComponent
@@ -17,19 +19,12 @@ class Inventory(BaseComponent):
         self.items: List[Item] = []
         self.held: Optional[Item] = held
 
-    def drop(self, item: Item) -> None:
-        """
-        Removes an item from the inventory and restores it to the game map, at the player's current location.
-        """
-        if item in self.items:
-            self.items.remove(item)
-
-        if item == self.held:
-            self.held = None
-
-        item.place(self.parent.x, self.parent.y, self.gamemap)
-
-        self.engine.message_log.add_message(f"You dropped the {item.name}.")
+    def current_item_weight(self):
+        #  returns current combined weight of items in inventory
+        current_weight = 0
+        for item in self.items:
+            current_weight += item.weight
+        return current_weight
 
     def equip_weapon(self, item):
         if item.weapon:
@@ -45,11 +40,21 @@ class Inventory(BaseComponent):
     def unequip_weapon(self, item):
         self.held = None
 
-        if len(self.items) + 1 > self.capacity:
-            raise Impossible(f"your inventory is full")
+        if self.current_item_weight() + item.weight > self.capacity:
+            raise Impossible(f"Your inventory is full")
 
         else:
-            self.items.append(item)
+            if item.stacking:
+                try:
+                    repeat_item_index = self.parent.inventory.items.index(item)
+                    self.parent.inventory.items[repeat_item_index].stacking.stack_size += item.stacking.stack_size
+
+                except ValueError:
+                    self.items.append(item)
+
+            else:
+                self.items.append(item)
+
             self.engine.message_log.add_message(f"You moved your held item to your inventory ")
 
     def equip_armour(self, item):
@@ -60,7 +65,7 @@ class Inventory(BaseComponent):
             if bodypart.type == item.wearable.fits_bodypart:
 
                 if bodypart.equipped is not None:
-                    raise Impossible(f"you are already wearing something there")
+                    raise Impossible(f"You are already wearing something there")
 
                 else:
                     if not item_removed:
@@ -75,9 +80,19 @@ class Inventory(BaseComponent):
             if bodypart.type == item.wearable.fits_bodypart:
                 bodypart.equipped = None
 
-        if len(self.items) + 1 > self.capacity:
-            raise Impossible(f"your inventory is full")
+        if self.current_item_weight() + item.weight > self.capacity:
+            raise Impossible(f"Your inventory is full")
 
         else:
-            self.items.append(item)
+            if item.stacking:
+                try:
+                    repeat_item_index = self.parent.inventory.items.index(item)
+                    self.parent.inventory.items[repeat_item_index].stacking.stack_size += item.stacking.stack_size
+
+                except ValueError:
+                    self.items.append(item)
+
+            else:
+                self.items.append(item)
+
             self.engine.message_log.add_message(f"You took off the {item.name}")

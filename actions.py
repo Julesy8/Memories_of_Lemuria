@@ -285,14 +285,27 @@ class PickupAction(Action):
 
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                if len(inventory.items) >= inventory.capacity:
+                if self.entity.inventory.current_item_weight() + item.weight > self.entity.inventory.capacity:
                     raise exceptions.Impossible("Your inventory is full.")
 
                 self.engine.game_map.entities.remove(item)
-                item.parent = self.entity.inventory
-                inventory.items.append(item)
 
-                self.engine.message_log.add_message(f"You picked up the {item.name}!")
+                if item.stacking:
+                    try:
+                        for i in self.entity.inventory.items:
+                            if i.name == item.name:
+                                repeat_item_index = self.entity.inventory.items.index(i)
+                        self.entity.inventory.items[repeat_item_index].stacking.stack_size += item.stacking.stack_size
+
+                    except UnboundLocalError:
+                        inventory.items.append(item)
+
+                else:
+                    inventory.items.append(item)
+
+                item.parent = self.entity.inventory
+
+                self.engine.message_log.add_message(f"You picked up the {item.name} ({item.stacking.stack_size})!")
                 return
 
         raise exceptions.Impossible("There is nothing here to pick up.")
