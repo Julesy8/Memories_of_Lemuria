@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
-from math import ceil
+from math import ceil, floor
 from copy import deepcopy
 
 import tcod.event
@@ -11,7 +11,6 @@ from actions import (
     Action,
     BumpAction,
     PickupAction,
-    ChangeTarget,
     WaitAction
 )
 
@@ -58,10 +57,6 @@ WAIT_KEYS = {
     tcod.event.K_PERIOD,
     tcod.event.K_KP_5,
     tcod.event.K_CLEAR,
-}
-
-CHANGE_TARGET = {
-    tcod.event.K_t
 }
 
 
@@ -116,10 +111,14 @@ class MainGameEventHandler(EventHandler):
             action = BumpAction(player, dx, dy)
         elif key in WAIT_KEYS:
             action = WaitAction(player)
-        elif key in CHANGE_TARGET:
-            action = ChangeTarget(player)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer(self.engine)
+        elif key == tcod.event.K_SPACE:
+            if self.engine.player.inventory.held:
+                self.engine.event_handler = ChangeTargetActor(engine=self.engine, item=self.engine.player.inventory.held)
+            else:
+                self.engine.event_handler = ChangeTargetActor(engine=self.engine, item=None)
+
         elif key == tcod.event.K_g:
             action = PickupAction(player)
         elif key == tcod.event.K_ESCAPE:
@@ -656,3 +655,116 @@ class DropItemEventHandler(AskUserEventHandler):
         self.engine.message_log.add_message(f"You dropped the {item.name}.")
         self.engine.event_handler = MainGameEventHandler(self.engine)
         return
+
+
+class ChangeTargetActor(AskUserEventHandler):
+
+    def __init__(self, engine: Engine, item: Optional[Item]):
+        super().__init__(engine)
+        self.engine = engine
+        self.targets = []
+        self.target_index = None
+        self.distance_target = None
+        self.selected_bodypart = None
+        self.bodypart_index = 0
+
+        self.camera = None
+        self.console = None
+
+        if item:
+            self.item = item
+        else:
+            self.item = None
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)  # Draw the main state as the background.
+
+        self.console = console
+        self.camera = camera
+
+        player = self.engine.player
+        target_visible = False
+        closest_distance = 40
+        closest_actor = None
+
+        for actor in self.engine.game_map.actors:
+            if actor is not player and self.engine.game_map.visible[actor.x, actor.y]:
+                self.targets.append(actor)
+                distance = player.distance(actor.x, actor.y)
+
+                if player.target_actor == actor:
+                    target_visible = True
+
+                elif distance < closest_distance:
+                    closest_actor = actor
+
+        if not target_visible:
+            player.target_actor = closest_actor
+
+        if not self.selected_bodypart:
+            try:
+                self.selected_bodypart = player.target_actor.bodyparts[0]
+            except AttributeError:
+                self.engine.message_log.add_message("No targetable enemies.", colour.RED)
+                self.engine.event_handler = MainGameEventHandler(self.engine)
+                return
+
+        if player.target_actor:
+            self.distance_target = floor(player.distance(player.target_actor.x, player.target_actor.y))
+            self.target_index = self.targets.index(player.target_actor)
+            console.print(x=player.target_actor.x, y=player.target_actor.y, string="X", fg=colour.YELLOW, bg=(0, 0, 0))
+            console.draw_rect(x=0, y=45, width=80, height=1, ch=0, fg=(0, 0, 0), bg=(0, 0, 0))
+            console.print(x=1, y=45, string=f"Targeting: {player.target_actor.name} - {self.selected_bodypart.name}",
+                          fg=colour.WHITE)
+
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        player = self.engine.player
+        key = event.sym
+
+        if key == tcod.event.K_SPACE:  # change target
+            if self.target_index <= len(self.targets) - 1:
+                player.target_actor = self.targets[self.target_index + 1]
+                self.selected_bodypart = player.target_actor.bodyparts[0]
+                self.bodypart_index = 0
+                self.target_index += 1
+            else:
+                player.target_actor = self.targets[0]
+                self.target_index = 0
+
+        elif key == tcod.event.K_TAB:  # change limb targetted
+            try:
+                self.selected_bodypart = player.target_actor.bodyparts[self.bodypart_index + 1]
+                self.bodypart_index += 1
+
+            except IndexError:
+                self.selected_bodypart = player.target_actor.bodyparts[0]
+                self.bodypart_index = 0
+
+        elif key == tcod.event.K_RETURN:  # atttack selected target
+            try:
+                actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
+                                           targeted_actor=player.target_actor,
+                                           targeted_bodypart=self.selected_bodypart).attack()
+                self.engine.handle_enemy_turns()
+                self.engine.render(console=self.console, camera=self.camera)
+                self.engine.event_handler = MainGameEventHandler(self.engine)
+                return
+
+            except AttributeError:
+                if self.distance_target == 1:
+                    actions.UnarmedAttackAction(distance=self.distance_target, entity=player,
+                                                targeted_actor=player.target_actor,
+                                                targeted_bodypart=self.selected_bodypart).attack()
+                    self.engine.handle_enemy_turns()
+                    self.engine.render(console=self.console, camera=self.camera)
+                    self.engine.event_handler = MainGameEventHandler(self.engine)
+                    return
+
+                else:
+                    self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                    self.engine.event_handler = MainGameEventHandler(self.engine)
+                    return
+
+        elif key == tcod.event.K_ESCAPE:
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return

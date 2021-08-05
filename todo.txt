@@ -6,7 +6,7 @@ X 2) display limb health graphically
 X 3) limb healing
 X 4) armour
 X 5) item weight, item stackability
-6) quick targeting by clycing through the enemies in the players line of sight
+X 6) quick targeting by clycing through the enemies in the players line of sight
 7) tutorial parts 9, 10, 11
 8) limb targeting system that works by hovering over an enemy with the cursor to target it
 9) bodypart functionality
@@ -19,6 +19,8 @@ X 5) item weight, item stackability
 16) enemy drops and xp + leveling
 17) weapon graphics
 18) config txt
+
+still need to fix bug where item names go over the boarder in equip screen
 
 ALSO: Item stat menu
 

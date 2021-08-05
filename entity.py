@@ -121,8 +121,7 @@ class Actor(Entity):
         self.ai = ai(self)
         self.fighter = fighter
         self.fighter.parent = self
-        self.targeting = ['Body', 'Head', 'Arms', 'Legs']
-        self.selected_target = self.targeting[0]
+        self.target_actor = None
         self.player = player
         self.bodyparts = copy.deepcopy(bodyparts)
         self.active_radius = active_radius

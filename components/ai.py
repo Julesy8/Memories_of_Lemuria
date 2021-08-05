@@ -79,10 +79,11 @@ class HostileEnemy(BaseAI):
                 if self.entity.inventory.held is not None and self.entity.inventory.held.weapon \
                         and not self.entity.inventory.held.weapon.ranged:
                     WeaponAttackAction(distance=distance, item=self.entity.inventory.held, entity=self.entity,
-                                       targeted_actor=target).attack()
+                                       targeted_actor=target, targeted_bodypart=None).attack()
 
                 else:
-                    UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target).attack()
+                    UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
+                                        targeted_bodypart=None).attack()
 
                 attack_turns -= 1
                 self.entity.last_attack_turn = self.entity.turn_counter

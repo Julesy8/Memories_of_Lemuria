@@ -42,7 +42,7 @@ def main():
     l_leg = Bodypart(hp=15, defence=15, vital=False, walking=False, grasping=False,
                      connected_to=[], equipped=None, name='Left Leg', part_type='Legs', base_chance_to_hit=80)
 
-    body_parts = [head, body, r_arm, l_arm, r_leg, l_leg]
+    body_parts = (body, head, r_arm, l_arm, r_leg, l_leg)
 
     player = Actor(0, 0,
                    '@',

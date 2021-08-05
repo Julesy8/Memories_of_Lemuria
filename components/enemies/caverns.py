@@ -24,7 +24,7 @@ R_Leg = Bodypart(hp=10, defence=5, vital=False, walking=False, grasping=False,
 L_Leg = Bodypart(hp=10, defence=5, vital=False, walking=False, grasping=False,
                  connected_to=[], equipped=None, name='Left Leg', part_type='Legs', base_chance_to_hit=80)
 
-body_parts = (Head, Body, R_Arm, L_Arm, R_Leg, L_Leg)
+body_parts = (Body, Head, R_Arm, L_Arm, R_Leg, L_Leg)
 
 placeholder_common = Actor(
     x=0, y=0,
