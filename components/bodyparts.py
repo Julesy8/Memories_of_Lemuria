@@ -2,15 +2,13 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
-from exceptions import Impossible
 from entity import Actor
 from render_order import RenderOrder
-from input_handlers import GameOverEventHandler
-from engine import Engine
 import colour
 
 if TYPE_CHECKING:
     from entity import Item
+    from engine import Engine
 
 
 class Bodypart:
@@ -75,7 +73,6 @@ class Bodypart:
         if self.parent.player:
             death_message = "You died!"
             death_message_colour = colour.MAGENTA
-            self.engine.event_handler = GameOverEventHandler(self.engine)
 
         else:
             death_message = f"{self.parent.name} is dead!"

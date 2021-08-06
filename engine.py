@@ -1,5 +1,6 @@
 from __future__ import annotations
-
+import lzma
+import pickle
 from typing import TYPE_CHECKING
 
 from tcod import tileset
@@ -10,24 +11,29 @@ from scrolling_map import Camera
 import colour
 
 import exceptions
-from input_handlers import MainGameEventHandler
+from level_parameters import level_params
 from message_log import MessageLog
 from render_functions import render_names_at_mouse_location, render_part
 
 if TYPE_CHECKING:
     from entity import Actor
     from game_map import GameMap
-    from input_handlers import EventHandler
 
 
 class Engine:
     game_map: GameMap
 
-    def __init__(self, player: Actor):
-        self.event_handler: EventHandler = MainGameEventHandler(self)
+    def __init__(self, player: Actor, current_level: int):
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
+        self.current_level = current_level
         self.player = player
+
+    def save_as(self, filename: str) -> None:
+        """Save this Engine instance as a compressed file."""
+        save_data = lzma.compress(pickle.dumps(self))
+        with open(filename, "wb") as f:
+            f.write(save_data)
 
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
@@ -48,6 +54,7 @@ class Engine:
         self.game_map.explored |= self.game_map.visible
 
     def render(self, console: Console, camera: Camera) -> None:
+        camera.update(entity=self.player, map_width=self.game_map.width, map_height=self.game_map.height)
         self.game_map.render(console, camera)
         console.draw_rect(0, 46, 80, 4, 219)
         self.message_log.render(console=console, x=6, y=46, width=60, height=4)

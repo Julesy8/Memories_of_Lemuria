@@ -6,8 +6,7 @@ import actions
 import colour
 import components.inventory
 from components.npc_templates import BaseComponent
-from exceptions import Impossible
-
+from input_handlers import ActionOrHandler
 if TYPE_CHECKING:
     from entity import Actor, Item
 
@@ -16,7 +15,7 @@ class Consumable(BaseComponent):
 
     parent: Item
 
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item."""
         return actions.ItemAction(consumer, self.parent)
 
@@ -67,25 +66,7 @@ class Weapon(Consumable):
             self.maximum_range = 1
 
     def activate(self, action: actions.ItemAction):
-        consumer = action.entity
-        target = None
-        closest_distance = self.maximum_range + 1.0
-        distance = 0
-
-        for actor in self.engine.game_map.actors:
-            if actor is not consumer and self.parent.gamemap.visible[actor.x, actor.y]:
-                distance = consumer.distance(actor.x, actor.y)
-
-                if distance < closest_distance:
-                    target = actor
-                    closest_distance = distance
-
-        if target:
-            return actions.WeaponAttackAction(distance=distance, item=self.parent, entity=consumer,
-                                              targeted_actor=target).attack()
-
-        else:
-            raise Impossible("No enemy is close enough to strike.")
+        return NotImplementedError
 
 
 class Wearable(Consumable):  # in future add different types of protection i.e. projectile + melee
