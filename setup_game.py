@@ -95,12 +95,15 @@ def load_game(filename: str) -> Engine:
 class MainMenu(input_handlers.BaseEventHandler):
     """Handle the main menu rendering and input."""
 
+    def __init__(self):
+        self.option_selected = 0
+
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         """Render the main menu on a background image."""
 
         console2 = tcod.Console(32, 32, order="F")
 
-        path = "new_logo.xp"  # REXPaint file with one layer.
+        path = "newmenu1.xp"  # REXPaint file with one layer.
         # Load a REXPaint file with a single layer.
         # The comma after console is used to unpack a single item tuple.
         console2, = tcod.console.load_xp(path, order="F")
@@ -116,15 +119,8 @@ class MainMenu(input_handlers.BaseEventHandler):
         is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
         console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
 
-        console2.blit(dest=console, dest_x=24, dest_y=6, src_x=0, src_y=0, width=32, height=32)
+        console2.blit(dest=console, dest_x=23, dest_y=6, src_x=0, src_y=0, width=33, height=32)
 
-        console.print(
-            console.width // 2,
-            console.height // 2 - 4,
-            "DEEP UNDERGROUND ROGUELIKE",
-            fg=colour.WHITE,
-            alignment=tcod.CENTER,
-        )
         console.print(
             console.width // 2,
             console.height - 2,
@@ -139,35 +135,48 @@ class MainMenu(input_handlers.BaseEventHandler):
             fg=colour.WHITE,
         )
 
-        menu_width = 24
+        menu_width = 8
         for i, text in enumerate(
-            ["[N] Play a new game", "[C] Continue last game", "[Q] Quit"]
+            ["New Game", "Continue", "Quit"]
         ):
             console.print(
                 console.width // 2,
                 console.height // 2 - 2 + i,
                 text.ljust(menu_width),
                 fg=colour.RED,
-                bg=colour.BLACK,
                 alignment=tcod.CENTER,
                 bg_blend=tcod.BKGND_ALPHA(64),
             )
 
+        console.print(x=35, y=console.height // 2 - 2 + self.option_selected, string='>', fg=colour.WHITE)
+
     def ev_keydown(
         self, event: tcod.event.KeyDown
     ) -> Optional[input_handlers.BaseEventHandler]:
-        if event.sym in (tcod.event.K_q, tcod.event.K_ESCAPE):
+        if event.sym == tcod.event.K_ESCAPE:
             raise SystemExit()
-        elif event.sym == tcod.event.K_c:
-            try:
-                return input_handlers.MainGameEventHandler(load_game("savegame.sav"))
-            except FileNotFoundError:
-                return input_handlers.PopupMessage(self, "No saved game to load.")
-            except Exception as exc:
-                traceback.print_exc()  # Print to stderr.
-                return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
-            pass
-        elif event.sym == tcod.event.K_n:
-            return input_handlers.MainGameEventHandler(new_game())
+
+        elif event.sym == tcod.event.K_DOWN:
+            if self.option_selected < 2:
+                self.option_selected += 1
+
+        elif event.sym == tcod.event.K_UP:
+            if self.option_selected > 0:
+                self.option_selected -= 1
+
+        elif event.sym == tcod.event.K_RETURN:
+            if self.option_selected == 0:
+                return input_handlers.MainGameEventHandler(new_game())
+            elif self.option_selected == 1:
+                try:
+                    return input_handlers.MainGameEventHandler(load_game("savegame.sav"))
+                except FileNotFoundError:
+                    return input_handlers.PopupMessage(self, "No saved game to load.")
+                except Exception as exc:
+                    traceback.print_exc()  # Print to stderr.
+                    return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
+                pass
+            elif self.option_selected == 2:
+                raise SystemExit()
 
         return None
