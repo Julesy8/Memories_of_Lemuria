@@ -43,6 +43,8 @@ class GameMap:
             (width, height), fill_value=False, order="F"
         )  # Tiles the player has seen before
 
+        self.downstairs_location = (0, 0)
+
     @property
     def gamemap(self) -> GameMap:
         return self
@@ -113,3 +115,21 @@ class GameMap:
                 if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
                     console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
                     entity.active = True
+
+    def generate_level(self) -> None:
+        from level_generator import MessyBSPTree
+        from level_parameters import level_params
+
+        self.engine.current_floor += 1
+
+        self.engine.game_map = MessyBSPTree(level_params[self.engine.current_level][0],  # messy tunnels
+                                            level_params[self.engine.current_level][1],  # map width
+                                            level_params[self.engine.current_level][2],  # map height
+                                            level_params[self.engine.current_level][3],  # max leaf size
+                                            level_params[self.engine.current_level][4],  # max room size
+                                            level_params[self.engine.current_level][5],  # room min size
+                                            level_params[self.engine.current_level][6],  # max monsters per room
+                                            level_params[self.engine.current_level][7],  # max items per room
+                                            self.engine,
+                                            self.engine.current_level,
+                                            ).generateLevel()

@@ -1,13 +1,12 @@
 -----
 TO DO
-FIX BUG WHEN ATTEMPTING TO USE ARMOUR ITEMS FROM EQUIPMENT MENU
 X 1) change menu system to allow more than 26 menu items (use history viewer code)
 X 2) display limb health graphically
 X 3) limb healing
 X 4) armour
 X 5) item weight, item stackability
 X 6) quick targeting by clycing through the enemies in the players line of sight
-7) tutorial parts X9, X10, 11
+X7) tutorial parts X9, X10, X11
 9) bodypart functionality
 10) item stat screen
 11) weapon firing graphics
@@ -18,8 +17,6 @@ X 6) quick targeting by clycing through the enemies in the players line of sight
 16) enemy drops and xp + leveling
 17) weapon graphics
 18) config txt
-
-still need to fix bug where item names go over the boarder in equip screen
 
 ALSO: Item stat menu
 

@@ -60,7 +60,7 @@ def new_game() -> Engine:
                    inventory=Inventory(capacity=15, held=None)
                    )
 
-    engine = Engine(player=player, current_level=current_level)
+    engine = Engine(player=player, current_level=current_level, current_floor=0)
 
     engine.game_map = MessyBSPTree(level_params[current_level][0],  # messy tunnels
                                    level_params[current_level][1],  # map width
@@ -77,7 +77,8 @@ def new_game() -> Engine:
     engine.update_fov()
 
     engine.message_log.add_message(
-        "Placeholder dungeon enter text", colour.LIGHT_MAGENTA
+        "You lose your footing and fall deep into the caverns below... You can't see any way to get back to the surface"
+        , colour.LIGHT_MAGENTA
     )
 
     return engine
@@ -127,9 +128,15 @@ class MainMenu(input_handlers.BaseEventHandler):
         console.print(
             console.width // 2,
             console.height - 2,
-            "Bottom Text",
+            "Submit bug reports and suggestions to DeepUndergroundRL@protonmail.com",
             fg=colour.WHITE,
             alignment=tcod.CENTER,
+        )
+        console.print(
+            1,
+            1,
+            "Pre-alpha",
+            fg=colour.WHITE,
         )
 
         menu_width = 24

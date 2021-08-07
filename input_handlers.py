@@ -141,7 +141,8 @@ class EventHandler(BaseEventHandler):
         try:
             action.perform()
         except exceptions.Impossible as exc:
-            self.engine.message_log.add_message(exc.args[0], colour.RED)
+            if not exc.args[0] == "Silent":  # if error is "Silent" as arg, doesn't print error to message log
+                self.engine.message_log.add_message(exc.args[0], colour.RED)
             return False  # Skip enemy turn on exceptions.
 
         self.engine.handle_enemy_turns()
@@ -163,8 +164,14 @@ class MainGameEventHandler(EventHandler):
         action: Optional[Action] = None
 
         key = event.sym
+        modifier = event.mod
 
         player = self.engine.player
+
+        if key == tcod.event.K_PERIOD and modifier & (
+            tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
+        ):
+            return actions.TakeStairsAction(player)
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -538,12 +545,12 @@ class EquipmentEventHandler(AskUserEventHandler):
 
         equipment_dictionary = {}  # dictionary containing bodypart associated with the item equipped
 
-        # adds held item to the equipped list
-        if self.engine.player.inventory.held is not None:
-            equipped_list.append(self.engine.player.inventory.held)
-
         longest_part_len = 4  # set to 4 by defualt because of 'Held'
         longest_name_len = 0  # for items
+
+        if self.engine.player.inventory.held is not None:
+            longest_name_len = len(self.engine.player.inventory.held.name)
+            equipped_list.append(self.engine.player.inventory.held)
 
         # adds all items equipped by bodyparts of the entity to the equipped list
         for bodypart in self.engine.player.bodyparts:
@@ -564,8 +571,12 @@ class EquipmentEventHandler(AskUserEventHandler):
         x = 1
         y = 1
 
-        if longest_name_len + longest_part_len + 9 > width:
-            width = longest_name_len + longest_part_len + 11
+        if longest_name_len:
+            if len(equipped_list) == 1 and equipped_list[0] == self.engine.player.inventory.held:
+                width = longest_name_len + longest_part_len + 11
+            else:
+                width = longest_name_len + longest_part_len + 7
+
 
         console.draw_frame(
             x=x,
@@ -776,37 +787,41 @@ class ChangeTargetActor(AskUserEventHandler):
         player = self.engine.player
         key = event.sym
 
-        if self.target_index:
+        if key == tcod.event.K_SPACE:  # change target
+            try:
+                player.target_actor = self.targets[self.target_index + 1]
+                self.selected_bodypart = player.target_actor.bodyparts[0]
+                self.bodypart_index = 0
+                self.target_index += 1
+            except IndexError:
+                player.target_actor = self.targets[0]
+                self.selected_bodypart = player.target_actor.bodyparts[0]
+                self.bodypart_index = 0
+                self.target_index = 0
 
-            if key == tcod.event.K_SPACE:  # change target
-                if self.target_index <= len(self.targets) - 1:
-                    player.target_actor = self.targets[self.target_index + 1]
-                    self.selected_bodypart = player.target_actor.bodyparts[0]
-                    self.bodypart_index = 0
-                    self.target_index += 1
-                else:
-                    player.target_actor = self.targets[0]
-                    self.target_index = 0
+        elif key == tcod.event.K_TAB:  # change limb targetted
+            try:
+                self.selected_bodypart = player.target_actor.bodyparts[self.bodypart_index + 1]
+                self.bodypart_index += 1
 
-            elif key == tcod.event.K_TAB:  # change limb targetted
-                try:
-                    self.selected_bodypart = player.target_actor.bodyparts[self.bodypart_index + 1]
-                    self.bodypart_index += 1
+            except IndexError:
+                self.selected_bodypart = player.target_actor.bodyparts[0]
+                self.bodypart_index = 0
 
-                except IndexError:
-                    self.selected_bodypart = player.target_actor.bodyparts[0]
-                    self.bodypart_index = 0
-
-            elif key == tcod.event.K_RETURN:  # atttack selected target
-                try:
+        elif key == tcod.event.K_RETURN:  # atttack selected target
+            try:
+                if player.target_actor:
                     actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
                                                targeted_actor=player.target_actor,
                                                targeted_bodypart=self.selected_bodypart).attack()
                     self.engine.handle_enemy_turns()
                     self.engine.render(console=self.console, camera=self.camera)
                     return MainGameEventHandler(self.engine)
+                else:
+                    return MainGameEventHandler(self.engine)
 
-                except AttributeError:
+            except AttributeError:
+                if player.target_actor:
                     if self.distance_target == 1:
                         actions.UnarmedAttackAction(distance=self.distance_target, entity=player,
                                                     targeted_actor=player.target_actor,
@@ -815,12 +830,7 @@ class ChangeTargetActor(AskUserEventHandler):
                         self.engine.render(console=self.console, camera=self.camera)
                         return MainGameEventHandler(self.engine)
 
-                    else:
-                        self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                        return MainGameEventHandler(self.engine)
-
-            elif key == tcod.event.K_ESCAPE:
                 return MainGameEventHandler(self.engine)
 
-        else:
+        elif key == tcod.event.K_ESCAPE:
             return MainGameEventHandler(self.engine)

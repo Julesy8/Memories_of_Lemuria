@@ -53,3 +53,11 @@ def new_wall(fg_colour_d: Tuple[int, int, int], bg_colour_d: Tuple[int, int, int
         walkable=False, transparent=False, dark=(tile, fg_colour_d, bg_colour_d), light=(tile, fg_colour_l, bg_colour_l)
     )
     return wall
+
+
+down_stairs = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(">"), colour.DARK_GRAY, colour.BLACK),
+    light=(ord(">"), colour.LIGHT_GRAY, colour.BLACK),
+)

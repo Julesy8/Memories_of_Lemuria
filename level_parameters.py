@@ -15,6 +15,10 @@ level_params = {
               ])
 }
 
+level_names = {
+    0: 'Caverns'
+}
+
 # these dictionaries contain lists of the enemies that should appear on a given level
 # note enemy rarity can be made even more granular beyond the rarity system by placing multiple instances of an entity
 # in a given list

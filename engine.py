@@ -11,7 +11,7 @@ from scrolling_map import Camera
 import colour
 
 import exceptions
-from level_parameters import level_params
+from level_parameters import level_names
 from message_log import MessageLog
 from render_functions import render_names_at_mouse_location, render_part
 
@@ -23,10 +23,11 @@ if TYPE_CHECKING:
 class Engine:
     game_map: GameMap
 
-    def __init__(self, player: Actor, current_level: int):
+    def __init__(self, player: Actor, current_level: int, current_floor:int):
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
-        self.current_level = current_level
+        self.current_level = current_level  # denotes the floor type
+        self.current_floor = current_floor  # denotes the sublevel of the floor type
         self.player = player
 
     def save_as(self, filename: str) -> None:
@@ -80,8 +81,12 @@ class Engine:
         # right leg
         render_part(console=console, x=3, y=49, character=chr(tileset.CHARMAP_CP437[92]),
                     current_value=self.player.bodyparts[5].hp, maximum_value=self.player.bodyparts[5].max_hp)
+
         console.print(x=0, y=46, string='R', fg=colour.WHITE)  # indicates right and left
         console.print(x=4, y=46, string='L', fg=colour.WHITE)
+
+        console.print(x=1, y=0, string=f"{level_names[self.current_level]} {self.current_floor + 1}",
+                      fg=colour.WHITE, bg_blend=1)
 
         render_names_at_mouse_location(console=console, x=1, y=45, engine=self)
         # render_mouse_location(console=console, engine=self, game_map=self.game_map)

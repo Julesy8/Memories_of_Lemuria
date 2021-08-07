@@ -6,6 +6,7 @@ import level_gen_tools as tools
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level, Items_by_level
+from tile_types import down_stairs
 
 
 class MessyBSPTree:
@@ -66,27 +67,27 @@ class MessyBSPTree:
 
         rootLeaf.createRooms(self)
 
-        player_spawn_room = None
-        player_placed = False
+        # generates a room number for player and stairs to spawn in
+        player_spawn_room = randint(0, len(self._rooms) - 1)
+        stair_room = randint(0, len(self._rooms) - 1)
+
+        # if player and stairs meant to spawn in the same room, regenerates stair room until it is not
+        while stair_room == player_spawn_room:
+            stair_room = randint(0, len(self._rooms) - 1)
 
         for room in self._rooms:
-            if not player_placed:
-                # if player has not been placed, rolls to spawn player in the room
-                player_spawn_roll = randint(1, 6)
-                if player_spawn_roll == 1:
-                    room_centre_x, room_centre_y = room.centre()
-                    player_spawn_room = room
-                    player_placed = True
-                    self.player.place(room_centre_x, room_centre_y, self.dungeon)
+            if room == self._rooms[player_spawn_room]:
+                room_centre_x, room_centre_y = room.centre()
+                self.player.place(room_centre_x, room_centre_y, self.dungeon)
 
-            if room != player_spawn_room:
-                # places entities as long as not the room the player spawns in
+            else:
                 place_entities(room, self.dungeon, self.max_monsters_per_room,
                                self.max_items_per_room, self.current_level)
 
-        if not player_placed:
-            # if player has not been placed, regenerates the level
-            self.generateLevel()
+            if room == self._rooms[stair_room]:
+                room_centre_x, room_centre_y = room.centre()
+                self.dungeon.tiles[room_centre_x, room_centre_y] = down_stairs
+                self.dungeon.downstairs_location = room_centre_x, room_centre_y
 
         return self.dungeon
 
@@ -305,7 +306,7 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
         y = randint(room.y1 + 1, room.y2 - 1)
 
         # change to also check for walls
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and dungeon.tiles[x, y] != down_stairs:
             entity_rarity = randint(1, 100)
             if entity_rarity <= 60:          # common
                 enemy = copy.deepcopy(Enemies_by_level[level][0][randint(0, len(Enemies_by_level[level][0]) - 1)])
