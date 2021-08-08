@@ -127,6 +127,8 @@ class EventHandler(BaseEventHandler):
             if not self.engine.player.is_alive:
                 # The player was killed sometime during or after the action.
                 return GameOverEventHandler(self.engine)
+            elif self.engine.player.level.requires_level_up:
+                self.engine.message_log.add_message("Leveled up")  # TODO: add leveling up stats
             return MainGameEventHandler(self.engine)  # Return to the main handler.
         return self
 
@@ -189,7 +191,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_g:
             action = PickupAction(player)
         elif key == tcod.event.K_ESCAPE:
-            raise SystemExit()
+            return QuitEventHandler(self.engine)
 
         elif key == tcod.event.K_i:
             return InventoryInteractHandler(self.engine, 0)
@@ -372,7 +374,7 @@ class InventoryEventHandler(AskUserEventHandler):
             height=height,
             title=self.TITLE,
             clear=True,
-            fg=(255, 255, 255),
+            fg=colour.WHITE,
             bg=(0, 0, 0),
         )
 
@@ -466,7 +468,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
                 height=height,
                 title=self.item.name,
                 clear=True,
-                fg=(255, 255, 255),
+                fg=colour.WHITE,
                 bg=(0, 0, 0),
             )
 
@@ -577,7 +579,6 @@ class EquipmentEventHandler(AskUserEventHandler):
             else:
                 width = longest_name_len + longest_part_len + 7
 
-
         console.draw_frame(
             x=x,
             y=y,
@@ -585,7 +586,7 @@ class EquipmentEventHandler(AskUserEventHandler):
             height=height,
             title=self.TITLE,
             clear=True,
-            fg=(255, 255, 255),
+            fg=colour.WHITE,
             bg=(0, 0, 0),
         )
 
@@ -655,7 +656,7 @@ class DropItemEventHandler(AskUserEventHandler):
                     width=18 + len(self.buffer),
                     height=3,
                     clear=True,
-                    fg=(255, 255, 255),
+                    fg=colour.WHITE,
                     bg=(0, 0, 0),
                 )
                 console.print(x=2, y=2, string=f"amount to drop: {self.buffer}")
@@ -833,4 +834,31 @@ class ChangeTargetActor(AskUserEventHandler):
                 return MainGameEventHandler(self.engine)
 
         elif key == tcod.event.K_ESCAPE:
+            return MainGameEventHandler(self.engine)
+
+
+class QuitEventHandler(AskUserEventHandler):
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)  # Draw the main state as the background.
+
+        console.draw_frame(
+            x=24,
+            y=22,
+            width=32,
+            height=4,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        console.print(x=25, y=23, string="Are you sure you want to quit?", fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=32, y=24, string="(Y) Yes, (N) No", fg=colour.WHITE, bg=(0, 0, 0))
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        if key == tcod.event.K_y:
+            raise SystemExit()
+
+        elif key == tcod.event.K_n:
             return MainGameEventHandler(self.engine)

@@ -20,6 +20,7 @@ from components.inventory import Inventory
 from components.ai import HostileEnemy
 from components.npc_templates import Fighter
 from components.bodyparts import Bodypart
+from components.level import Level
 
 
 def new_game() -> Engine:
@@ -29,20 +30,14 @@ def new_game() -> Engine:
     # initialises player entity
     fighter_component = Fighter(power=6)
 
-    head = Bodypart(hp=15, defence=15, vital=True, walking=False, grasping=False,
-                    connected_to=[], equipped=None, name='Head', part_type='Head', base_chance_to_hit=80)
-    body = Bodypart(hp=15, defence=15, vital=True, walking=False, grasping=False,
-                    connected_to=[], equipped=None, name='Body', part_type='Body', base_chance_to_hit=90)
-    r_arm = Bodypart(hp=15, defence=15, vital=False, walking=False, grasping=True,
-                     connected_to=[], equipped=None, name='Right Arm', part_type='Arms', base_chance_to_hit=80)
-    l_arm = Bodypart(hp=15, defence=15, vital=False, walking=False, grasping=True,
-                     connected_to=[], equipped=None, name='Left Arm', part_type='Arms', base_chance_to_hit=80)
-    r_leg = Bodypart(hp=15, defence=15, vital=False, walking=False, grasping=False,
-                     connected_to=[], equipped=None, name='Right Leg', part_type='Legs', base_chance_to_hit=80)
-    l_leg = Bodypart(hp=15, defence=15, vital=False, walking=False, grasping=False,
-                     connected_to=[], equipped=None, name='Left Leg', part_type='Legs', base_chance_to_hit=80)
+    Head = Bodypart(hp=30, defence=5, vital=True, name='Head', part_type='Head', base_chance_to_hit=80)
+    Body = Bodypart(hp=30, defence=5, vital=True, name='Body', part_type='Body', base_chance_to_hit=90)
+    R_Arm = Bodypart(hp=30, defence=5, grasping=True, name='Right Arm', part_type='Arms', base_chance_to_hit=80)
+    L_Arm = Bodypart(hp=30, defence=5, grasping=True, name='Left Arm', part_type='Arms', base_chance_to_hit=80)
+    R_Leg = Bodypart(hp=30, defence=5, walking=True, name='Right Leg', part_type='Legs', base_chance_to_hit=80)
+    L_Leg = Bodypart(hp=30, defence=5, walking=True, name='Left Leg', part_type='Legs', base_chance_to_hit=80)
 
-    body_parts = (body, head, r_arm, l_arm, r_leg, l_leg)
+    body_parts = (Body, Head, R_Arm, L_Arm, R_Leg, L_Leg)
 
     player = Actor(0, 0,
                    '@',
@@ -52,12 +47,9 @@ def new_game() -> Engine:
                    ai=HostileEnemy,
                    fighter=fighter_component,
                    bodyparts=body_parts,
-                   attack_interval=0,
-                   attacks_per_turn=1,
-                   move_interval=0,
-                   moves_per_turn=1,
                    player=True,
-                   inventory=Inventory(capacity=15, held=None)
+                   inventory=Inventory(capacity=15, held=None),
+                   level=Level(level_up_base=500)
                    )
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)

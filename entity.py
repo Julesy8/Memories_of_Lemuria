@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
+from typing import Optional, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
+
+from components.attacks_and_movement import AttacksAndMovement
 
 if TYPE_CHECKING:
     from game_map import GameMap
     from components.consumables import Consumable, Weapon, Wearable
+    from components.level import Level
     from components.inventory import Inventory
 
 from render_order import RenderOrder
@@ -99,10 +102,8 @@ class Actor(Entity):
             fighter,
             bodyparts,  # list of bodyparts belonging to the entity
             inventory: Inventory,
-            attack_interval=0,  # how many turns the entity waits before attacking
-            attacks_per_turn=1,  # when the entity attacks, how many times?
-            move_interval=0,  # how many turns the entity waits before moving
-            moves_per_turn=1,  # when the entity moves, how many times?
+            level: Level,
+            movement_and_attack=AttacksAndMovement(),
             active_radius=10,
             player: bool = False,
     ):
@@ -123,15 +124,14 @@ class Actor(Entity):
         self.fighter.parent = self
         self.target_actor = None
         self.player = player
+        self.level = level
+        self.level.parent = self
         self.bodyparts = copy.deepcopy(bodyparts)
         self.active_radius = active_radius
         self.turn_counter = 0
         self.last_move_turn = 0
         self.last_attack_turn = 0
-        self.attack_interval = attack_interval
-        self.attacks_per_turn = attacks_per_turn
-        self.move_interval = move_interval
-        self.moves_per_turn = moves_per_turn
+        self.movement_and_attack = movement_and_attack
         self.inventory = inventory
         self.inventory.parent = self
         for bodypart in self.bodyparts:

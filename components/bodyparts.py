@@ -18,15 +18,14 @@ class Bodypart:
     def __init__(self,
                  hp: int,
                  defence: int,
-                 vital: bool,  # whether when the body part gets destroyed, the entity should die
-                 walking: bool,  # whether the body part is required for walking
-                 grasping: bool,
-                 connected_to: list,  # list of other body parts to which the body part is connected
-                 equipped: Optional[Item],  # equipped item for the given body part
                  name: str,
                  part_type: str,
                  base_chance_to_hit: int,  # base modifier of how likely the body part is to be hit when attacked
-                 functional: bool = True  # whether the body part should be working or not
+                 equipped: Optional[Item] = None,  # equipped item for the given body part
+                 functional: bool = True,  # whether the body part should be working or not
+                 vital: bool = False,  # whether when the body part gets destroyed, the entity should die
+                 walking: bool = False,  # whether the body part is required for walking
+                 grasping: bool = False,
                  ):
 
         self.max_hp = hp
@@ -35,7 +34,6 @@ class Bodypart:
         self.vital = vital
         self.walking = walking
         self.grasping = grasping
-        self.connected_to = connected_to
         self.equipped = equipped
         self.name = name
         self.type = part_type
@@ -59,7 +57,7 @@ class Bodypart:
         self._hp = max(0, min(value, self.max_hp))
 
         if self._hp == 0 and self.parent.ai and self.functional:
-            self.destroy()
+            self.cripple()  # TODO: change how this works for implementation of crippling + limb destruction
 
             if self.vital:
                 self.die()
@@ -70,45 +68,69 @@ class Bodypart:
 
     def die(self) -> None:
 
+        self.parent.fg_colour = colour.WHITE
+        self.parent.bg_colour = colour.LIGHT_RED
+        self.parent.blocks_movement = False
+        self.parent.ai = None
+        self.parent.name = f"remains of {self.parent.name}"
+        self.parent.render_order = RenderOrder.CORPSE
+
         if self.parent.player:
             death_message = "You died!"
             death_message_colour = colour.MAGENTA
 
         else:
             death_message = f"{self.parent.name} is dead!"
+            self.engine.player.level.add_xp(self.parent.level.xp_given)
             death_message_colour = colour.CYAN
-            self.parent.fg_colour = colour.WHITE
-            self.parent.bg_colour = colour.LIGHT_RED
-            self.parent.blocks_movement = False
-            self.parent.ai = None
-            self.parent.name = f"remains of {self.parent.name}"
-            self.parent.render_order = RenderOrder.CORPSE
 
         self.engine.message_log.add_message(death_message, death_message_colour)
 
-    def destroy(self) -> None:
+    def cripple(self) -> None:
         self.functional = False
         self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} is destroyed!")
 
-        '''
         if self.walking:
 
-            total_legs = 1
-            functional_legs = 1
+            total_legs = 0
+            functional_legs = 0
 
-            for parts in self.owner_instance.bodyparts:
+            for parts in self.parent.bodyparts:
                 if parts.walking:
                     total_legs += 1
                     if parts.functional:
                         functional_legs += 1
-            movement_penalty = (total_legs - functional_legs) / functional_legs
 
-            if self.owner_instance.moves_per_turn > 1:
-                self.owner_instance.moves_per_turn = math.ceil(movement_penalty * self.owner_instance.moves_per_turn)
+            if self.parent.moves_per_turn > 1:
+                self.parent.moves_per_turn = 1
 
-            else:
-                self.owner_instance.move_interval = math.ceil(movement_penalty * self.owner_instance.move_interval)
-        '''
+            if self.parent.move_interval == 1:
+                self.parent.move_interval = 2
+
+            if functional_legs == 0:
+                self.parent.move_interval = 2 * self.parent.move_interval
+
+        if self.grasping:
+
+            total_arms = 0
+            functional_arms = 0
+
+            for parts in self.parent.bodyparts:
+                if parts.grasping:
+                    total_arms += 1
+                    if parts.functional:
+                        functional_arms += 1
+
+            if self.parent.attacks_per_turn > 1:
+                self.parent.attacks_per_turn = 1
+
+            if self.parent.attack_interval == 1:
+                self.parent.attack_interval = 2
+
+            if functional_arms == 0:
+                self.parent.attack_interval = 2 * self.parent.attack_interval
+
+    def destroy(self):
 
     def heal(self, amount: int) -> int:
         if self.hp == self.max_hp:
@@ -125,8 +147,10 @@ class Bodypart:
 
         return amount_recovered
 
-    def cripple(self) -> None:
-        pass
-
     def restore(self):
-        pass
+
+        # restores original attack and movement stats
+        self.parent.movement_and_attack.attack_interval = self.parent.movement_and_attack.attack_interval_original
+        self.parent.movement_and_attack.attacks_per_turn = self.parent.movement_and_attack.attacks_per_turn_original
+        self.parent.movement_and_attack.move_interval = self.parent.movement_and_attack.move_interval_original
+        self.parent.movement_and_attack.moves_per_turn = self.parent.movement_and_attack.moves_per_turn_original
