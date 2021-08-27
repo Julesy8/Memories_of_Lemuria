@@ -91,10 +91,10 @@ def render_part(
     elif maximum_value * 0.5 <= current_value <= maximum_value * 0.75:
         console.print(x, y, character, colour.ORANGE)
 
-    elif maximum_value * 0.25 <= current_value <= maximum_value * 0.50:
+    elif maximum_value * 0.15 <= current_value <= maximum_value * 0.50:
         console.print(x, y, character, colour.LIGHT_RED)
 
-    elif 0 < current_value <= maximum_value * 0.50:
+    elif 0 < current_value <= maximum_value * 0.15:
         console.print(x, y, character, colour.RED)
 
     elif current_value == 0:

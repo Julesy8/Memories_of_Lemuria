@@ -4,8 +4,6 @@ from typing import Optional, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
 
-from components.attacks_and_movement import AttacksAndMovement
-
 if TYPE_CHECKING:
     from game_map import GameMap
     from components.consumables import Consumable, Weapon, Wearable
@@ -31,7 +29,6 @@ class Entity:  # generic entity
                  blocks_movement=False,
                  parent: Optional[GameMap] = None,
                  render_order: RenderOrder = RenderOrder.CORPSE,
-                 active: bool = False,
                  ):
         self.x = x
         self.y = y
@@ -42,7 +39,6 @@ class Entity:  # generic entity
         self.name = name
         self.render_order = render_order
         self.blocks_movement = blocks_movement
-        self.active = active
         if parent:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
@@ -103,7 +99,10 @@ class Actor(Entity):
             bodyparts,  # list of bodyparts belonging to the entity
             inventory: Inventory,
             level: Level,
-            movement_and_attack=AttacksAndMovement(),
+            attack_interval=0,
+            attacks_per_turn=1,
+            move_interval=0,
+            moves_per_turn=1,
             active_radius=10,
             player: bool = False,
     ):
@@ -116,9 +115,8 @@ class Actor(Entity):
             name=name,
             blocks_movement=True,
             render_order=RenderOrder.ACTOR,
-            active=False,
         )
-
+        self.active = False
         self.ai = ai(self)
         self.fighter = fighter
         self.fighter.parent = self
@@ -128,14 +126,25 @@ class Actor(Entity):
         self.level.parent = self
         self.bodyparts = copy.deepcopy(bodyparts)
         self.active_radius = active_radius
-        self.turn_counter = 0
-        self.last_move_turn = 0
-        self.last_attack_turn = 0
-        self.movement_and_attack = movement_and_attack
         self.inventory = inventory
         self.inventory.parent = self
         for bodypart in self.bodyparts:
             bodypart.parent = self
+
+        # original values before changes occur i.e. crippled limbs
+        self.attack_interval_original = attack_interval
+        self.attacks_per_turn_original = attacks_per_turn
+        self.move_interval_original = move_interval
+        self.moves_per_turn_original = moves_per_turn
+
+        self.attack_interval = attack_interval  # how many turns the entity waits before attacking
+        self.attacks_per_turn = attacks_per_turn  # when the entity attacks, how many times?
+        self.move_interval = move_interval  # how many turns the entity waits before moving
+        self.moves_per_turn = moves_per_turn  # when the entity moves, how many times?
+
+        self.turn_counter = 0
+        self.last_move_turn = 0
+        self.last_attack_turn = 0
 
     @property
     def is_alive(self) -> bool:

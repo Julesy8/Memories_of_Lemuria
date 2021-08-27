@@ -4,6 +4,7 @@ import os
 from typing import Optional, TYPE_CHECKING, Union
 from math import ceil, floor
 from copy import deepcopy
+#from numpy import array # TODO: use arrays instead of lists/touples
 
 import tcod.event
 
@@ -183,11 +184,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_v:
             return HistoryViewer(self.engine)
         elif key == tcod.event.K_SPACE:
-            if self.engine.player.inventory.held:
-                return ChangeTargetActor(engine=self.engine, item=self.engine.player.inventory.held)
-            else:
-                return ChangeTargetActor(engine=self.engine, item=None)
-
+                return ChangeTargetActor(engine=self.engine)
         elif key == tcod.event.K_g:
             action = PickupAction(player)
         elif key == tcod.event.K_ESCAPE:
@@ -536,6 +533,10 @@ class EquipmentEventHandler(AskUserEventHandler):
     # used for equipment screen
     TITLE = "<missing title>"
 
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+        self.equipped_list = []  # equipped items
+
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         Will move to a different position based on where the player is located, so the player can always see where
@@ -543,41 +544,40 @@ class EquipmentEventHandler(AskUserEventHandler):
         """
         super().on_render(console, camera)
 
-        equipped_list = []  # equipped items
-
         equipment_dictionary = {}  # dictionary containing bodypart associated with the item equipped
 
-        longest_part_len = 4  # set to 4 by defualt because of 'Held'
-        longest_name_len = 0  # for items
-
-        if self.engine.player.inventory.held is not None:
-            longest_name_len = len(self.engine.player.inventory.held.name)
-            equipped_list.append(self.engine.player.inventory.held)
+        longest_name_len = 0  # longest name of item
 
         # adds all items equipped by bodyparts of the entity to the equipped list
         for bodypart in self.engine.player.bodyparts:
-            if bodypart.equipped:
-                equipped_list.append(bodypart)
-                # from the item gives the name of the bodypart that it is equipped by, adds it to equipment_dictionary
 
-                equipment_dictionary[bodypart.name] = bodypart.equipped.name
+            if bodypart.equipped is not None:
 
-                if len(bodypart.name) > longest_part_len:
-                    longest_part_len = len(bodypart.name)
+                self.equipped_list.append(bodypart.equipped)
+                equipment_dictionary[bodypart.equipped.name] = bodypart.part_type
+
                 if len(bodypart.equipped.name) > longest_name_len:
                     longest_name_len = len(bodypart.equipped.name)
 
+            if bodypart.arm:
+                if bodypart.held is not None:
+
+                    self.equipped_list.append(bodypart.held)
+                    equipment_dictionary[bodypart.held.name] = bodypart.part_type.replace('Arm', 'Hand')
+
+                    if len(bodypart.held.name) > longest_name_len:
+                        longest_name_len = len(bodypart.held.name)
+
+        self.equipped_list = list(dict.fromkeys(self.equipped_list))  # TODO: want more efficient way to do this
+
         width = len(self.TITLE) + 4
-        height = len(equipped_list) + 2
+        height = len(self.equipped_list) + 2
 
         x = 1
         y = 1
 
-        if longest_name_len:
-            if len(equipped_list) == 1 and equipped_list[0] == self.engine.player.inventory.held:
-                width = longest_name_len + longest_part_len + 11
-            else:
-                width = longest_name_len + longest_part_len + 7
+        if longest_name_len + 15 > width:
+            width = longest_name_len + 16
 
         console.draw_frame(
             x=x,
@@ -590,28 +590,23 @@ class EquipmentEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        if len(equipped_list) > 0:
-            for i, item in enumerate(equipped_list):
+        if len(self.equipped_list) > 0:
+            for i, item in enumerate(self.equipped_list):
 
                 item_key = chr(ord("a") + i)
 
-                if item == self.engine.player.inventory.held:
-                    console.print(x + 1, y + i + 1, f"({item_key}) | Held | {item.name}")
-
-                else:
-                    console.print(x + 1, y + i + 1, f"({item_key}) | {item.name} | {item.equipped.name}")
+                console.print(x + 1, y + i + 1, f"({item_key}) | {equipment_dictionary[item.name]} | {item.name}")
 
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        player = self.engine.player
         key = event.sym
         index = key - tcod.event.K_a
 
         if 0 <= index <= 26:
             try:
-                selected_item = player.bodyparts[index].equipped
+                selected_item = self.equipped_list[index]
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
                 return None
@@ -699,7 +694,13 @@ class DropItemEventHandler(AskUserEventHandler):
 
                             # no stacks left after drop
                             elif self.item.stacking.stack_size - self.drop_amount <= 0:
-                                self.drop_item(self.item)
+                                if self.item in self.engine.player.inventory.items:
+                                    self.engine.player.inventory.items.remove(self.item)
+
+                                self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+
+                                self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
+                                return MainGameEventHandler(self.engine)
 
                         # invalid input
                         except ValueError:
@@ -707,27 +708,27 @@ class DropItemEventHandler(AskUserEventHandler):
                             return MainGameEventHandler(self.engine)
 
             else:  # item stacking, stack size = 1
-                self.drop_item(self.item)
+                if self.item in self.engine.player.inventory.items:
+                    self.engine.player.inventory.items.remove(self.item)
+
+                self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+
+                self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
+                return MainGameEventHandler(self.engine)
 
         else:  # item not stacking
-            self.drop_item(self.item)
+            if self.item in self.engine.player.inventory.items:
+                self.engine.player.inventory.items.remove(self.item)
 
-    def drop_item(self, item):
-        """
-        Removes an item from the inventory and restores it to the game map, at the player's current location.
-        """
-        if item in self.engine.player.inventory.items:
-            self.engine.player.inventory.items.remove(item)
+            self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
-        item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
-
-        self.engine.message_log.add_message(f"You dropped the {item.name}.")
-        return MainGameEventHandler(self.engine)
+            self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
+            return MainGameEventHandler(self.engine)
 
 
 class ChangeTargetActor(AskUserEventHandler):
 
-    def __init__(self, engine: Engine, item: Optional[Item]):
+    def __init__(self, engine: Engine):
         super().__init__(engine)
         self.engine = engine
         self.targets = []
@@ -735,14 +736,20 @@ class ChangeTargetActor(AskUserEventHandler):
         self.distance_target = None
         self.selected_bodypart = None
         self.bodypart_index = 0
+        self.bodypartlist = []
 
         self.camera = None
         self.console = None
 
-        if item:
-            self.item = item
-        else:
-            self.item = None
+        held_items = []  # TODO: Make array
+
+        for bodypart in self.engine.player.bodyparts:
+            if bodypart.arm:
+                if bodypart.held and bodypart.held.weapon:
+                    held_items.append(bodypart.held)
+
+        if len(held_items) > 0:
+            self.item = held_items[0]
 
     def on_render(self, console: tcod.Console, camera: Camera):
         super().on_render(console, camera)  # Draw the main state as the background.
@@ -784,6 +791,10 @@ class ChangeTargetActor(AskUserEventHandler):
             console.print(x=1, y=45, string=f"Targeting: {player.target_actor.name} - {self.selected_bodypart.name}",
                           fg=colour.WHITE)
 
+            for bodypart in player.target_actor.bodyparts:
+                if bodypart.functional and not bodypart.destroyed:
+                    self.bodypartlist.append(bodypart)
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
         key = event.sym
@@ -800,13 +811,18 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.bodypart_index = 0
                 self.target_index = 0
 
+            self.bodypartlist = []
+            for bodypart in player.target_actor.bodyparts:
+                if bodypart.functional and not bodypart.destroyed:
+                    self.bodypartlist.append(bodypart)
+
         elif key == tcod.event.K_TAB:  # change limb targetted
             try:
-                self.selected_bodypart = player.target_actor.bodyparts[self.bodypart_index + 1]
+                self.selected_bodypart = self.bodypartlist[self.bodypart_index + 1]
                 self.bodypart_index += 1
 
             except IndexError:
-                self.selected_bodypart = player.target_actor.bodyparts[0]
+                self.selected_bodypart = self.bodypartlist[0]
                 self.bodypart_index = 0
 
         elif key == tcod.event.K_RETURN:  # atttack selected target

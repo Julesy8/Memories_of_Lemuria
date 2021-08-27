@@ -11,7 +11,7 @@ level_params = {
               15,     # ROOM_MAX_SIZE
               9,      # ROOM_MIN_SIZE
               2,      # Max monsters per room
-              2,      # Max items per room
+              10,      # Max items per room
               ])
 }
 
@@ -43,14 +43,14 @@ Enemies_by_level = {
 Items_by_level = {
     0: [
         # common
-        [medkit, glock, helmet, greaves, chestplate, pauldron],
+        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
         # uncommon
-        [medkit, glock, helmet, greaves, chestplate, pauldron],
+        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
         # rare
-        [medkit, glock, helmet, greaves, chestplate, pauldron],
+        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
         # very rare
-        [medkit, glock, helmet, greaves, chestplate, pauldron],
+        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
         # legendary
-        [medkit, glock, helmet, greaves, chestplate, pauldron],
+        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
     ]
 }

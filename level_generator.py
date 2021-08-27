@@ -2,7 +2,7 @@ import copy
 
 from random import random, randint, choice
 
-import level_gen_tools as tools
+from level_gen_tools import generate_char_arrays, select_random_tile, Rect
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level, Items_by_level
@@ -34,12 +34,12 @@ class MessyBSPTree:
         self.colours_chars_tuple = MapColoursChars(current_level)
 
         # makes tuple of colours and characters into an array usable by new_tile
-        self.colours_chars_array = tools.generate_char_arrays(self.colours_chars_tuple.floor_fg_dark(),
-                                                              self.colours_chars_tuple.floor_bg_dark(),
-                                                              self.colours_chars_tuple.floor_fg_light(),
-                                                              self.colours_chars_tuple.floor_bg_light(),
-                                                              self.colours_chars_tuple.floor_tile()
-                                                              )
+        self.colours_chars_array = generate_char_arrays(self.colours_chars_tuple.floor_fg_dark(),
+                                                        self.colours_chars_tuple.floor_bg_dark(),
+                                                        self.colours_chars_tuple.floor_fg_light(),
+                                                        self.colours_chars_tuple.floor_bg_light(),
+                                                        self.colours_chars_tuple.floor_tile()
+                                                        )
 
         # change debug_fov to True to disable fov, False to enable
         self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=True, entities=[self.player])
@@ -96,7 +96,7 @@ class MessyBSPTree:
         self._rooms.append(room)
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
-                self.dungeon.tiles[x, y] = tools.select_random_tile(self.colours_chars_array)
+                self.dungeon.tiles[x, y] = select_random_tile(self.colours_chars_array)
 
     def createHall(self, room1, room2):
 
@@ -152,7 +152,7 @@ class MessyBSPTree:
                     drunkardX = int(drunkardX)
                     drunkardY = int(drunkardY)
                     if not self.dungeon.tiles[drunkardX, drunkardY][0]:
-                        self.dungeon.tiles[drunkardX, drunkardY] = tools.select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[drunkardX, drunkardY] = select_random_tile(self.colours_chars_array)
         else:
             # connect two rooms by straight hallways
             x1, y1 = room1.centre()
@@ -168,31 +168,11 @@ class MessyBSPTree:
 
     def createHorTunnel(self, x1, x2, y):
         for x in range(min(x1, x2), max(x1, x2) + 1):
-            self.dungeon.tiles[x, y] = tools.select_random_tile(self.colours_chars_array)
+            self.dungeon.tiles[x, y] = select_random_tile(self.colours_chars_array)
 
     def createVirTunnel(self, y1, y2, x):
         for y in range(min(y1, y2), max(y1, y2) + 1):
-            self.dungeon.tiles[x, y] = tools.select_random_tile(self.colours_chars_array)
-
-
-class Rect:  # used for the tunneling algorithm
-    def __init__(self, x, y, w, h):
-        self.x1 = int(x)
-        self.y1 = int(y)
-        self.x2 = int(x) + int(w)
-        self.y2 = int(y) + int(h)
-
-    def centre(self):
-        centerX = (self.x1 + self.x2) / 2
-        centerY = (self.y1 + self.y2) / 2
-        centerX = int(centerX)
-        centerY = int(centerY)
-        return centerX, centerY
-
-    def intersect(self, other):
-        # returns true if this rectangle intersects with another one
-        return (self.x1 <= other.x2 and self.x2 >= other.x1 and
-                self.y1 <= other.y2 and self.y2 >= other.y1)
+            self.dungeon.tiles[x, y] = select_random_tile(self.colours_chars_array)
 
 
 class Leaf:  # used for the BSP tree algorithm

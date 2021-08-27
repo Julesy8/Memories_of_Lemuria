@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
-import tcod
-from copy import deepcopy
+from typing import List, TYPE_CHECKING
 
+import colour
 from exceptions import Impossible
 from components.npc_templates import BaseComponent
 
@@ -14,10 +13,9 @@ if TYPE_CHECKING:
 class Inventory(BaseComponent):
     parent: Actor
 
-    def __init__(self, capacity: int, held: Optional[Item]):
+    def __init__(self, capacity: int):
         self.capacity = capacity
         self.items: List[Item] = []
-        self.held: Optional[Item] = held
 
     def current_item_weight(self):
         #  returns current combined weight of items in inventory
@@ -29,40 +27,44 @@ class Inventory(BaseComponent):
     def equip_weapon(self, item):
         if item.weapon:
 
-            if self.held is not None:
-                raise Impossible(f"you are already holding an item")
+            available_slots = []  # list of availbale grasping bodyparts
+
+            for bodypart in self.parent.bodyparts:
+                if bodypart.arm and bodypart.functional and not bodypart.held:
+                    available_slots.append(bodypart)
+
+            if item.weapon.two_handed and len(available_slots) > 1:
+                part_index_1 = self.parent.bodyparts.index(available_slots[-1])
+                part_index_2 = self.parent.bodyparts.index(available_slots[-2])
+                self.parent.bodyparts[part_index_1].held = item
+                self.parent.bodyparts[part_index_2].held = item
+
+            elif not item.weapon.two_handed and len(available_slots) >= 1:
+                part_index = self.parent.bodyparts.index(available_slots[-1])
+                self.parent.bodyparts[part_index].held = item
 
             else:
-                self.items.remove(item)
-                self.held = item
-                self.engine.message_log.add_message(f"You are holding the {item.name}.")
+                return self.engine.message_log.add_message(f"You can't equip this item", fg=colour.RED)
+
+            self.items.remove(item)
+            self.engine.message_log.add_message(f"You are holding the {item.name}.")
 
     def unequip_weapon(self, item):
-        self.held = None
 
-        if self.current_item_weight() + item.weight > self.capacity:
-            raise Impossible(f"Your inventory is full")
+        for bodypart in self.parent.bodyparts:
+            if bodypart.arm:
+                if bodypart.held == item:
+                    bodypart.held = None
 
-        else:
-            if item.stacking:
-                try:
-                    repeat_item_index = self.parent.inventory.items.index(item)
-                    self.parent.inventory.items[repeat_item_index].stacking.stack_size += item.stacking.stack_size
-
-                except ValueError:
-                    self.items.append(item)
-
-            else:
-                self.items.append(item)
-
-            self.engine.message_log.add_message(f"You moved your held item to your inventory ")
+        self.items.append(item)
+        self.engine.message_log.add_message(f"You moved your held item to your inventory ")
 
     def equip_armour(self, item):
 
         item_removed = False
 
         for bodypart in self.parent.bodyparts:
-            if bodypart.type == item.wearable.fits_bodypart:
+            if bodypart.part_type == item.wearable.fits_bodypart:  # TODO: more efficient way of doing this (bool)
 
                 if bodypart.equipped is not None:
                     raise Impossible(f"You are already wearing something there")
@@ -77,7 +79,7 @@ class Inventory(BaseComponent):
     def unequip_armour(self, item):
 
         for bodypart in self.parent.bodyparts:
-            if bodypart.type == item.wearable.fits_bodypart:
+            if bodypart.part_type == item.wearable.fits_bodypart:  # TODO: again, want better way of doing this
                 bodypart.equipped = None
 
         if self.current_item_weight() + item.weight > self.capacity:

@@ -28,3 +28,23 @@ def select_random_tile(character_array):
     character_index = random.randint(0, character_array.size - 1)
     character = character_array[character_index]
     return character
+
+
+class Rect:  # used for the tunneling algorithm
+    def __init__(self, x, y, w, h):
+        self.x1 = int(x)
+        self.y1 = int(y)
+        self.x2 = int(x) + int(w)
+        self.y2 = int(y) + int(h)
+
+    def centre(self):
+        centerX = (self.x1 + self.x2) / 2
+        centerY = (self.y1 + self.y2) / 2
+        centerX = int(centerX)
+        centerY = int(centerY)
+        return centerX, centerY
+
+    def intersect(self, other):
+        # returns true if this rectangle intersects with another one
+        return (self.x1 <= other.x2 and self.x2 >= other.x1 and
+                self.y1 <= other.y2 and self.y2 >= other.y1)

@@ -128,27 +128,10 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                     armour_protection = self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
 
                 # calculates damage (system right now is placeholder) if successfully hits
-                damage = self.entity.fighter.power - self.targeted_actor.bodyparts[self.part_index].defence - \
-                         armour_protection
+                damage = self.entity.fighter.unarmed_damage - self.targeted_actor.bodyparts[self.part_index].defence - \
+                    armour_protection
 
-                # hit and did damage
-                if damage > 0:
-                    # result printed to console
-                    self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} on the "
-                                                        f"{self.targeted_bodypart.name} for {str(damage)} points!",
-                                                        self.attack_colour)
-                    self.targeted_actor.bodyparts[self.part_index].hp -= damage
-
-                # hit but dealt no damage
-                else:
-                    self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} on the "
-                                                        f"{self.targeted_bodypart.name} but does no damage!",
-                                                        self.attack_colour)
-
-            # miss
-            else:
-                self.engine.message_log.add_message(f"{self.entity.name} tries to strike {self.targeted_actor.name}"
-                                                    f", but misses!", self.attack_colour)
+                self.targeted_actor.bodyparts[self.part_index].deal_damage(damage=damage, attacker=self.entity)
 
 
 class WeaponAttackAction(AttackAction):
@@ -167,7 +150,7 @@ class WeaponAttackAction(AttackAction):
                 range_penalty = self.distance - (self.item.weapon.ranged_accuracy * 2)
         else:
             if self.distance > 1:
-                raise exceptions.Impossible("Enemy out of range")
+                return self.engine.message_log.add_message("Enemy out of range.", colour.RED)
 
         # successful hit
         if self.hitchance <= (float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit)
@@ -178,47 +161,25 @@ class WeaponAttackAction(AttackAction):
             if self.targeted_actor.bodyparts[self.part_index].equipped:
                 armour_protection = self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
 
-            # calculates damage if successfully hits
-            damage = self.item.weapon.power - self.targeted_actor.bodyparts[self.part_index].defence - armour_protection
+            # calculates damage
+            damage = self.item.weapon.damage - self.targeted_actor.bodyparts[self.part_index].defence \
+                - armour_protection
 
-            # attack dealt damage (melee)
-            if not self.item.weapon.ranged and damage > 0:
-                # result printed to console
-                self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} in the "
-                                                    f"{self.targeted_bodypart.name} with the {self.item.name} for {str(damage)} "
-                                                    f"points", self.attack_colour)
-                self.targeted_actor.bodyparts[self.part_index].hp -= damage
-
-            # attack dealt damage (ranged)
-            elif damage > 0:
-                self.engine.message_log.add_message(f"{self.item.name} projectile hits {self.targeted_actor.name} "
-                                                    f"in the {self.targeted_bodypart.name} for {str(damage)} points",
-                                                    self.attack_colour)
-                self.targeted_actor.bodyparts[self.part_index].hp -= damage
-
-            # attack hit but did no damage
-            else:
-                # ranged
-                if self.item.weapon.ranged:
-                    self.engine.message_log.add_message(f"{self.item.name} projectile hits {self.targeted_actor.name} "
-                                                        f"in the {self.targeted_bodypart.name} but does no damage",
-                                                        self.attack_colour)
-                # melee
-                else:
-                    self.engine.message_log.add_message(f"{self.entity.name} strikes {self.targeted_actor.name} in the "
-                                                        f"{self.targeted_bodypart.name} with the {self.item.name} but does no damage"
-                                                        , self.attack_colour)
+            # does damage to given bodypart
+            self.targeted_actor.bodyparts[self.part_index].deal_damage(damage=damage, attacker=self.entity,
+                                                                       item=self.item)
 
         # miss
         else:
-            # ranged
-            if self.item.weapon.ranged:
-                self.engine.message_log.add_message(f"{self.entity.name} tries to shoot {self.targeted_actor.name} "
-                                                    f"with {self.item.name} but misses", self.attack_colour)
-            # melee
+            if self.entity.player:
+                return self.engine.message_log.add_message("You miss the attack", colour.YELLOW)
+
             else:
-                self.engine.message_log.add_message(f"{self.entity.name} tries to strike {self.targeted_actor.name} "
-                                                    f"with {self.item.name} but misses", self.attack_colour)
+                if self.item.weapon.ranged:
+                    return self.engine.message_log.add_message(f"The shot from {self.entity.name}'s {self.item.name} "
+                                                               f"misses", colour.LIGHT_BLUE)
+
+                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
 
 class MovementAction(ActionWithDirection):
@@ -227,7 +188,7 @@ class MovementAction(ActionWithDirection):
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             # Destination is out of bounds.
-            raise exceptions.Impossible("Silent")
+            raise exceptions.Impossible("Silent")  # TODO: this is probably not the best way to do this
 
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             # Destination is blocked by a tile.
@@ -243,11 +204,24 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity:
-            if self.entity.inventory.held is not None and self.entity.inventory.held.weapon and not \
-                    self.entity.inventory.held.weapon.ranged:
-                return WeaponAttackAction(distance=1, item=self.entity.inventory.held, entity=self.entity,
-                                          targeted_actor=self.target_actor,
-                                          targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+
+            items_held = []
+
+            for bodypart in self.entity.bodyparts:
+                if bodypart.arm:
+                    if bodypart.held is not None:
+                        items_held.append(bodypart.held)
+
+            if len(items_held) > 0:
+                if not items_held[0].weapon.ranged:
+                    return WeaponAttackAction(distance=1, item=items_held[0], entity=self.entity,
+                                              targeted_actor=self.target_actor,
+                                              targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+
+                else:
+                    return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
+                                               targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+
             else:
                 return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
                                            targeted_bodypart=self.target_actor.bodyparts[0]).attack()
@@ -321,11 +295,6 @@ class ItemAction(Action):
             self.item.weapon.activate(self)
 
 
-class DropItem(ItemAction):
-    def perform(self) -> None:
-        self.entity.inventory.drop(self.item)
-
-
 class EquipWeapon(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.equip_weapon(self.item)
@@ -344,10 +313,3 @@ class EquipArmour(ItemAction):
 class UnequipArmour(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.unequip_armour(self.item)
-
-
-'''
-class ShootWeapon(ItemAction):
-    def perform(self) -> None:
-        self.entity.inventory.held.weapon.activate
-'''

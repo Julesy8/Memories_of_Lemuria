@@ -61,6 +61,7 @@ class HostileEnemy(BaseAI):
 
         while move_turns > 0 and attack_turns > 0:
 
+            #  TODO: implement fleeing
             """
             entity_fleeing = False
             
@@ -76,10 +77,17 @@ class HostileEnemy(BaseAI):
             if distance <= 1 and attack_turns > 0 and self.entity.last_attack_turn + self.entity.attack_interval <= \
                     self.entity.turn_counter:
 
-                if self.entity.inventory.held is not None and self.entity.inventory.held.weapon \
-                        and not self.entity.inventory.held.weapon.ranged:
-                    WeaponAttackAction(distance=distance, item=self.entity.inventory.held, entity=self.entity,
-                                       targeted_actor=target, targeted_bodypart=None).attack()
+                held_items = []  # TODO: make array
+
+                for bodypart in self.entity.bodyparts:
+                    if bodypart.arm:
+                        if bodypart.held is not None:
+                            held_items.append(bodypart.held)
+
+                if len(held_items) > 0:
+                    if held_items[0].weapon:
+                        WeaponAttackAction(distance=distance, item=held_items[0], entity=self.entity,
+                                           targeted_actor=target, targeted_bodypart=None).attack()
 
                 else:
                     UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
@@ -89,6 +97,7 @@ class HostileEnemy(BaseAI):
                 self.entity.last_attack_turn = self.entity.turn_counter
 
             # any kind of move action occurring
+
             elif move_turns > 0 and self.entity.last_move_turn + self.entity.move_interval <= self.entity.turn_counter:
 
                 """

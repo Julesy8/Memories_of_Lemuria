@@ -7,7 +7,7 @@ X 4) armour
 X 5) item weight, item stackability
 X 6) quick targeting by clycing through the enemies in the players line of sight
 X7) tutorial parts X9, X10, X11
-9) bodypart functionality
+X9) bodypart functionality
 10) item stat screen
 11) weapon firing graphics
 12) proper weapons implmentation (ammo and weapon parts)
@@ -16,7 +16,18 @@ X7) tutorial parts X9, X10, X11
 15) more room shapes on level generation
 16) enemy drops and xp + leveling
 17) weapon graphics
-18) config txt
+18) config + error log txt
+character creation - class selection + skills
+proper death screen
+item pickup menu
+game opening popup
+load options
+consistent use of coloured messages
+two damage types - impact and piercing
+tutorial option
+weight limit shown in inv menu
+stacking items dropped on the same time stack together
+fix items spawning on stairs
 
 ALSO: Item stat menu
 

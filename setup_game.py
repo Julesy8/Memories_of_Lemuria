@@ -28,16 +28,16 @@ def new_game() -> Engine:
     current_level = 0
 
     # initialises player entity
-    fighter_component = Fighter(power=6)
+    fighter_component = Fighter(unarmed_damage=15)
 
-    Head = Bodypart(hp=30, defence=5, vital=True, name='Head', part_type='Head', base_chance_to_hit=80)
-    Body = Bodypart(hp=30, defence=5, vital=True, name='Body', part_type='Body', base_chance_to_hit=90)
-    R_Arm = Bodypart(hp=30, defence=5, grasping=True, name='Right Arm', part_type='Arms', base_chance_to_hit=80)
-    L_Arm = Bodypart(hp=30, defence=5, grasping=True, name='Left Arm', part_type='Arms', base_chance_to_hit=80)
-    R_Leg = Bodypart(hp=30, defence=5, walking=True, name='Right Leg', part_type='Legs', base_chance_to_hit=80)
-    L_Leg = Bodypart(hp=30, defence=5, walking=True, name='Left Leg', part_type='Legs', base_chance_to_hit=80)
+    Head = Bodypart(hp=30, defence=15, head=True, vital=True, name='head', part_type='Head', base_chance_to_hit=80)
+    Body = Bodypart(hp=30, defence=15, body=True, vital=True, name='body', part_type='Body', base_chance_to_hit=90)
+    R_Arm = Bodypart(hp=30, defence=15, arm=True, name='right arm', part_type='Arms', base_chance_to_hit=80)
+    L_Arm = Bodypart(hp=30, defence=15, arm=True, name='left arm', part_type='Arms', base_chance_to_hit=80)
+    R_Leg = Bodypart(hp=30, defence=15, leg=True, name='right leg', part_type='Legs', base_chance_to_hit=80)
+    L_Leg = Bodypart(hp=30, defence=15, leg=True, name='left leg', part_type='Legs', base_chance_to_hit=80)
 
-    body_parts = (Body, Head, R_Arm, L_Arm, R_Leg, L_Leg)
+    body_parts = (Body, Head, R_Arm, L_Arm, R_Leg, L_Leg)  # TODO: Make array instead of tuple
 
     player = Actor(0, 0,
                    '@',
@@ -48,7 +48,7 @@ def new_game() -> Engine:
                    fighter=fighter_component,
                    bodyparts=body_parts,
                    player=True,
-                   inventory=Inventory(capacity=15, held=None),
+                   inventory=Inventory(capacity=15),
                    level=Level(level_up_base=500)
                    )
 
