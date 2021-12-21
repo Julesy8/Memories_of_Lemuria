@@ -19,8 +19,7 @@ from level_parameters import level_params
 from components.inventory import Inventory
 from components.ai import HostileEnemy
 from components.npc_templates import Fighter
-from components.bodyparts import Bodypart
-from components.level import Level
+from components.bodyparts import Bodypart, Arm, Leg
 
 
 def new_game() -> Engine:
@@ -28,16 +27,16 @@ def new_game() -> Engine:
     current_level = 0
 
     # initialises player entity
-    fighter_component = Fighter(unarmed_damage=15)
+    fighter_component = Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
-    Head = Bodypart(hp=30, defence=15, head=True, vital=True, name='head', part_type='Head', base_chance_to_hit=80)
-    Body = Bodypart(hp=30, defence=15, body=True, vital=True, name='body', part_type='Body', base_chance_to_hit=90)
-    R_Arm = Bodypart(hp=30, defence=15, arm=True, name='right arm', part_type='Arms', base_chance_to_hit=80)
-    L_Arm = Bodypart(hp=30, defence=15, arm=True, name='left arm', part_type='Arms', base_chance_to_hit=80)
-    R_Leg = Bodypart(hp=30, defence=15, leg=True, name='right leg', part_type='Legs', base_chance_to_hit=80)
-    L_Leg = Bodypart(hp=30, defence=15, leg=True, name='left leg', part_type='Legs', base_chance_to_hit=80)
+    Head = Bodypart(hp=50, defence=20, vital=True, name='head', part_type='Head', base_chance_to_hit=80)
+    Body = Bodypart(hp=50, defence=20, vital=True, name='body', part_type='Body', base_chance_to_hit=90, destroyable=False)
+    R_Arm = Arm(hp=50, defence=20, name='right arm', base_chance_to_hit=80)
+    L_Arm = Arm(hp=50, defence=20, name='left arm', base_chance_to_hit=80)
+    R_Leg = Leg(hp=50, defence=20, name='right leg', base_chance_to_hit=80)
+    L_Leg = Leg(hp=50, defence=20, name='left leg', base_chance_to_hit=80)
 
-    body_parts = (Body, Head, R_Arm, L_Arm, R_Leg, L_Leg)  # TODO: Make array instead of tuple
+    body_parts = (Body, Head, R_Arm, L_Arm, R_Leg, L_Leg)
 
     player = Actor(0, 0,
                    '@',
@@ -49,7 +48,6 @@ def new_game() -> Engine:
                    bodyparts=body_parts,
                    player=True,
                    inventory=Inventory(capacity=15),
-                   level=Level(level_up_base=500)
                    )
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)

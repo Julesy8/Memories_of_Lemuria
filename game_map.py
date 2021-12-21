@@ -122,14 +122,15 @@ class GameMap:
 
         self.engine.current_floor += 1
 
-        self.engine.game_map = MessyBSPTree(level_params[self.engine.current_level][0],  # messy tunnels
-                                            level_params[self.engine.current_level][1],  # map width
-                                            level_params[self.engine.current_level][2],  # map height
-                                            level_params[self.engine.current_level][3],  # max leaf size
-                                            level_params[self.engine.current_level][4],  # max room size
-                                            level_params[self.engine.current_level][5],  # room min size
-                                            level_params[self.engine.current_level][6],  # max monsters per room
-                                            level_params[self.engine.current_level][7],  # max items per room
-                                            self.engine,
-                                            self.engine.current_level,
-                                            ).generateLevel()
+        self.engine.game_map = MessyBSPTree(
+            messy_tunnels=level_params[self.engine.current_level][0],
+            map_width=level_params[self.engine.current_level][1],
+            map_height=level_params[self.engine.current_level][2],
+            max_leaf_size=level_params[self.engine.current_level][3],
+            room_max_size=level_params[self.engine.current_level][4],
+            room_min_size=level_params[self.engine.current_level][5],
+            max_monsters_per_room=level_params[self.engine.current_level][6],
+            max_items_per_room=level_params[self.engine.current_level][7],
+            engine=self.engine,
+            current_level=self.engine.current_level,
+            ).generateLevel()

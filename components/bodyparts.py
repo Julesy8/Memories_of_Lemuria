@@ -23,12 +23,8 @@ class Bodypart:
                  name: str,
                  base_chance_to_hit: int,  # base modifier of how likely the body part is to be hit when attacked
                  part_type: Optional[str],  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
-                 equipped: Optional[Item] = None,  # equipped item for the given body part
                  vital: bool = False,  # whether when the body part gets destroyed, the entity should die
-                 body: bool = False,  # gives bodypart body functionality
-                 head: bool = False,  # gives bodypart head functionality
-                 leg: bool = False,  # gives bodypart leg functionality
-                 arm: bool = False,  # gives bodypart arm functionality
+                 destroyable: bool = True # whether or not the body part should be able to be destroyed i.e. cut off, explode
                  ):
 
         self.max_hp = hp
@@ -36,22 +32,15 @@ class Bodypart:
         self._hp = hp
         self._defence = defence
         self.vital = vital
-        self.equipped = equipped
+        self.equipped = None
         self.name = name
         self.base_chance_to_hit = base_chance_to_hit
+        self.destroyable = destroyable
 
         self.part_type = part_type  # only required for player character
 
-        self.body = body
-        self.head = head
-        self.leg = leg
-        self.arm = arm
-
         self.functional = True  # whether or not bodypart is crippled
         self.destroyed = False
-
-        if self.arm:
-            self.held = None
 
     @property
     def engine(self) -> Engine:
@@ -100,55 +89,42 @@ class Bodypart:
         if self.parent.player:
             self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
 
-    def deal_damage(self, damage: int, attacker: Actor, item: Optional[Item] = None):
+    def deal_damage(self, meat_damage: int, armour_damage: int, attacker: Actor, item: Optional[Item] = None):
 
-        attack_colour = colour.RED
+        damage = meat_damage
+
         fail_colour = colour.LIGHT_BLUE
 
         if attacker == self.engine.player:
-            attack_colour = colour.GREEN
             fail_colour = colour.YELLOW
 
+        armour_protection = 0
+        if self.equipped:
+            armour_protection = self.equipped.usable_properties.Wearable.protection
+
+        if armour_damage < self.defence + armour_protection:
+            damage = 0
+
+        # attack w/ weapon
         if item:
             if damage > 0:
-                if item.weapon.cutting_type:
-                    self.engine.message_log.add_message(f"{attacker.name} slashes {self.parent.name} on the "
-                                                        f"{self.name} with the {item.name}", attack_colour)
 
-                elif item.weapon.projectile_type:
-                    self.engine.message_log.add_message(f"{attacker.name} shoots the {self.parent.name} in the "
-                                                        f"{self.name} with the {item.name}", attack_colour)
-
-                else:
-                    self.engine.message_log.add_message(f"{attacker.name} strikes {self.parent.name} on the "
-                                                        f"{self.name} with the {item.name}", attack_colour)
-
-                if damage >= self.max_hp * 0.45 and self.hp - damage <= 0 and self.functional and not self.body:
+                if damage >= self.max_hp * 0.45 and self.hp - damage <= 0 and self.functional and self.destroyable:
                     self.destroy(item)
 
                 self.hp -= damage
 
+            # hit, no damage dealt
             else:
-                if item.weapon.cutting_type:
-                    self.engine.message_log.add_message(f"{attacker.name} slashes {self.parent.name} with the"
-                                                        f" {item.name} but the blow glances off", fail_colour)
+                self.engine.message_log.add_message(f"{attacker.name} attacks {self.parent.name} but the"
+                                                    f" blow glances off", fail_colour)
 
-                elif item.weapon.projectile_type:
-                    self.engine.message_log.add_message(f"{attacker.name} shoots the {self.parent.name} in the "
-                                                        f"{self.name} with the {item.name}, but the bullet does "
-                                                        f"nothing", fail_colour)
-
-                else:
-                    self.engine.message_log.add_message(f"{attacker.name} tries to strike {self.parent.name} but the"
-                                                        f" blow glances off", fail_colour)
-
+        # unarmed attack
         else:
             if damage > 0:
-                self.engine.message_log.add_message(f"{attacker.name} strikes {self.parent.name} on the "
-                                                    f"{self.name}", attack_colour)
-
                 self.hp -= damage
 
+            # hit, no damage dealt
             else:
                 self.engine.message_log.add_message(f"{attacker.name} tries to strike {self.parent.name} but the blow"
                                                     f" glances off", fail_colour)
@@ -156,63 +132,20 @@ class Bodypart:
     def cripple(self) -> None:
         self.functional = False
 
-        if self.leg:
-            functional_legs = 0
-
-            for parts in self.parent.bodyparts:
-                if parts.leg:
-                    if parts.functional:
-                        functional_legs += 1
-
-            if functional_legs > 0:
-
-                if self.parent.moves_per_turn > 1:
-                    self.parent.moves_per_turn = 1
-
-                else:
-                    self.parent.move_interval = self.parent.move_interval_original + 1
-
-            else:
-                self.parent.move_interval = 2 * self.parent.move_interval
-
-        if self.arm:
-            if self.held:
-
-                for bodypart in self.parent.bodyparts:
-                    if bodypart.arm:
-                        if bodypart.held == self.held:
-                            bodypart.held = None
-
-                self.held.place(self.parent.x, self.parent.y, self.engine.game_map)
-
-                if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"The {self.held.name} slips from your grasp", colour.RED)
-
-                else:
-                    self.engine.message_log.add_message(f"The {self.held.name} slips from {self.parent.name}'s grasp"
-                                                        , colour.GREEN)
-
     def destroy(self, item: Optional[Item]):
 
         self.destroyed = True
 
         if item:
-            if item.weapon.cutting_type:
+            if item.usable_properties.Weapon.cutting:
                 self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} flys off in an arc!",
                                                     colour.GREEN)
 
-                #blood_entity = deepcopy(blood)  # TODO: bleeding here
-
-            elif item.weapon.projectile_type:
-                self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} explodes into pieces!",
-                                                    colour.GREEN)
+                #blood_entity = deepcopy(blood)  # TODO: bleeding here, place limb object onto map
 
             else:
-                self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} is crushed to a pulp!",
+                self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} explodes into pieces!",
                                                     colour.GREEN)
-
-        else:
-            self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} is crushed to a pulp!", colour.GREEN)
 
         self.cripple()
 
@@ -252,3 +185,83 @@ class Bodypart:
     def bodypart_to_entity(self,):
         return Entity(x=0, y=0, char=',', name=f"{self.parent.name} {self.name}", bg_colour=None,
                       fg_colour=colour.LIGHT_RED)
+
+
+class Arm(Bodypart):
+    def __init__(self,
+                 hp: int,
+                 defence: int,
+                 name: str,
+                 base_chance_to_hit: int,
+                 part_type: Optional[str] = 'Arms',
+                 ):
+
+        self.held = None
+
+        super().__init__(
+            hp=hp,
+            defence=defence,
+            name=name,
+            base_chance_to_hit=base_chance_to_hit,
+            part_type=part_type
+        )
+
+    def cripple(self) -> None:
+
+        self.functional = False
+
+        if self.held:
+
+            for bodypart in self.parent.bodyparts:
+                if bodypart.Arm:
+                    if bodypart.held == self.held:
+                        bodypart.held = None
+
+            self.held.place(self.parent.x, self.parent.y, self.engine.game_map)
+
+            if self.parent == self.engine.player:
+                self.engine.message_log.add_message(f"The {self.held.name} slips from your grasp", colour.RED)
+
+            else:
+                self.engine.message_log.add_message(f"The {self.held.name} slips from {self.parent.name}'s grasp"
+                                                    , colour.GREEN)
+
+
+class Leg(Bodypart):
+    def __init__(self,
+                 hp: int,
+                 defence: int,
+                 name: str,
+                 base_chance_to_hit: int,
+                 part_type: Optional[str] = 'Legs',
+                 ):
+
+        super().__init__(
+            hp=hp,
+            defence=defence,
+            name=name,
+            base_chance_to_hit=base_chance_to_hit,
+            part_type=part_type
+        )
+
+    def cripple(self) -> None:
+
+        self.functional = False
+
+        functional_legs = 0
+
+        for parts in self.parent.bodyparts:
+            if parts.part_type == 'Legs':
+                if parts.functional:
+                    functional_legs += 1
+
+        if functional_legs > 0:
+
+            if self.parent.moves_per_turn > 1:
+                self.parent.moves_per_turn = 1
+
+            else:
+                self.parent.move_interval = self.parent.move_interval_original + 1
+
+        else:
+            self.parent.move_interval = 2 * self.parent.move_interval

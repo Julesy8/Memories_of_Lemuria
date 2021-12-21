@@ -6,8 +6,7 @@ import math
 
 if TYPE_CHECKING:
     from game_map import GameMap
-    from components.consumables import Consumable, Weapon, Wearable
-    from components.level import Level
+    from components.consumables import Usable
     from components.inventory import Inventory
 
 from render_order import RenderOrder
@@ -33,7 +32,7 @@ class Entity:  # generic entity
         self.x = x
         self.y = y
         self.char = char
-        self.hidden_char = char
+        self.hidden_char = char  # TODO: reimplement remembering entity last position
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
         self.name = name
@@ -98,13 +97,13 @@ class Actor(Entity):
             fighter,
             bodyparts,  # list of bodyparts belonging to the entity
             inventory: Inventory,
-            level: Level,
             attack_interval=0,
             attacks_per_turn=1,
             move_interval=0,
             moves_per_turn=1,
             active_radius=10,
             player: bool = False,
+            leaves_corpse: bool = True
     ):
         super().__init__(
             x=x,
@@ -122,8 +121,7 @@ class Actor(Entity):
         self.fighter.parent = self
         self.target_actor = None
         self.player = player
-        self.level = level
-        self.level.parent = self
+        self.leaves_corpse = leaves_corpse
         self.bodyparts = copy.deepcopy(bodyparts)
         self.active_radius = active_radius
         self.inventory = inventory
@@ -164,25 +162,15 @@ class Item(Entity):
         name: str = "<Unnamed>",
         weight: int,
         stacking: Optional[Stacking],
-        consumable: Optional[Consumable],
-        weapon: Optional[Weapon],
-        wearable: Optional[Wearable]
+        usable_properties: Optional[Usable],
     ):
 
         self.weight = weight
         self.stacking = stacking
 
-        self.consumable = consumable
-        if consumable:
-            self.consumable.parent = self
-
-        self.weapon = weapon
-        if weapon:
-            self.weapon.parent = self
-
-        self.wearable = wearable
-        if wearable:
-            self.wearable.parent = self
+        self.usable_properties = usable_properties
+        if usable_properties:
+            self.usable_properties.parent = self
 
         super().__init__(
             x=x,

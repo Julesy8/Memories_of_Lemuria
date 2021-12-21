@@ -20,37 +20,24 @@ level_names = {
 }
 
 # these dictionaries contain lists of the enemies that should appear on a given level
-# note enemy rarity can be made even more granular beyond the rarity system by placing multiple instances of an entity
-# in a given list
 
-# should probably use arrays instead of lists here
 Enemies_by_level = {
-    0: [
-        # common
-        [placeholder_common],
-        # uncommon
-        [placeholder_uncommon],
-        # rare
-        [placeholder_rare],
-        # very rare
-        [placeholder_v_rare],
-        # legendary
-        [placeholder_legendary]
-    ]
+    0: (
+        (
+         placeholder_common,
+         placeholder_uncommon,
+         placeholder_rare,
+         placeholder_v_rare,
+         placeholder_legendary
+         ),
+        (1,1,1,1,1)
+    )
 }
 
-
 Items_by_level = {
-    0: [
+    0: (
         # common
-        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
-        # uncommon
-        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
-        # rare
-        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
-        # very rare
-        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
-        # legendary
-        [medkit, glock, helmet, greaves, chestplate, pauldron, sword],
-    ]
+        (medkit, helmet, greaves, chestplate, pauldron),
+        (1,1,1,1,1)
+    )
 }

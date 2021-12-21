@@ -11,13 +11,16 @@ if TYPE_CHECKING:
     from entity import Actor, Item
 
 
-class Consumable(BaseComponent):
+class Usable(BaseComponent):
 
     parent: Item
 
-    def get_action(self, consumer: Actor) -> Optional[ActionOrHandler]:
+    def __init__(self, usable_type: str):
+        self.usable_type = usable_type
+
+    def get_action(self, user: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item."""
-        return actions.ItemAction(consumer, self.parent)
+        return actions.ItemAction(user, self.parent)
 
     def activate(self, action: actions.ItemAction) -> None:
         """Invoke this items ability.
@@ -34,9 +37,11 @@ class Consumable(BaseComponent):
             inventory.items.remove(entity)
 
 
-class HealingConsumable(Consumable):
+class HealingConsumable(Usable):
     def __init__(self, amount: int):
         self.amount = amount
+
+        super().__init__(usable_type='consumable')
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
@@ -53,29 +58,29 @@ class HealingConsumable(Consumable):
             self.consume()
 
 
-class Weapon(Consumable):
+class Weapon(Usable):
 
     def __init__(self,
-                 damage: int,
+                 base_meat_damage: int,
+                 base_armour_damage: int,
                  maximum_range: int,
                  base_accuracy: float,
-                 ranged_accuracy: Optional[int] = 1,
+                 range_accuracy_dropoff: Optional[int],
                  two_handed: bool = False,
                  ranged: bool = False,
-                 cutting_type: bool = False,
-                 projectile_type: bool = False,
+                 cutting: bool = False
                  ):
 
-        self.damage = damage  # TODO: split damage into impact and piercing
+        super().__init__(usable_type='weapon')
+
+        self.base_meat_damage = base_meat_damage
+        self.base_armour_damage = base_armour_damage
         self.ranged = ranged  # if true, weapon has range (non-melee)
         self.maximum_range = maximum_range  # determines how far away the weapon can deal damage
         self.base_accuracy = base_accuracy  # decimal value, modifies base_chance_to_hit for a limb
-        self.ranged_accuracy = ranged_accuracy  # the range up to which the weapon is accurate
+        self.range_accuracy_dropoff = range_accuracy_dropoff  # the range up to which the weapon is accurate
         self.two_handed = two_handed  # the amount of hands used to hold this weapon
-
-        # if neither of these are true, weapon is treated as a crushing weapon i.e. hammer
-        self.cutting_type = cutting_type  # True if weapon is cutting (i.e. sword)
-        self.projectile_type = projectile_type  # True if weapon shoots projectiles (i.e. gun)
+        self.cutting = cutting # whether the weapon can cleanly remove limbs
 
         if not self.ranged:
             self.maximum_range = 1
@@ -84,10 +89,75 @@ class Weapon(Consumable):
         return NotImplementedError
 
 
-class Wearable(Consumable):  # in future add different types of protection i.e. projectile + melee
+class Bullet(Usable):
+
+    def __init__(self,
+                 bullet_type: str,
+                 meat_damage_factor: float,
+                 armour_damage_factor: float,
+                 accuracy_factor: float,
+                 ):
+
+        super().__init__(usable_type='ammunition')
+
+        self.bullet_type = bullet_type
+        self.meat_damage_factor = meat_damage_factor
+        self.armour_damage_factor = armour_damage_factor
+        self.accuracy_factor = accuracy_factor
+
+    def activate(self, action: actions.ItemAction):
+        return NotImplementedError
+
+
+class Magazine(Usable):
+
+    def __init__(self,
+                 compatible_bullet_type,
+                 mag_capacity,
+                 ):
+        self.compatible_bullet_type = compatible_bullet_type
+        self.mag_capacity = mag_capacity
+
+        super().__init__(usable_type='magazine')
+
+    def activate(self, action: actions.ItemAction):
+        return NotImplementedError
+
+
+class Gun(Weapon):
+
+    def __init__(self,
+                 compatible_magazine_type: str,
+                 chambered_bullet: Optional[Bullet],
+                 loaded_magazine: Optional[Magazine],
+                 base_meat_damage: int,
+                 base_armour_damage: int,
+                 base_accuracy: int,
+                 range_accuracy_dropoff: int,
+                 two_handed: bool,
+                 ):
+
+        self.compatible_magazine_type = compatible_magazine_type
+        self.chambered_bullet = chambered_bullet
+        self.loaded_magazine = loaded_magazine
+
+        super().__init__(
+            base_meat_damage=base_meat_damage,
+            base_armour_damage=base_armour_damage,
+            maximum_range=100,
+            base_accuracy=base_accuracy,
+            ranged=True,
+            range_accuracy_dropoff=range_accuracy_dropoff,
+            two_handed=two_handed,
+        )
+
+
+class Wearable(Usable):  # in future add different types of protection i.e. projectile + melee
     def __init__(self, protection: int, fits_bodypart_type: str):
         self.protection = protection
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
+
+        super().__init__(usable_type='wearable')
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError

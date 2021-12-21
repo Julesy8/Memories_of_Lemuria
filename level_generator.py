@@ -1,6 +1,6 @@
 import copy
 
-from random import random, randint, choice
+from random import random, randint, choice, choices
 
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
 from colours_and_chars import MapColoursChars
@@ -287,43 +287,13 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
 
         # change to also check for walls
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and dungeon.tiles[x, y] != down_stairs:
-            entity_rarity = randint(1, 100)
-            if entity_rarity <= 60:          # common
-                enemy = copy.deepcopy(Enemies_by_level[level][0][randint(0, len(Enemies_by_level[level][0]) - 1)])
-
-            elif 60 <= entity_rarity <= 80:  # uncommon
-                enemy = copy.deepcopy(Enemies_by_level[level][1][randint(0, len(Enemies_by_level[level][0]) - 1)])
-
-            elif 80 <= entity_rarity <= 95:  # rare
-                enemy = copy.deepcopy(Enemies_by_level[level][2][randint(0, len(Enemies_by_level[level][0]) - 1)])
-
-            elif 95 <= entity_rarity <= 99:  # very rare
-                enemy = copy.deepcopy(Enemies_by_level[level][3][randint(0, len(Enemies_by_level[level][0]) - 1)])
-
-            else:                            # ultra rare
-                enemy = copy.deepcopy(Enemies_by_level[level][4][randint(0, len(Enemies_by_level[level][0]) - 1)])
-
+            enemy = copy.deepcopy(choices(population=Enemies_by_level[level][0], weights=Enemies_by_level[level][1], k=1)[0])
             enemy.place(x, y, dungeon)
 
     for i in range(number_of_items):
         x = randint(room.x1 + 1, room.x2 - 1)
         y = randint(room.y1 + 1, room.y2 - 1)
 
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            entity_rarity = randint(1, 100)
-            if entity_rarity <= 60:          # common
-                item = copy.deepcopy(Items_by_level[level][0][randint(0, len(Items_by_level[level][0]) - 1)])
-
-            elif 60 <= entity_rarity <= 80:  # uncommon
-                item = copy.deepcopy(Items_by_level[level][1][randint(0, len(Items_by_level[level][0]) - 1)])
-
-            elif 80 <= entity_rarity <= 95:  # rare
-                item = copy.deepcopy(Items_by_level[level][2][randint(0, len(Items_by_level[level][0]) - 1)])
-
-            elif 95 <= entity_rarity <= 99:  # very rare
-                item = copy.deepcopy(Items_by_level[level][3][randint(0, len(Items_by_level[level][0]) - 1)])
-
-            else:                            # ultra rare
-                item = copy.deepcopy(Items_by_level[level][4][randint(0, len(Items_by_level[level][0]) - 1)])
-
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and dungeon.tiles[x, y] != down_stairs:
+            item = copy.deepcopy(choices(population=Items_by_level[level][0], weights=Items_by_level[level][1], k=1)[0])
             item.place(x, y, dungeon)

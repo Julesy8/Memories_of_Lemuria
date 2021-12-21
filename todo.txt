@@ -8,15 +8,15 @@ X 5) item weight, item stackability
 X 6) quick targeting by clycing through the enemies in the players line of sight
 X7) tutorial parts X9, X10, X11
 X9) bodypart functionality
-10) item stat screen
-11) weapon firing graphics
-12) proper weapons implmentation (ammo and weapon parts)
-13) ranged enemies
-14) some enemies flee to regain health
-15) more room shapes on level generation
-16) enemy drops and xp + leveling
-17) weapon graphics
-18) config + error log txt
+12) item stat screen
+13) weapon firing graphics
+14) proper weapons implmentation (ammo and weapon parts)
+15) ranged enemies
+16) some enemies flee to regain health
+17) more room shapes on level generation
+18) enemy drops and xp + leveling
+19) weapon graphics
+20) config + error log txt
 character creation - class selection + skills
 proper death screen
 item pickup menu

@@ -119,19 +119,22 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             raise exceptions.Impossible("Enemy out of range")
 
         else:
+            # hit
             if self.hitchance <= float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit) * \
                     self.entity.fighter.melee_accuracy:
 
-                # if armour on the given part, value set for armour protection
-                armour_protection = 0
-                if self.targeted_actor.bodyparts[self.part_index].equipped:
-                    armour_protection = self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
+                self.targeted_actor.bodyparts[self.part_index].deal_damage(
+                    meat_damage=self.entity.fighter.unarmed_meat_damage,
+                    armour_damage=self.entity.fighter.unarmed_armour_damage,
+                    attacker=self.entity)
 
-                # calculates damage (system right now is placeholder) if successfully hits
-                damage = self.entity.fighter.unarmed_damage - self.targeted_actor.bodyparts[self.part_index].defence - \
-                    armour_protection
+            # miss
+            else:
+                if self.entity.player:
+                    return self.engine.message_log.add_message("You miss the attack", colour.YELLOW)
 
-                self.targeted_actor.bodyparts[self.part_index].deal_damage(damage=damage, attacker=self.entity)
+                else:
+                    return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
 
 class WeaponAttackAction(AttackAction):
@@ -156,18 +159,11 @@ class WeaponAttackAction(AttackAction):
         if self.hitchance <= (float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit)
                               * self.item.weapon.base_accuracy) + range_penalty:
 
-            # if armour on the given part, value set for armour protection
-            armour_protection = 0
-            if self.targeted_actor.bodyparts[self.part_index].equipped:
-                armour_protection = self.targeted_actor.bodyparts[self.part_index].equipped.wearable.protection
-
-            # calculates damage
-            damage = self.item.weapon.damage - self.targeted_actor.bodyparts[self.part_index].defence \
-                - armour_protection
-
             # does damage to given bodypart
-            self.targeted_actor.bodyparts[self.part_index].deal_damage(damage=damage, attacker=self.entity,
-                                                                       item=self.item)
+            self.targeted_actor.bodyparts[self.part_index].deal_damage(
+                meat_damage=self.item.usable_properties.Weapon.base_meat_damage,
+                armour_damage=self.item.usable_properties.Weapon.base_armour_damage,
+                attacker=self.entity, item=self.item)
 
         # miss
         else:
@@ -175,10 +171,6 @@ class WeaponAttackAction(AttackAction):
                 return self.engine.message_log.add_message("You miss the attack", colour.YELLOW)
 
             else:
-                if self.item.weapon.ranged:
-                    return self.engine.message_log.add_message(f"The shot from {self.entity.name}'s {self.item.name} "
-                                                               f"misses", colour.LIGHT_BLUE)
-
                 return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
 
@@ -208,7 +200,7 @@ class BumpAction(ActionWithDirection):
             items_held = []
 
             for bodypart in self.entity.bodyparts:
-                if bodypart.arm:
+                if bodypart.part_type == 'Arms':
                     if bodypart.held is not None:
                         items_held.append(bodypart.held)
 
@@ -289,10 +281,8 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        if self.item.consumable:  # test
-            self.item.consumable.activate(self)
-        if self.item.weapon:
-            self.item.weapon.activate(self)
+        if self.item.usable_properties:  # test
+            self.item.usable_properties.activate(self)
 
 
 class EquipWeapon(ItemAction):

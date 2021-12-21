@@ -26,14 +26,16 @@ class Fighter(BaseComponent):
 
     # basic class for entities that fight
     def __init__(self,
-                 unarmed_damage: int = 0,
+                 unarmed_meat_damage,
+                 unarmed_armour_damage,
                  melee_accuracy: float = 1.0,
                  ranged_accuracy: float = 1.0,
                  bleeds: bool = True,
                  ):
 
         # unarmed melee attack damage
-        self.unarmed_damage = unarmed_damage
+        self.unarmed_meat_damage = unarmed_meat_damage
+        self.unarmed_armour_damage = unarmed_armour_damage
 
         # the base accuracy of the etity. 1 by defualt.
         self.melee_accuracy = melee_accuracy

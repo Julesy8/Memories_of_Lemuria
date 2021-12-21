@@ -80,7 +80,7 @@ class HostileEnemy(BaseAI):
                 held_items = []  # TODO: make array
 
                 for bodypart in self.entity.bodyparts:
-                    if bodypart.arm:
+                    if bodypart.part_type == 'Arms':
                         if bodypart.held is not None:
                             held_items.append(bodypart.held)
 

@@ -4,7 +4,6 @@ import os
 from typing import Optional, TYPE_CHECKING, Union
 from math import ceil, floor
 from copy import deepcopy
-#from numpy import array # TODO: use arrays instead of lists/touples
 
 import tcod.event
 
@@ -128,8 +127,6 @@ class EventHandler(BaseEventHandler):
             if not self.engine.player.is_alive:
                 # The player was killed sometime during or after the action.
                 return GameOverEventHandler(self.engine)
-            elif self.engine.player.level.requires_level_up:
-                self.engine.message_log.add_message("Leveled up")  # TODO: add leveling up stats
             return MainGameEventHandler(self.engine)  # Return to the main handler.
         return self
 
@@ -212,6 +209,7 @@ class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.K_ESCAPE:
             self.on_quit()
+
 
 CURSOR_Y_KEYS = {
     tcod.event.K_UP: -1,
@@ -313,6 +311,8 @@ class InventoryEventHandler(AskUserEventHandler):
         super().__init__(engine)
         self.max_list_length = 5  # defines the maximum amount of items to be displayed in the menu
         self.page = page
+        self.TITLE = self.TITLE + f" - {self.engine.player.inventory.current_item_weight()}" \
+                                  f"/{self.engine.player.inventory.capacity}kg"
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
@@ -333,7 +333,7 @@ class InventoryEventHandler(AskUserEventHandler):
             height = self.max_list_length + 2
 
         x = 1
-        y = 1
+        y = 2
 
         index_range = self.page * self.max_list_length
 
@@ -443,7 +443,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
         super().on_render(console, camera)
         if self.item is not None:
             x = 1
-            y = 1
+            y = 2
 
             longest_option_len = 0
 
@@ -474,7 +474,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
                 console.print(x + 1, y + i + 1, f"({option_key}) {option}")
 
         else:
-            self.engine.message_log.add_message("Invalid entry.", colour.RED)
+            raise exceptions.Impossible("Invalid entry.")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
@@ -484,8 +484,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
             try:
                 selected_option = self.options[index]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return None
+                raise exceptions.Impossible("Invalid entry.")
             return self.on_option_selected(selected_option)
         return super().ev_keydown(event)
 
@@ -493,40 +492,38 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
         """Called when the user selects a valid item."""
         if option == 'Use':
             try:
-                if self.item.consumable:
-                    return self.item.consumable.get_action(self.engine.player)
-                elif self.item.weapon:
-                    return self.item.weapon.get_action(self.engine.player)
+                if self.item.usable_properties:
+                    return self.item.usable_properties.get_action(self.engine.player)
 
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                raise exceptions.Impossible("Invalid entry.")
 
         elif option == 'Equip':
             try:
-                if self.item.weapon:
+                if self.item.usable_properties.usable_type == 'weapon':
                     return actions.EquipWeapon(self.engine.player, self.item)
-                elif self.item.wearable:
+                elif self.item.usable_properties.usable_type == 'wearable':
                     return actions.EquipArmour(self.engine.player, self.item)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                raise exceptions.Impossible("Invalid entry.")
 
         elif option == 'Unequip':
             try:
-                if self.item.weapon:
+                if self.item.usable_properties.usable_type == 'weapon':
                     return actions.UnequipWeapon(self.engine.player, self.item)
-                elif self.item.wearable:
+                elif self.item.usable_properties.usable_type == 'wearable':
                     return actions.UnequipArmour(self.engine.player, self.item)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                raise exceptions.Impossible("Invalid entry.")
 
         elif option == 'Drop':
             try:
                 return DropItemEventHandler(item=self.item, engine=self.engine)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                raise exceptions.Impossible("Invalid entry.")
 
         else:
-            self.engine.message_log.add_message("Invalid entry.", colour.RED)
+            raise exceptions.Impossible("Invalid entry.")
 
 
 class EquipmentEventHandler(AskUserEventHandler):
@@ -559,7 +556,7 @@ class EquipmentEventHandler(AskUserEventHandler):
                 if len(bodypart.equipped.name) > longest_name_len:
                     longest_name_len = len(bodypart.equipped.name)
 
-            if bodypart.arm:
+            if bodypart.part_type == 'Arms':
                 if bodypart.held is not None:
 
                     self.equipped_list.append(bodypart.held)
@@ -574,7 +571,7 @@ class EquipmentEventHandler(AskUserEventHandler):
         height = len(self.equipped_list) + 2
 
         x = 1
-        y = 1
+        y = 2
 
         if longest_name_len + 15 > width:
             width = longest_name_len + 16
@@ -608,8 +605,7 @@ class EquipmentEventHandler(AskUserEventHandler):
             try:
                 selected_item = self.equipped_list[index]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return None
+                raise exceptions.Impossible("Invalid entry.")
             return self.on_item_selected(selected_item)
         return super().ev_keydown(event)
 
@@ -647,7 +643,7 @@ class DropItemEventHandler(AskUserEventHandler):
             if self.item.stacking.stack_size > 1:
                 console.draw_frame(
                     x=1,
-                    y=1,
+                    y=2,
                     width=18 + len(self.buffer),
                     height=3,
                     clear=True,
@@ -704,8 +700,7 @@ class DropItemEventHandler(AskUserEventHandler):
 
                         # invalid input
                         except ValueError:
-                            self.engine.message_log.add_message(f"Invalid Input", fg=colour.RED)
-                            return MainGameEventHandler(self.engine)
+                            raise exceptions.Impossible("Invalid entry.")
 
             else:  # item stacking, stack size = 1
                 if self.item in self.engine.player.inventory.items:
@@ -741,11 +736,11 @@ class ChangeTargetActor(AskUserEventHandler):
         self.camera = None
         self.console = None
 
-        held_items = []  # TODO: Make array
+        held_items = []
 
         for bodypart in self.engine.player.bodyparts:
-            if bodypart.arm:
-                if bodypart.held and bodypart.held.weapon:
+            if bodypart.part_type == 'Arms':
+                if bodypart.held and bodypart.held.usable_properties.usable_type == 'weapon':
                     held_items.append(bodypart.held)
 
         if len(held_items) > 0:
@@ -822,8 +817,11 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.bodypart_index += 1
 
             except IndexError:
-                self.selected_bodypart = self.bodypartlist[0]
-                self.bodypart_index = 0
+                try:
+                    self.selected_bodypart = self.bodypartlist[0]
+                    self.bodypart_index = 0
+                except IndexError:
+                    return MainGameEventHandler(self.engine)
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
             try:
