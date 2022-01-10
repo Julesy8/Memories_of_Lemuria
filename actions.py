@@ -219,7 +219,13 @@ class BumpAction(ActionWithDirection):
                                            targeted_bodypart=self.target_actor.bodyparts[0]).attack()
 
         else:
-            return MovementAction(self.entity, self.dx, self.dy).perform()
+            if self.entity.turn_counter >= self.entity.last_move_turn + self.entity.move_interval:
+                self.entity.turn_counter += 1
+                self.entity.last_move_turn = self.entity.turn_counter
+                return MovementAction(self.entity, self.dx, self.dy).perform()
+            else:
+                self.entity.turn_counter += 1
+                return WaitAction(self.entity).perform()
 
 
 class PickupAction(Action):
@@ -233,9 +239,16 @@ class PickupAction(Action):
         actor_location_y = self.entity.y
         inventory = self.entity.inventory
 
+        # TODO: pickup amount/ specify item to pick up menu
+
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                if self.entity.inventory.current_item_weight() + item.weight > self.entity.inventory.capacity:
+
+                stack_amount = 1
+                if item.stacking:
+                    stack_amount = item.stacking.stack_size
+
+                if self.entity.inventory.current_item_weight() + item.weight * stack_amount > self.entity.inventory.capacity:
                     raise exceptions.Impossible("Your inventory is full.")
 
                 self.engine.game_map.entities.remove(item)
@@ -303,3 +316,17 @@ class EquipArmour(ItemAction):
 class UnequipArmour(ItemAction):
     def perform(self) -> None:
         self.entity.inventory.unequip_armour(self.item)
+
+
+class LoadMagazine(ItemAction):
+    def __init__(self, entity, magazine, gun):
+        super().__init__(entity=entity, item=gun)
+        self.magazine = magazine
+
+    def perform(self) -> None:
+        self.entity.inventory.load_magazine_into_gun(gun=self.item, magazine=self.magazine)
+
+
+class UnloadBulletsFromMagazine(ItemAction):
+    def perform(self) -> None:
+        self.entity.inventory.unload_bullets_from_magazine(self.item)

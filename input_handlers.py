@@ -181,7 +181,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_v:
             return HistoryViewer(self.engine)
         elif key == tcod.event.K_SPACE:
-                return ChangeTargetActor(engine=self.engine)
+            return ChangeTargetActor(engine=self.engine)
         elif key == tcod.event.K_g:
             action = PickupAction(player)
         elif key == tcod.event.K_ESCAPE:
@@ -309,7 +309,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
     def __init__(self, engine: Engine, page: int):
         super().__init__(engine)
-        self.max_list_length = 5  # defines the maximum amount of items to be displayed in the menu
+        self.max_list_length = 10  # defines the maximum amount of items to be displayed in the menu
         self.page = page
         self.TITLE = self.TITLE + f" - {self.engine.player.inventory.current_item_weight()}" \
                                   f"/{self.engine.player.inventory.capacity}kg"
@@ -427,12 +427,11 @@ class InventoryInteractHandler(InventoryEventHandler):
 
 class ItemInteractionHandler(AskUserEventHandler):  # options for interacting with an item
 
-    TITLE = "Item Options"
-
     def __init__(self, item, options: tuple, engine: Engine):
         super().__init__(engine)
         self.item = item
         self.options = options
+        self.TITLE = item.name
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         """
@@ -454,16 +453,16 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
                     longest_option_len = len(option)
 
             if len(self.TITLE) + 4 > longest_option_len + 6:
-                width = longest_option_len + 6
-            else:
                 width = len(self.TITLE) + 4
+            else:
+                width = longest_option_len + 6
 
             console.draw_frame(
                 x=x,
                 y=y,
                 width=width,
                 height=height,
-                title=self.item.name,
+                title=self.TITLE,
                 clear=True,
                 fg=colour.WHITE,
                 bg=(0, 0, 0),
@@ -490,9 +489,14 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
 
     def on_option_selected(self, option) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
+        # TODO: simplify this is overly complex
         if option == 'Use':
             try:
                 if self.item.usable_properties:
+                    if self.item.usable_properties.usable_type == 'magazine':
+                        return MagazineOptionsHandler(engine=self.engine, magazine=self.item)
+                    elif self.item.usable_properties.usable_type == 'gun':
+                        return GunOptionsHandler(engine=self.engine, gun=self.item)
                     return self.item.usable_properties.get_action(self.engine.player)
 
             except AttributeError:
@@ -565,7 +569,7 @@ class EquipmentEventHandler(AskUserEventHandler):
                     if len(bodypart.held.name) > longest_name_len:
                         longest_name_len = len(bodypart.held.name)
 
-        self.equipped_list = list(dict.fromkeys(self.equipped_list))  # TODO: want more efficient way to do this
+        self.equipped_list = list(dict.fromkeys(self.equipped_list))
 
         width = len(self.TITLE) + 4
         height = len(self.equipped_list) + 2
@@ -643,14 +647,14 @@ class DropItemEventHandler(AskUserEventHandler):
             if self.item.stacking.stack_size > 1:
                 console.draw_frame(
                     x=1,
-                    y=2,
+                    y=1,
                     width=18 + len(self.buffer),
                     height=3,
                     clear=True,
                     fg=colour.WHITE,
                     bg=(0, 0, 0),
                 )
-                console.print(x=2, y=2, string=f"amount to drop: {self.buffer}")
+                console.print(x=2, y=2, string=f"amount to drop: {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event):
 
@@ -666,7 +670,6 @@ class DropItemEventHandler(AskUserEventHandler):
                         return MainGameEventHandler(self.engine)
 
                     elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
-                        print('backspace')
                         self.buffer = self.buffer[:-1]
 
                     elif event.scancode == tcod.event.SCANCODE_RETURN:
@@ -685,8 +688,6 @@ class DropItemEventHandler(AskUserEventHandler):
                                 if self.item in self.engine.player.inventory.items:
                                     self.item.stacking.stack_size -= self.drop_amount
                                     dropped_item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
-                                    self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
-                                    return MainGameEventHandler(self.engine)
 
                             # no stacks left after drop
                             elif self.item.stacking.stack_size - self.drop_amount <= 0:
@@ -695,12 +696,12 @@ class DropItemEventHandler(AskUserEventHandler):
 
                                 self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
-                                self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
-                                return MainGameEventHandler(self.engine)
+                            self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
+                            return MainGameEventHandler(self.engine)
 
                         # invalid input
                         except ValueError:
-                            raise exceptions.Impossible("Invalid entry.")
+                            pass
 
             else:  # item stacking, stack size = 1
                 if self.item in self.engine.player.inventory.items:
@@ -876,3 +877,336 @@ class QuitEventHandler(AskUserEventHandler):
 
         elif key == tcod.event.K_n:
             return MainGameEventHandler(self.engine)
+
+
+class MagazineOptionsHandler(AskUserEventHandler):
+
+    def __init__(self, engine: Engine, magazine: Item):
+        super().__init__(engine)
+        self.magazine = magazine
+        self.TITLE = magazine.name
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+
+        str_1 = "(a) reload magazine"
+        str_2 = "(b) unload magazine"
+
+        width = len(str_1)
+
+        if width < len(self.TITLE):
+            width = len(self.TITLE)
+
+        x = 1
+        y = 2
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 2,
+            height=4,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        console.print(2, 3, str_1, fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(2, 4, str_2, fg=colour.WHITE, bg=(0, 0, 0))
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        player = self.engine.player
+
+        if event.sym == tcod.event.K_ESCAPE:
+            return MainGameEventHandler(self.engine)
+
+        elif event.sym == tcod.event.K_a:
+            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine)
+
+        elif event.sym == tcod.event.K_b:
+            return actions.UnloadBulletsFromMagazine(entity=player, item=self.magazine)
+
+
+class GunOptionsHandler(AskUserEventHandler):
+    def __init__(self, engine: Engine, gun: Item):
+        super().__init__(engine)
+        self.gun = gun
+        self.TITLE = gun.name
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+        str_1 = "(a) load magazine"
+
+        x = 1
+        y = 2
+
+        width = len(str_1)
+
+        if width < len(self.TITLE):
+            width = len(self.TITLE)
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 2,
+            height=3,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        console.print(2, 3, str_1, fg=colour.WHITE, bg=(0, 0, 0))
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+
+        if event.sym == tcod.event.K_ESCAPE:
+            return MainGameEventHandler(self.engine)
+
+        elif event.sym == tcod.event.K_a:
+            return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun)
+
+
+class SelectMagazineToLoadIntoGun(AskUserEventHandler):
+
+    def __init__(self, engine: Engine, gun: Item):
+        super().__init__(engine)
+        self.gun = gun
+        self.mag_list = []
+        self.TITLE = gun.name
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+        self.mag_list = []
+
+        for items in self.engine.player.inventory.items:
+            if items.usable_properties.usable_type == 'magazine':
+                if items.usable_properties.magazine_type == self.gun.usable_properties.compatible_magazine_type:
+                    self.mag_list.append(items)
+
+        no_mags = len(self.mag_list)
+
+        longest_name_len = None
+        if len(self.engine.player.inventory.items) > 0:
+            longest_name_len = self.engine.player.inventory.items[0]
+
+        width = len(self.TITLE) + 4
+        height = no_mags + 2
+
+        x = 1
+        y = 2
+
+        for item in self.mag_list:
+            try:
+                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
+                    longest_name_len = item
+            except AttributeError:
+                if len(item.name) > len(longest_name_len.name):
+                    longest_name_len = item
+
+        if longest_name_len:
+            if len(longest_name_len.name) + 6 > width:
+                width = len(longest_name_len.name) + 6
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        if no_mags > 0:
+            for i, item in enumerate(self.mag_list):
+                item_key = chr(ord("a") + i)
+                if item.stacking:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                else:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+        else:
+            console.print(x + 1, y + 1, "(Empty)")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if 0 <= index <= 26:
+            try:
+                selected_item = self.mag_list[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.on_item_selected(selected_item)
+        return super().ev_keydown(event)
+
+    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+        player = self.engine.player
+
+        return actions.LoadMagazine(entity=player, magazine=item, gun=self.gun)
+
+
+class SelectBulletsToLoadHandler(AskUserEventHandler):
+
+    TITLE = "Load Magazine"
+
+    def __init__(self, engine: Engine, magazine: Item):
+        super().__init__(engine)
+        self.magazine = magazine
+        self.ammo_list = []
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+
+        self.ammo_list = []
+
+        for items in self.engine.player.inventory.items:
+            if items.usable_properties.usable_type == 'ammunition':
+                if items.usable_properties.bullet_type == self.magazine.usable_properties.compatible_bullet_type:
+                    self.ammo_list.append(items)
+
+        no_ammo_types = len(self.ammo_list)
+
+        longest_name_len = None
+        if len(self.engine.player.inventory.items) > 0:
+            longest_name_len = self.engine.player.inventory.items[0]
+
+        width = len(self.TITLE) + 4
+        height = no_ammo_types + 2
+
+        x = 1
+        y = 2
+
+        for item in self.ammo_list:
+            # TODO: show current ammo count of magazine
+            try:
+                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
+                    longest_name_len = item
+            except AttributeError:
+                if len(item.name) > len(longest_name_len.name):
+                    longest_name_len = item
+
+            if item.stacking:
+                try:
+                    if len(item.name) + len(str(item.stacking.stack_size)) > \
+                            len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)):
+                        longest_name_len = item
+                except AttributeError:
+                    if len(item.name) + len(str(item.stacking.stack_size)) + 2 > len(longest_name_len.name):
+                        longest_name_len = item
+
+        if longest_name_len:
+            if len(longest_name_len.name) + 6 > width:
+                width = len(longest_name_len.name) + 6
+
+        stack_str_len = 0
+
+        if longest_name_len:
+            if longest_name_len.stacking:
+                stack_str_len = len(str(longest_name_len.stacking.stack_size)) + 2
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + stack_str_len,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        if no_ammo_types > 0:
+            for i, item in enumerate(self.ammo_list):
+                item_key = chr(ord("a") + i)
+                if item.stacking:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                else:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+        else:
+            console.print(x + 1, y + 1, "(Empty)")
+
+        console.print(x, y + height, f"current rounds loaded: {len(self.magazine.usable_properties.magazine)}/"
+                                     f"{self.magazine.usable_properties.mag_capacity}", fg=colour.WHITE, bg=(0, 0, 0))
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if 0 <= index <= 26:
+            try:
+                selected_item = self.ammo_list[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.on_item_selected(selected_item)
+        return super().ev_keydown(event)
+
+    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+        return SelectNumberOfBulletsToLoadHandler(engine=self.engine, magazine=self.magazine, ammo=item)
+
+
+class SelectNumberOfBulletsToLoadHandler(AskUserEventHandler):
+
+    def __init__(self, engine: Engine, magazine: Item, ammo: Item):
+        super().__init__(engine)
+        self.magazine = magazine
+        self.ammo = ammo
+        self.buffer = ''
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+        console.print(x=1, y=1, string=f'# of bullets to load: {self.buffer}', fg=colour.WHITE, bg=(0, 0, 0))
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        for event in tcod.event.wait():
+
+            if isinstance(event, tcod.event.TextInput):
+                self.buffer += event.text
+
+            elif event.scancode == tcod.event.SCANCODE_ESCAPE:
+                return MainGameEventHandler(self.engine)
+
+            elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
+                self.buffer = self.buffer[:-1]
+
+            elif event.scancode == tcod.event.SCANCODE_RETURN:
+                # buffer is ready to be used.
+                try:
+
+                    load_amount = int(self.buffer, base=0)
+
+                    if load_amount > self.ammo.stacking.stack_size:
+                        raise exceptions.Impossible("Invalid entry.")
+
+                    # more than 1 stack left in inventory after loading
+                    elif self.ammo.stacking.stack_size - load_amount > 1:
+                        if self.ammo in self.engine.player.inventory.items:
+                            self.ammo.stacking.stack_size -= load_amount
+
+                    # no stacks left after loading
+                    elif self.ammo.stacking.stack_size - load_amount <= 0:
+                        if self.ammo in self.engine.player.inventory.items:
+                            self.engine.player.inventory.items.remove(self.ammo)
+
+                    rounds_loaded = 0
+
+                    single_round = self.ammo
+                    single_round.stacking.stack_size = 1
+
+                    while rounds_loaded <= load_amount:
+                        self.magazine.usable_properties.magazine.append(single_round)
+                        rounds_loaded += 1
+                        if len(self.magazine.usable_properties.magazine) == \
+                                self.magazine.usable_properties.mag_capacity:
+                            break
+
+                    return MainGameEventHandler(self.engine)
+
+                # invalid input
+                except ValueError:
+                    raise exceptions.Impossible("Invalid entry.")

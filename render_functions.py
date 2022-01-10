@@ -20,12 +20,34 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
 
     for entity in game_map.entities:
         if entity.x == x and entity.y == y:
+
+            # omits player name from list
             try:
                 if not entity.player:
                     names.append(entity.name)
 
             except AttributeError:
                 names.append(entity.name)
+
+            # shows stack size for stackable items
+            try:
+                if entity.stacking:
+                    if entity.stacking.stack_size > 1:
+                        names[-1] += f" ({entity.stacking.stack_size})"
+            except AttributeError:
+                pass
+
+            # finds duplicate names and replaces them with a since string denoting the amount present
+            name_count = 0
+            for name in names:
+                if name == entity.name:
+                    name_count += 1
+                    if name_count > 1:
+                        names.remove(entity.name)
+
+            if name_count > 1:
+                names.remove(entity.name)
+                names.append(f"{entity.name} x {name_count}")
 
     return ', '.join(map(str, names))
 

@@ -1,35 +1,20 @@
 -----
 TO DO
-X 1) change menu system to allow more than 26 menu items (use history viewer code)
-X 2) display limb health graphically
-X 3) limb healing
-X 4) armour
-X 5) item weight, item stackability
-X 6) quick targeting by clycing through the enemies in the players line of sight
-X7) tutorial parts X9, X10, X11
-X9) bodypart functionality
 12) item stat screen
 13) weapon firing graphics
 14) proper weapons implmentation (ammo and weapon parts)
 15) ranged enemies
 16) some enemies flee to regain health
 17) more room shapes on level generation
-18) enemy drops and xp + leveling
+18) enemy drops
 19) weapon graphics
 20) config + error log txt
-character creation - class selection + skills
+character creation
 proper death screen
 item pickup menu
 game opening popup
 load options
-consistent use of coloured messages
-two damage types - impact and piercing
 tutorial option
-weight limit shown in inv menu
-stacking items dropped on the same time stack together
-fix items spawning on stairs
-
-ALSO: Item stat menu
 
 -music
 -numbered identifiers for enemy names

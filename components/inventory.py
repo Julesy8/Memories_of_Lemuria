@@ -12,15 +12,19 @@ if TYPE_CHECKING:
 class Inventory(BaseComponent):
     parent: Actor
 
-    def __init__(self, capacity: int):
+    def __init__(self, capacity: float):
         self.capacity = capacity
         self.items: List[Item] = []
 
-    def current_item_weight(self) -> int:
+    # TODO: take into account worn and equipped item weight + loaded magazines etc
+    def current_item_weight(self) -> float:
         #  returns current combined weight of items in inventory
         current_weight = 0
         for item in self.items:
-            current_weight += item.weight
+            if item.stacking:
+                current_weight += item.weight * item.stacking.stack_size
+            else:
+                current_weight += item.weight
         return current_weight
 
     def equip_weapon(self, item):
@@ -102,3 +106,40 @@ class Inventory(BaseComponent):
                 self.items.append(item)
 
             self.engine.message_log.add_message(f"You took off the {item.name}")
+
+    def load_magazine_into_gun(self, gun, magazine):
+        if gun.loaded_magazine is not None:
+            self.parent.inventory.items.append(gun.loaded_magazine)
+            gun.parent.loaded_magazine = magazine
+
+        else:
+            gun.loaded_magazine = magazine
+
+        self.items.remove(magazine)
+
+    def unload_magazine_from_gun(self, gun):
+        if gun.loaded_magazine is not None:
+            self.parent.inventory.items.append(gun.loaded_magazine)
+            gun.loaded_magazine = None
+        else:
+            raise Impossible(f"{gun.name} has no magazine loaded")
+
+    def unload_bullets_from_magazine(self, magazine: Item):
+        bullets_unloaded = []
+
+        if len(magazine.usable_properties.magazine) > 0:
+            for bullet in magazine.usable_properties.magazine:
+                if bullet in bullets_unloaded:
+                    pass
+                else:
+                    bullets_unloaded.append(bullet)
+                    bullet_counter = 0
+                    for i in magazine.usable_properties.magazine:
+                        if i.name == bullet.name:
+                            bullet_counter += 1
+                    bullet.stacking.stack_size = bullet_counter
+                    self.parent.inventory.items.append(bullet)
+            magazine.usable_properties.magazine = []
+
+        else:
+            raise Impossible(f"{magazine.name} is already empty")

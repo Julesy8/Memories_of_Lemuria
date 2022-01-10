@@ -36,8 +36,7 @@ Enemies_by_level = {
 
 Items_by_level = {
     0: (
-        # common
-        (medkit, helmet, greaves, chestplate, pauldron),
-        (1,1,1,1,1)
+        (medkit, helmet, greaves, chestplate, pauldron, glock_17, glock_mag, bullet_9mm),
+        (1,1,1,1,1,2,2,2)
     )
 }

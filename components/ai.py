@@ -125,7 +125,7 @@ class HostileEnemy(BaseAI):
                 if self.engine.game_map.visible[self.entity.x, self.entity.y]:
                     self.path = self.get_path_to(target.x, target.y)
 
-                # path towards player given player is visible and entity is not fleeing
+                    # path towards player given player is visible and entity is not fleeing
                     if self.path:
                         dest_x, dest_y = self.path.pop(0)
                         MovementAction(
@@ -134,7 +134,7 @@ class HostileEnemy(BaseAI):
                         self.entity.last_move_turn = self.entity.turn_counter
                         move_turns -= 1
 
-                    # move towards the target if not too far away and entity is active
+                # move towards the target if not too far away and entity is active
                 elif self.entity.active and distance < self.entity.active_radius:
                     self.path = self.get_path_to(target.x, target.y)
                     if self.path:

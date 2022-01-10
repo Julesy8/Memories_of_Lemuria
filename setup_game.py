@@ -30,7 +30,8 @@ def new_game() -> Engine:
     fighter_component = Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
     Head = Bodypart(hp=50, defence=20, vital=True, name='head', part_type='Head', base_chance_to_hit=80)
-    Body = Bodypart(hp=50, defence=20, vital=True, name='body', part_type='Body', base_chance_to_hit=90, destroyable=False)
+    Body = Bodypart(hp=50, defence=20, vital=True, name='body', part_type='Body', base_chance_to_hit=90,
+                    destroyable=False)
     R_Arm = Arm(hp=50, defence=20, name='right arm', base_chance_to_hit=80)
     L_Arm = Arm(hp=50, defence=20, name='left arm', base_chance_to_hit=80)
     R_Leg = Leg(hp=50, defence=20, name='right leg', base_chance_to_hit=80)

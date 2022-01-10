@@ -157,3 +157,54 @@ medkit = Item(
     stacking=Stacking(stack_size=1),
     usable_properties=consumables.HealingConsumable(amount=20),
 )
+
+glock_17 = Item(
+    x=0, y=0,
+    char="r",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock 17",
+    weight=1,
+    stacking=None,
+    usable_properties=consumables.Gun(
+        compatible_magazine_type='glock9mm',
+        chambered_bullet=None,
+        loaded_magazine=None,
+        base_meat_damage=10,
+        base_armour_damage=10,
+        base_accuracy=1.0,
+        range_accuracy_dropoff=40,
+        two_handed=False
+    )
+)
+
+glock_mag = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock Magazine 9mm",
+    weight=1,
+    stacking=None,
+    usable_properties=consumables.Magazine(
+        magazine_type='glock9mm',
+        compatible_bullet_type='9mm',
+        mag_capacity=17
+    )
+)
+
+bullet_9mm = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name='9mm Bullet',
+    weight=1,
+    stacking=Stacking(stack_size=10),
+    usable_properties=consumables.Bullet(
+        bullet_type='9mm',
+        meat_damage_factor=1.0,
+        armour_damage_factor=1.0,
+        accuracy_factor=1.0
+    )
+)

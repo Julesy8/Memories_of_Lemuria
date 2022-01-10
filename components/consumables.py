@@ -68,10 +68,11 @@ class Weapon(Usable):
                  range_accuracy_dropoff: Optional[int],
                  two_handed: bool = False,
                  ranged: bool = False,
-                 cutting: bool = False
+                 cutting: bool = False,
+                 usable_type: str = 'weapon'
                  ):
 
-        super().__init__(usable_type='weapon')
+        super().__init__(usable_type=usable_type)
 
         self.base_meat_damage = base_meat_damage
         self.base_armour_damage = base_armour_damage
@@ -112,11 +113,14 @@ class Bullet(Usable):
 class Magazine(Usable):
 
     def __init__(self,
-                 compatible_bullet_type,
-                 mag_capacity,
+                 magazine_type: str,
+                 compatible_bullet_type: str,
+                 mag_capacity: int,
                  ):
+        self.magazine_type = magazine_type
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
+        self.magazine = []
 
         super().__init__(usable_type='magazine')
 
@@ -128,13 +132,13 @@ class Gun(Weapon):
 
     def __init__(self,
                  compatible_magazine_type: str,
-                 chambered_bullet: Optional[Bullet],
-                 loaded_magazine: Optional[Magazine],
                  base_meat_damage: int,
                  base_armour_damage: int,
-                 base_accuracy: int,
+                 base_accuracy: float,
                  range_accuracy_dropoff: int,
                  two_handed: bool,
+                 chambered_bullet=None,
+                 loaded_magazine=None,
                  ):
 
         self.compatible_magazine_type = compatible_magazine_type
@@ -149,6 +153,7 @@ class Gun(Weapon):
             ranged=True,
             range_accuracy_dropoff=range_accuracy_dropoff,
             two_handed=two_handed,
+            usable_type="gun",
         )
 
 
