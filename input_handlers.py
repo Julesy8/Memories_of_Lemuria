@@ -8,6 +8,7 @@ from copy import deepcopy
 import tcod.event
 
 import actions
+from components.consumables import Gun, Bullet, Magazine
 from actions import (
     Action,
     BumpAction,
@@ -473,7 +474,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
                 console.print(x + 1, y + i + 1, f"({option_key}) {option}")
 
         else:
-            raise exceptions.Impossible("Invalid entry.")
+            self.engine.message_log.add_message("Invalid entry", colour.RED)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
@@ -483,52 +484,48 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
             try:
                 selected_option = self.options[index]
             except IndexError:
-                raise exceptions.Impossible("Invalid entry.")
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                return ItemInteractionHandler(item=self.item, options=self.options, engine=self.engine)
             return self.on_option_selected(selected_option)
         return super().ev_keydown(event)
 
     def on_option_selected(self, option) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        # TODO: simplify this is overly complex
         if option == 'Use':
             try:
-                if self.item.usable_properties:
-                    if self.item.usable_properties.usable_type == 'magazine':
-                        return MagazineOptionsHandler(engine=self.engine, magazine=self.item)
-                    elif self.item.usable_properties.usable_type == 'gun':
-                        return GunOptionsHandler(engine=self.engine, gun=self.item)
+                if isinstance(self.item.usable_properties, Magazine):
+                    return MagazineOptionsHandler(engine=self.engine, magazine=self.item)
+                elif isinstance(self.item.usable_properties, Gun):
+                    return GunOptionsHandler(engine=self.engine, gun=self.item)
+                else:
                     return self.item.usable_properties.get_action(self.engine.player)
 
             except AttributeError:
-                raise exceptions.Impossible("Invalid entry.")
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Equip':
             try:
-                if self.item.usable_properties.usable_type == 'weapon' or \
-                        self.item.usable_properties.usable_type == 'gun':
-                    return actions.EquipWeapon(self.engine.player, self.item)
-                elif self.item.usable_properties.usable_type == 'wearable':
-                    return actions.EquipArmour(self.engine.player, self.item)
+                self.item.usable_properties.equip()
+                return MainGameEventHandler(self.engine)
+
             except AttributeError:
-                raise exceptions.Impossible("Invalid entry.")
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Unequip':
             try:
-                if self.item.usable_properties.usable_type == 'weapon':
-                    return actions.UnequipWeapon(self.engine.player, self.item)
-                elif self.item.usable_properties.usable_type == 'wearable':
-                    return actions.UnequipArmour(self.engine.player, self.item)
+                self.item.usable_properties.unequip()
+                return MainGameEventHandler(self.engine)
             except AttributeError:
-                raise exceptions.Impossible("Invalid entry.")
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Drop':
             try:
                 return DropItemEventHandler(item=self.item, engine=self.engine)
             except AttributeError:
-                raise exceptions.Impossible("Invalid entry.")
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         else:
-            raise exceptions.Impossible("Invalid entry.")
+            self.engine.message_log.add_message("Invalid entry", colour.RED)
 
 
 class EquipmentEventHandler(AskUserEventHandler):
@@ -606,7 +603,8 @@ class EquipmentEventHandler(AskUserEventHandler):
             try:
                 selected_item = self.equipped_list[index]
             except IndexError:
-                raise exceptions.Impossible("Invalid entry.")
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                return EquipmentEventHandler(engine=self.engine)
             return self.on_item_selected(selected_item)
         return super().ev_keydown(event)
 
@@ -696,9 +694,8 @@ class DropItemEventHandler(AskUserEventHandler):
                             self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
                             return MainGameEventHandler(self.engine)
 
-                        # invalid input
                         except ValueError:
-                            pass
+                            self.engine.message_log.add_message("Invalid entry", colour.RED)
 
             else:  # item stacking, stack size = 1
                 if self.item in self.engine.player.inventory.items:
@@ -734,15 +731,7 @@ class ChangeTargetActor(AskUserEventHandler):
         self.camera = None
         self.console = None
 
-        held_items = []
-
-        for bodypart in self.engine.player.bodyparts:
-            if bodypart.part_type == 'Arms':
-                if bodypart.held and bodypart.held.usable_properties.usable_type == 'weapon':
-                    held_items.append(bodypart.held)
-
-        if len(held_items) > 0:
-            self.item = held_items[0]
+        self.item = self.engine.player.inventory.held
 
     def on_render(self, console: tcod.Console, camera: Camera):
         super().on_render(console, camera)  # Draw the main state as the background.
@@ -785,7 +774,7 @@ class ChangeTargetActor(AskUserEventHandler):
                           fg=colour.WHITE)
 
             for bodypart in player.target_actor.bodyparts:
-                if bodypart.functional and not bodypart.destroyed:
+                if bodypart.functional:
                     self.bodypartlist.append(bodypart)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
@@ -806,7 +795,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
             self.bodypartlist = []
             for bodypart in player.target_actor.bodyparts:
-                if bodypart.functional and not bodypart.destroyed:
+                if bodypart.functional:
                     self.bodypartlist.append(bodypart)
 
         elif key == tcod.event.K_TAB:  # change limb targetted
@@ -822,27 +811,21 @@ class ChangeTargetActor(AskUserEventHandler):
                     return MainGameEventHandler(self.engine)
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
-            try:
-                if player.target_actor:
-                    actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
-                                               targeted_actor=player.target_actor,
-                                               targeted_bodypart=self.selected_bodypart).attack()
-                    self.engine.handle_enemy_turns()
-                    self.engine.render(console=self.console, camera=self.camera)
-                    return MainGameEventHandler(self.engine)
-                else:
-                    return MainGameEventHandler(self.engine)
 
-            except AttributeError:
-                if player.target_actor:
-                    if self.distance_target == 1:
-                        actions.UnarmedAttackAction(distance=self.distance_target, entity=player,
-                                                    targeted_actor=player.target_actor,
-                                                    targeted_bodypart=self.selected_bodypart).attack()
-                        self.engine.handle_enemy_turns()
-                        self.engine.render(console=self.console, camera=self.camera)
-                        return MainGameEventHandler(self.engine)
+            if player.target_actor:
+                #try:
+                actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
+                                           targeted_actor=player.target_actor,
+                                           targeted_bodypart=self.selected_bodypart).attack()
+                self.engine.handle_enemy_turns()
+                self.engine.render(console=self.console, camera=self.camera)
+                return MainGameEventHandler(self.engine)
 
+                #except AttributeError:
+                #    self.engine.message_log.add_message("No weapon equipped.", colour.RED)
+                 #   return MainGameEventHandler(self.engine)
+
+            else:
                 return MainGameEventHandler(self.engine)
 
         elif key == tcod.event.K_ESCAPE:
@@ -886,10 +869,10 @@ class MagazineOptionsHandler(AskUserEventHandler):
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)
 
-        str_1 = "(a) reload magazine"
-        str_2 = "(b) unload magazine"
+        str_1 = "(a) load bullets"
+        str_2 = "(b) unload bullets"
 
-        width = len(str_1)
+        width = len(str_2)
 
         if width < len(self.TITLE):
             width = len(self.TITLE)
@@ -912,7 +895,6 @@ class MagazineOptionsHandler(AskUserEventHandler):
         console.print(2, 4, str_2, fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        player = self.engine.player
 
         if event.sym == tcod.event.K_ESCAPE:
             return MainGameEventHandler(self.engine)
@@ -921,7 +903,8 @@ class MagazineOptionsHandler(AskUserEventHandler):
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine)
 
         elif event.sym == tcod.event.K_b:
-            return actions.UnloadBulletsFromMagazine(entity=player, item=self.magazine)
+            self.magazine.usable_properties.unload_magazine()
+            return MainGameEventHandler(self.engine)
 
 
 class GunOptionsHandler(AskUserEventHandler):
@@ -933,11 +916,12 @@ class GunOptionsHandler(AskUserEventHandler):
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)
         str_1 = "(a) load magazine"
+        str_2 = "(b) unload magazine"
 
         x = 1
         y = 2
 
-        width = len(str_1)
+        width = len(str_2)
 
         if width < len(self.TITLE):
             width = len(self.TITLE)
@@ -946,7 +930,7 @@ class GunOptionsHandler(AskUserEventHandler):
             x=x,
             y=y,
             width=width + 2,
-            height=3,
+            height=4,
             title=self.TITLE,
             clear=True,
             fg=colour.WHITE,
@@ -954,6 +938,7 @@ class GunOptionsHandler(AskUserEventHandler):
         )
 
         console.print(2, 3, str_1, fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(2, 4, str_2, fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
 
@@ -962,6 +947,10 @@ class GunOptionsHandler(AskUserEventHandler):
 
         elif event.sym == tcod.event.K_a:
             return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun)
+
+        elif event.sym == tcod.event.K_b:
+            self.gun.usable_properties.unload_gun()
+            return MainGameEventHandler(self.engine)
 
 
 class SelectMagazineToLoadIntoGun(AskUserEventHandler):
@@ -976,10 +965,10 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
         super().on_render(console, camera)
         self.mag_list = []
 
-        for items in self.engine.player.inventory.items:
-            if items.usable_properties.usable_type == 'magazine':
-                if items.usable_properties.magazine_type == self.gun.usable_properties.compatible_magazine_type:
-                    self.mag_list.append(items)
+        for item in self.engine.player.inventory.items:
+            if isinstance(item.usable_properties, Magazine):
+                if item.usable_properties.magazine_type == self.gun.usable_properties.compatible_magazine_type:
+                    self.mag_list.append(item)
 
         no_mags = len(self.mag_list)
 
@@ -1041,9 +1030,9 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        player = self.engine.player
 
-        return actions.LoadMagazine(entity=player, magazine=item, gun=self.gun)
+        self.gun.usable_properties.load_gun(item)
+        return MainGameEventHandler(engine=self.engine)
 
 
 class SelectBulletsToLoadHandler(AskUserEventHandler):
@@ -1060,10 +1049,10 @@ class SelectBulletsToLoadHandler(AskUserEventHandler):
 
         self.ammo_list = []
 
-        for items in self.engine.player.inventory.items:
-            if items.usable_properties.usable_type == 'ammunition':
-                if items.usable_properties.bullet_type == self.magazine.usable_properties.compatible_bullet_type:
-                    self.ammo_list.append(items)
+        for item in self.engine.player.inventory.items:
+            if isinstance(item.usable_properties, Bullet):
+                if item.usable_properties.bullet_type == self.magazine.usable_properties.compatible_bullet_type:
+                    self.ammo_list.append(item)
 
         no_ammo_types = len(self.ammo_list)
 
@@ -1172,38 +1161,9 @@ class SelectNumberOfBulletsToLoadHandler(AskUserEventHandler):
                 self.buffer = self.buffer[:-1]
 
             elif event.scancode == tcod.event.SCANCODE_RETURN:
-                # buffer is ready to be used.
                 try:
-
-                    load_amount = int(self.buffer, base=0)
-
-                    if load_amount > self.ammo.stacking.stack_size:
-                        raise exceptions.Impossible("Invalid entry.")
-
-                    # more than 1 stack left in inventory after loading
-                    elif self.ammo.stacking.stack_size - load_amount > 1:
-                        if self.ammo in self.engine.player.inventory.items:
-                            self.ammo.stacking.stack_size -= load_amount
-
-                    # no stacks left after loading
-                    elif self.ammo.stacking.stack_size - load_amount <= 0:
-                        if self.ammo in self.engine.player.inventory.items:
-                            self.engine.player.inventory.items.remove(self.ammo)
-
-                    rounds_loaded = 0
-
-                    single_round = self.ammo
-                    single_round.stacking.stack_size = 1
-
-                    while rounds_loaded <= load_amount:
-                        self.magazine.usable_properties.magazine.append(single_round)
-                        rounds_loaded += 1
-                        if len(self.magazine.usable_properties.magazine) == \
-                                self.magazine.usable_properties.mag_capacity:
-                            break
-
+                    self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
                     return MainGameEventHandler(self.engine)
 
-                # invalid input
                 except ValueError:
-                    raise exceptions.Impossible("Invalid entry.")
+                    self.engine.message_log.add_message("Invalid entry", colour.RED)

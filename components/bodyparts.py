@@ -99,7 +99,7 @@ class Bodypart:
 
         armour_protection = 0
         if self.equipped:
-            armour_protection = self.equipped.usable_properties.Wearable.protection
+            armour_protection = self.equipped.usable_properties.protection
 
         if armour_damage < self.defence + armour_protection:
             damage = 0
@@ -115,8 +115,7 @@ class Bodypart:
 
             # hit, no damage dealt
             else:
-                self.engine.message_log.add_message(f"{attacker.name} attacks {self.parent.name} but the"
-                                                    f" blow glances off", fail_colour)
+                self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
 
         # unarmed attack
         else:
@@ -125,8 +124,7 @@ class Bodypart:
 
             # hit, no damage dealt
             else:
-                self.engine.message_log.add_message(f"{attacker.name} tries to strike {self.parent.name} but the blow"
-                                                    f" glances off", fail_colour)
+                self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
 
     def cripple(self) -> None:
         self.functional = False
@@ -134,7 +132,7 @@ class Bodypart:
     def destroy(self, item: Optional[Item]):
 
         if item:
-            if item.usable_properties.Weapon.cutting:
+            if item.usable_properties.cutting:
                 self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} flys off in an arc!",
                                                     colour.GREEN)
 

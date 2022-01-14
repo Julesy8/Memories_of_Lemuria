@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 
+from exceptions import Impossible
+
+from copy import deepcopy
+
 import actions
 import colour
 import components.inventory
@@ -14,9 +18,6 @@ if TYPE_CHECKING:
 class Usable(BaseComponent):
 
     parent: Item
-
-    def __init__(self, usable_type: str):
-        self.usable_type = usable_type
 
     def get_action(self, user: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item."""
@@ -38,10 +39,9 @@ class Usable(BaseComponent):
 
 
 class HealingConsumable(Usable):
+
     def __init__(self, amount: int):
         self.amount = amount
-
-        super().__init__(usable_type='consumable')
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
@@ -68,10 +68,7 @@ class Weapon(Usable):
                  range_accuracy_dropoff: Optional[int],
                  ranged: bool = False,
                  cutting: bool = False,
-                 usable_type: str = 'weapon'
                  ):
-
-        super().__init__(usable_type=usable_type)
 
         self.base_meat_damage = base_meat_damage
         self.base_armour_damage = base_armour_damage
@@ -79,13 +76,31 @@ class Weapon(Usable):
         self.maximum_range = maximum_range  # determines how far away the weapon can deal damage
         self.base_accuracy = base_accuracy  # decimal value, modifies base_chance_to_hit for a limb
         self.range_accuracy_dropoff = range_accuracy_dropoff  # the range up to which the weapon is accurate
-        self.cutting = cutting # whether the weapon can cleanly remove limbs
+        self.cutting = cutting  # whether the weapon can cleanly remove limbs
 
         if not self.ranged:
             self.maximum_range = 1
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
+
+    def equip(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+            inventory.items.remove(entity)
+            inventory.held = entity
+
+    def unequip(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+            inventory.items.append(inventory.held)
+            inventory.held = None
 
 
 class Bullet(Usable):
@@ -96,8 +111,6 @@ class Bullet(Usable):
                  armour_damage_factor: float,
                  accuracy_factor: float,
                  ):
-
-        super().__init__(usable_type='ammunition')
 
         self.bullet_type = bullet_type
         self.meat_damage_factor = meat_damage_factor
@@ -120,10 +133,83 @@ class Magazine(Usable):
         self.mag_capacity = mag_capacity
         self.magazine = []
 
-        super().__init__(usable_type='magazine')
-
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
+
+    def load_magazine(self, ammo, load_amount) -> None:
+        # loads bullets into magazine
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if load_amount > ammo.stacking.stack_size:
+                raise Impossible("Invalid entry.")
+
+            # 1 or more stack left in inventory after loading
+            elif ammo.stacking.stack_size - load_amount > 1:
+                if ammo in inventory.items:
+                    ammo.stacking.stack_size -= load_amount
+
+            # no stacks left after loading
+            elif ammo.stacking.stack_size - load_amount <= 0:
+                if ammo in self.engine.player.inventory.items:
+                    inventory.items.remove(ammo)
+
+            rounds_loaded = 0
+
+            single_round = deepcopy(ammo)
+            single_round.stacking.stack_size = 1
+
+            while rounds_loaded < load_amount:
+                self.magazine.append(single_round)
+                rounds_loaded += 1
+                if len(self.magazine) == \
+                        self.mag_capacity:
+                    break
+
+    def unload_magazine(self) -> None:
+        # unloads bullets from magazine
+
+        bullets_unloaded = []
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if len(self.magazine) > 0:
+                for bullet in self.magazine:
+
+                    if bullet in bullets_unloaded:
+                        pass
+
+                    else:
+                        bullets_unloaded.append(bullet)
+                        bullet_counter = 0
+                        for i in self.magazine:
+                            if i.name == bullet.name:
+                                bullet_counter += 1
+
+                        bullet.stacking.stack_size = bullet_counter
+
+                        # if bullet of same type already in inventory, adds unloaded bullets to stack
+                        bullet_type_in_inventory = False
+
+                        for item in inventory.items:
+                            if item.name == bullet.name:
+                                item.stacking.stack_size += bullet.stacking.stack_size
+                                bullet_type_in_inventory = True
+
+                        # if no bullets of same type in inventory, adds to inventory
+                        if not bullet_type_in_inventory:
+                            inventory.items.append(bullet)
+
+                self.magazine = []
+
+            else:
+                raise Impossible(f"{entity.name} is already empty")
 
 
 class Gun(Weapon):
@@ -149,8 +235,40 @@ class Gun(Weapon):
             base_accuracy=base_accuracy,
             ranged=True,
             range_accuracy_dropoff=range_accuracy_dropoff,
-            usable_type='gun'
         )
+
+    def load_gun(self, magazine):
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+            if self.loaded_magazine is not None:
+                inventory.items.append(self.loaded_magazine)
+                self.loaded_magazine = magazine
+
+            else:
+                self.loaded_magazine = magazine
+
+            inventory.items.remove(magazine)
+
+            if len(magazine.magazine) > 0:
+                if self.chambered_bullet is None:
+                    self.chambered_bullet = magazine.magazine.pop([-1])
+
+    def unload_gun(self):
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if self.loaded_magazine is not None:
+                inventory.items.append(self.loaded_magazine)
+                self.loaded_magazine = None
+
+            else:
+                raise Impossible(f"{entity.name} has no magazine loaded")
 
 
 class Wearable(Usable):  # in future add different types of protection i.e. projectile + melee
@@ -158,7 +276,42 @@ class Wearable(Usable):  # in future add different types of protection i.e. proj
         self.protection = protection
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
 
-        super().__init__(usable_type='wearable')
-
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
+
+    def equip(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+            item_removed = False
+
+            for bodypart in inventory.parent.bodyparts:
+                if bodypart.part_type == self.fits_bodypart:
+
+                    if bodypart.equipped is not None:
+                        raise Impossible(f"You are already wearing something there.")
+
+                    else:
+                        if not item_removed:
+                            inventory.items.remove(entity)
+                            item_removed = True
+                        bodypart.equipped = entity
+
+    def unequip(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            for bodypart in inventory.parent.bodyparts:
+                if bodypart.part_type == self.fits_bodypart:
+                    bodypart.equipped = None
+
+            if inventory.current_item_weight() + entity.weight > inventory.capacity:
+                raise Impossible(f"Your inventory is full")
+
+            else:
+                inventory.items.append(entity)

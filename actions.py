@@ -145,33 +145,33 @@ class WeaponAttackAction(AttackAction):
 
     def attack(self) -> None:
         self.perform()
-
         range_penalty = 0
-        if self.item.weapon.ranged:
+        if self.item.usable_properties.ranged:
             # if weapon is ranged (not melee) and dist > ranged_accuracy calculates penalty
-            if self.distance > self.item.weapon.ranged_accuracy:
-                range_penalty = self.distance - (self.item.weapon.ranged_accuracy * 2)
+            if self.distance > self.item.usable_properties.range_accuracy_dropoff:
+                range_penalty = self.distance - (self.item.usable_properties.ranged_accuracy * 2)
         else:
+            # melee weapon
             if self.distance > 1:
                 return self.engine.message_log.add_message("Enemy out of range.", colour.RED)
 
         # successful hit
         if self.hitchance <= (float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit)
-                              * self.item.weapon.base_accuracy) + range_penalty:
+                              * self.item.usable_properties.base_accuracy) + range_penalty:
 
             # does damage to given bodypart
             self.targeted_actor.bodyparts[self.part_index].deal_damage(
-                meat_damage=self.item.usable_properties.Weapon.base_meat_damage,
-                armour_damage=self.item.usable_properties.Weapon.base_armour_damage,
+                meat_damage=self.item.usable_properties.base_meat_damage,
+                armour_damage=self.item.usable_properties.base_armour_damage,
                 attacker=self.entity, item=self.item)
 
         # miss
         else:
             if self.entity.player:
-                return self.engine.message_log.add_message("You miss the attack", colour.YELLOW)
+                return self.engine.message_log.add_message("You miss", colour.YELLOW)
 
             else:
-                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
+                return self.engine.message_log.add_message(f"{self.entity.name}'s misses", colour.LIGHT_BLUE)
 
 
 class MovementAction(ActionWithDirection):
@@ -180,7 +180,7 @@ class MovementAction(ActionWithDirection):
 
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             # Destination is out of bounds.
-            raise exceptions.Impossible("Silent")  # TODO: this is probably not the best way to do this
+            raise exceptions.Impossible("Silent")
 
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             # Destination is blocked by a tile.
@@ -291,37 +291,3 @@ class ItemAction(Action):
         """Invoke the items ability, this action will be given to provide context."""
         if self.item.usable_properties:  # test
             self.item.usable_properties.activate(self)
-
-
-class EquipWeapon(ItemAction):
-    def perform(self) -> None:
-        self.entity.inventory.equip_weapon(self.item)
-
-
-class UnequipWeapon(ItemAction):
-    def perform(self) -> None:
-        self.entity.inventory.unequip_weapon(self.item)
-
-
-class EquipArmour(ItemAction):
-    def perform(self) -> None:
-        self.entity.inventory.equip_armour(self.item)
-
-
-class UnequipArmour(ItemAction):
-    def perform(self) -> None:
-        self.entity.inventory.unequip_armour(self.item)
-
-
-class LoadMagazine(ItemAction):
-    def __init__(self, entity, magazine, gun):
-        super().__init__(entity=entity, item=gun)
-        self.magazine = magazine
-
-    def perform(self) -> None:
-        self.entity.inventory.load_magazine_into_gun(gun=self.item, magazine=self.magazine)
-
-
-class UnloadBulletsFromMagazine(ItemAction):
-    def perform(self) -> None:
-        self.entity.inventory.unload_bullets_from_magazine(self.item)
