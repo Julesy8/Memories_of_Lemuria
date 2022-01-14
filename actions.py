@@ -197,16 +197,11 @@ class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity:
 
-            items_held = []
+            item_held = self.engine.player.inventory.held
 
-            for bodypart in self.entity.bodyparts:
-                if bodypart.part_type == 'Arms':
-                    if bodypart.held is not None:
-                        items_held.append(bodypart.held)
-
-            if len(items_held) > 0:
-                if not items_held[0].weapon.ranged:
-                    return WeaponAttackAction(distance=1, item=items_held[0], entity=self.entity,
+            if item_held is not None:
+                if not item_held.usable_type.ranged:
+                    return WeaponAttackAction(distance=1, item=item_held, entity=self.entity,
                                               targeted_actor=self.target_actor,
                                               targeted_bodypart=self.target_actor.bodyparts[0]).attack()
 

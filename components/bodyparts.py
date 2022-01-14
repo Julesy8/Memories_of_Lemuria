@@ -24,7 +24,7 @@ class Bodypart:
                  base_chance_to_hit: int,  # base modifier of how likely the body part is to be hit when attacked
                  part_type: Optional[str],  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
                  vital: bool = False,  # whether when the body part gets destroyed, the entity should die
-                 destroyable: bool = True # whether or not the body part should be able to be destroyed i.e. cut off, explode
+                 destroyable: bool = True  # whether or not the body part should be able to be destroyed i.e. cut off, explode
                  ):
 
         self.max_hp = hp
@@ -40,7 +40,6 @@ class Bodypart:
         self.part_type = part_type  # only required for player character
 
         self.functional = True  # whether or not bodypart is crippled
-        self.destroyed = False
 
     @property
     def engine(self) -> Engine:
@@ -63,7 +62,7 @@ class Bodypart:
             if self.vital:
                 self.die()
 
-            elif self.functional and not self.destroyed:
+            elif self.functional:
                 self.cripple()
 
                 if self.parent.player:
@@ -134,8 +133,6 @@ class Bodypart:
 
     def destroy(self, item: Optional[Item]):
 
-        self.destroyed = True
-
         if item:
             if item.usable_properties.Weapon.cutting:
                 self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} flys off in an arc!",
@@ -196,8 +193,6 @@ class Arm(Bodypart):
                  part_type: Optional[str] = 'Arms',
                  ):
 
-        self.held = None
-
         super().__init__(
             hp=hp,
             defence=defence,
@@ -210,21 +205,14 @@ class Arm(Bodypart):
 
         self.functional = False
 
-        if self.held:
+        if self.parent.inventory.held is not None:
 
-            for bodypart in self.parent.bodyparts:
-                if bodypart.Arm:
-                    if bodypart.held == self.held:
-                        bodypart.held = None
-
-            self.held.place(self.parent.x, self.parent.y, self.engine.game_map)
+            self.parent.inventory.held.place(self.parent.x, self.parent.y, self.engine.game_map)
+            self.parent.inventory.held = None
 
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"The {self.held.name} slips from your grasp", colour.RED)
-
-            else:
-                self.engine.message_log.add_message(f"The {self.held.name} slips from {self.parent.name}'s grasp"
-                                                    , colour.GREEN)
+                self.engine.message_log.add_message(f"The {self.parent.inventory.held.name} slips from your grasp",
+                                                    colour.RED)
 
 
 class Leg(Bodypart):

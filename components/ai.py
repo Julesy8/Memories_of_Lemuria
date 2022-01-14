@@ -77,17 +77,11 @@ class HostileEnemy(BaseAI):
             if distance <= 1 and attack_turns > 0 and self.entity.last_attack_turn + self.entity.attack_interval <= \
                     self.entity.turn_counter:
 
-                held_items = []  # TODO: make array
+                held_item = self.entity.inventory.held
 
-                for bodypart in self.entity.bodyparts:
-                    if bodypart.part_type == 'Arms':
-                        if bodypart.held is not None:
-                            held_items.append(bodypart.held)
-
-                if len(held_items) > 0:
-                    if held_items[0].weapon:
-                        WeaponAttackAction(distance=distance, item=held_items[0], entity=self.entity,
-                                           targeted_actor=target, targeted_bodypart=None).attack()
+                if held_item is not None:
+                    WeaponAttackAction(distance=distance, item=held_item, entity=self.entity, targeted_actor=target,
+                                       targeted_bodypart=None).attack()
 
                 else:
                     UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,

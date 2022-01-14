@@ -66,7 +66,6 @@ class Weapon(Usable):
                  maximum_range: int,
                  base_accuracy: float,
                  range_accuracy_dropoff: Optional[int],
-                 two_handed: bool = False,
                  ranged: bool = False,
                  cutting: bool = False,
                  usable_type: str = 'weapon'
@@ -80,7 +79,6 @@ class Weapon(Usable):
         self.maximum_range = maximum_range  # determines how far away the weapon can deal damage
         self.base_accuracy = base_accuracy  # decimal value, modifies base_chance_to_hit for a limb
         self.range_accuracy_dropoff = range_accuracy_dropoff  # the range up to which the weapon is accurate
-        self.two_handed = two_handed  # the amount of hands used to hold this weapon
         self.cutting = cutting # whether the weapon can cleanly remove limbs
 
         if not self.ranged:
@@ -136,7 +134,6 @@ class Gun(Weapon):
                  base_armour_damage: int,
                  base_accuracy: float,
                  range_accuracy_dropoff: int,
-                 two_handed: bool,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
@@ -152,8 +149,7 @@ class Gun(Weapon):
             base_accuracy=base_accuracy,
             ranged=True,
             range_accuracy_dropoff=range_accuracy_dropoff,
-            two_handed=two_handed,
-            usable_type="gun",
+            usable_type='gun'
         )
 
 

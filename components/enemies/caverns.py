@@ -174,7 +174,6 @@ glock_17 = Item(
         base_armour_damage=10,
         base_accuracy=1.0,
         range_accuracy_dropoff=40,
-        two_handed=False
     )
 )
 

@@ -504,7 +504,8 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
 
         elif option == 'Equip':
             try:
-                if self.item.usable_properties.usable_type == 'weapon':
+                if self.item.usable_properties.usable_type == 'weapon' or \
+                        self.item.usable_properties.usable_type == 'gun':
                     return actions.EquipWeapon(self.engine.player, self.item)
                 elif self.item.usable_properties.usable_type == 'wearable':
                     return actions.EquipArmour(self.engine.player, self.item)
@@ -549,6 +550,11 @@ class EquipmentEventHandler(AskUserEventHandler):
 
         longest_name_len = 0  # longest name of item
 
+        if self.engine.player.inventory.held is not None:
+            equipment_dictionary[self.engine.player.inventory.held.name] = "Held"
+            self.equipped_list.append(self.engine.player.inventory.held)
+            longest_name_len = len(self.engine.player.inventory.held.name)
+
         # adds all items equipped by bodyparts of the entity to the equipped list
         for bodypart in self.engine.player.bodyparts:
 
@@ -559,15 +565,6 @@ class EquipmentEventHandler(AskUserEventHandler):
 
                 if len(bodypart.equipped.name) > longest_name_len:
                     longest_name_len = len(bodypart.equipped.name)
-
-            if bodypart.part_type == 'Arms':
-                if bodypart.held is not None:
-
-                    self.equipped_list.append(bodypart.held)
-                    equipment_dictionary[bodypart.held.name] = bodypart.part_type.replace('Arm', 'Hand')
-
-                    if len(bodypart.held.name) > longest_name_len:
-                        longest_name_len = len(bodypart.held.name)
 
         self.equipped_list = list(dict.fromkeys(self.equipped_list))
 
@@ -596,7 +593,7 @@ class EquipmentEventHandler(AskUserEventHandler):
 
                 item_key = chr(ord("a") + i)
 
-                console.print(x + 1, y + i + 1, f"({item_key}) | {equipment_dictionary[item.name]} | {item.name}")
+                console.print(x + 1, y + i + 1, f"({item_key}) {equipment_dictionary[item.name]} | {item.name}")
 
         else:
             console.print(x + 1, y + 1, "(Empty)")

@@ -15,6 +15,7 @@ class Inventory(BaseComponent):
     def __init__(self, capacity: float):
         self.capacity = capacity
         self.items: List[Item] = []
+        self.held = None
 
     # TODO: take into account worn and equipped item weight + loaded magazines etc
     def current_item_weight(self) -> float:
@@ -28,45 +29,16 @@ class Inventory(BaseComponent):
         return current_weight
 
     def equip_weapon(self, item):
-        try:
-            if item.usable_properties.usable_type == 'wearable':
 
-                available_slots = []  # list of availbale grasping bodyparts
+        self.items.remove(item)
+        self.held = item
 
-                for bodypart in self.parent.bodyparts:
-                    if bodypart.arm and bodypart.functional and not bodypart.held:
-                        available_slots.append(bodypart)
+    def unequip_weapon(self):
 
-                # TODO: better way of handling held items
-                if item.weapon.two_handed and len(available_slots) > 1:
-                    part_index_1 = self.parent.bodyparts.index(available_slots[-1])
-                    part_index_2 = self.parent.bodyparts.index(available_slots[-2])
-                    self.parent.bodyparts[part_index_1].held = item
-                    self.parent.bodyparts[part_index_2].held = item
+        self.items.append(self.parent.inventory.held)
+        self.parent.inventory.held = None
 
-                elif not item.weapon.two_handed and len(available_slots) >= 1:
-                    part_index = self.parent.bodyparts.index(available_slots[-1])
-                    self.parent.bodyparts[part_index].held = item
-
-                else:
-                    raise Impossible(f"You can't equip this item")
-
-                self.items.remove(item)
-                self.engine.message_log.add_message(f"You are holding the {item.name}.")
-
-        except TypeError:
-            raise Impossible(f"You can't equip this item")
-
-    def unequip_weapon(self, item):
-
-        for bodypart in self.parent.bodyparts:
-            if bodypart.held == item:
-                bodypart.held = None
-
-        self.items.append(item)
-        self.engine.message_log.add_message(f"You moved your held item to your inventory.")
-
-    def equip_armour(self, item):
+    def equip_armour(self, item):  # TODO: frankly tf even is this
 
         item_removed = False
 
@@ -82,12 +54,11 @@ class Inventory(BaseComponent):
                             self.items.remove(item)
                             item_removed = True
                         bodypart.equipped = item
-                        self.engine.message_log.add_message(f"You put on the {item.name}.")
 
     def unequip_armour(self, item):
 
         for bodypart in self.parent.bodyparts:
-            if bodypart.part_type == item.wearable.fits_bodypart:
+            if bodypart.part_type == item.usable_properties.fits_bodypart:
                 bodypart.equipped = None
 
         if self.current_item_weight() + item.weight > self.capacity:
@@ -138,7 +109,19 @@ class Inventory(BaseComponent):
                         if i.name == bullet.name:
                             bullet_counter += 1
                     bullet.stacking.stack_size = bullet_counter
-                    self.parent.inventory.items.append(bullet)
+
+                    # if bullet of same type already in inventory, adds unloaded bullets to stack
+                    bullet_type_in_inventory = False
+
+                    for item in self.items:
+                        if item.name == bullet.name:
+                            item.stacking.stack_size += bullet.stacking.stack_size
+                            bullet_type_in_inventory = True
+
+                    # if no bullets of same type in inventory, adds to inventory
+                    if not bullet_type_in_inventory:
+                        self.parent.inventory.items.append(bullet)
+
             magazine.usable_properties.magazine = []
 
         else:
