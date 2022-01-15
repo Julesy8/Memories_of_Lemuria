@@ -812,18 +812,14 @@ class ChangeTargetActor(AskUserEventHandler):
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
 
-            if player.target_actor:
-                #try:
+            if player.target_actor and self.item is not None:
+
                 actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
                                            targeted_actor=player.target_actor,
                                            targeted_bodypart=self.selected_bodypart).attack()
                 self.engine.handle_enemy_turns()
                 self.engine.render(console=self.console, camera=self.camera)
                 return MainGameEventHandler(self.engine)
-
-                #except AttributeError:
-                #    self.engine.message_log.add_message("No weapon equipped.", colour.RED)
-                 #   return MainGameEventHandler(self.engine)
 
             else:
                 return MainGameEventHandler(self.engine)

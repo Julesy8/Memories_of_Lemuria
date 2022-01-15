@@ -6,13 +6,14 @@ from exceptions import Impossible
 
 from copy import deepcopy
 
+from random import randint
 import actions
 import colour
 import components.inventory
 from components.npc_templates import BaseComponent
-from input_handlers import ActionOrHandler
 if TYPE_CHECKING:
     from entity import Actor, Item
+    from input_handlers import ActionOrHandler
 
 
 class Usable(BaseComponent):
@@ -83,6 +84,25 @@ class Weapon(Usable):
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
+
+    def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
+
+        # successful hit
+        if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy):
+
+            # does damage to given bodypart
+            target.bodyparts[part_index].deal_damage(
+                meat_damage=self.base_meat_damage,
+                armour_damage=self.base_armour_damage,
+                attacker=attacker, item=self.parent)
+
+        # miss
+        else:
+            if attacker.player:
+                return self.engine.message_log.add_message("You miss", colour.YELLOW)
+
+            else:
+                return self.engine.message_log.add_message(f"{attacker.name} misses", colour.LIGHT_BLUE)
 
     def equip(self) -> None:
 
@@ -237,6 +257,42 @@ class Gun(Weapon):
             range_accuracy_dropoff=range_accuracy_dropoff,
         )
 
+    def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
+
+        if self.chambered_bullet is not None:
+
+            range_penalty = 0
+
+            if distance > self.range_accuracy_dropoff:
+                range_penalty = distance - self.range_accuracy_dropoff
+
+            # successful hit
+            if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy) + \
+                    range_penalty:
+
+                # does damage to given bodypart
+                target.bodyparts[part_index].deal_damage(
+                    meat_damage=self.base_meat_damage,
+                    armour_damage=self.base_armour_damage,
+                    attacker=attacker, item=self.parent)
+
+            # miss
+            else:
+                if attacker.player:
+                    return self.engine.message_log.add_message("Your shot misses.", colour.YELLOW)
+
+                else:
+                    return self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
+
+            self.chambered_bullet = None
+
+            if self.loaded_magazine is not None:
+                if len(self.loaded_magazine.usable_properties.magazine) > 0:
+                    self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+
+        else:
+            return self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
+
     def load_gun(self, magazine):
 
         entity = self.parent
@@ -252,9 +308,9 @@ class Gun(Weapon):
 
             inventory.items.remove(magazine)
 
-            if len(magazine.magazine) > 0:
+            if len(magazine.usable_properties.magazine) > 0:
                 if self.chambered_bullet is None:
-                    self.chambered_bullet = magazine.magazine.pop([-1])
+                    self.chambered_bullet = magazine.usable_properties.magazine.pop()
 
     def unload_gun(self):
 

@@ -145,33 +145,8 @@ class WeaponAttackAction(AttackAction):
 
     def attack(self) -> None:
         self.perform()
-        range_penalty = 0
-        if self.item.usable_properties.ranged:
-            # if weapon is ranged (not melee) and dist > ranged_accuracy calculates penalty
-            if self.distance > self.item.usable_properties.range_accuracy_dropoff:
-                range_penalty = self.distance - (self.item.usable_properties.ranged_accuracy * 2)
-        else:
-            # melee weapon
-            if self.distance > 1:
-                return self.engine.message_log.add_message("Enemy out of range.", colour.RED)
-
-        # successful hit
-        if self.hitchance <= (float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit)
-                              * self.item.usable_properties.base_accuracy) + range_penalty:
-
-            # does damage to given bodypart
-            self.targeted_actor.bodyparts[self.part_index].deal_damage(
-                meat_damage=self.item.usable_properties.base_meat_damage,
-                armour_damage=self.item.usable_properties.base_armour_damage,
-                attacker=self.entity, item=self.item)
-
-        # miss
-        else:
-            if self.entity.player:
-                return self.engine.message_log.add_message("You miss", colour.YELLOW)
-
-            else:
-                return self.engine.message_log.add_message(f"{self.entity.name}'s misses", colour.LIGHT_BLUE)
+        self.item.usable_properties.attack(distance=self.distance, target=self.targeted_actor, attacker=self.entity,
+                                           part_index=self.part_index, hitchance=self.hitchance)
 
 
 class MovementAction(ActionWithDirection):
@@ -200,14 +175,9 @@ class BumpAction(ActionWithDirection):
             item_held = self.engine.player.inventory.held
 
             if item_held is not None:
-                if not item_held.usable_type.ranged:
-                    return WeaponAttackAction(distance=1, item=item_held, entity=self.entity,
-                                              targeted_actor=self.target_actor,
-                                              targeted_bodypart=self.target_actor.bodyparts[0]).attack()
-
-                else:
-                    return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
-                                               targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+                return WeaponAttackAction(distance=1, item=item_held, entity=self.entity,
+                                          targeted_actor=self.target_actor,
+                                          targeted_bodypart=self.target_actor.bodyparts[0]).attack()
 
             else:
                 return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
