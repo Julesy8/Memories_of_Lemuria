@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
 from random import randint
+from copy import deepcopy
 
 import colour
 import exceptions
@@ -196,50 +197,55 @@ class BumpAction(ActionWithDirection):
 class PickupAction(Action):
     """Pickup an item and add it to the inventory, if there is room for it."""
 
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Actor, item: Item, pickup_amount: int):
         super().__init__(entity)
+        self.item = item
+        self.pickup_amount = pickup_amount
 
     def perform(self) -> None:
-        actor_location_x = self.entity.x
-        actor_location_y = self.entity.y
-        inventory = self.entity.inventory
 
-        # TODO: pickup amount/ specify item to pick up menu
+        stack_amount = 1
 
-        for item in self.engine.game_map.items:
-            if actor_location_x == item.x and actor_location_y == item.y:
+        item_copy = deepcopy(self.item)
+        
+        if self.item.stacking:
+            if 0 < self.pickup_amount <= self.item.stacking.stack_size:
+                stack_amount = self.pickup_amount
+            else:
+                stack_amount = self.item.stacking.stack_size
 
-                stack_amount = 1
-                if item.stacking:
-                    stack_amount = item.stacking.stack_size
+            item_copy.stacking.stack_size = stack_amount
 
-                if self.entity.inventory.current_item_weight() + item.weight * stack_amount > self.entity.inventory.capacity:
-                    raise exceptions.Impossible("Your inventory is full.")
+        # weight check
+        if self.entity.inventory.current_item_weight() + self.item.weight * stack_amount > \
+                self.entity.inventory.capacity:
+            raise exceptions.Impossible("Your inventory is full.")
 
-                self.engine.game_map.entities.remove(item)
+        if self.item.stacking:
 
-                if item.stacking:
-                    try:
-                        for i in self.entity.inventory.items:
-                            if i.name == item.name:
-                                repeat_item_index = self.entity.inventory.items.index(i)
-                        self.entity.inventory.items[repeat_item_index].stacking.stack_size += item.stacking.stack_size
+            # if item of this type already in inventory, tries to add it to existing stack
+            try:
+                for i in self.entity.inventory.items:
+                    if i.name == self.item.name:
+                        repeat_item_index = self.entity.inventory.items.index(i)
+                self.entity.inventory.items[repeat_item_index].stacking.stack_size += item_copy.stacking.stack_size
 
-                    except UnboundLocalError:
-                        inventory.items.append(item)
+            # item of this type not already present in inventory
+            except UnboundLocalError:
+                self.entity.inventory.items.append(item_copy)
 
-                else:
-                    inventory.items.append(item)
+            # removes item from map / reduces item on map stack size
+            if self.item.stacking.stack_size - stack_amount > 0:
+                self.item.stacking.stack_size -= stack_amount
+            else:
+                self.engine.game_map.entities.remove(self.item)
 
-                item.parent = self.entity.inventory
+        # item not stacking
+        else:
+            self.entity.inventory.items.append(item_copy)
+            self.engine.game_map.entities.remove(self.item)
 
-                if item.stacking:
-                    self.engine.message_log.add_message(f"You picked up the {item.name} ({item.stacking.stack_size})")
-                else:
-                    self.engine.message_log.add_message(f"You picked up the {item.name}")
-                return
-
-        raise exceptions.Impossible("There is nothing here to pick up.")
+        item_copy.parent = self.entity.inventory
 
 
 class ItemAction(Action):

@@ -164,7 +164,7 @@ class Magazine(Usable):
 
         if isinstance(inventory, components.inventory.Inventory):
 
-            if load_amount > ammo.stacking.stack_size:
+            if load_amount > ammo.stacking.stack_size or load_amount < 1:
                 raise Impossible("Invalid entry.")
 
             # 1 or more stack left in inventory after loading

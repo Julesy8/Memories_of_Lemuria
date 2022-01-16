@@ -184,7 +184,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine)
         elif key == tcod.event.K_g:
-            action = PickupAction(player)
+            return PickUpEventHandler(engine=self.engine, page=0)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine)
 
@@ -629,14 +629,9 @@ class DropItemEventHandler(AskUserEventHandler):
         self.engine = engine
         self.drop_amount = 0
         self.buffer = ''
-        self.console = None
-        self.camera = None
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)
-
-        self.console = console
-        self.camera = camera
 
         if self.item.stacking:
             if self.item.stacking.stack_size > 1:
@@ -678,21 +673,25 @@ class DropItemEventHandler(AskUserEventHandler):
                             # sets dropped item to have correct stack size
                             dropped_item.stacking.stack_size = self.drop_amount
 
-                            # more than 1 stack left in after drop
-                            if self.item.stacking.stack_size - self.drop_amount > 1:
-                                if self.item in self.engine.player.inventory.items:
-                                    self.item.stacking.stack_size -= self.drop_amount
-                                    dropped_item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+                            if self.drop_amount > 0:
 
-                            # no stacks left after drop
-                            elif self.item.stacking.stack_size - self.drop_amount <= 0:
-                                if self.item in self.engine.player.inventory.items:
-                                    self.engine.player.inventory.items.remove(self.item)
+                                # more than 1 stack left in after drop
+                                if self.item.stacking.stack_size - self.drop_amount > 1:
+                                    if self.item in self.engine.player.inventory.items:
+                                        self.item.stacking.stack_size -= self.drop_amount
+                                        dropped_item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
-                                self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+                                # no stacks left after drop
+                                elif self.item.stacking.stack_size - self.drop_amount <= 0:
+                                    if self.item in self.engine.player.inventory.items:
+                                        self.engine.player.inventory.items.remove(self.item)
 
-                            self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
-                            return MainGameEventHandler(self.engine)
+                                    self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+
+                                return MainGameEventHandler(self.engine)
+
+                            else:
+                                self.engine.message_log.add_message("Invalid entry", colour.RED)
 
                         except ValueError:
                             self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -703,7 +702,6 @@ class DropItemEventHandler(AskUserEventHandler):
 
                 self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
-                self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
                 return MainGameEventHandler(self.engine)
 
         else:  # item not stacking
@@ -712,8 +710,181 @@ class DropItemEventHandler(AskUserEventHandler):
 
             self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
-            self.engine.message_log.add_message(f"You dropped the {self.item.name}.")
             return MainGameEventHandler(self.engine)
+
+
+class PickUpEventHandler(AskUserEventHandler):
+    def __init__(self, engine: Engine, page: int):
+        super().__init__(engine)
+        self.max_list_length = 10  # defines the maximum amount of items to be displayed in the menu
+        self.page = page
+        self.TITLE = "Pick Up Items"
+        self.items_at_location = []
+        self.number_of_items_at_location = 0
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+
+        actor_location_x = self.engine.player.x
+        actor_location_y = self.engine.player.y
+
+        self.items_at_location = []
+
+        for item in self.engine.game_map.items:
+            if actor_location_x == item.x and actor_location_y == item.y:
+                self.items_at_location.append(item)
+
+        self.number_of_items_at_location = len(self.items_at_location)
+
+        longest_name_len = None
+        if self.number_of_items_at_location > 0:
+            longest_name_len = self.items_at_location[0]
+
+        width = len(self.TITLE) + 4
+        height = self.number_of_items_at_location + 2
+
+        if self.number_of_items_at_location > self.max_list_length:
+            height = self.max_list_length + 2
+
+        x = 1
+        y = 2
+
+        index_range = self.page * self.max_list_length
+
+        for item in self.items_at_location[index_range:index_range + self.max_list_length]:
+            try:
+                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
+                    longest_name_len = item
+            except AttributeError:
+                if len(item.name) > len(longest_name_len.name):
+                    longest_name_len = item
+
+            if item.stacking:
+                try:
+                    if len(item.name) + len(str(item.stacking.stack_size)) > \
+                            len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)):
+                        longest_name_len = item
+                except AttributeError:
+                    if len(item.name) + len(str(item.stacking.stack_size)) + 2 > len(longest_name_len.name):
+                        longest_name_len = item
+
+        if longest_name_len:
+            if len(longest_name_len.name) + 6 > width:
+                width = len(longest_name_len.name) + 6
+
+        stack_str_len = 0
+
+        if longest_name_len:
+            if longest_name_len.stacking:
+                stack_str_len = len(str(longest_name_len.stacking.stack_size)) + 2
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + stack_str_len,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        if self.number_of_items_at_location > 0:
+            console.print(x + 1, y + height - 1,
+                          f"Page {self.page + 1}/{ceil(self.number_of_items_at_location / self.max_list_length)}")
+
+            for i, item in enumerate(
+                    self.items_at_location[index_range:index_range + self.max_list_length]):
+                item_key = chr(ord("a") + i)
+                if item.stacking:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                else:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+        else:
+            console.print(x + 1, y + 1, "(Empty)")
+
+    def ev_keydown(self, event):
+
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if key == tcod.event.K_DOWN:
+            if self.number_of_items_at_location > (self.page + 1) * self.max_list_length:
+                return PickUpEventHandler(self.engine, self.page + 1)
+
+        if key == tcod.event.K_UP:
+            if self.page > 0:
+                return PickUpEventHandler(self.engine, self.page - 1)
+
+        if 0 <= index <= self.max_list_length - 1:
+            try:
+                selected_item = self.items_at_location[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.on_item_selected(item=selected_item)
+        return super().ev_keydown(event)
+
+    def on_item_selected(self, item):
+        if item.stacking:
+            if item.stacking.stack_size > 1:
+                return AmountToPickUpMenu(item=item, engine=self.engine)
+            else:
+                actions.PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+                return MainGameEventHandler(engine=self.engine)
+        else:
+            actions.PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+            return MainGameEventHandler(engine=self.engine)
+
+
+class AmountToPickUpMenu(AskUserEventHandler):
+
+    def __init__(self, item, engine: Engine):
+        super().__init__(engine)
+        self.item = item
+        self.engine = engine
+        self.pick_up_amount = 0
+        self.buffer = ''
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+
+        console.draw_frame(
+            x=1,
+            y=1,
+            width=21 + len(self.buffer),
+            height=3,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+        console.print(x=2, y=2, string=f"amount to pick up: {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
+
+    def ev_keydown(self, event):
+
+        if self.item.stacking:
+            if self.item.stacking.stack_size > 1:
+
+                for event in tcod.event.wait():
+
+                    if isinstance(event, tcod.event.TextInput):
+                        self.buffer += event.text
+
+                    elif event.scancode == tcod.event.SCANCODE_ESCAPE:
+                        return MainGameEventHandler(self.engine)
+
+                    elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
+                        self.buffer = self.buffer[:-1]
+
+                    elif event.scancode == tcod.event.SCANCODE_RETURN:
+
+                        try:
+                            actions.PickupAction(entity=self.engine.player, item=self.item,
+                                                 pickup_amount=int(self.buffer)).perform()
+                            return MainGameEventHandler(self.engine)
+
+                        except ValueError:
+                            self.engine.message_log.add_message("Invalid entry", colour.RED)
 
 
 class ChangeTargetActor(AskUserEventHandler):
@@ -762,7 +933,6 @@ class ChangeTargetActor(AskUserEventHandler):
             try:
                 self.selected_bodypart = player.target_actor.bodyparts[0]
             except AttributeError:
-                self.engine.message_log.add_message("No targetable enemies.", colour.RED)
                 return MainGameEventHandler(self.engine)
 
         if player.target_actor:
