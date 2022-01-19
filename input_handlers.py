@@ -185,6 +185,8 @@ class MainGameEventHandler(EventHandler):
             return ChangeTargetActor(engine=self.engine)
         elif key == tcod.event.K_g:
             return PickUpEventHandler(engine=self.engine, page=0)
+        elif key == tcod.event.K_r:
+            return LoadoutEventHandler(engine=self.engine, page=0)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine)
 
@@ -679,7 +681,8 @@ class DropItemEventHandler(AskUserEventHandler):
                                 if self.item.stacking.stack_size - self.drop_amount > 1:
                                     if self.item in self.engine.player.inventory.items:
                                         self.item.stacking.stack_size -= self.drop_amount
-                                        dropped_item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
+                                        dropped_item.place(self.engine.player.x, self.engine.player.y,
+                                                           self.engine.game_map)
 
                                 # no stacks left after drop
                                 elif self.item.stacking.stack_size - self.drop_amount <= 0:
@@ -688,6 +691,7 @@ class DropItemEventHandler(AskUserEventHandler):
 
                                     self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
+                                self.engine.handle_enemy_turns()
                                 return MainGameEventHandler(self.engine)
 
                             else:
@@ -702,6 +706,7 @@ class DropItemEventHandler(AskUserEventHandler):
 
                 self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
+                self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
 
         else:  # item not stacking
@@ -710,6 +715,7 @@ class DropItemEventHandler(AskUserEventHandler):
 
             self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
+            self.engine.handle_enemy_turns()
             return MainGameEventHandler(self.engine)
 
 
@@ -830,10 +836,12 @@ class PickUpEventHandler(AskUserEventHandler):
             if item.stacking.stack_size > 1:
                 return AmountToPickUpMenu(item=item, engine=self.engine)
             else:
-                actions.PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+                PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+                self.engine.handle_enemy_turns()
                 return MainGameEventHandler(engine=self.engine)
         else:
-            actions.PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+            PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+            self.engine.handle_enemy_turns()
             return MainGameEventHandler(engine=self.engine)
 
 
@@ -879,8 +887,9 @@ class AmountToPickUpMenu(AskUserEventHandler):
                     elif event.scancode == tcod.event.SCANCODE_RETURN:
 
                         try:
-                            actions.PickupAction(entity=self.engine.player, item=self.item,
-                                                 pickup_amount=int(self.buffer)).perform()
+                            PickupAction(entity=self.engine.player, item=self.item,
+                                         pickup_amount=int(self.buffer)).perform()
+                            self.engine.handle_enemy_turns()
                             return MainGameEventHandler(self.engine)
 
                         except ValueError:
@@ -1031,17 +1040,28 @@ class MagazineOptionsHandler(AskUserEventHandler):
         super().__init__(engine)
         self.magazine = magazine
         self.TITLE = magazine.name
+        self.options = ['load bullets', 'unload bullets']
+
+        inventory = self.engine.player.inventory
+        loadout = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
+
+        if self.magazine in loadout:
+            self.options.append('remove from loadout')
+        else:
+            self.options.append('add to loadout')
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)
 
-        str_1 = "(a) load bullets"
-        str_2 = "(b) unload bullets"
+        longest_option_name = 0
+        for option in self.options:
+            if len(option) > longest_option_name:
+                longest_option_name = len(option)
 
-        width = len(str_2)
+        width = len(self.TITLE)
 
-        if width < len(self.TITLE):
-            width = len(self.TITLE)
+        if longest_option_name > width:
+            width = longest_option_name + 4
 
         x = 1
         y = 2
@@ -1050,27 +1070,53 @@ class MagazineOptionsHandler(AskUserEventHandler):
             x=x,
             y=y,
             width=width + 2,
-            height=4,
+            height=len(self.options) + 2,
             title=self.TITLE,
             clear=True,
             fg=colour.WHITE,
             bg=(0, 0, 0),
         )
 
-        console.print(2, 3, str_1, fg=colour.WHITE, bg=(0, 0, 0))
-        console.print(2, 4, str_2, fg=colour.WHITE, bg=(0, 0, 0))
+        for i, option in enumerate(self.options):
+            option_key = chr(ord("a") + i)
+            console.print(x + 1, y + i + 1, f"({option_key}) {option}")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        index = key - tcod.event.K_a
 
         if event.sym == tcod.event.K_ESCAPE:
             return MainGameEventHandler(self.engine)
 
-        elif event.sym == tcod.event.K_a:
+        if 0 <= index <= 26:
+            try:
+                selected_option = self.options[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                return MagazineOptionsHandler(magazine=self.magazine, engine=self.engine)
+            return self.on_option_selected(selected_option)
+        return super().ev_keydown(event)
+
+    def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+        player = self.engine.player
+
+        if option == 'load bullets':
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine)
 
-        elif event.sym == tcod.event.K_b:
-            self.magazine.usable_properties.unload_magazine()
-            return MainGameEventHandler(self.engine)
+        elif option == 'unload bullets':
+            self.engine.handle_enemy_turns()
+            player.inventory.remove_from_magazines(magazine=self.magazine)
+
+        elif option == 'add to loadout':
+            player.inventory.add_to_magazines(magazine=self.magazine)
+            self.engine.handle_enemy_turns()
+
+        elif option == 'remove from loadout':
+            player.inventory.remove_from_magazines(magazine=self.magazine)
+            self.engine.handle_enemy_turns()
+
+        return MainGameEventHandler(engine=self.engine)
 
 
 class GunOptionsHandler(AskUserEventHandler):
@@ -1329,7 +1375,96 @@ class SelectNumberOfBulletsToLoadHandler(AskUserEventHandler):
             elif event.scancode == tcod.event.SCANCODE_RETURN:
                 try:
                     self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
+                    self.engine.handle_enemy_turns()
                     return MainGameEventHandler(self.engine)
 
                 except ValueError:
                     self.engine.message_log.add_message("Invalid entry", colour.RED)
+
+
+class LoadoutEventHandler(AskUserEventHandler):
+
+    def __init__(self, engine: Engine, page: int):
+        super().__init__(engine)
+        self.max_list_length = 10  # defines the maximum amount of items to be displayed in the menu
+        self.page = page
+        self.TITLE = "Loadout"
+
+        self.loadout_items = []
+        self.number_of_items_in_loadout = 0
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+
+        inventory = self.engine.player.inventory
+
+        items = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
+
+        for item in items:
+            if item in inventory:
+                self.loadout_items.append(item)
+
+        self.number_of_items_in_loadout = len(self.loadout_items)
+
+        width = len(self.TITLE) + 4
+        height = self.number_of_items_in_loadout + 2
+
+        if self.number_of_items_in_loadout > self.max_list_length:
+            height = self.max_list_length + 2
+
+        x = 1
+        y = 2
+
+        index_range = self.page * self.max_list_length
+
+        longest_name_len = 0
+
+        for item in self.loadout_items[index_range:index_range+self.max_list_length]:
+            if len(item.name) > longest_name_len:
+                longest_name_len = len(item.name)
+
+        if longest_name_len > width:
+            width = longest_name_len + 6
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        if self.number_of_items_in_loadout > 0:
+            console.print(x + 1, y + height - 1,
+                          f"Page {self.page + 1}/{ceil(self.number_of_items_in_loadout/self.max_list_length)}")
+
+            for i, item in enumerate(self.loadout_items[index_range:index_range+self.max_list_length]):
+                item_key = chr(ord("a") + i)
+                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+
+        else:
+            console.print(x + 1, y + 1, "(Empty)")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if key == tcod.event.K_DOWN:
+            if self.number_of_items_in_loadout > (self.page + 1) * self.max_list_length:
+                return LoadoutEventHandler(self.engine, self.page + 1)
+
+        if key == tcod.event.K_UP:
+            if self.page > 0:
+                return LoadoutEventHandler(self.engine, self.page - 1)
+
+        if 0 <= index <= self.max_list_length - 1:
+            try:
+                selected_item = self.loadout_items[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return MagazineOptionsHandler(engine=self.engine, magazine=selected_item)
+        return super().ev_keydown(event)

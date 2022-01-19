@@ -6,7 +6,6 @@ from exceptions import Impossible
 
 from copy import deepcopy
 
-from random import randint
 import actions
 import colour
 import components.inventory
@@ -147,10 +146,12 @@ class Magazine(Usable):
                  magazine_type: str,
                  compatible_bullet_type: str,
                  mag_capacity: int,
+                 magazine_size: str,  # small, medium or large
                  ):
         self.magazine_type = magazine_type
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
+        self.magazine_size = magazine_size
         self.magazine = []
 
     def activate(self, action: actions.ItemAction):
@@ -233,7 +234,7 @@ class Magazine(Usable):
 
 
 class Gun(Weapon):
-
+    # TODO: implement reload time
     def __init__(self,
                  compatible_magazine_type: str,
                  base_meat_damage: int,
@@ -272,8 +273,8 @@ class Gun(Weapon):
 
                 # does damage to given bodypart
                 target.bodyparts[part_index].deal_damage(
-                    meat_damage=self.base_meat_damage,
-                    armour_damage=self.base_armour_damage,
+                    meat_damage=self.base_meat_damage * self.chambered_bullet.usable_properties.meat_damage_factor,
+                    armour_damage=self.base_armour_damage * self.chambered_bullet.usable_properties.armour_damage_factor,
                     attacker=attacker, item=self.parent)
 
             # miss
@@ -327,10 +328,16 @@ class Gun(Weapon):
                 raise Impossible(f"{entity.name} has no magazine loaded")
 
 
-class Wearable(Usable):  # in future add different types of protection i.e. projectile + melee
-    def __init__(self, protection: int, fits_bodypart_type: str):
+class Wearable(Usable):
+    def __init__(self, protection: int, fits_bodypart_type: str, small_mag_slots: int, medium_mag_slots: int,
+                 large_mag_slots: int):
         self.protection = protection
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
+
+        # how much of an item type the armour can carry
+        self.small_mag_slots = small_mag_slots
+        self.medium_mag_slots = medium_mag_slots
+        self.large_mag_slots = large_mag_slots
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -342,6 +349,10 @@ class Wearable(Usable):  # in future add different types of protection i.e. proj
 
         if isinstance(inventory, components.inventory.Inventory):
             item_removed = False
+
+            inventory.small_mag_capacity += self.small_mag_slots
+            inventory.medium_mag_capacity += self.medium_mag_slots
+            inventory.large_mag_capacity += self.large_mag_slots
 
             for bodypart in inventory.parent.bodyparts:
                 if bodypart.part_type == self.fits_bodypart:
@@ -361,6 +372,12 @@ class Wearable(Usable):  # in future add different types of protection i.e. proj
         inventory = entity.parent
 
         if isinstance(inventory, components.inventory.Inventory):
+
+            inventory.small_mag_capacity -= self.small_mag_slots
+            inventory.medium_mag_capacity -= self.medium_mag_slots
+            inventory.large_mag_capacity -= self.large_mag_slots
+
+            inventory.update_magazines()
 
             for bodypart in inventory.parent.bodyparts:
                 if bodypart.part_type == self.fits_bodypart:

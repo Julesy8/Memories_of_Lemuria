@@ -1,5 +1,7 @@
 -----
 TO DO
+quick reload
+
 12) item stat screen
 13) weapon firing graphics
 14) proper weapons implmentation (ammo and weapon parts)
@@ -11,13 +13,10 @@ TO DO
 20) config + error log txt
 character creation
 proper death screen
-item pickup menu
-game opening popup
 load options
 tutorial option
 
 -music
--numbered identifiers for enemy names
 -remembering item + enemy last position when out of line of sight
 -enemies spawning in groups
 -save guns to look at in main menu

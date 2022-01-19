@@ -101,7 +101,10 @@ helmet = Item(
     stacking=None,
     usable_properties=(consumables.Wearable(
         protection=2,
-        fits_bodypart_type='Head'
+        fits_bodypart_type='Head',
+        large_mag_slots=1,
+        medium_mag_slots=1,
+        small_mag_slots=1
     ))
 )
 
@@ -115,7 +118,10 @@ pauldron = Item(
     stacking=None,
     usable_properties=(consumables.Wearable(
         protection=2,
-        fits_bodypart_type='Arms'
+        fits_bodypart_type='Arms',
+        large_mag_slots=1,
+        medium_mag_slots=1,
+        small_mag_slots=1
     ))
 )
 
@@ -129,7 +135,10 @@ greaves = Item(
     stacking=None,
     usable_properties=(consumables.Wearable(
         protection=2,
-        fits_bodypart_type='Legs'
+        fits_bodypart_type='Legs',
+        large_mag_slots=1,
+        medium_mag_slots=1,
+        small_mag_slots=1
     ))
 )
 
@@ -143,7 +152,10 @@ chestplate = Item(
     stacking=None,
     usable_properties=(consumables.Wearable(
         protection=2,
-        fits_bodypart_type='Body'
+        fits_bodypart_type='Body',
+        large_mag_slots=1,
+        medium_mag_slots=1,
+        small_mag_slots=1
     ))
 )
 
@@ -188,7 +200,8 @@ glock_mag = Item(
     usable_properties=consumables.Magazine(
         magazine_type='glock9mm',
         compatible_bullet_type='9mm',
-        mag_capacity=17
+        mag_capacity=17,
+        magazine_size='small',
     )
 )
 

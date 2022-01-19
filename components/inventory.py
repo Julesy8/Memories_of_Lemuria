@@ -16,6 +16,14 @@ class Inventory(BaseComponent):
         self.items: List[Item] = []
         self.held = None
 
+        self.small_mag_capacity = 3
+        self.medium_mag_capacity = 3
+        self.large_mag_capacity = 3
+
+        self.small_magazines = []
+        self.medium_magazines = []
+        self.large_magazines = []
+
     def current_item_weight(self) -> float:
         #  returns current combined weight of items in inventory
         current_weight = 0
@@ -40,3 +48,48 @@ class Inventory(BaseComponent):
             current_weight += equipment.weight
 
         return current_weight
+
+    def add_to_magazines(self, magazine: Item):
+
+        if magazine.usable_properties.magazine_size == 'small':
+            if magazine not in self.small_magazines:
+                if len(self.small_magazines) < self.small_mag_capacity:
+                    self.small_magazines.append(magazine)
+
+        elif magazine.usable_properties.magazine_size == 'medium':
+            if magazine not in self.medium_magazines:
+                if len(self.medium_magazines) < self.medium_mag_capacity:
+                    self.medium_magazines.append(magazine)
+
+        elif magazine.usable_properties.magazine_size == 'large':
+            if magazine not in self.large_magazines:
+                if len(self.large_magazines) < self.large_mag_capacity:
+                    self.large_magazines.append(magazine)
+
+    def remove_from_magazines(self, magazine: Item):
+
+        if magazine.usable_properties.magazine_size == 'small':
+            if magazine in self.small_magazines:
+                self.small_magazines.remove(magazine)
+
+        elif magazine.usable_properties.magazine_size == 'medium':
+            if magazine in self.medium_magazines:
+                self.medium_magazines.remove(magazine)
+
+        elif magazine.usable_properties.magazine_size == 'large':
+            if magazine in self.large_magazines:
+                self.large_magazines.remove(magazine)
+
+    def update_magazines(self):
+
+        if len(self.small_magazines) > self.small_mag_capacity:
+            while len(self.small_magazines) > self.small_mag_capacity:
+                self.small_magazines.pop()
+
+        if len(self.medium_magazines) > self.medium_mag_capacity:
+            while len(self.medium_magazines) > self.medium_mag_capacity:
+                self.medium_magazines.pop()
+
+        if len(self.large_magazines) > self.large_mag_capacity:
+            while len(self.large_magazines) > self.large_mag_capacity:
+                self.large_magazines.pop()
