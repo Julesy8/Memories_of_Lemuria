@@ -312,7 +312,7 @@ class InventoryEventHandler(AskUserEventHandler):
 
     def __init__(self, engine: Engine, page: int):
         super().__init__(engine)
-        self.max_list_length = 10  # defines the maximum amount of items to be displayed in the menu
+        self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
         self.page = page
         self.TITLE = self.TITLE + f" - {self.engine.player.inventory.current_item_weight()}" \
                                   f"/{self.engine.player.inventory.capacity}kg"
@@ -722,7 +722,7 @@ class DropItemEventHandler(AskUserEventHandler):
 class PickUpEventHandler(AskUserEventHandler):
     def __init__(self, engine: Engine, page: int):
         super().__init__(engine)
-        self.max_list_length = 10  # defines the maximum amount of items to be displayed in the menu
+        self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
         self.page = page
         self.TITLE = "Pick Up Items"
         self.items_at_location = []
@@ -1039,7 +1039,8 @@ class MagazineOptionsHandler(AskUserEventHandler):
     def __init__(self, engine: Engine, magazine: Item):
         super().__init__(engine)
         self.magazine = magazine
-        self.TITLE = magazine.name
+        self.TITLE = f"{magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
+                     f"{self.magazine.usable_properties.mag_capacity})"
         self.options = ['load bullets', 'unload bullets']
 
         inventory = self.engine.player.inventory
@@ -1184,27 +1185,25 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
 
         no_mags = len(self.mag_list)
 
-        longest_name_len = None
-        if len(self.engine.player.inventory.items) > 0:
-            longest_name_len = self.engine.player.inventory.items[0]
-
         width = len(self.TITLE) + 4
         height = no_mags + 2
 
         x = 1
         y = 2
 
+        longest_name_len = 0
+
         for item in self.mag_list:
-            try:
-                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
-                    longest_name_len = item
-            except AttributeError:
-                if len(item.name) > len(longest_name_len.name):
-                    longest_name_len = item
+            if len(item.name) + len(f"({len(item.usable_properties.magazine)}/{item.usable_properties.mag_capacity})") \
+                    > longest_name_len:
+                longest_name_len = len(item.name) + len(f"({len(item.usable_properties.magazine)}/"
+                                                        f"{item.usable_properties.mag_capacity})")
+
+        longest_name_len += 9
 
         if longest_name_len:
-            if len(longest_name_len.name) + 6 > width:
-                width = len(longest_name_len.name) + 6
+            if longest_name_len > width:
+                width = longest_name_len
 
         console.draw_frame(
             x=x,
@@ -1220,10 +1219,8 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
         if no_mags > 0:
             for i, item in enumerate(self.mag_list):
                 item_key = chr(ord("a") + i)
-                if item.stacking:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
-                else:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+                console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - ({len(item.usable_properties.magazine)}/"
+                                                f"{item.usable_properties.mag_capacity})")
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
@@ -1255,6 +1252,8 @@ class SelectBulletsToLoadHandler(AskUserEventHandler):
         super().__init__(engine)
         self.magazine = magazine
         self.ammo_list = []
+        self.TITLE = f"Load {self.magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
+                     f"{self.magazine.usable_properties.mag_capacity})"
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)
@@ -1279,7 +1278,6 @@ class SelectBulletsToLoadHandler(AskUserEventHandler):
         y = 2
 
         for item in self.ammo_list:
-            # TODO: show current ammo count of magazine
             try:
                 if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
                     longest_name_len = item
@@ -1326,9 +1324,6 @@ class SelectBulletsToLoadHandler(AskUserEventHandler):
                     console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
         else:
             console.print(x + 1, y + 1, "(Empty)")
-
-        console.print(x, y + height, f"current rounds loaded: {len(self.magazine.usable_properties.magazine)}/"
-                                     f"{self.magazine.usable_properties.mag_capacity}", fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
@@ -1386,25 +1381,24 @@ class LoadoutEventHandler(AskUserEventHandler):
 
     def __init__(self, engine: Engine, page: int):
         super().__init__(engine)
-        self.max_list_length = 10  # defines the maximum amount of items to be displayed in the menu
+        self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
         self.page = page
         self.TITLE = "Loadout"
 
         self.loadout_items = []
-        self.number_of_items_in_loadout = 0
-
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
 
         inventory = self.engine.player.inventory
 
         items = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
 
         for item in items:
-            if item in inventory:
+            if item in inventory.items:
                 self.loadout_items.append(item)
 
         self.number_of_items_in_loadout = len(self.loadout_items)
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
 
         width = len(self.TITLE) + 4
         height = self.number_of_items_in_loadout + 2
@@ -1420,11 +1414,13 @@ class LoadoutEventHandler(AskUserEventHandler):
         longest_name_len = 0
 
         for item in self.loadout_items[index_range:index_range+self.max_list_length]:
-            if len(item.name) > longest_name_len:
-                longest_name_len = len(item.name)
+            if len(item.name) + len(f"({len(item.usable_properties.magazine)}/{item.usable_properties.mag_capacity})") \
+                    > longest_name_len:
+                longest_name_len = len(item.name) + len(f"({len(item.usable_properties.magazine)}/"
+                                                        f"{item.usable_properties.mag_capacity})")
 
         if longest_name_len > width:
-            width = longest_name_len + 6
+            width = longest_name_len + 9
 
         console.draw_frame(
             x=x,
@@ -1443,7 +1439,8 @@ class LoadoutEventHandler(AskUserEventHandler):
 
             for i, item in enumerate(self.loadout_items[index_range:index_range+self.max_list_length]):
                 item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+                console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - " +
+                              f"({len(item.usable_properties.magazine)}/{item.usable_properties.mag_capacity})")
 
         else:
             console.print(x + 1, y + 1, "(Empty)")
