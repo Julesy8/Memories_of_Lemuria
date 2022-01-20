@@ -68,17 +68,14 @@ class Inventory(BaseComponent):
 
     def remove_from_magazines(self, magazine: Item):
 
-        if magazine.usable_properties.magazine_size == 'small':
-            if magazine in self.small_magazines:
-                self.small_magazines.remove(magazine)
+        if magazine in self.small_magazines:
+            self.small_magazines.remove(magazine)
 
-        elif magazine.usable_properties.magazine_size == 'medium':
-            if magazine in self.medium_magazines:
-                self.medium_magazines.remove(magazine)
+        elif magazine in self.medium_magazines:
+            self.medium_magazines.remove(magazine)
 
-        elif magazine.usable_properties.magazine_size == 'large':
-            if magazine in self.large_magazines:
-                self.large_magazines.remove(magazine)
+        elif magazine in self.large_magazines:
+            self.large_magazines.remove(magazine)
 
     def update_magazines(self):
 

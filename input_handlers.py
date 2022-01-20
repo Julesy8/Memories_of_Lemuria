@@ -187,6 +187,11 @@ class MainGameEventHandler(EventHandler):
             return PickUpEventHandler(engine=self.engine, page=0)
         elif key == tcod.event.K_r:
             return LoadoutEventHandler(engine=self.engine, page=0)
+        elif key == tcod.event.K_q:
+            try:
+                return GunOptionsHandler(engine=self.engine, gun=player.inventory.held)
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine)
 
@@ -647,6 +652,8 @@ class DropItemEventHandler(AskUserEventHandler):
                     bg=(0, 0, 0),
                 )
                 console.print(x=2, y=2, string=f"amount to drop: {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
+                console.print(x=1, y=2, string=f'enter no value to drop all', fg=colour.WHITE,
+                              bg=(0, 0, 0))
 
     def ev_keydown(self, event):
 
@@ -665,8 +672,17 @@ class DropItemEventHandler(AskUserEventHandler):
                         self.buffer = self.buffer[:-1]
 
                     elif event.scancode == tcod.event.SCANCODE_RETURN:
-                        # buffer is ready to be used.
+
+                        if self.buffer == '':
+                            if self.item.stacking:
+                                self.buffer = f'{self.item.stacking.stack_size}'
+                            else:
+                                self.buffer = '1'
+
                         try:
+
+                            if isinstance(self.item.usable_properties, Magazine):
+                                self.engine.player.inventory.remove_from_magazines(self.item)
 
                             # copy of the item to be dropped
                             dropped_item = deepcopy(self.item)
@@ -679,15 +695,13 @@ class DropItemEventHandler(AskUserEventHandler):
 
                                 # more than 1 stack left in after drop
                                 if self.item.stacking.stack_size - self.drop_amount > 1:
-                                    if self.item in self.engine.player.inventory.items:
-                                        self.item.stacking.stack_size -= self.drop_amount
-                                        dropped_item.place(self.engine.player.x, self.engine.player.y,
-                                                           self.engine.game_map)
+                                    self.item.stacking.stack_size -= self.drop_amount
+                                    dropped_item.place(self.engine.player.x, self.engine.player.y,
+                                                       self.engine.game_map)
 
                                 # no stacks left after drop
                                 elif self.item.stacking.stack_size - self.drop_amount <= 0:
-                                    if self.item in self.engine.player.inventory.items:
-                                        self.engine.player.inventory.items.remove(self.item)
+                                    self.engine.player.inventory.items.remove(self.item)
 
                                     self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
@@ -701,18 +715,14 @@ class DropItemEventHandler(AskUserEventHandler):
                             self.engine.message_log.add_message("Invalid entry", colour.RED)
 
             else:  # item stacking, stack size = 1
-                if self.item in self.engine.player.inventory.items:
-                    self.engine.player.inventory.items.remove(self.item)
-
+                self.engine.player.inventory.items.remove(self.item)
                 self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
                 self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
 
         else:  # item not stacking
-            if self.item in self.engine.player.inventory.items:
-                self.engine.player.inventory.items.remove(self.item)
-
+            self.engine.player.inventory.items.remove(self.item)
             self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
 
             self.engine.handle_enemy_turns()
@@ -885,6 +895,12 @@ class AmountToPickUpMenu(AskUserEventHandler):
                         self.buffer = self.buffer[:-1]
 
                     elif event.scancode == tcod.event.SCANCODE_RETURN:
+
+                        if self.buffer == '':
+                            PickupAction(entity=self.engine.player, item=self.item,
+                                         pickup_amount=self.item.stacking.stack_size).perform()
+                            self.engine.handle_enemy_turns()
+                            return MainGameEventHandler(self.engine)
 
                         try:
                             PickupAction(entity=self.engine.player, item=self.item,
@@ -1174,14 +1190,16 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
         self.mag_list = []
         self.TITLE = gun.name
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
-        self.mag_list = []
+        loadout = self.engine.player.inventory.small_magazines + self.engine.player.inventory.medium_magazines \
+                  + self.engine.player.inventory.large_magazines
 
         for item in self.engine.player.inventory.items:
-            if isinstance(item.usable_properties, Magazine):
+            if item in loadout:
                 if item.usable_properties.magazine_type == self.gun.usable_properties.compatible_magazine_type:
                     self.mag_list.append(item)
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
 
         no_mags = len(self.mag_list)
 
@@ -1354,6 +1372,7 @@ class SelectNumberOfBulletsToLoadHandler(AskUserEventHandler):
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)
         console.print(x=1, y=1, string=f'# of bullets to load: {self.buffer}', fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=1, y=2, string=f'enter no value to load max available amount', fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         for event in tcod.event.wait():
@@ -1368,6 +1387,13 @@ class SelectNumberOfBulletsToLoadHandler(AskUserEventHandler):
                 self.buffer = self.buffer[:-1]
 
             elif event.scancode == tcod.event.SCANCODE_RETURN:
+
+                if self.buffer == '':
+                    self.magazine.usable_properties.load_magazine(ammo=self.ammo,
+                                                                  load_amount=self.ammo.stacking.stack_size)
+                    self.engine.handle_enemy_turns()
+                    return MainGameEventHandler(self.engine)
+
                 try:
                     self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
                     self.engine.handle_enemy_turns()

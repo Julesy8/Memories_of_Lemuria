@@ -85,7 +85,7 @@ class Engine:
         console.print(x=0, y=46, string='R', fg=colour.WHITE)  # indicates right and left
         console.print(x=4, y=46, string='L', fg=colour.WHITE)
 
-        console.print(x=66, y=47, string=f"{level_names[self.current_level]} {self.current_floor + 1}",
+        console.print(x=66, y=46, string=f"{level_names[self.current_level]} {self.current_floor + 1}",
                       fg=colour.WHITE, bg_blend=1)
 
         render_names_at_mouse_location(console=console, x=1, y=45, engine=self)

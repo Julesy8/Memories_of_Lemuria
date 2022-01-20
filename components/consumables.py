@@ -168,15 +168,21 @@ class Magazine(Usable):
             if load_amount > ammo.stacking.stack_size or load_amount < 1:
                 raise Impossible("Invalid entry.")
 
+            # amount to be loaded is greater than no. of rounds available
+            if load_amount > ammo.stacking.stack_size:
+                load_amount = ammo.stacking.stack_size
+
+            # amount to be loaded is greater than the magazine capacity
+            if load_amount > self.mag_capacity - len(self.magazine):
+                load_amount = self.mag_capacity - len(self.magazine)
+
             # 1 or more stack left in inventory after loading
             elif ammo.stacking.stack_size - load_amount > 1:
-                if ammo in inventory.items:
-                    ammo.stacking.stack_size -= load_amount
+                ammo.stacking.stack_size -= load_amount
 
             # no stacks left after loading
             elif ammo.stacking.stack_size - load_amount <= 0:
-                if ammo in self.engine.player.inventory.items:
-                    inventory.items.remove(ammo)
+                inventory.items.remove(ammo)
 
             rounds_loaded = 0
 
@@ -230,7 +236,7 @@ class Magazine(Usable):
                 self.magazine = []
 
             else:
-                raise Impossible(f"{entity.name} is already empty")
+                return self.engine.message_log.add_message(f"{entity.name} is already empty", colour.RED)
 
 
 class Gun(Weapon):
@@ -325,7 +331,7 @@ class Gun(Weapon):
                 self.loaded_magazine = None
 
             else:
-                raise Impossible(f"{entity.name} has no magazine loaded")
+                self.engine.message_log.add_message(f"{entity.name} has no magazine loaded", colour.RED)
 
 
 class Wearable(Usable):
@@ -358,7 +364,7 @@ class Wearable(Usable):
                 if bodypart.part_type == self.fits_bodypart:
 
                     if bodypart.equipped is not None:
-                        raise Impossible(f"You are already wearing something there.")
+                        self.engine.message_log.add_message(f"You are already wearing something there.", colour.RED)
 
                     else:
                         if not item_removed:
@@ -383,8 +389,4 @@ class Wearable(Usable):
                 if bodypart.part_type == self.fits_bodypart:
                     bodypart.equipped = None
 
-            if inventory.current_item_weight() + entity.weight > inventory.capacity:
-                raise Impossible(f"Your inventory is full")
-
-            else:
-                inventory.items.append(entity)
+            inventory.items.append(entity)
