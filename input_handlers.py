@@ -513,6 +513,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
         elif option == 'Equip':
             try:
                 self.item.usable_properties.equip()
+                self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
 
             except AttributeError:
@@ -521,6 +522,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
         elif option == 'Unequip':
             try:
                 self.item.usable_properties.unequip()
+                self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -680,9 +682,6 @@ class DropItemEventHandler(AskUserEventHandler):
                                 self.buffer = '1'
 
                         try:
-
-                            if isinstance(self.item.usable_properties, Magazine):
-                                self.engine.player.inventory.remove_from_magazines(self.item)
 
                             # copy of the item to be dropped
                             dropped_item = deepcopy(self.item)
@@ -1123,7 +1122,7 @@ class MagazineOptionsHandler(AskUserEventHandler):
 
         elif option == 'unload bullets':
             self.engine.handle_enemy_turns()
-            player.inventory.remove_from_magazines(magazine=self.magazine)
+            self.magazine.usable_properties.unload_magazine()
 
         elif option == 'add to loadout':
             player.inventory.add_to_magazines(magazine=self.magazine)
@@ -1258,6 +1257,12 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
+        # takes appropriate amount of turns to load magazine into gun
+        turns_used = 0
+        while turns_used < item.usable_properties.turns_to_load:
+            turns_used += 1
+            self.engine.handle_enemy_turns()
+
         self.gun.usable_properties.load_gun(item)
         return MainGameEventHandler(engine=self.engine)
 
@@ -1391,12 +1396,10 @@ class SelectNumberOfBulletsToLoadHandler(AskUserEventHandler):
                 if self.buffer == '':
                     self.magazine.usable_properties.load_magazine(ammo=self.ammo,
                                                                   load_amount=self.ammo.stacking.stack_size)
-                    self.engine.handle_enemy_turns()
                     return MainGameEventHandler(self.engine)
 
                 try:
                     self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
-                    self.engine.handle_enemy_turns()
                     return MainGameEventHandler(self.engine)
 
                 except ValueError:

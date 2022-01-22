@@ -5,6 +5,7 @@ from typing import Optional, TYPE_CHECKING
 from exceptions import Impossible
 
 from copy import deepcopy
+from math import ceil
 
 import actions
 import colour
@@ -147,16 +148,19 @@ class Magazine(Usable):
                  compatible_bullet_type: str,
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
+                 turns_to_load: int,  # amount of turns it takes to load magazine into gun
                  ):
         self.magazine_type = magazine_type
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
         self.magazine_size = magazine_size
+        self.turns_to_load = turns_to_load
         self.magazine = []
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
 
+    # Note: these functions are only intended to be used by the player
     def load_magazine(self, ammo, load_amount) -> None:
         # loads bullets into magazine
 
@@ -196,6 +200,13 @@ class Magazine(Usable):
                         self.mag_capacity:
                     break
 
+            # every 5 bullets loaded into the magazine takes 1 turn
+            turns_used = 0
+
+            while turns_used < load_amount / 5:
+                turns_used += 1
+                self.engine.handle_enemy_turns()
+
     def unload_magazine(self) -> None:
         # unloads bullets from magazine
 
@@ -209,10 +220,7 @@ class Magazine(Usable):
             if len(self.magazine) > 0:
                 for bullet in self.magazine:
 
-                    if bullet in bullets_unloaded:
-                        pass
-
-                    else:
+                    if bullet not in bullets_unloaded:
                         bullets_unloaded.append(bullet)
                         bullet_counter = 0
                         for i in self.magazine:
@@ -232,7 +240,6 @@ class Magazine(Usable):
                         # if no bullets of same type in inventory, adds to inventory
                         if not bullet_type_in_inventory:
                             inventory.items.append(bullet)
-
                 self.magazine = []
 
             else:
@@ -247,11 +254,15 @@ class Gun(Weapon):
                  base_armour_damage: int,
                  base_accuracy: float,
                  range_accuracy_dropoff: int,
+                 automatic: bool,
+                 fire_rate: int,  # for automatic weapons, in rpm
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
 
         self.compatible_magazine_type = compatible_magazine_type
+        self.automatic = automatic
+        self.fire_rate = fire_rate
         self.chambered_bullet = chambered_bullet
         self.loaded_magazine = loaded_magazine
 
@@ -266,39 +277,48 @@ class Gun(Weapon):
 
     def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
-        if self.chambered_bullet is not None:
+        rounds_to_fire = 1
 
-            range_penalty = 0
+        if self.automatic:
+            rounds_to_fire = ceil(self.fire_rate / 60 / 5)
 
-            if distance > self.range_accuracy_dropoff:
-                range_penalty = distance - self.range_accuracy_dropoff
+        while rounds_to_fire > 0:
+            if self.chambered_bullet is not None:
 
-            # successful hit
-            if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy) + \
-                    range_penalty:
+                range_penalty = 0
 
-                # does damage to given bodypart
-                target.bodyparts[part_index].deal_damage(
-                    meat_damage=self.base_meat_damage * self.chambered_bullet.usable_properties.meat_damage_factor,
-                    armour_damage=self.base_armour_damage * self.chambered_bullet.usable_properties.armour_damage_factor,
-                    attacker=attacker, item=self.parent)
+                if distance > self.range_accuracy_dropoff:
+                    range_penalty = distance - self.range_accuracy_dropoff
 
-            # miss
-            else:
-                if attacker.player:
-                    return self.engine.message_log.add_message("Your shot misses.", colour.YELLOW)
+                # successful hit
+                if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy) + \
+                        range_penalty:
 
+                    # does damage to given bodypart
+                    target.bodyparts[part_index].deal_damage(
+                        meat_damage=self.base_meat_damage * self.chambered_bullet.usable_properties.meat_damage_factor,
+                        armour_damage=self.base_armour_damage * self.chambered_bullet.usable_properties.armour_damage_factor,
+                        attacker=attacker, item=self.parent)
+
+                # miss
                 else:
-                    return self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
+                    if attacker.player:
+                        self.engine.message_log.add_message("Your shot misses.", colour.YELLOW)
 
-            self.chambered_bullet = None
+                    else:
+                        self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
 
-            if self.loaded_magazine is not None:
-                if len(self.loaded_magazine.usable_properties.magazine) > 0:
-                    self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+                self.chambered_bullet = None
 
-        else:
-            return self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
+                if self.loaded_magazine is not None:
+                    if len(self.loaded_magazine.usable_properties.magazine) > 0:
+                        self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+
+                rounds_to_fire -= 1
+
+            else:
+                self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
+                break
 
     def load_gun(self, magazine):
 
@@ -332,6 +352,18 @@ class Gun(Weapon):
 
             else:
                 self.engine.message_log.add_message(f"{entity.name} has no magazine loaded", colour.RED)
+
+    def unequip(self) -> None:
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if self.loaded_magazine is not None:
+                self.engine.player.inventory.remove_from_magazines(self.loaded_magazine)
+
+            inventory.items.append(inventory.held)
+            inventory.held = None
 
 
 class Wearable(Usable):

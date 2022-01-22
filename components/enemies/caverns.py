@@ -182,6 +182,8 @@ glock_17 = Item(
         compatible_magazine_type='glock9mm',
         chambered_bullet=None,
         loaded_magazine=None,
+        automatic=False,
+        fire_rate=800,
         base_meat_damage=10,
         base_armour_damage=10,
         base_accuracy=1.0,
@@ -201,6 +203,7 @@ glock_mag = Item(
         magazine_type='glock9mm',
         compatible_bullet_type='9mm',
         mag_capacity=17,
+        turns_to_load=1,
         magazine_size='small',
     )
 )

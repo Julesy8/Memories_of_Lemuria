@@ -1,6 +1,7 @@
 -----
 TO DO
-quick reload
+weapons with integrated magazines
+enemies use firearms
 
 12) item stat screen
 13) weapon firing graphics
