@@ -21,24 +21,28 @@ class Bodypart:
                  hp: int,
                  defence: int,
                  name: str,
-                 base_chance_to_hit: int,  # base modifier of how likely the body part is to be hit when attacked
-                 part_type: Optional[str],  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
-                 vital: bool = False,  # whether when the body part gets destroyed, the entity should die
-                 destroyable: bool = True  # whether or not the body part should be able to be destroyed i.e. cut off, explode
+                 base_chance_to_hit: int,
+                 part_type: Optional[str],
+                 vital: bool = False,
+                 destroyable: bool = True
                  ):
 
         self.max_hp = hp
         self.hp_last_turn = hp
         self._hp = hp
         self._defence = defence
-        self.vital = vital
-        self.equipped = None
+        self.vital = vital  # whether when the body part gets destroyed, the entity should die
+        self.equipped = None  # equipped armour item
         self.name = name
+
+        # base modifier of how likely the body part is to be hit when attacked between
+        # 1 and 100. Higher = more likely to hit.
         self.base_chance_to_hit = base_chance_to_hit
+
+        # whether or not the body part should be able to be destroyed i.e. cut off, explode
         self.destroyable = destroyable
 
-        self.part_type = part_type  # only required for player character
-
+        self.part_type = part_type  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
         self.functional = True  # whether or not bodypart is crippled
 
     @property
@@ -131,16 +135,7 @@ class Bodypart:
 
     def destroy(self, item: Optional[Item]):
 
-        if item:
-            if item.usable_properties.cutting:
-                self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} flys off in an arc!",
-                                                    colour.GREEN)
-
-                #blood_entity = deepcopy(blood)  # TODO: bleeding here, place limb object onto map
-
-            else:
-                self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} explodes into pieces!",
-                                                    colour.GREEN)
+        #blood_entity = deepcopy(blood)  # TODO: bleeding here, place limb object onto map
 
         self.cripple()
 

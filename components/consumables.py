@@ -66,9 +66,9 @@ class Weapon(Usable):
                  base_armour_damage: int,
                  maximum_range: int,
                  base_accuracy: float,
+                 equip_time: int,
                  range_accuracy_dropoff: Optional[int],
                  ranged: bool = False,
-                 cutting: bool = False,
                  ):
 
         self.base_meat_damage = base_meat_damage
@@ -76,8 +76,8 @@ class Weapon(Usable):
         self.ranged = ranged  # if true, weapon has range (non-melee)
         self.maximum_range = maximum_range  # determines how far away the weapon can deal damage
         self.base_accuracy = base_accuracy  # decimal value, modifies base_chance_to_hit for a limb
+        self.equip_time = equip_time
         self.range_accuracy_dropoff = range_accuracy_dropoff  # the range up to which the weapon is accurate
-        self.cutting = cutting  # whether the weapon can cleanly remove limbs
 
         if not self.ranged:
             self.maximum_range = 1
@@ -110,6 +110,13 @@ class Weapon(Usable):
         inventory = entity.parent
 
         if isinstance(inventory, components.inventory.Inventory):
+
+            if inventory.parent == self.engine.player:
+                turns_taken = 0
+                while turns_taken < self.equip_time:
+                    turns_taken += 1
+                    self.engine.handle_enemy_turns()
+
             inventory.items.remove(entity)
             inventory.held = entity
 
@@ -130,12 +137,14 @@ class Bullet(Usable):
                  meat_damage_factor: float,
                  armour_damage_factor: float,
                  accuracy_factor: float,
+                 recoil_modifier: int,  # reduces accuracy of followup automatic shots
                  ):
 
         self.bullet_type = bullet_type
         self.meat_damage_factor = meat_damage_factor
         self.armour_damage_factor = armour_damage_factor
         self.accuracy_factor = accuracy_factor
+        self.recoil_modifier = recoil_modifier
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -144,8 +153,8 @@ class Bullet(Usable):
 class Magazine(Usable):
 
     def __init__(self,
-                 magazine_type: str,
-                 compatible_bullet_type: str,
+                 magazine_type: str,  # type of weapon this magazine works with i.e. glock 9mm
+                 compatible_bullet_type: str,  # compatible bullet i.e. 9mm
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
                  turns_to_load: int,  # amount of turns it takes to load magazine into gun
@@ -181,7 +190,7 @@ class Magazine(Usable):
                 load_amount = self.mag_capacity - len(self.magazine)
 
             # 1 or more stack left in inventory after loading
-            elif ammo.stacking.stack_size - load_amount > 1:
+            if ammo.stacking.stack_size - load_amount > 1:
                 ammo.stacking.stack_size -= load_amount
 
             # no stacks left after loading
@@ -207,6 +216,9 @@ class Magazine(Usable):
                 turns_used += 1
                 self.engine.handle_enemy_turns()
 
+            if isinstance(self, GunIntegratedMag):
+                self.chamber_round()
+
     def unload_magazine(self) -> None:
         # unloads bullets from magazine
 
@@ -216,6 +228,11 @@ class Magazine(Usable):
         inventory = entity.parent
 
         if isinstance(inventory, components.inventory.Inventory):
+
+            if isinstance(self, GunIntegratedMag):
+                if not self.keep_round_chambered:
+                    self.magazine.append(self.chambered_bullet)
+                    self.chambered_bullet = None
 
             if len(self.magazine) > 0:
                 for bullet in self.magazine:
@@ -247,22 +264,18 @@ class Magazine(Usable):
 
 
 class Gun(Weapon):
-    # TODO: implement reload time
     def __init__(self,
-                 compatible_magazine_type: str,
                  base_meat_damage: int,
                  base_armour_damage: int,
                  base_accuracy: float,
                  range_accuracy_dropoff: int,
-                 fire_modes: dict,  # in rpm
+                 equip_time: int,
+                 fire_modes: dict,  # fire rates in rpm
                  current_fire_mode: str,
                  chambered_bullet=None,
-                 loaded_magazine=None,
                  ):
 
-        self.compatible_magazine_type = compatible_magazine_type
         self.chambered_bullet = chambered_bullet
-        self.loaded_magazine = loaded_magazine
 
         self.fire_modes = fire_modes
         self.current_fire_mode = current_fire_mode
@@ -274,23 +287,26 @@ class Gun(Weapon):
             base_accuracy=base_accuracy,
             ranged=True,
             range_accuracy_dropoff=range_accuracy_dropoff,
+            equip_time=equip_time
         )
 
     def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
         rounds_to_fire = ceil(self.fire_modes[self.current_fire_mode] / 60 / 5)
 
+        recoil_penalty = 0
+
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
-
                 range_penalty = 0
 
                 if distance > self.range_accuracy_dropoff:
                     range_penalty = distance - self.range_accuracy_dropoff
 
                 # successful hit
-                if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy) + \
-                        range_penalty:
+                if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy *
+                                 self.chambered_bullet.usable_properties.accuracy_factor) - range_penalty \
+                        - recoil_penalty:
 
                     # does damage to given bodypart
                     target.bodyparts[part_index].deal_damage(
@@ -308,60 +324,19 @@ class Gun(Weapon):
 
                 self.chambered_bullet = None
 
-                if self.loaded_magazine is not None:
-                    if len(self.loaded_magazine.usable_properties.magazine) > 0:
-                        self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+                self.chamber_round()
 
                 rounds_to_fire -= 1
+
+                if self.chambered_bullet is not None:
+                    recoil_penalty += self.chambered_bullet.usable_properties.recoil_modifier
 
             else:
                 self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
                 break
 
-    def load_gun(self, magazine):
-
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-            if self.loaded_magazine is not None:
-                inventory.items.append(self.loaded_magazine)
-                self.loaded_magazine = magazine
-
-            else:
-                self.loaded_magazine = magazine
-
-            inventory.items.remove(magazine)
-
-            if len(magazine.usable_properties.magazine) > 0:
-                if self.chambered_bullet is None:
-                    self.chambered_bullet = magazine.usable_properties.magazine.pop()
-
-    def unload_gun(self):
-
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-
-            if self.loaded_magazine is not None:
-                inventory.items.append(self.loaded_magazine)
-                self.loaded_magazine = None
-
-            else:
-                self.engine.message_log.add_message(f"{entity.name} has no magazine loaded", colour.RED)
-
-    def unequip(self) -> None:
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-
-            if self.loaded_magazine is not None:
-                self.engine.player.inventory.remove_from_magazines(self.loaded_magazine)
-
-            inventory.items.append(inventory.held)
-            inventory.held = None
+    def chamber_round(self):
+        return NotImplementedError
 
 
 class Wearable(Usable):
@@ -420,3 +395,117 @@ class Wearable(Usable):
                     bodypart.equipped = None
 
             inventory.items.append(entity)
+
+
+class GunMagFed(Gun):
+    def __init__(self,
+                 compatible_magazine_type: str,
+                 base_meat_damage: int,
+                 base_armour_damage: int,
+                 base_accuracy: float,
+                 range_accuracy_dropoff: int,
+                 equip_time: int,
+                 fire_modes: dict,
+                 current_fire_mode: str,
+                 chambered_bullet=None,
+                 loaded_magazine=None,
+                 ):
+        self.compatible_magazine_type = compatible_magazine_type
+        self.loaded_magazine = loaded_magazine
+
+        super().__init__(
+            base_meat_damage=base_meat_damage,
+            base_armour_damage=base_armour_damage,
+            base_accuracy=base_accuracy,
+            range_accuracy_dropoff=range_accuracy_dropoff,
+            equip_time=equip_time,
+            fire_modes=fire_modes,
+            current_fire_mode=current_fire_mode,
+            chambered_bullet=chambered_bullet,
+        )
+
+    def load_gun(self, magazine):
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+            if self.loaded_magazine is not None:
+                inventory.items.append(self.loaded_magazine)
+                self.loaded_magazine = magazine
+
+            else:
+                self.loaded_magazine = magazine
+
+            inventory.items.remove(magazine)
+
+            if len(magazine.usable_properties.magazine) > 0:
+                if self.chambered_bullet is None:
+                    self.chambered_bullet = magazine.usable_properties.magazine.pop()
+
+    def unload_gun(self):
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if self.loaded_magazine is not None:
+                inventory.items.append(self.loaded_magazine)
+                self.loaded_magazine = None
+
+            else:
+                self.engine.message_log.add_message(f"{entity.name} has no magazine loaded", colour.RED)
+
+    def unequip(self) -> None:
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if self.loaded_magazine is not None:
+                self.engine.player.inventory.remove_from_magazines(self.loaded_magazine)
+
+            inventory.items.append(inventory.held)
+            inventory.held = None
+
+    def chamber_round(self):
+        if self.loaded_magazine is not None:
+            if len(self.loaded_magazine.usable_properties.magazine) > 0:
+                self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+
+
+class GunIntegratedMag(Gun, Magazine):
+    def __init__(self,
+                 base_meat_damage: int,
+                 base_armour_damage: int,
+                 base_accuracy: float,
+                 range_accuracy_dropoff: int,
+                 equip_time: int,
+                 fire_modes: dict,
+                 current_fire_mode: str,
+                 compatible_bullet_type: str,
+                 mag_capacity: int,
+                 keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
+                 chambered_bullet=None,
+                 ):
+
+        self.keep_round_chambered = keep_round_chambered
+        self.compatible_bullet_type = compatible_bullet_type
+        self.mag_capacity = mag_capacity
+        self.magazine = []
+
+        super().__init__(
+            base_meat_damage=base_meat_damage,
+            base_armour_damage=base_armour_damage,
+            base_accuracy=base_accuracy,
+            range_accuracy_dropoff=range_accuracy_dropoff,
+            equip_time=equip_time,
+            fire_modes=fire_modes,
+            current_fire_mode=current_fire_mode,
+            chambered_bullet=chambered_bullet,
+        )
+
+    def chamber_round(self):
+        if len(self.magazine) > 0:
+            self.chambered_bullet = self.magazine.pop()

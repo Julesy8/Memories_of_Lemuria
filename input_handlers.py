@@ -8,7 +8,7 @@ from copy import deepcopy
 import tcod.event
 
 import actions
-from components.consumables import Gun, Bullet, Magazine
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine
 from actions import (
     Action,
     BumpAction,
@@ -500,7 +500,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
         """Called when the user selects a valid item."""
         if option == 'Use':
             try:
-                if isinstance(self.item.usable_properties, Magazine):
+                if type(self.item.usable_properties) is Magazine:
                     return MagazineOptionsHandler(engine=self.engine, magazine=self.item)
                 elif isinstance(self.item.usable_properties, Gun):
                     return GunOptionsHandler(engine=self.engine, gun=self.item)
@@ -654,7 +654,7 @@ class DropItemEventHandler(AskUserEventHandler):
                     bg=(0, 0, 0),
                 )
                 console.print(x=2, y=2, string=f"amount to drop: {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
-                console.print(x=1, y=2, string=f'enter no value to drop all', fg=colour.WHITE,
+                console.print(x=1, y=4, string=f'enter no value to drop all', fg=colour.WHITE,
                               bg=(0, 0, 0))
 
     def ev_keydown(self, event):
@@ -1140,9 +1140,15 @@ class GunOptionsHandler(AskUserEventHandler):
         super().__init__(engine)
         self.gun = gun
         self.TITLE = gun.name
-        self.options = ["load magazine", "unload magazine"]
+        self.options = []
 
         self.firemodes = self.gun.usable_properties.fire_modes
+
+        if type(self.gun.usable_properties) is GunMagFed:
+            self.options += ["load magazine", "unload magazine"]
+
+        elif type(self.gun.usable_properties) is GunIntegratedMag:
+            self.options += ["load rounds", "unload rounds"]
 
         for firemode in self.firemodes:
             if not firemode == self.gun.usable_properties.current_fire_mode:
@@ -1203,6 +1209,12 @@ class GunOptionsHandler(AskUserEventHandler):
 
         elif option == 'unload magazine':
             self.gun.usable_properties.unload_gun()
+
+        elif option == 'load rounds':
+            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun)
+
+        elif option == 'unload rounds':
+            self.gun.usable_properties.unload_magazine()
 
         elif option in self.firemodes:
             self.gun.usable_properties.current_fire_mode = option
@@ -1299,7 +1311,7 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
 
 class SelectBulletsToLoadHandler(AskUserEventHandler):
 
-    TITLE = "Load Magazine"
+    TITLE = "Select Bullets to Load"
 
     def __init__(self, engine: Engine, magazine: Item):
         super().__init__(engine)

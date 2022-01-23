@@ -178,18 +178,43 @@ glock_17 = Item(
     name="Glock 17",
     weight=1,
     stacking=None,
-    usable_properties=consumables.Gun(
+    usable_properties=consumables.GunMagFed(
         compatible_magazine_type='glock9mm',
         chambered_bullet=None,
         loaded_magazine=None,
+        equip_time=1,
         fire_modes={'single shot': 1, 'automatic': 1200},
-        current_fire_mode='singe shot',
+        current_fire_mode='single shot',
         base_meat_damage=10,
         base_armour_damage=10,
         base_accuracy=1.0,
         range_accuracy_dropoff=40,
     )
 )
+
+kar_98k = Item(
+    x=0, y=0,
+    char="k",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Kar 98K",
+    weight=1,
+    stacking=None,
+    usable_properties=consumables.GunIntegratedMag(
+        chambered_bullet=None,
+        keep_round_chambered=False,
+        equip_time=1,
+        fire_modes={'single shot': 1},
+        current_fire_mode='single shot',
+        base_meat_damage=10,
+        base_armour_damage=10,
+        base_accuracy=1.0,
+        range_accuracy_dropoff=40,
+        compatible_bullet_type='8mm mauser',
+        mag_capacity=5,
+    )
+)
+
 
 glock_mag = Item(
     x=0, y=0,
@@ -220,6 +245,24 @@ bullet_9mm = Item(
         bullet_type='9mm',
         meat_damage_factor=1.0,
         armour_damage_factor=1.0,
-        accuracy_factor=1.0
+        accuracy_factor=1.0,
+        recoil_modifier=4,
+    )
+)
+
+bullet_8mm_mauser = Item(
+    x=0, y=0,
+    char="m",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name='8mm Mauser',
+    weight=1,
+    stacking=Stacking(stack_size=10),
+    usable_properties=consumables.Bullet(
+        bullet_type='8mm mauser',
+        meat_damage_factor=1.0,
+        armour_damage_factor=1.0,
+        accuracy_factor=1.0,
+        recoil_modifier=4,
     )
 )

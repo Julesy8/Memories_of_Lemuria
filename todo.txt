@@ -1,6 +1,5 @@
 -----
 TO DO
-weapons with integrated magazines
 enemies use firearms
 
 12) item stat screen
