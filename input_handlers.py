@@ -1140,45 +1140,75 @@ class GunOptionsHandler(AskUserEventHandler):
         super().__init__(engine)
         self.gun = gun
         self.TITLE = gun.name
+        self.options = ["load magazine", "unload magazine"]
+
+        self.firemodes = self.gun.usable_properties.fire_modes
+
+        for firemode in self.firemodes:
+            if not firemode == self.gun.usable_properties.current_fire_mode:
+                self.options.append(firemode)
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)
-        str_1 = "(a) load magazine"
-        str_2 = "(b) unload magazine"
+
+        longest_option_name = 0
+        for option in self.options:
+            if len(option) > longest_option_name:
+                longest_option_name = len(option)
+
+        width = len(self.TITLE)
+
+        if longest_option_name > width:
+            width = longest_option_name + 4
 
         x = 1
         y = 2
-
-        width = len(str_2)
-
-        if width < len(self.TITLE):
-            width = len(self.TITLE)
 
         console.draw_frame(
             x=x,
             y=y,
             width=width + 2,
-            height=4,
+            height=len(self.options) + 2,
             title=self.TITLE,
             clear=True,
             fg=colour.WHITE,
             bg=(0, 0, 0),
         )
 
-        console.print(2, 3, str_1, fg=colour.WHITE, bg=(0, 0, 0))
-        console.print(2, 4, str_2, fg=colour.WHITE, bg=(0, 0, 0))
+        for i, option in enumerate(self.options):
+            option_key = chr(ord("a") + i)
+            console.print(x + 1, y + i + 1, f"({option_key}) {option}")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        index = key - tcod.event.K_a
 
         if event.sym == tcod.event.K_ESCAPE:
             return MainGameEventHandler(self.engine)
 
-        elif event.sym == tcod.event.K_a:
+        if 0 <= index <= 26:
+            try:
+                selected_option = self.options[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                return GunOptionsHandler(engine=self.engine, gun=self.gun)
+            return self.on_option_selected(selected_option)
+        return super().ev_keydown(event)
+
+    def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+
+        if option == 'load magazine':
             return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun)
 
-        elif event.sym == tcod.event.K_b:
+        elif option == 'unload magazine':
             self.gun.usable_properties.unload_gun()
-            return MainGameEventHandler(self.engine)
+
+        elif option in self.firemodes:
+            self.gun.usable_properties.current_fire_mode = option
+
+        self.engine.handle_enemy_turns()
+        return MainGameEventHandler(engine=self.engine)
 
 
 class SelectMagazineToLoadIntoGun(AskUserEventHandler):

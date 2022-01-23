@@ -254,17 +254,18 @@ class Gun(Weapon):
                  base_armour_damage: int,
                  base_accuracy: float,
                  range_accuracy_dropoff: int,
-                 automatic: bool,
-                 fire_rate: int,  # for automatic weapons, in rpm
+                 fire_modes: dict,  # in rpm
+                 current_fire_mode: str,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
 
         self.compatible_magazine_type = compatible_magazine_type
-        self.automatic = automatic
-        self.fire_rate = fire_rate
         self.chambered_bullet = chambered_bullet
         self.loaded_magazine = loaded_magazine
+
+        self.fire_modes = fire_modes
+        self.current_fire_mode = current_fire_mode
 
         super().__init__(
             base_meat_damage=base_meat_damage,
@@ -277,10 +278,7 @@ class Gun(Weapon):
 
     def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
-        rounds_to_fire = 1
-
-        if self.automatic:
-            rounds_to_fire = ceil(self.fire_rate / 60 / 5)
+        rounds_to_fire = ceil(self.fire_modes[self.current_fire_mode] / 60 / 5)
 
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
