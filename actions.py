@@ -248,6 +248,51 @@ class PickupAction(Action):
         item_copy.parent = self.entity.inventory
 
 
+class DropAction(Action):
+
+    def __init__(self, entity: Actor, item: Item, drop_amount: int):
+        super().__init__(entity)
+        self.item = item
+        self.drop_amount = drop_amount
+
+    def perform(self) -> None:
+        if self.item.stacking:
+            if self.item.stacking.stack_size > 1:
+
+                try:
+
+                    # copy of the item to be dropped
+                    dropped_item = deepcopy(self.item)
+
+                    # sets dropped item to have correct stack size
+                    dropped_item.stacking.stack_size = self.drop_amount
+
+                    if self.drop_amount > 0:
+
+                        # more than 1 stack left in after drop
+                        if self.item.stacking.stack_size - self.drop_amount > 1:
+                            self.item.stacking.stack_size -= self.drop_amount
+                            dropped_item.place(self.entity.x, self.entity.y,
+                                               self.engine.game_map)
+
+                        # no stacks left after drop
+                        elif self.item.stacking.stack_size - self.drop_amount <= 0:
+                            self.entity.inventory.items.remove(self.item)
+
+                            self.item.place(self.entity.x, self.entity.y, self.engine.game_map)
+
+                except ValueError:
+                    self.engine.message_log.add_message("Invalid entry", colour.RED)
+
+            else:  # item stacking, stack size = 1
+                self.entity.inventory.items.remove(self.item)
+                self.item.place(self.entity.x, self.entity.y, self.engine.game_map)
+
+        else:  # item not stacking
+            self.entity.inventory.items.remove(self.item)
+            self.item.place(self.entity.x, self.entity.y, self.engine.game_map)
+
+
 class ItemAction(Action):
     def __init__(
             self, entity: Actor, item: Item, target_xy: Optional[Tuple[int, int]] = None

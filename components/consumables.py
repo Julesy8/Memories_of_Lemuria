@@ -12,6 +12,7 @@ import colour
 import components.inventory
 from components.npc_templates import BaseComponent
 if TYPE_CHECKING:
+    from components.gunparts import GunParts
     from entity import Actor, Item
     from input_handlers import ActionOrHandler
 
@@ -265,6 +266,7 @@ class Magazine(Usable):
 
 class Gun(Weapon):
     def __init__(self,
+                 parts: GunParts,
                  base_meat_damage: int,
                  base_armour_damage: int,
                  base_accuracy: float,
@@ -272,11 +274,15 @@ class Gun(Weapon):
                  equip_time: int,
                  fire_modes: dict,  # fire rates in rpm
                  current_fire_mode: str,
+                 keep_round_chambered: bool,
                  chambered_bullet=None,
                  ):
 
-        self.chambered_bullet = chambered_bullet
+        self.parts = parts
+        self.parts.parent = self
 
+        self.chambered_bullet = chambered_bullet
+        self.keep_round_chambered = keep_round_chambered
         self.fire_modes = fire_modes
         self.current_fire_mode = current_fire_mode
 
@@ -399,6 +405,7 @@ class Wearable(Usable):
 
 class GunMagFed(Gun):
     def __init__(self,
+                 parts,
                  compatible_magazine_type: str,
                  base_meat_damage: int,
                  base_armour_damage: int,
@@ -407,6 +414,7 @@ class GunMagFed(Gun):
                  equip_time: int,
                  fire_modes: dict,
                  current_fire_mode: str,
+                 keep_round_chambered: bool,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
@@ -414,6 +422,7 @@ class GunMagFed(Gun):
         self.loaded_magazine = loaded_magazine
 
         super().__init__(
+            parts=parts,
             base_meat_damage=base_meat_damage,
             base_armour_damage=base_armour_damage,
             base_accuracy=base_accuracy,
@@ -421,6 +430,7 @@ class GunMagFed(Gun):
             equip_time=equip_time,
             fire_modes=fire_modes,
             current_fire_mode=current_fire_mode,
+            keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
         )
 
@@ -431,6 +441,11 @@ class GunMagFed(Gun):
 
         if isinstance(inventory, components.inventory.Inventory):
             if self.loaded_magazine is not None:
+
+                if not self.keep_round_chambered:
+                    self.loaded_magazine.append(self.chambered_bullet)
+                    self.chambered_bullet = None
+
                 inventory.items.append(self.loaded_magazine)
                 self.loaded_magazine = magazine
 
@@ -451,6 +466,11 @@ class GunMagFed(Gun):
         if isinstance(inventory, components.inventory.Inventory):
 
             if self.loaded_magazine is not None:
+
+                if not self.keep_round_chambered:
+                    self.loaded_magazine.append(self.chambered_bullet)
+                    self.chambered_bullet = None
+
                 inventory.items.append(self.loaded_magazine)
                 self.loaded_magazine = None
 
@@ -477,6 +497,7 @@ class GunMagFed(Gun):
 
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
+                 parts,
                  base_meat_damage: int,
                  base_armour_damage: int,
                  base_accuracy: float,
@@ -490,12 +511,12 @@ class GunIntegratedMag(Gun, Magazine):
                  chambered_bullet=None,
                  ):
 
-        self.keep_round_chambered = keep_round_chambered
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
         self.magazine = []
 
         super().__init__(
+            parts=parts,
             base_meat_damage=base_meat_damage,
             base_armour_damage=base_armour_damage,
             base_accuracy=base_accuracy,
@@ -503,9 +524,50 @@ class GunIntegratedMag(Gun, Magazine):
             equip_time=equip_time,
             fire_modes=fire_modes,
             current_fire_mode=current_fire_mode,
+            keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
         )
 
     def chamber_round(self):
         if len(self.magazine) > 0:
             self.chambered_bullet = self.magazine.pop()
+
+
+class GunComponent(Usable):
+    def __init__(self,
+
+                 compatible_gun_type: str,
+                 part_type: str,
+
+                 # for mag fed gun
+                 compatible_magazine_type: Optional[str] = None,
+
+                 # for gun w integrated mag
+                 compatible_bullet_type: Optional[str] = None,
+                 mag_capacity: Optional[int] = None,
+
+                 base_meat_damage: Optional[float] = None,
+                 base_armour_damage: Optional[float] = None,
+                 base_accuracy: Optional[float] = None,
+                 range_accuracy_dropoff: Optional[float] = None,
+                 equip_time: Optional[float] = None,
+                 fire_modes: Optional[dict] = None,  # fire rates in rpm
+                 keep_round_chambered: Optional[bool] = None,
+                 ):
+
+        self.compatible_gun_type = compatible_gun_type
+        self.part_type = part_type
+
+        self.base_meat_damage = base_meat_damage
+        self.base_armour_damage = base_armour_damage
+        self.base_accuracy = base_accuracy
+        self.range_accuracy_dropoff = range_accuracy_dropoff
+        self.equip_time = equip_time
+        self.keep_round_chambered = keep_round_chambered
+        self.compatible_magazine_type = compatible_magazine_type
+        self.compatible_bullet_type = compatible_bullet_type
+        self.mag_capacity = mag_capacity
+        self.fire_modes = fire_modes
+
+    def activate(self, action: actions.ItemAction):
+        return NotImplementedError

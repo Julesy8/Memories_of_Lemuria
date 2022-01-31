@@ -3,12 +3,13 @@ from __future__ import annotations
 import os
 from typing import Optional, TYPE_CHECKING, Union
 from math import ceil, floor
-from copy import deepcopy
 
 import tcod.event
 
+from entity import Item
 import actions
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine
+from components.weapons.gundict import guns_dict
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent
 from actions import (
     Action,
     BumpAction,
@@ -23,7 +24,6 @@ from scrolling_map import Camera
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Item
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -184,9 +184,9 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine)
         elif key == tcod.event.K_g:
-            return PickUpEventHandler(engine=self.engine, page=0)
+            return PickUpEventHandler(engine=self.engine)
         elif key == tcod.event.K_r:
-            return LoadoutEventHandler(engine=self.engine, page=0)
+            return LoadoutEventHandler(engine=self.engine)
         elif key == tcod.event.K_q:
             try:
                 return GunOptionsHandler(engine=self.engine, gun=player.inventory.held)
@@ -194,11 +194,12 @@ class MainGameEventHandler(EventHandler):
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine)
-
+        elif key == tcod.event.K_c:
+            return CraftingEventHandler(self.engine)
         elif key == tcod.event.K_i:
-            return InventoryInteractHandler(self.engine, 0)
+            return InventoryEventHandler(self.engine)
         elif key == tcod.event.K_e:
-            return EquipmentInteractHandler(self.engine)
+            return EquipmentEventHandler(self.engine)
         # No valid key was pressed
         return action
 
@@ -307,20 +308,86 @@ class AskUserEventHandler(EventHandler):
         return MainGameEventHandler(self.engine)
 
 
-class InventoryEventHandler(AskUserEventHandler):
-    """This handler lets the user select an item.
+class UserOptionsEventHandler(AskUserEventHandler):
 
-    What happens then depends on the subclass.
-    """
+    def __init__(self, engine: Engine, options: list, title: str):
+        self.options = options
+        self.TITLE = title
+        super().__init__(engine)
 
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)
+
+        longest_option_name = 0
+
+        for option in self.options:
+            if isinstance(option, Item):
+                if len(option.name) > longest_option_name:
+                    longest_option_name = len(option.name)
+            else:
+                if len(option) > longest_option_name:
+                    longest_option_name = len(option)
+
+        width = len(self.TITLE)
+
+        if longest_option_name > width:
+            width = longest_option_name + 4
+
+        x = 1
+        y = 2
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 2,
+            height=len(self.options) + 2,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        for i, option in enumerate(self.options):
+            option_key = chr(ord("a") + i)
+            if isinstance(option, Item):
+                console.print(x + 1, y + i + 1, f"({option_key}) {option.name}")
+            else:
+                console.print(x + 1, y + i + 1, f"({option_key}) {option}")
+
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if event.sym == tcod.event.K_ESCAPE:
+            return MainGameEventHandler(self.engine)
+
+        if 0 <= index <= 26:
+            try:
+                selected_option = self.options[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                return self
+            return self.on_option_selected(selected_option)
+        return super().ev_keydown(event)
+
+    def on_option_selected(self, option):
+        return NotImplementedError
+
+
+class UserOptionsWithPages(AskUserEventHandler):
     TITLE = "<missing title>"
 
-    def __init__(self, engine: Engine, page: int):
+    def __init__(self, engine: Engine, page: int, options: list, title: str):
         super().__init__(engine)
         self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
         self.page = page
-        self.TITLE = self.TITLE + f" - {self.engine.player.inventory.current_item_weight()}" \
-                                  f"/{self.engine.player.inventory.capacity}kg"
+        self.options = options
+        self.TITLE = title
+
+        self.camera=None  # TODO: find out if defining camera and console is necessary
+        self.console=None
+
+        super().__init__(engine)
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
@@ -328,16 +395,17 @@ class InventoryEventHandler(AskUserEventHandler):
         they are.
         """
         super().on_render(console, camera)
-        number_of_items_in_inventory = len(self.engine.player.inventory.items)
 
-        longest_name_len = None
-        if len(self.engine.player.inventory.items) > 0:
-            longest_name_len = self.engine.player.inventory.items[0]
+        if self.console is None and self.camera is None:
+            self.console = console
+            self.camera = camera
 
-        width = len(self.TITLE) + 4
-        height = number_of_items_in_inventory + 2
+        number_of_options = len(self.options)
 
-        if number_of_items_in_inventory > self.max_list_length:
+        width = len(self.TITLE)
+        height = number_of_options + 2
+
+        if number_of_options > self.max_list_length:
             height = self.max_list_length + 2
 
         x = 1
@@ -345,37 +413,30 @@ class InventoryEventHandler(AskUserEventHandler):
 
         index_range = self.page * self.max_list_length
 
-        for item in self.engine.player.inventory.items[index_range:index_range+self.max_list_length]:
-            try:
-                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
-                    longest_name_len = item
-            except AttributeError:
-                if len(item.name) > len(longest_name_len.name):
-                    longest_name_len = item
+        longest_name_len = 0
 
-            if item.stacking:
-                try:
-                    if len(item.name) + len(str(item.stacking.stack_size)) > \
-                            len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)):
-                        longest_name_len = item
-                except AttributeError:
-                    if len(item.name) + len(str(item.stacking.stack_size)) + 2 > len(longest_name_len.name):
-                        longest_name_len = item
+        for item in self.options[index_range:index_range+self.max_list_length]:
 
-        if longest_name_len:
-            if len(longest_name_len.name) + 6 > width:
-                width = len(longest_name_len.name) + 6
+            if isinstance(item, Item):
+                if item.stacking:
+                    if len(item.name) + len(str(item.stacking.stack_size)) > longest_name_len:
+                        longest_name_len = len(item.name) + len(str(item.stacking.stack_size))
+                else:
+                    if len(item.name) > longest_name_len:
+                        longest_name_len = len(item.name)
 
-        stack_str_len = 0
+            else:
+                if len(item) > longest_name_len:
+                    longest_name_len = len(item)
 
         if longest_name_len:
-            if longest_name_len.stacking:
-                stack_str_len = len(str(longest_name_len.stacking.stack_size)) + 2
+            if longest_name_len > width:
+                width = longest_name_len
 
         console.draw_frame(
             x=x,
             y=y,
-            width=width + stack_str_len,
+            width=width + 8,
             height=height,
             title=self.TITLE,
             clear=True,
@@ -383,118 +444,128 @@ class InventoryEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        if number_of_items_in_inventory > 0:
+        if number_of_options > 0:
             console.print(x + 1, y + height - 1,
-                          f"Page {self.page + 1}/{ceil(len(self.engine.player.inventory.items)/self.max_list_length)}")
+                          f"Page {self.page + 1}/{ceil(len(self.options)/self.max_list_length)}")
 
-            for i, item in enumerate(self.engine.player.inventory.items[index_range:index_range+self.max_list_length]):
+            for i, item in enumerate(self.options[index_range:index_range+self.max_list_length]):
                 item_key = chr(ord("a") + i)
-                if item.stacking:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+
+                if isinstance(item, Item):
+
+                    if item.stacking:
+                        console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                    else:
+                        console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+
                 else:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item}")
+
         else:
             console.print(x + 1, y + 1, "(Empty)")
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        player = self.engine.player
+    def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
         index = key - tcod.event.K_a
 
         if key == tcod.event.K_DOWN:
-            if len(self.engine.player.inventory.items) > (self.page + 1) * self.max_list_length:
-                return InventoryInteractHandler(self.engine, self.page + 1)
+            if len(self.options) > (self.page + 1) * self.max_list_length:
+                self.page += 1
+                self.on_render(console=self.console, camera=self.camera)
 
         if key == tcod.event.K_UP:
             if self.page > 0:
-                return InventoryInteractHandler(self.engine, self.page - 1)
+                self.page -= 1
+                self.on_render(console=self.console, camera=self.camera)
 
         if 0 <= index <= self.max_list_length - 1:
             try:
-                selected_item = player.inventory.items[index]
+                selected_item = self.options[index]
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
                 return None
-            return self.on_item_selected(selected_item)
+            return self.on_option_selected(selected_item)
         return super().ev_keydown(event)
 
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        """Called when the user selects a valid item."""
-        raise NotImplementedError()
+    def on_option_selected(self, option):
+        return NotImplementedError
 
 
-class InventoryInteractHandler(InventoryEventHandler):
-    """Handle using an inventory item."""
+class TypeAmountEventHandler(AskUserEventHandler):
 
-    TITLE = "Inventory"
-
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        options = ('Use', 'Equip', 'Drop')
-        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
-
-
-class ItemInteractionHandler(AskUserEventHandler):  # options for interacting with an item
-
-    def __init__(self, item, options: tuple, engine: Engine):
+    def __init__(self, item: Item, prompt_string: str, engine: Engine):
         super().__init__(engine)
         self.item = item
-        self.options = options
-        self.TITLE = item.name
+        self.engine = engine
+        self.pick_up_amount = 0
+        self.buffer = ''
+        self.prompt_string = prompt_string
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        """
-        Render an inventory menu, which displays the items in the inventory, and the letter to select them.
-        Will move to a different position based on where the player is located, so the player can always see where
-        they are.
-        """
         super().on_render(console, camera)
-        if self.item is not None:
-            x = 1
-            y = 2
 
-            longest_option_len = 0
+        console.draw_frame(
+            x=1,
+            y=1,
+            width=len(self.prompt_string) + len(self.buffer) + 3,
+            height=3,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+        console.print(x=2, y=2, string=f"{self.prompt_string} {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
 
-            height = len(self.options) + 2
+    def ev_keydown(self, event):
 
-            for option in self.options:
-                if len(option) > longest_option_len:
-                    longest_option_len = len(option)
+        if self.item.stacking:
+            if self.item.stacking.stack_size > 1:
 
-            if len(self.TITLE) + 4 > longest_option_len + 6:
-                width = len(self.TITLE) + 4
-            else:
-                width = longest_option_len + 6
+                for event in tcod.event.wait():
+                    try:
+                        if isinstance(event, tcod.event.TextInput):
+                            self.buffer += event.text
 
-            console.draw_frame(
-                x=x,
-                y=y,
-                width=width,
-                height=height,
-                title=self.TITLE,
-                clear=True,
-                fg=colour.WHITE,
-                bg=(0, 0, 0),
-            )
+                        elif event.scancode == tcod.event.SCANCODE_ESCAPE:
+                            return MainGameEventHandler(self.engine)
 
-            for i, option in enumerate(self.options):
-                option_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({option_key}) {option}")
+                        elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
+                            self.buffer = self.buffer[:-1]
 
-        else:
-            self.engine.message_log.add_message("Invalid entry", colour.RED)
+                        elif event.scancode == tcod.event.SCANCODE_RETURN:
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        key = event.sym
-        index = key - tcod.event.K_a
+                            if self.buffer == '':
+                                if self.item.stacking:
+                                    self.buffer = f'{self.item.stacking.stack_size}'
+                                else:
+                                    self.buffer = '1'
 
-        if 0 <= index <= 26:
-            try:
-                selected_option = self.options[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
-                return ItemInteractionHandler(item=self.item, options=self.options, engine=self.engine)
-            return self.on_option_selected(selected_option)
-        return super().ev_keydown(event)
+                            return self.on_option_selected()
+
+                    except AttributeError:
+                        pass
+
+    def on_option_selected(self):
+        return NotImplementedError
+
+
+class InventoryEventHandler(UserOptionsWithPages):
+
+    def __init__(self, engine: Engine):
+        title = "Inventory" + f" - {engine.player.inventory.current_item_weight()}" \
+                                  f"/{engine.player.inventory.capacity}kg"
+
+        super().__init__(engine=engine, options=engine.player.inventory.items, page=0, title=title)
+
+    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+        return ItemInteractionHandler(item=item, options=['Use', 'Equip', 'Drop'], engine=self.engine)
+
+
+class ItemInteractionHandler(UserOptionsEventHandler):  # options for interacting with an item
+
+    def __init__(self, item, options: list, engine: Engine):
+        self.item=item
+        super().__init__(engine=engine, options=options, title=item.name)
 
     def on_option_selected(self, option) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
@@ -539,7 +610,7 @@ class ItemInteractionHandler(AskUserEventHandler):  # options for interacting wi
 
 class EquipmentEventHandler(AskUserEventHandler):
     # used for equipment screen
-    TITLE = "<missing title>"
+    TITLE = "Equipment"
 
     def __init__(self, engine: Engine):
         super().__init__(engine)
@@ -619,228 +690,37 @@ class EquipmentEventHandler(AskUserEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        raise NotImplementedError()
+        return ItemInteractionHandler(item=item, options=['Unequip'], engine=self.engine)
 
 
-class EquipmentInteractHandler(EquipmentEventHandler):  # equipment screen
-    TITLE = "Equipment"
-
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        options = ('Unequip',)
-        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
-
-
-class DropItemEventHandler(AskUserEventHandler):
+class DropItemEventHandler(TypeAmountEventHandler):
 
     def __init__(self, item, engine: Engine):
-        super().__init__(engine)
-        self.item = item
-        self.engine = engine
-        self.drop_amount = 0
-        self.buffer = ''
+        super().__init__(engine=engine, item=item, prompt_string="amount to drop (leave blank for all):")
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+    def on_option_selected(self) -> Optional[ActionOrHandler]:
 
-        if self.item.stacking:
-            if self.item.stacking.stack_size > 1:
-                console.draw_frame(
-                    x=1,
-                    y=1,
-                    width=18 + len(self.buffer),
-                    height=3,
-                    clear=True,
-                    fg=colour.WHITE,
-                    bg=(0, 0, 0),
-                )
-                console.print(x=2, y=2, string=f"amount to drop: {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
-                console.print(x=1, y=4, string=f'enter no value to drop all', fg=colour.WHITE,
-                              bg=(0, 0, 0))
+        actions.DropAction(entity=self.engine.player, item=self.item, drop_amount=int(self.buffer)).perform()
 
-    def ev_keydown(self, event):
-
-        if self.item.stacking:
-            if self.item.stacking.stack_size > 1:
-
-                for event in tcod.event.wait():
-
-                    if isinstance(event, tcod.event.TextInput):
-                        self.buffer += event.text
-
-                    elif event.scancode == tcod.event.SCANCODE_ESCAPE:
-                        return MainGameEventHandler(self.engine)
-
-                    elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
-                        self.buffer = self.buffer[:-1]
-
-                    elif event.scancode == tcod.event.SCANCODE_RETURN:
-
-                        if self.buffer == '':
-                            if self.item.stacking:
-                                self.buffer = f'{self.item.stacking.stack_size}'
-                            else:
-                                self.buffer = '1'
-
-                        try:
-
-                            # copy of the item to be dropped
-                            dropped_item = deepcopy(self.item)
-
-                            self.drop_amount = int(self.buffer, base=0)
-                            # sets dropped item to have correct stack size
-                            dropped_item.stacking.stack_size = self.drop_amount
-
-                            if self.drop_amount > 0:
-
-                                # more than 1 stack left in after drop
-                                if self.item.stacking.stack_size - self.drop_amount > 1:
-                                    self.item.stacking.stack_size -= self.drop_amount
-                                    dropped_item.place(self.engine.player.x, self.engine.player.y,
-                                                       self.engine.game_map)
-
-                                # no stacks left after drop
-                                elif self.item.stacking.stack_size - self.drop_amount <= 0:
-                                    self.engine.player.inventory.items.remove(self.item)
-
-                                    self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
-
-                                self.engine.handle_enemy_turns()
-                                return MainGameEventHandler(self.engine)
-
-                            else:
-                                self.engine.message_log.add_message("Invalid entry", colour.RED)
-
-                        except ValueError:
-                            self.engine.message_log.add_message("Invalid entry", colour.RED)
-
-            else:  # item stacking, stack size = 1
-                self.engine.player.inventory.items.remove(self.item)
-                self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
-
-                self.engine.handle_enemy_turns()
-                return MainGameEventHandler(self.engine)
-
-        else:  # item not stacking
-            self.engine.player.inventory.items.remove(self.item)
-            self.item.place(self.engine.player.x, self.engine.player.y, self.engine.game_map)
-
-            self.engine.handle_enemy_turns()
-            return MainGameEventHandler(self.engine)
+        self.engine.handle_enemy_turns()
+        return MainGameEventHandler(self.engine)
 
 
-class PickUpEventHandler(AskUserEventHandler):
-    def __init__(self, engine: Engine, page: int):
-        super().__init__(engine)
-        self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
-        self.page = page
-        self.TITLE = "Pick Up Items"
-        self.items_at_location = []
-        self.number_of_items_at_location = 0
+class PickUpEventHandler(UserOptionsWithPages):
+    def __init__(self, engine: Engine):
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+        items_at_location = []
 
-        actor_location_x = self.engine.player.x
-        actor_location_y = self.engine.player.y
+        actor_location_x = engine.player.x
+        actor_location_y = engine.player.y
 
-        self.items_at_location = []
-
-        for item in self.engine.game_map.items:
+        for item in engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                self.items_at_location.append(item)
+                items_at_location.append(item)
 
-        self.number_of_items_at_location = len(self.items_at_location)
+        super().__init__(engine=engine, page=0, options=items_at_location, title="Pick Up Items")
 
-        longest_name_len = None
-        if self.number_of_items_at_location > 0:
-            longest_name_len = self.items_at_location[0]
-
-        width = len(self.TITLE) + 4
-        height = self.number_of_items_at_location + 2
-
-        if self.number_of_items_at_location > self.max_list_length:
-            height = self.max_list_length + 2
-
-        x = 1
-        y = 2
-
-        index_range = self.page * self.max_list_length
-
-        for item in self.items_at_location[index_range:index_range + self.max_list_length]:
-            try:
-                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
-                    longest_name_len = item
-            except AttributeError:
-                if len(item.name) > len(longest_name_len.name):
-                    longest_name_len = item
-
-            if item.stacking:
-                try:
-                    if len(item.name) + len(str(item.stacking.stack_size)) > \
-                            len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)):
-                        longest_name_len = item
-                except AttributeError:
-                    if len(item.name) + len(str(item.stacking.stack_size)) + 2 > len(longest_name_len.name):
-                        longest_name_len = item
-
-        if longest_name_len:
-            if len(longest_name_len.name) + 6 > width:
-                width = len(longest_name_len.name) + 6
-
-        stack_str_len = 0
-
-        if longest_name_len:
-            if longest_name_len.stacking:
-                stack_str_len = len(str(longest_name_len.stacking.stack_size)) + 2
-
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width + stack_str_len,
-            height=height,
-            title=self.TITLE,
-            clear=True,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-        )
-
-        if self.number_of_items_at_location > 0:
-            console.print(x + 1, y + height - 1,
-                          f"Page {self.page + 1}/{ceil(self.number_of_items_at_location / self.max_list_length)}")
-
-            for i, item in enumerate(
-                    self.items_at_location[index_range:index_range + self.max_list_length]):
-                item_key = chr(ord("a") + i)
-                if item.stacking:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
-                else:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
-        else:
-            console.print(x + 1, y + 1, "(Empty)")
-
-    def ev_keydown(self, event):
-
-        key = event.sym
-        index = key - tcod.event.K_a
-
-        if key == tcod.event.K_DOWN:
-            if self.number_of_items_at_location > (self.page + 1) * self.max_list_length:
-                return PickUpEventHandler(self.engine, self.page + 1)
-
-        if key == tcod.event.K_UP:
-            if self.page > 0:
-                return PickUpEventHandler(self.engine, self.page - 1)
-
-        if 0 <= index <= self.max_list_length - 1:
-            try:
-                selected_item = self.items_at_location[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return None
-            return self.on_item_selected(item=selected_item)
-        return super().ev_keydown(event)
-
-    def on_item_selected(self, item):
+    def on_option_selected(self, item):
         if item.stacking:
             if item.stacking.stack_size > 1:
                 return AmountToPickUpMenu(item=item, engine=self.engine)
@@ -854,61 +734,21 @@ class PickUpEventHandler(AskUserEventHandler):
             return MainGameEventHandler(engine=self.engine)
 
 
-class AmountToPickUpMenu(AskUserEventHandler):
+class AmountToPickUpMenu(TypeAmountEventHandler):
 
     def __init__(self, item, engine: Engine):
-        super().__init__(engine)
-        self.item = item
-        self.engine = engine
-        self.pick_up_amount = 0
-        self.buffer = ''
+        super().__init__(engine=engine, item=item, prompt_string="amount to pick up (leave blank for all):")
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+    def on_option_selected(self) -> Optional[ActionOrHandler]:
 
-        console.draw_frame(
-            x=1,
-            y=1,
-            width=21 + len(self.buffer),
-            height=3,
-            clear=True,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-        )
-        console.print(x=2, y=2, string=f"amount to pick up: {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
+        try:
+            actions.PickupAction(entity=self.engine.player, item=self.item, pickup_amount=int(self.buffer)).perform()
+            self.engine.handle_enemy_turns()
 
-    def ev_keydown(self, event):
+        except AttributeError:
+            self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        if self.item.stacking:
-            if self.item.stacking.stack_size > 1:
-
-                for event in tcod.event.wait():
-
-                    if isinstance(event, tcod.event.TextInput):
-                        self.buffer += event.text
-
-                    elif event.scancode == tcod.event.SCANCODE_ESCAPE:
-                        return MainGameEventHandler(self.engine)
-
-                    elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
-                        self.buffer = self.buffer[:-1]
-
-                    elif event.scancode == tcod.event.SCANCODE_RETURN:
-
-                        if self.buffer == '':
-                            PickupAction(entity=self.engine.player, item=self.item,
-                                         pickup_amount=self.item.stacking.stack_size).perform()
-                            self.engine.handle_enemy_turns()
-                            return MainGameEventHandler(self.engine)
-
-                        try:
-                            PickupAction(entity=self.engine.player, item=self.item,
-                                         pickup_amount=int(self.buffer)).perform()
-                            self.engine.handle_enemy_turns()
-                            return MainGameEventHandler(self.engine)
-
-                        except ValueError:
-                            self.engine.message_log.add_message("Invalid entry", colour.RED)
+        return MainGameEventHandler(self.engine)
 
 
 class ChangeTargetActor(AskUserEventHandler):
@@ -1049,69 +889,26 @@ class QuitEventHandler(AskUserEventHandler):
             return MainGameEventHandler(self.engine)
 
 
-class MagazineOptionsHandler(AskUserEventHandler):
+class MagazineOptionsHandler(UserOptionsEventHandler):
 
     def __init__(self, engine: Engine, magazine: Item):
-        super().__init__(engine)
-        self.magazine = magazine
-        self.TITLE = f"{magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
-                     f"{self.magazine.usable_properties.mag_capacity})"
-        self.options = ['load bullets', 'unload bullets']
 
-        inventory = self.engine.player.inventory
+        self.magazine = magazine
+
+        title = f"{magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
+                f"{self.magazine.usable_properties.mag_capacity})"
+
+        options = ['load bullets', 'unload bullets']
+
+        inventory = engine.player.inventory
         loadout = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
 
-        if self.magazine in loadout:
-            self.options.append('remove from loadout')
+        if magazine in loadout:
+            options.append('remove from loadout')
         else:
-            self.options.append('add to loadout')
+            options.append('add to loadout')
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
-
-        longest_option_name = 0
-        for option in self.options:
-            if len(option) > longest_option_name:
-                longest_option_name = len(option)
-
-        width = len(self.TITLE)
-
-        if longest_option_name > width:
-            width = longest_option_name + 4
-
-        x = 1
-        y = 2
-
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width + 2,
-            height=len(self.options) + 2,
-            title=self.TITLE,
-            clear=True,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-        )
-
-        for i, option in enumerate(self.options):
-            option_key = chr(ord("a") + i)
-            console.print(x + 1, y + i + 1, f"({option_key}) {option}")
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        key = event.sym
-        index = key - tcod.event.K_a
-
-        if event.sym == tcod.event.K_ESCAPE:
-            return MainGameEventHandler(self.engine)
-
-        if 0 <= index <= 26:
-            try:
-                selected_option = self.options[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
-                return MagazineOptionsHandler(magazine=self.magazine, engine=self.engine)
-            return self.on_option_selected(selected_option)
-        return super().ev_keydown(event)
+        super().__init__(engine=engine, options=options, title=title)
 
     def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
@@ -1135,71 +932,26 @@ class MagazineOptionsHandler(AskUserEventHandler):
         return MainGameEventHandler(engine=self.engine)
 
 
-class GunOptionsHandler(AskUserEventHandler):
+class GunOptionsHandler(UserOptionsEventHandler):
     def __init__(self, engine: Engine, gun: Item):
-        super().__init__(engine)
         self.gun = gun
-        self.TITLE = gun.name
-        self.options = []
+
+        title = gun.name
+        options = []
 
         self.firemodes = self.gun.usable_properties.fire_modes
 
         if type(self.gun.usable_properties) is GunMagFed:
-            self.options += ["load magazine", "unload magazine"]
+            options += ["load magazine", "unload magazine"]
 
         elif type(self.gun.usable_properties) is GunIntegratedMag:
-            self.options += ["load rounds", "unload rounds"]
+            options += ["load rounds", "unload rounds"]
 
         for firemode in self.firemodes:
             if not firemode == self.gun.usable_properties.current_fire_mode:
-                self.options.append(firemode)
+                options.append(firemode)
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
-
-        longest_option_name = 0
-        for option in self.options:
-            if len(option) > longest_option_name:
-                longest_option_name = len(option)
-
-        width = len(self.TITLE)
-
-        if longest_option_name > width:
-            width = longest_option_name + 4
-
-        x = 1
-        y = 2
-
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width + 2,
-            height=len(self.options) + 2,
-            title=self.TITLE,
-            clear=True,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-        )
-
-        for i, option in enumerate(self.options):
-            option_key = chr(ord("a") + i)
-            console.print(x + 1, y + i + 1, f"({option_key}) {option}")
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        key = event.sym
-        index = key - tcod.event.K_a
-
-        if event.sym == tcod.event.K_ESCAPE:
-            return MainGameEventHandler(self.engine)
-
-        if 0 <= index <= 26:
-            try:
-                selected_option = self.options[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
-                return GunOptionsHandler(engine=self.engine, gun=self.gun)
-            return self.on_option_selected(selected_option)
-        return super().ev_keydown(event)
+        super().__init__(engine=engine, options=options, title=title)
 
     def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
@@ -1223,13 +975,13 @@ class GunOptionsHandler(AskUserEventHandler):
         return MainGameEventHandler(engine=self.engine)
 
 
-class SelectMagazineToLoadIntoGun(AskUserEventHandler):
+class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
     def __init__(self, engine: Engine, gun: Item):
-        super().__init__(engine)
         self.gun = gun
-        self.mag_list = []
-        self.TITLE = gun.name
+
+        mag_list = []
+        title = gun.name
 
         loadout = self.engine.player.inventory.small_magazines + self.engine.player.inventory.medium_magazines \
                   + self.engine.player.inventory.large_magazines
@@ -1237,66 +989,11 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
         for item in self.engine.player.inventory.items:
             if item in loadout:
                 if item.usable_properties.magazine_type == self.gun.usable_properties.compatible_magazine_type:
-                    self.mag_list.append(item)
+                    mag_list.append(item)
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+        super().__init__(engine=engine, options=mag_list, page=0, title=title)
 
-        no_mags = len(self.mag_list)
-
-        width = len(self.TITLE) + 4
-        height = no_mags + 2
-
-        x = 1
-        y = 2
-
-        longest_name_len = 0
-
-        for item in self.mag_list:
-            if len(item.name) + len(f"({len(item.usable_properties.magazine)}/{item.usable_properties.mag_capacity})") \
-                    > longest_name_len:
-                longest_name_len = len(item.name) + len(f"({len(item.usable_properties.magazine)}/"
-                                                        f"{item.usable_properties.mag_capacity})")
-
-        longest_name_len += 9
-
-        if longest_name_len:
-            if longest_name_len > width:
-                width = longest_name_len
-
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width,
-            height=height,
-            title=self.TITLE,
-            clear=True,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-        )
-
-        if no_mags > 0:
-            for i, item in enumerate(self.mag_list):
-                item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - ({len(item.usable_properties.magazine)}/"
-                                                f"{item.usable_properties.mag_capacity})")
-        else:
-            console.print(x + 1, y + 1, "(Empty)")
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        key = event.sym
-        index = key - tcod.event.K_a
-
-        if 0 <= index <= 26:
-            try:
-                selected_item = self.mag_list[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return None
-            return self.on_item_selected(selected_item)
-        return super().ev_keydown(event)
-
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         # takes appropriate amount of turns to load magazine into gun
@@ -1309,154 +1006,52 @@ class SelectMagazineToLoadIntoGun(AskUserEventHandler):
         return MainGameEventHandler(engine=self.engine)
 
 
-class SelectBulletsToLoadHandler(AskUserEventHandler):
+class SelectBulletsToLoadHandler(UserOptionsWithPages):
 
-    TITLE = "Select Bullets to Load"
+    TITLE = "Select Bullets"
 
     def __init__(self, engine: Engine, magazine: Item):
-        super().__init__(engine)
         self.magazine = magazine
-        self.ammo_list = []
-        self.TITLE = f"Load {self.magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
-                     f"{self.magazine.usable_properties.mag_capacity})"
-
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
-
-        self.ammo_list = []
+        ammo_list = []
 
         for item in self.engine.player.inventory.items:
             if isinstance(item.usable_properties, Bullet):
                 if item.usable_properties.bullet_type == self.magazine.usable_properties.compatible_bullet_type:
-                    self.ammo_list.append(item)
+                    ammo_list.append(item)
 
-        no_ammo_types = len(self.ammo_list)
+        title = f"Load {self.magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
+                f"{self.magazine.usable_properties.mag_capacity})"
 
-        longest_name_len = None
-        if len(self.engine.player.inventory.items) > 0:
-            longest_name_len = self.engine.player.inventory.items[0]
+        super().__init__(engine=engine, page=0, title=title, options=ammo_list)
 
-        width = len(self.TITLE) + 4
-        height = no_ammo_types + 2
-
-        x = 1
-        y = 2
-
-        for item in self.ammo_list:
-            try:
-                if len(item.name) > len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)) + 2:
-                    longest_name_len = item
-            except AttributeError:
-                if len(item.name) > len(longest_name_len.name):
-                    longest_name_len = item
-
-            if item.stacking:
-                try:
-                    if len(item.name) + len(str(item.stacking.stack_size)) > \
-                            len(longest_name_len.name) + len(str(longest_name_len.stacking.stack_size)):
-                        longest_name_len = item
-                except AttributeError:
-                    if len(item.name) + len(str(item.stacking.stack_size)) + 2 > len(longest_name_len.name):
-                        longest_name_len = item
-
-        if longest_name_len:
-            if len(longest_name_len.name) + 6 > width:
-                width = len(longest_name_len.name) + 6
-
-        stack_str_len = 0
-
-        if longest_name_len:
-            if longest_name_len.stacking:
-                stack_str_len = len(str(longest_name_len.stacking.stack_size)) + 2
-
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width + stack_str_len,
-            height=height,
-            title=self.TITLE,
-            clear=True,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-        )
-
-        if no_ammo_types > 0:
-            for i, item in enumerate(self.ammo_list):
-                item_key = chr(ord("a") + i)
-                if item.stacking:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
-                else:
-                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
-        else:
-            console.print(x + 1, y + 1, "(Empty)")
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        key = event.sym
-        index = key - tcod.event.K_a
-
-        if 0 <= index <= 26:
-            try:
-                selected_item = self.ammo_list[index]
-            except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return None
-            return self.on_item_selected(selected_item)
-        return super().ev_keydown(event)
-
-    def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         return SelectNumberOfBulletsToLoadHandler(engine=self.engine, magazine=self.magazine, ammo=item)
 
 
-class SelectNumberOfBulletsToLoadHandler(AskUserEventHandler):
+class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
 
     def __init__(self, engine: Engine, magazine: Item, ammo: Item):
-        super().__init__(engine)
-        self.magazine = magazine
         self.ammo = ammo
-        self.buffer = ''
+        super().__init__(engine=engine, item=magazine, prompt_string="amount to load (leave blank for maximum):")
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
-        console.print(x=1, y=1, string=f'# of bullets to load: {self.buffer}', fg=colour.WHITE, bg=(0, 0, 0))
-        console.print(x=1, y=2, string=f'enter no value to load max available amount', fg=colour.WHITE, bg=(0, 0, 0))
+    def on_option_selected(self):
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        for event in tcod.event.wait():
+        try:
+            self.item.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
 
-            if isinstance(event, tcod.event.TextInput):
-                self.buffer += event.text
+        except ValueError:
+            self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-            elif event.scancode == tcod.event.SCANCODE_ESCAPE:
-                return MainGameEventHandler(self.engine)
-
-            elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
-                self.buffer = self.buffer[:-1]
-
-            elif event.scancode == tcod.event.SCANCODE_RETURN:
-
-                if self.buffer == '':
-                    self.magazine.usable_properties.load_magazine(ammo=self.ammo,
-                                                                  load_amount=self.ammo.stacking.stack_size)
-                    return MainGameEventHandler(self.engine)
-
-                try:
-                    self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
-                    return MainGameEventHandler(self.engine)
-
-                except ValueError:
-                    self.engine.message_log.add_message("Invalid entry", colour.RED)
+        return MainGameEventHandler(self.engine)
 
 
-class LoadoutEventHandler(AskUserEventHandler):
+class LoadoutEventHandler(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, page: int):
-        super().__init__(engine)
-        self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
-        self.page = page
-        self.TITLE = "Loadout"
+    def __init__(self, engine: Engine):
+        title = "Loadout"
 
-        self.loadout_items = []
+        loadout_items = []
 
         inventory = self.engine.player.inventory
 
@@ -1464,75 +1059,97 @@ class LoadoutEventHandler(AskUserEventHandler):
 
         for item in items:
             if item in inventory.items:
-                self.loadout_items.append(item)
+                loadout_items.append(item)
 
-        self.number_of_items_in_loadout = len(self.loadout_items)
+        super().__init__(engine=engine, options=loadout_items, page=0, title=title)
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+    def on_option_selected(self, option):
+        return MagazineOptionsHandler(engine=self.engine, magazine=option)
 
-        width = len(self.TITLE) + 4
-        height = self.number_of_items_in_loadout + 2
 
-        if self.number_of_items_in_loadout > self.max_list_length:
-            height = self.max_list_length + 2
+class CraftingEventHandler(UserOptionsEventHandler):
+    def __init__(self, engine: Engine):
+        super().__init__(engine=engine, options=['guns'], title='crafting')
 
-        x = 1
-        y = 2
+    def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
 
-        index_range = self.page * self.max_list_length
+        if option == 'guns':
+            return SelectGunToCraft(engine=self.engine)
 
-        longest_name_len = 0
 
-        for item in self.loadout_items[index_range:index_range+self.max_list_length]:
-            if len(item.name) + len(f"({len(item.usable_properties.magazine)}/{item.usable_properties.mag_capacity})") \
-                    > longest_name_len:
-                longest_name_len = len(item.name) + len(f"({len(item.usable_properties.magazine)}/"
-                                                        f"{item.usable_properties.mag_capacity})")
+class SelectGunToCraft(UserOptionsWithPages):
+    def __init__(self, engine: Engine):
+        super().__init__(engine=engine, options=list(guns_dict.keys()), page=0, title="gun crafting")
 
-        if longest_name_len > width:
-            width = longest_name_len + 9
+    def on_option_selected(self, option):
 
-        console.draw_frame(
-            x=x,
-            y=y,
-            width=width,
-            height=height,
-            title=self.TITLE,
-            clear=True,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-        )
+        part_dict = {}
 
-        if self.number_of_items_in_loadout > 0:
-            console.print(x + 1, y + height - 1,
-                          f"Page {self.page + 1}/{ceil(self.number_of_items_in_loadout/self.max_list_length)}")
+        # all required and compatible parts
+        parts = guns_dict[option]["required parts"] + guns_dict[option]["compatible parts"]
 
-            for i, item in enumerate(self.loadout_items[index_range:index_range+self.max_list_length]):
-                item_key = chr(ord("a") + i)
-                console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - " +
-                              f"({len(item.usable_properties.magazine)}/{item.usable_properties.mag_capacity})")
+        # adds all required and compatible parts to the dictionary and sets their value to None before player selects
+        for part in parts:
+            part_dict[part] = None
+
+        return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0, parts=parts, part_dict=part_dict)
+
+
+class CraftItem(UserOptionsWithPages):
+    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, parts: list, part_dict: dict):
+
+        self.item_name = item_to_craft
+        self.item_to_craft = guns_dict[item_to_craft]
+
+        # all parts with their values
+        self.part_dict = part_dict
+
+        # all part keys in list format
+        self.parts = parts
+
+        # index of current part to be selected set to first part
+        self.current_part_selection = current_part_index
+
+        title = "select parts"
+
+        # parts of a given type available in inventory
+        options = ['none']
+
+        for item in engine.player.inventory.items:
+            if isinstance(item.usable_properties, GunComponent):
+                if item.usable_properties.compatible_gun_type == self.item_name and item.usable_properties.part_type \
+                        == self.parts[self.current_part_selection]:
+                    options.append(item)
+
+        super().__init__(engine=engine, options=options, page=0, title=title)
+
+    def on_option_selected(self, option):
+
+        if not option == 'none':
+            # sets part in part dict to be the selected part
+            self.part_dict[self.parts[self.current_part_selection]] = option
 
         else:
-            console.print(x + 1, y + 1, "(Empty)")
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        key = event.sym
-        index = key - tcod.event.K_a
-
-        if key == tcod.event.K_DOWN:
-            if self.number_of_items_in_loadout > (self.page + 1) * self.max_list_length:
-                return LoadoutEventHandler(self.engine, self.page + 1)
-
-        if key == tcod.event.K_UP:
-            if self.page > 0:
-                return LoadoutEventHandler(self.engine, self.page - 1)
-
-        if 0 <= index <= self.max_list_length - 1:
-            try:
-                selected_item = self.loadout_items[index]
-            except IndexError:
+            # option selected is none but the part is required to create the item
+            if self.parts[self.current_part_selection] in guns_dict[self.item_name]["required parts"]:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return None
-            return MagazineOptionsHandler(engine=self.engine, magazine=selected_item)
-        return super().ev_keydown(event)
+                return MainGameEventHandler(engine=self.engine)
+
+        if self.parts[self.current_part_selection] == self.parts[-1]:
+            item = guns_dict[self.item_name]['item']
+
+            for key, value in self.part_dict.items():
+                if value is not None:
+                    self.engine.player.inventory.items.remove(value)
+                    setattr(item.usable_properties.parts, key, value)
+
+            item.usable_properties.parts.update_partlist()
+            self.engine.player.inventory.items.append(item)
+            self.engine.handle_enemy_turns()
+            return MainGameEventHandler(engine=self.engine)
+
+        else:
+            self.current_part_selection += 1
+            return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
+                             item_to_craft=self.item_name, parts=self.parts, part_dict=self.part_dict)

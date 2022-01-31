@@ -1,12 +1,12 @@
 -----
 TO DO
+fix the way itemactions and item activation works
 enemies use firearms
 
 12) item stat screen
 13) weapon firing graphics
-14) proper weapons implmentation (ammo and weapon parts)
 15) ranged enemies
-16) some enemies flee to regain health
+16) implement fleeing?
 17) more room shapes on level generation
 18) enemy drops
 19) weapon graphics

@@ -1,6 +1,8 @@
 from numpy import array
 from components.enemies.caverns import *
 
+import components.weapons.glock17
+
 # this dictionary has the parameters for all the levels in the game
 # NOTE: map width/height must be larger than screen size!
 level_params = {
@@ -36,7 +38,9 @@ Enemies_by_level = {
 
 Items_by_level = {
     0: (
-        (medkit, helmet, greaves, chestplate, pauldron, glock_17, glock_mag, bullet_9mm, kar_98k, bullet_8mm_mauser),
-        (1,1,1,1,1,2,2,2,3,3)
+        (medkit, helmet, greaves, chestplate, pauldron, glock_mag, bullet_9mm,
+         components.weapons.glock17.glock17_barrel, components.weapons.glock17.glock17_frame,
+         components.weapons.glock17.glock17_slide),
+        (1,1,1,1,1,1,1,1,1,1)
     )
 }
