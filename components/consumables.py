@@ -170,7 +170,6 @@ class Magazine(Usable):
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
 
-    # Note: these functions are only intended to be used by the player
     def load_magazine(self, ammo, load_amount) -> None:
         # loads bullets into magazine
 
@@ -196,7 +195,8 @@ class Magazine(Usable):
 
             # no stacks left after loading
             elif ammo.stacking.stack_size - load_amount <= 0:
-                inventory.items.remove(ammo)
+                if self.engine.player == entity:
+                    inventory.items.remove(ammo)
 
             rounds_loaded = 0
 
@@ -213,9 +213,10 @@ class Magazine(Usable):
             # every 5 bullets loaded into the magazine takes 1 turn
             turns_used = 0
 
-            while turns_used < load_amount / 5:
-                turns_used += 1
-                self.engine.handle_enemy_turns()
+            if self.engine.player == entity:
+                while turns_used < ceil(load_amount / 5):
+                    turns_used += 1
+                    self.engine.handle_enemy_turns()
 
             if isinstance(self, GunIntegratedMag):
                 self.chamber_round()
@@ -275,6 +276,7 @@ class Gun(Weapon):
                  fire_modes: dict,  # fire rates in rpm
                  current_fire_mode: str,
                  keep_round_chambered: bool,
+                 enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
                  chambered_bullet=None,
                  ):
 
@@ -285,6 +287,7 @@ class Gun(Weapon):
         self.keep_round_chambered = keep_round_chambered
         self.fire_modes = fire_modes
         self.current_fire_mode = current_fire_mode
+        self.enemy_attack_range = enemy_attack_range
 
         super().__init__(
             base_meat_damage=base_meat_damage,
@@ -338,7 +341,8 @@ class Gun(Weapon):
                     recoil_penalty += self.chambered_bullet.usable_properties.recoil_modifier
 
             else:
-                self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
+                if attacker.player:
+                    self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
                 break
 
     def chamber_round(self):
@@ -415,11 +419,15 @@ class GunMagFed(Gun):
                  fire_modes: dict,
                  current_fire_mode: str,
                  keep_round_chambered: bool,
+                 enemy_attack_range: int,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
         self.compatible_magazine_type = compatible_magazine_type
         self.loaded_magazine = loaded_magazine
+
+        # for AIs to know what type of magazine to reload
+        self.previously_loaded_magazine = loaded_magazine
 
         super().__init__(
             parts=parts,
@@ -432,6 +440,7 @@ class GunMagFed(Gun):
             current_fire_mode=current_fire_mode,
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
+            enemy_attack_range=enemy_attack_range
         )
 
     def load_gun(self, magazine):
@@ -508,12 +517,15 @@ class GunIntegratedMag(Gun, Magazine):
                  compatible_bullet_type: str,
                  mag_capacity: int,
                  keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
+                 enemy_attack_range: int,
                  chambered_bullet=None,
                  ):
 
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
         self.magazine = []
+
+        self.previously_loaded_round = chambered_bullet
 
         super().__init__(
             parts=parts,
@@ -526,6 +538,7 @@ class GunIntegratedMag(Gun, Magazine):
             current_fire_mode=current_fire_mode,
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
+            enemy_attack_range=enemy_attack_range,
         )
 
     def chamber_round(self):

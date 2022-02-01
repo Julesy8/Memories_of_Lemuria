@@ -102,6 +102,7 @@ class Actor(Entity):
             move_interval=0,
             moves_per_turn=1,
             active_radius=10,
+            fears_death=True,
             player: bool = False,
             leaves_corpse: bool = True
     ):
@@ -129,6 +130,7 @@ class Actor(Entity):
         for bodypart in self.bodyparts:
             bodypart.parent = self
 
+        # TODO: make these a part of entity class
         # original values before changes occur i.e. crippled limbs
         self.attack_interval_original = attack_interval
         self.attacks_per_turn_original = attacks_per_turn
@@ -140,9 +142,17 @@ class Actor(Entity):
         self.move_interval = move_interval  # how many turns the entity waits before moving
         self.moves_per_turn = moves_per_turn  # when the entity moves, how many times?
 
+        # disables attacks and movement for a certain amount of turns
+        self.turns_attack_inactive = 0
+        self.turns_move_inactive = 0
+
         self.turn_counter = 0
         self.last_move_turn = 0
         self.last_attack_turn = 0
+
+        self.fears_death = fears_death
+        self.fleeing_turns = 0
+        self.has_fled_death = False
 
     @property
     def is_alive(self) -> bool:

@@ -4,7 +4,9 @@ from typing import List, Tuple
 
 import numpy as np  # type: ignore
 import tcod
+from math import ceil
 
+from components.consumables import Gun, GunMagFed, GunIntegratedMag
 from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction
 from entity import Actor
 
@@ -61,42 +63,90 @@ class HostileEnemy(BaseAI):
 
         while move_turns > 0 and attack_turns > 0:
 
-            #  TODO: implement fleeing
-            """
-            entity_fleeing = False
-            
-            # checks if entity should be fleeing
+            # if entity flees death and a vital bodypart is under 1/4 health and they have not fled death before,
+            # sets entity to be fleeing
             if self.entity.fears_death:
-                for bodypart in self.entity.bodyparts:
-                    if bodypart.vital and bodypart.hp < bodypart.max_hp/3:
-                        entity_fleeing = True
-                        break
-            """
+                if not self.entity.has_fled_death:
+                    for bodypart in self.entity.bodyparts:
+                        if bodypart.vital and bodypart.hp < bodypart.max_hp / 4:
+                            self.entity.fleeing_turns = 8
+                            self.entity.has_fled_death = True
+                            break
 
-            # perform melee action
-            if distance <= 1 and attack_turns > 0 and self.entity.last_attack_turn + self.entity.attack_interval <= \
-                    self.entity.turn_counter:
+            if self.entity.turns_attack_inactive > 0:
+                self.entity.turns_attack_inactive -= 1
+            if self.entity.turns_move_inactive > 0:
+                self.entity.turns_move_inactive -= 1
+
+            # perform attack action
+            if attack_turns > 0 and self.entity.last_attack_turn + self.entity.attack_interval <= \
+                    self.entity.turn_counter and self.entity.turns_attack_inactive <= 0:
 
                 held_item = self.entity.inventory.held
 
-                if held_item is not None:
-                    WeaponAttackAction(distance=distance, item=held_item, entity=self.entity, targeted_actor=target,
-                                       targeted_bodypart=None).attack()
+                if distance <= 1:
 
-                else:
-                    UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
-                                        targeted_bodypart=None).attack()
+                    # in melee range, has melee weapon
+                    if held_item is not None:
+                        if not held_item.ranged:
+                            WeaponAttackAction(distance=distance, item=held_item, entity=self.entity,
+                                               targeted_actor=target, targeted_bodypart=None).attack()
 
-                attack_turns -= 1
-                self.entity.last_attack_turn = self.entity.turn_counter
+                    # in melee range, no weapon
+                    else:
+                        UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
+                                            targeted_bodypart=None).attack()
+
+                    move_turns = 0
+                    attack_turns -= 1
+                    self.entity.last_attack_turn = self.entity.turn_counter
+
+                # has gun equipped
+                elif held_item is not None:
+                    if isinstance(held_item.usable_properties, Gun):
+
+                        # reload weapon
+                        if held_item.usable_properties.chambered_bullet is None:
+
+                            # reload mag fed gun
+                            if isinstance(held_item.usable_properties, GunMagFed):
+                                held_item.usable_properties. \
+                                    load_gun(magazine=held_item.usable_properties.previously_loaded_magazine)
+
+                                # entity attack inactive for given reload period
+                                self.entity.turns_attack_inactive = \
+                                    held_item.usable_properties.previously_loaded_magazine.turns_to_load
+
+                            # reload integrated mag gun
+                            if isinstance(held_item.usable_properties, GunIntegratedMag):
+                                held_item.usable_properties.load_magazine \
+                                    (ammo=held_item.usable_properties.previously_loaded_round,
+                                     load_amount=held_item.usable_properties.mag_capacity)
+
+                                # entity attack inactive for given reload period
+                                self.entity.turns_attack_inactive = ceil(held_item.usable_properties.mag_capacity / 5)
+
+                            attack_turns -= 1
+                            self.entity.last_attack_turn = self.entity.turn_counter
+
+                        # if in attack range, attacks
+                        elif distance <= held_item.usable_properties.enemy_attack_range:
+                            WeaponAttackAction(distance=distance, item=held_item, entity=self.entity,
+                                               targeted_actor=target, targeted_bodypart=None).attack()
+
+                            # AI does not move after firing gun
+                            move_turns = 0
+
+                            attack_turns -= 1
+                            self.entity.last_attack_turn = self.entity.turn_counter
 
             # any kind of move action occurring
 
-            elif move_turns > 0 and self.entity.last_move_turn + self.entity.move_interval <= self.entity.turn_counter:
+            if move_turns > 0 and self.entity.last_move_turn + self.entity.move_interval <= self.entity.turn_counter \
+                    and self.entity.turns_move_inactive <= 0:
 
-                """
                 # entity fleeing from target
-                if entity_fleeing and self.entity.active:
+                if self.entity.fleeing_turns > 0 and self.entity.active:
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                     distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
                                                             self.entity.gamemap.height), order="F")
@@ -115,8 +165,9 @@ class HostileEnemy(BaseAI):
                         MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y, ).perform()
                     else:
                         break
-                """
-                if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                    self.entity.fleeing_turns -= 1
+
+                elif self.engine.game_map.visible[self.entity.x, self.entity.y]:
                     self.path = self.get_path_to(target.x, target.y)
 
                     # path towards player given player is visible and entity is not fleeing

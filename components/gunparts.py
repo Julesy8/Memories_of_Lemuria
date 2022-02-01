@@ -12,6 +12,7 @@ class GunParts:
     def __init__(self):
 
         self.part_list = []
+        self.update_partlist()
 
     def update_partlist(self):
         all_attributes = self.__dict__.values()
@@ -43,6 +44,7 @@ class GunParts:
                                                    keep_round_chambered=self.parent.keep_round_chambered,
                                                    range_accuracy_dropoff=self.parent.range_accuracy_dropoff,
                                                    chambered_bullet=None,
+                                                   enemy_attack_range=self.parent.enemy_attack_range,
                                                    )
 
             elif isinstance(self.parent, GunIntegratedMag):
@@ -58,7 +60,8 @@ class GunParts:
                                             keep_round_chambered=self.parent.keep_round_chambered,
                                             range_accuracy_dropoff=self.parent.range_accuracy_dropoff,
                                             compatible_magazine_type=part.compatible_magazine_type,
-                                            chambered_bullet=None
+                                            chambered_bullet=None,
+                                            enemy_attack_range=self.parent.enemy_attack_range,
                                             )
 
             part_properties = part.__dict__

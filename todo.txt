@@ -1,6 +1,9 @@
 -----
 TO DO
-enemies use firearms
+enemies spawn with weapons
+different rounds take different time to load into magazine/gun
+debuffs when limbs crippled for arms, head and torso
+gunshots alert enemies
 firearms parts and ammunition crafting
 cannot disassemble/assemble items while enemies are active
 
@@ -22,3 +25,4 @@ tutorial option
 -enemies spawning in groups
 -save guns to look at in main menu
 -grave yard
+-in the dungeon you find enemies using your looted equipment from previous runs
