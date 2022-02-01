@@ -536,7 +536,6 @@ class GunIntegratedMag(Gun, Magazine):
 class GunComponent(Usable):
     def __init__(self,
 
-                 compatible_gun_type: str,
                  part_type: str,
 
                  # for mag fed gun
@@ -555,7 +554,6 @@ class GunComponent(Usable):
                  keep_round_chambered: Optional[bool] = None,
                  ):
 
-        self.compatible_gun_type = compatible_gun_type
         self.part_type = part_type
 
         self.base_meat_damage = base_meat_damage

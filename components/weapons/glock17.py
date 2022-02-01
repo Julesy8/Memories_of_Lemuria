@@ -35,7 +35,7 @@ glock17_frame = Item(
     name="Glock 17 Frame",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(compatible_gun_type='Glock 17',part_type='glock17_frame')
+    usable_properties=GunComponent(part_type='glock17_frame')
 )
 
 glock17_slide = Item(
@@ -46,7 +46,7 @@ glock17_slide = Item(
     name="Glock 17 Slide",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(compatible_gun_type='Glock 17',part_type='glock17_slide')
+    usable_properties=GunComponent(part_type='glock17_slide')
 )
 
 glock17_barrel = Item(
@@ -57,7 +57,7 @@ glock17_barrel = Item(
     name="Glock 17 Barrel",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(compatible_gun_type='Glock 17',part_type='glock17_barrel')
+    usable_properties=GunComponent(part_type='glock17_barrel')
 )
 
 glock_stock = Item(
@@ -68,5 +68,5 @@ glock_stock = Item(
     name="Glock Stock",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(compatible_gun_type='Glock 17',part_type='glock_stock')
+    usable_properties=GunComponent(part_type='glock_stock')
 )

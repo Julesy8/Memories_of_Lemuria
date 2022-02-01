@@ -331,7 +331,7 @@ class UserOptionsEventHandler(AskUserEventHandler):
         width = len(self.TITLE)
 
         if longest_option_name > width:
-            width = longest_option_name + 4
+            width = longest_option_name
 
         x = 1
         y = 2
@@ -339,7 +339,7 @@ class UserOptionsEventHandler(AskUserEventHandler):
         console.draw_frame(
             x=x,
             y=y,
-            width=width + 2,
+            width=width + 6,
             height=len(self.options) + 2,
             title=self.TITLE,
             clear=True,
@@ -384,9 +384,6 @@ class UserOptionsWithPages(AskUserEventHandler):
         self.options = options
         self.TITLE = title
 
-        self.camera=None  # TODO: find out if defining camera and console is necessary
-        self.console=None
-
         super().__init__(engine)
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
@@ -395,10 +392,6 @@ class UserOptionsWithPages(AskUserEventHandler):
         they are.
         """
         super().on_render(console, camera)
-
-        if self.console is None and self.camera is None:
-            self.console = console
-            self.camera = camera
 
         number_of_options = len(self.options)
 
@@ -471,12 +464,12 @@ class UserOptionsWithPages(AskUserEventHandler):
         if key == tcod.event.K_DOWN:
             if len(self.options) > (self.page + 1) * self.max_list_length:
                 self.page += 1
-                self.on_render(console=self.console, camera=self.camera)
+                return self
 
         if key == tcod.event.K_UP:
             if self.page > 0:
                 self.page -= 1
-                self.on_render(console=self.console, camera=self.camera)
+                return self
 
         if 0 <= index <= self.max_list_length - 1:
             try:
@@ -558,13 +551,19 @@ class InventoryEventHandler(UserOptionsWithPages):
 
     def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        return ItemInteractionHandler(item=item, options=['Use', 'Equip', 'Drop'], engine=self.engine)
+
+        options = ['Use', 'Equip', 'Drop']
+
+        if isinstance(item.usable_properties, Gun):
+            options.append('Disassemble')
+
+        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
 class ItemInteractionHandler(UserOptionsEventHandler):  # options for interacting with an item
 
     def __init__(self, item, options: list, engine: Engine):
-        self.item=item
+        self.item = item
         super().__init__(engine=engine, options=options, title=item.name)
 
     def on_option_selected(self, option) -> Optional[ActionOrHandler]:
@@ -603,6 +602,12 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 return DropItemEventHandler(item=self.item, engine=self.engine)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
+
+        elif option == 'Disassemble':
+            if isinstance(self.item.usable_properties, Gun):
+                self.item.usable_properties.parts.disassemble(entity=self.engine.player)
+                self.engine.handle_enemy_turns()
+                return MainGameEventHandler(self.engine)
 
         else:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -1086,8 +1091,16 @@ class SelectGunToCraft(UserOptionsWithPages):
 
         part_dict = {}
 
+        available_compatible_parts = []
+
+        for part in guns_dict[option]["compatible parts"]:
+            for item in self.engine.player.inventory.items:
+                if isinstance(item.usable_properties, GunComponent):
+                    if item.usable_properties.part_type == part:
+                        available_compatible_parts.append(part)
+
         # all required and compatible parts
-        parts = guns_dict[option]["required parts"] + guns_dict[option]["compatible parts"]
+        parts = guns_dict[option]["required parts"] + available_compatible_parts
 
         # adds all required and compatible parts to the dictionary and sets their value to None before player selects
         for part in parts:
@@ -1111,15 +1124,18 @@ class CraftItem(UserOptionsWithPages):
         # index of current part to be selected set to first part
         self.current_part_selection = current_part_index
 
-        title = "select parts"
+        title = guns_dict[item_to_craft]["parts names"][current_part_index]
 
         # parts of a given type available in inventory
-        options = ['none']
+        options = []
+
+        # if part is not required, gives the option to select none
+        if self.parts[self.current_part_selection] in guns_dict[self.item_name]["compatible parts"]:
+            options.append('none')
 
         for item in engine.player.inventory.items:
             if isinstance(item.usable_properties, GunComponent):
-                if item.usable_properties.compatible_gun_type == self.item_name and item.usable_properties.part_type \
-                        == self.parts[self.current_part_selection]:
+                if item.usable_properties.part_type == self.parts[self.current_part_selection]:
                     options.append(item)
 
         super().__init__(engine=engine, options=options, page=0, title=title)
@@ -1129,12 +1145,6 @@ class CraftItem(UserOptionsWithPages):
         if not option == 'none':
             # sets part in part dict to be the selected part
             self.part_dict[self.parts[self.current_part_selection]] = option
-
-        else:
-            # option selected is none but the part is required to create the item
-            if self.parts[self.current_part_selection] in guns_dict[self.item_name]["required parts"]:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
-                return MainGameEventHandler(engine=self.engine)
 
         if self.parts[self.current_part_selection] == self.parts[-1]:
             item = guns_dict[self.item_name]['item']

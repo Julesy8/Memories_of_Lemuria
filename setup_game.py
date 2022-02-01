@@ -110,7 +110,7 @@ class MainMenu(input_handlers.BaseEventHandler):
         is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
         console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
 
-        console2.blit(dest=console, dest_x=23, dest_y=6, src_x=0, src_y=0, width=33, height=32)
+        console2.blit(dest=console, dest_x=23, dest_y=6, src_x=0, src_y=0, width=35, height=35)
 
         console.print(
             console.width // 2,

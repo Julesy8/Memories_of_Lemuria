@@ -71,14 +71,14 @@ class GunParts:
                     elif type(part_properties[property_str]) is str or type(part_properties[property_str]) is dict:
                         setattr(self.parent, property_str, part_properties[property_str])
 
-    def disassemble(self):
+    def disassemble(self, entity):
 
         gun_component = self.parent
-        entity = gun_component.parent
-        inventory = entity.parent
+        gun_item = gun_component.parent
+        inventory = entity.inventory
 
         if isinstance(inventory, Inventory):
-            if entity in inventory.items:
+            if gun_item in inventory.items:
                 for part in self.part_list:
                     inventory.items.append(part)
-                inventory.items.remove(entity)
+                inventory.items.remove(gun_item)

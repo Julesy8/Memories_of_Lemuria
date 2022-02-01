@@ -1,7 +1,8 @@
 -----
 TO DO
-fix the way itemactions and item activation works
 enemies use firearms
+firearms parts and ammunition crafting
+cannot disassemble/assemble items while enemies are active
 
 12) item stat screen
 13) weapon firing graphics
