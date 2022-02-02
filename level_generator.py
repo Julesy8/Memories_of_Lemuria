@@ -332,7 +332,7 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
                             enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.load_magazine(ammo=ammo, load_amount=ammo.stacking.stack_size)
 
                             enemy.inventory.held.usable_properties.previously_loaded_magazine = \
-                                enemy.inventory.held.usable_properties.loaded_magazine
+                                copy.deepcopy(enemy.inventory.held.usable_properties.loaded_magazine)
 
                             enemy.inventory.held.usable_properties.chambered_bullet = \
                                 copy.deepcopy(enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.magazine[-1])

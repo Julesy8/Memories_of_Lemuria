@@ -102,11 +102,14 @@ class HostileEnemy(BaseAI):
 
                             # reload mag fed gun
                             if isinstance(held_item.usable_properties, GunMagFed):
-                                held_item.usable_properties. \
+                                held_item.usable_properties.\
                                     load_gun(magazine=held_item.usable_properties.previously_loaded_magazine)
 
                                 # entity attack inactive for given reload period
                                 self.entity.turns_attack_inactive = \
+                                    held_item.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load
+
+                                self.entity.fleeing_turns = \
                                     held_item.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load
 
                             # reload integrated mag gun
@@ -117,6 +120,8 @@ class HostileEnemy(BaseAI):
 
                                 # entity attack inactive for given reload period
                                 self.entity.turns_attack_inactive = ceil(held_item.usable_properties.mag_capacity / 5)
+
+                                self.entity.fleeing_turns = ceil(held_item.usable_properties.mag_capacity / 5)
 
                             attack_turns -= 1
                             self.entity.last_attack_turn = self.entity.turn_counter
@@ -153,11 +158,13 @@ class HostileEnemy(BaseAI):
                                                     cardinal=True, diagonal=True)[1:].tolist()
                     if path_xy:
                         dest_x, dest_y = path_xy.pop(0)
-                        self.entity.energy -= self.entity.move_cost
+                        move_turns -= 1
+                        self.entity.last_move_turn = self.entity.turn_counter
+                        self.entity.fleeing_turns -= 1
                         MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y, ).perform()
                     else:
+                        self.entity.fleeing_turns = 0
                         break
-                    self.entity.fleeing_turns -= 1
 
                 elif self.engine.game_map.visible[self.entity.x, self.entity.y]:
                     self.path = self.get_path_to(target.x, target.y)

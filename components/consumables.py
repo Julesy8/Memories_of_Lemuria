@@ -234,7 +234,7 @@ class Magazine(Usable):
             if isinstance(self, GunIntegratedMag):
                 if not self.keep_round_chambered:
                     self.magazine.append(self.chambered_bullet)
-                    self.chambered_bullet = None
+                    setattr(self, "chambered_bullet", None)
 
             if len(self.magazine) > 0:
                 for bullet in self.magazine:
@@ -451,7 +451,6 @@ class GunMagFed(Gun):
 
         entity = self.parent
         inventory = entity.parent
-
         if isinstance(inventory, components.inventory.Inventory):
             if self.loaded_magazine is not None:
 
@@ -459,18 +458,20 @@ class GunMagFed(Gun):
                     self.loaded_magazine.append(self.chambered_bullet)
                     self.chambered_bullet = None
 
-                inventory.items.append(self.loaded_magazine)
-                self.loaded_magazine = magazine
+                if inventory.parent == self.engine.player:
+                    inventory.items.append(self.loaded_magazine)
+
+                self.loaded_magazine = deepcopy(magazine)
 
             else:
-                self.loaded_magazine = magazine
+                self.loaded_magazine = deepcopy(magazine)
 
             if inventory.parent == self.engine.player:
                 inventory.items.remove(magazine)
 
-            if len(magazine.usable_properties.magazine) > 0:
+            if len(self.loaded_magazine.usable_properties.magazine) > 0:
                 if self.chambered_bullet is None:
-                    self.chambered_bullet = magazine.usable_properties.magazine.pop()
+                    self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
 
     def unload_gun(self):
 
