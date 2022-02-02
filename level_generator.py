@@ -8,6 +8,10 @@ from game_map import GameMap
 from level_parameters import Enemies_by_level, Items_by_level
 from tile_types import down_stairs
 
+from components.consumables import Gun, GunIntegratedMag, GunMagFed
+from components.weapons.bullets import bullet_dict
+from components.weapons.magazines import magazine_dict
+from components.enemies.caverns import caverns_enemies
 
 class MessyBSPTree:
     """
@@ -285,10 +289,55 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
         x = randint(room.x1 + 1, room.x2 - 1)
         y = randint(room.y1 + 1, room.y2 - 1)
 
-        # change to also check for walls
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and dungeon.tiles[x, y] != down_stairs:
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             enemy = copy.deepcopy(choices(population=Enemies_by_level[level][0], weights=Enemies_by_level[level][1], k=1)[0])
             enemy.place(x, y, dungeon)
+
+            if enemy.can_spawn_armed:
+                enemy.inventory.held = copy.deepcopy(choices(population=caverns_enemies[enemy.name]["weapons"], weights=caverns_enemies[enemy.name]["weapon weight"], k=1)[0])
+
+                # TODO: Make readable
+
+                if enemy.inventory.held is not None:
+
+                    enemy.inventory.held.parent = enemy.inventory
+
+                    if isinstance(enemy.inventory.held.usable_properties, Gun):
+                        gun_parts = []
+
+                        for value in enemy.inventory.held.usable_properties.possible_parts.values():
+
+                            part_selected = choices(population=value[0], weights=value[1])
+                            part_selected.append(gun_parts)
+
+                        for part in gun_parts:
+                            setattr(enemy.inventory.held.usable_properties.parts, part.part_type, part)
+
+                        enemy.inventory.held.usable_properties.parts.update_partlist()
+
+                        # gives gun magazine
+                        if isinstance(enemy.inventory.held.usable_properties, GunMagFed):
+                            enemy.inventory.held.usable_properties.loaded_magazine = copy.deepcopy(choices(
+                                population=magazine_dict[enemy.inventory.held.usable_properties.compatible_magazine_type]["mag_items"],
+                                weights=magazine_dict[enemy.inventory.held.usable_properties.compatible_magazine_type]["mag_weight"],
+                                k=1)[0])
+
+                            enemy.inventory.held.usable_properties.loaded_magazine.parent = enemy.inventory
+
+                            ammo = copy.deepcopy(choices(population=bullet_dict[enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.compatible_bullet_type]["bullet_items"],
+                                                         weights=bullet_dict[enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.compatible_bullet_type]["bullet_weight"], k=1)[0])
+
+                            ammo.stacking.stack_size = enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.mag_capacity
+
+                            enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.load_magazine(ammo=ammo, load_amount=ammo.stacking.stack_size)
+
+                            enemy.inventory.held.usable_properties.previously_loaded_magazine = \
+                                enemy.inventory.held.usable_properties.loaded_magazine
+
+                            enemy.inventory.held.usable_properties.chambered_bullet = \
+                                copy.deepcopy(enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.magazine[-1])
+
+
 
     for i in range(number_of_items):
         x = randint(room.x1 + 1, room.x2 - 1)

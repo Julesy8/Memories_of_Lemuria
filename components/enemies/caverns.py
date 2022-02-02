@@ -6,6 +6,8 @@ from components import consumables
 from components.inventory import Inventory
 import colour
 
+import components.weapons.glock17
+
 
 def placeholder_fighter():
     return Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
@@ -30,55 +32,32 @@ placeholder_common = Actor(
     ai=HostileEnemy,
     bodyparts=body_parts,
     inventory=Inventory(capacity=0),
+    can_spawn_armed=True,
 )
 
 placeholder_uncommon = Actor(
     x=0, y=0,
     char='N',
-    fg_colour=colour.JADE,
+    fg_colour=colour.GREEN,
     bg_colour=None,
     name='Placeholder',
     fighter=placeholder_fighter(),
     ai=HostileEnemy,
     bodyparts=body_parts,
     inventory=Inventory(capacity=0),
+    can_spawn_armed=True,
 )
 
-placeholder_rare = Actor(
-    x=0, y=0,
-    char='N',
-    fg_colour=colour.BLUE,
-    bg_colour=None,
-    name='Placeholder',
-    fighter=placeholder_fighter(),
-    ai=HostileEnemy,
-    bodyparts=body_parts,
-    inventory=Inventory(capacity=0),
-)
-
-placeholder_v_rare = Actor(
-    x=0, y=0,
-    char='N',
-    fg_colour=colour.PURPLE,
-    bg_colour=None,
-    name='Placeholder',
-    fighter=placeholder_fighter(),
-    ai=HostileEnemy,
-    bodyparts=body_parts,
-    inventory=Inventory(capacity=0),
-)
-
-placeholder_legendary = Actor(
-    x=0, y=0,
-    char='N',
-    fg_colour=colour.ORANGE,
-    bg_colour=None,
-    name='Placeholder',
-    fighter=placeholder_fighter(),
-    ai=HostileEnemy,
-    bodyparts=body_parts,
-    inventory=Inventory(capacity=0),
-)
+caverns_enemies = {
+    'Placeholder': {
+        'weapons': [None, components.weapons.glock17.glock_17],
+        'weapon weight': [2, 1],
+        'armour': [],
+        'armour weight': [],
+        'drops': [],
+        'drop weight': [],
+    }
+}
 
 placeholder_item = Item(
     x=0, y=0,
@@ -170,36 +149,3 @@ medkit = Item(
     usable_properties=consumables.HealingConsumable(amount=20),
 )
 
-glock_mag = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name="Glock Magazine 9mm",
-    weight=1,
-    stacking=None,
-    usable_properties=consumables.Magazine(
-        magazine_type='glock9mm',
-        compatible_bullet_type='9mm',
-        mag_capacity=17,
-        turns_to_load=1,
-        magazine_size='small',
-    )
-)
-
-bullet_9mm = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='9mm Bullet',
-    weight=1,
-    stacking=Stacking(stack_size=10),
-    usable_properties=consumables.Bullet(
-        bullet_type='9mm',
-        meat_damage_factor=1.0,
-        armour_damage_factor=1.0,
-        accuracy_factor=1.0,
-        recoil_modifier=4,
-    )
-)

@@ -1,6 +1,7 @@
 -----
 TO DO
-enemies spawn with weapons
+fix weird AI behaviour when out of ammo and melee
+when disassembling weapon mag/rounds go to inventory
 different rounds take different time to load into magazine/gun
 debuffs when limbs crippled for arms, head and torso
 gunshots alert enemies

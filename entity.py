@@ -97,6 +97,7 @@ class Actor(Entity):
             fighter,
             bodyparts,  # list of bodyparts belonging to the entity
             inventory: Inventory,
+            can_spawn_armed: bool,  # whether entity can spawn with a weapon
             attack_interval=0,
             attacks_per_turn=1,
             move_interval=0,
@@ -129,8 +130,8 @@ class Actor(Entity):
         self.inventory.parent = self
         for bodypart in self.bodyparts:
             bodypart.parent = self
+        self.can_spawn_armed = can_spawn_armed
 
-        # TODO: make these a part of entity class
         # original values before changes occur i.e. crippled limbs
         self.attack_interval_original = attack_interval
         self.attacks_per_turn_original = attacks_per_turn

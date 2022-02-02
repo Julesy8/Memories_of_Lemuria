@@ -274,6 +274,7 @@ class Gun(Weapon):
                  range_accuracy_dropoff: int,
                  equip_time: int,
                  fire_modes: dict,  # fire rates in rpm
+                 possible_parts: dict,
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
@@ -282,6 +283,7 @@ class Gun(Weapon):
 
         self.parts = parts
         self.parts.parent = self
+        self.possible_parts = possible_parts  # dict containing possible part options the gun is able to spawn with
 
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
@@ -420,6 +422,7 @@ class GunMagFed(Gun):
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,
+                 possible_parts: dict,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
@@ -440,7 +443,8 @@ class GunMagFed(Gun):
             current_fire_mode=current_fire_mode,
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
-            enemy_attack_range=enemy_attack_range
+            enemy_attack_range=enemy_attack_range,
+            possible_parts=possible_parts
         )
 
     def load_gun(self, magazine):
@@ -461,7 +465,8 @@ class GunMagFed(Gun):
             else:
                 self.loaded_magazine = magazine
 
-            inventory.items.remove(magazine)
+            if inventory.parent == self.engine.player:
+                inventory.items.remove(magazine)
 
             if len(magazine.usable_properties.magazine) > 0:
                 if self.chambered_bullet is None:
@@ -518,6 +523,7 @@ class GunIntegratedMag(Gun, Magazine):
                  mag_capacity: int,
                  keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
                  enemy_attack_range: int,
+                 possible_parts: dict,
                  chambered_bullet=None,
                  ):
 
@@ -539,6 +545,7 @@ class GunIntegratedMag(Gun, Magazine):
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
             enemy_attack_range=enemy_attack_range,
+            possible_parts=possible_parts
         )
 
     def chamber_round(self):

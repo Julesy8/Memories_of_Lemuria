@@ -27,20 +27,17 @@ Enemies_by_level = {
     0: (
         (
          placeholder_common,
-         placeholder_uncommon,
-         placeholder_rare,
-         placeholder_v_rare,
-         placeholder_legendary
+         placeholder_uncommon
          ),
-        (1,1,1,1,1)
+        (1, 1)
     )
 }
 
 Items_by_level = {
     0: (
-        (medkit, helmet, greaves, chestplate, pauldron, glock_mag, bullet_9mm,
+        (medkit, helmet, greaves, chestplate, pauldron,
          components.weapons.glock17.glock17_barrel, components.weapons.glock17.glock17_frame,
          components.weapons.glock17.glock17_slide),
-        (1,1,1,1,1,1,1,1,1,1)
+        (1,1,1,1,1,1,1,1)
     )
 }

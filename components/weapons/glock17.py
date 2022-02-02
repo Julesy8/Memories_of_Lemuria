@@ -3,30 +3,6 @@ from components.consumables import GunMagFed, GunComponent
 from components.gunparts import GunParts
 import colour
 
-glock_17 = Item(
-    x=0, y=0,
-    char="r",
-    fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name="Glock 17",
-    weight=1,
-    stacking=None,
-    usable_properties=GunMagFed(
-        compatible_magazine_type='glock9mm',
-        chambered_bullet=None,
-        keep_round_chambered=True,
-        loaded_magazine=None,
-        equip_time=1,
-        fire_modes={'single shot': 1, 'automatic': 1200},
-        current_fire_mode='single shot',
-        base_meat_damage=10,
-        base_armour_damage=10,
-        base_accuracy=1.0,
-        range_accuracy_dropoff=40,
-        parts=GunParts(),
-        enemy_attack_range=5
-    )
-)
 
 glock17_frame = Item(
     x=0, y=0,
@@ -70,4 +46,37 @@ glock_stock = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='glock_stock')
+)
+
+glock_parts_dict = {
+    "glock17_frame": ([glock17_frame], [1]),
+    "glock17_slide": ([glock17_slide], [1]),
+    "glock17_barrel": ([glock17_barrel], [1]),
+    "glock_stock": ([None, glock_stock], [1,1]),
+}
+
+glock_17 = Item(
+    x=0, y=0,
+    char="r",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock 17",
+    weight=1,
+    stacking=None,
+    usable_properties=GunMagFed(
+        compatible_magazine_type='glock9mm',
+        chambered_bullet=None,
+        keep_round_chambered=True,
+        loaded_magazine=None,
+        equip_time=1,
+        fire_modes={'single shot': 1, 'automatic': 1200},
+        current_fire_mode='single shot',
+        base_meat_damage=10,
+        base_armour_damage=10,
+        base_accuracy=1.0,
+        range_accuracy_dropoff=40,
+        parts=GunParts(),
+        enemy_attack_range=5,
+        possible_parts=glock_parts_dict
+    )
 )

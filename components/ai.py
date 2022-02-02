@@ -84,25 +84,17 @@ class HostileEnemy(BaseAI):
 
                 held_item = self.entity.inventory.held
 
-                if distance <= 1:
-
-                    # in melee range, has melee weapon
-                    if held_item is not None:
-                        if not held_item.ranged:
-                            WeaponAttackAction(distance=distance, item=held_item, entity=self.entity,
-                                               targeted_actor=target, targeted_bodypart=None).attack()
-
-                    # in melee range, no weapon
-                    else:
+                if held_item is None:
+                    if distance <= 1:
                         UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
                                             targeted_bodypart=None).attack()
 
-                    move_turns = 0
-                    attack_turns -= 1
-                    self.entity.last_attack_turn = self.entity.turn_counter
+                        move_turns = 0
+                        attack_turns -= 1
+                        self.entity.last_attack_turn = self.entity.turn_counter
 
                 # has gun equipped
-                elif held_item is not None:
+                else:
                     if isinstance(held_item.usable_properties, Gun):
 
                         # reload weapon
@@ -115,7 +107,7 @@ class HostileEnemy(BaseAI):
 
                                 # entity attack inactive for given reload period
                                 self.entity.turns_attack_inactive = \
-                                    held_item.usable_properties.previously_loaded_magazine.turns_to_load
+                                    held_item.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load
 
                             # reload integrated mag gun
                             if isinstance(held_item.usable_properties, GunIntegratedMag):

@@ -49,6 +49,7 @@ def new_game() -> Engine:
                    bodyparts=body_parts,
                    player=True,
                    inventory=Inventory(capacity=15),
+                   can_spawn_armed=False,
                    )
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)
