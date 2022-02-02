@@ -1,17 +1,25 @@
 import copy
 
 from random import random, randint, choice, choices
+from copy import deepcopy
 
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level, Items_by_level
 from tile_types import down_stairs
-
 from components.consumables import Gun, GunIntegratedMag, GunMagFed
 from components.weapons.bullets import bullet_dict
 from components.weapons.magazines import magazine_dict
 from components.enemies.caverns import caverns_enemies
+from entity import Entity
+import colour
+from render_order import RenderOrder
+
+
+stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_GRAY, bg_colour=None, name='Stairs',
+                       render_order=RenderOrder.HIGHEST)
+
 
 class MessyBSPTree:
     """
@@ -91,6 +99,8 @@ class MessyBSPTree:
             if room == self._rooms[stair_room]:
                 room_centre_x, room_centre_y = room.centre()
                 self.dungeon.tiles[room_centre_x, room_centre_y] = down_stairs
+                stairs = deepcopy(stairs_entity)
+                stairs.place(x=room_centre_x, y=room_centre_y, gamemap=self.dungeon)
                 self.dungeon.downstairs_location = room_centre_x, room_centre_y
 
         return self.dungeon
@@ -336,8 +346,6 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
 
                             enemy.inventory.held.usable_properties.chambered_bullet = \
                                 copy.deepcopy(enemy.inventory.held.usable_properties.loaded_magazine.usable_properties.magazine[-1])
-
-
 
     for i in range(number_of_items):
         x = randint(room.x1 + 1, room.x2 - 1)

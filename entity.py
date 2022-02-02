@@ -4,6 +4,8 @@ from typing import Optional, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
 
+import colour
+
 if TYPE_CHECKING:
     from game_map import GameMap
     from components.consumables import Usable
@@ -32,7 +34,6 @@ class Entity:  # generic entity
         self.x = x
         self.y = y
         self.char = char
-        self.hidden_char = char  # TODO: reimplement remembering entity last position
         self.fg_colour = fg_colour
         self.bg_colour = bg_colour
         self.name = name
@@ -98,11 +99,14 @@ class Actor(Entity):
             bodyparts,  # list of bodyparts belonging to the entity
             inventory: Inventory,
             can_spawn_armed: bool,  # whether entity can spawn with a weapon
+            blood_entity=Entity(x=0, y=0, char=' ', fg_colour=colour.RED, bg_colour=colour.RED, name='Blood',
+                                render_order=RenderOrder.BACKGROUND),
             attack_interval=0,
             attacks_per_turn=1,
             move_interval=0,
             moves_per_turn=1,
             active_radius=10,
+            bleeds=True,
             fears_death=True,
             player: bool = False,
             leaves_corpse: bool = True
@@ -117,6 +121,8 @@ class Actor(Entity):
             blocks_movement=True,
             render_order=RenderOrder.ACTOR,
         )
+        self.blood_entity = blood_entity
+        self.bleeds = bleeds
         self.active = False
         self.ai = ai(self)
         self.fighter = fighter

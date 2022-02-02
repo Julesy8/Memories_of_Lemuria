@@ -5,6 +5,7 @@ from typing import List, Tuple
 import numpy as np  # type: ignore
 import tcod
 from math import ceil
+from random import randint
 
 from components.consumables import Gun, GunMagFed, GunIntegratedMag
 from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction
@@ -119,12 +120,16 @@ class HostileEnemy(BaseAI):
                                      load_amount=held_item.usable_properties.mag_capacity)
 
                                 # entity attack inactive for given reload period
-                                self.entity.turns_attack_inactive = ceil(held_item.usable_properties.mag_capacity / 5)
+                                self.entity.turns_attack_inactive += ceil(held_item.usable_properties.mag_capacity / 5)
 
-                                self.entity.fleeing_turns = ceil(held_item.usable_properties.mag_capacity / 5)
+                                self.entity.fleeing_turns += ceil(held_item.usable_properties.mag_capacity / 5)
 
                             attack_turns -= 1
                             self.entity.last_attack_turn = self.entity.turn_counter
+
+                        elif distance <= 1:
+                            if randint(1, 2) == 1:
+                                self.entity.fleeing_turns += 2
 
                         # if in attack range, attacks
                         elif distance <= held_item.usable_properties.enemy_attack_range:

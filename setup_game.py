@@ -19,7 +19,7 @@ from level_parameters import level_params
 from components.inventory import Inventory
 from components.ai import HostileEnemy
 from components.npc_templates import Fighter
-from components.bodyparts import Bodypart, Arm, Leg
+from components.bodyparts import Body, Arm, Leg, Head
 
 
 def new_game() -> Engine:
@@ -29,15 +29,14 @@ def new_game() -> Engine:
     # initialises player entity
     fighter_component = Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
-    Head = Bodypart(hp=50, defence=20, vital=True, name='head', part_type='Head', base_chance_to_hit=80)
-    Body = Bodypart(hp=50, defence=20, vital=True, name='body', part_type='Body', base_chance_to_hit=90,
-                    destroyable=False)
-    R_Arm = Arm(hp=50, defence=20, name='right arm', base_chance_to_hit=80)
-    L_Arm = Arm(hp=50, defence=20, name='left arm', base_chance_to_hit=80)
-    R_Leg = Leg(hp=50, defence=20, name='right leg', base_chance_to_hit=80)
-    L_Leg = Leg(hp=50, defence=20, name='left leg', base_chance_to_hit=80)
+    Head_part = Head(hp=50, defence=20)
+    Body_part = Body(hp=50, defence=20)
+    R_Arm = Arm(hp=50, defence=20, name='right arm')
+    L_Arm = Arm(hp=50, defence=20, name='left arm')
+    R_Leg = Leg(hp=50, defence=20, name='right leg')
+    L_Leg = Leg(hp=50, defence=20, name='left leg')
 
-    body_parts = (Body, Head, R_Arm, L_Arm, R_Leg, L_Leg)
+    body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
     player = Actor(0, 0,
                    '@',

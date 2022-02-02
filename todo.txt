@@ -1,7 +1,6 @@
 -----
 TO DO
 different rounds take different time to load into magazine/gun
-debuffs when limbs crippled for arms, head and torso
 gunshots alert enemies
 firearms parts and ammunition crafting
 cannot disassemble/assemble items while enemies are active
@@ -9,7 +8,6 @@ cannot disassemble/assemble items while enemies are active
 12) item stat screen
 13) weapon firing graphics
 15) ranged enemies
-16) implement fleeing?
 17) more room shapes on level generation
 18) enemy drops
 19) weapon graphics
@@ -20,7 +18,6 @@ load options
 tutorial option
 
 -music
--remembering item + enemy last position when out of line of sight
 -enemies spawning in groups
 -save guns to look at in main menu
 -grave yard

@@ -88,8 +88,14 @@ class Weapon(Usable):
 
     def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
+        weapon_accuracy_type = attacker.fighter.melee_accuracy
+
+        if self.ranged:
+            weapon_accuracy_type = attacker.fighter.ranged_accuracy
+
         # successful hit
-        if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy):
+        if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy
+                         * weapon_accuracy_type):
 
             # does damage to given bodypart
             target.bodyparts[part_index].deal_damage(
@@ -316,8 +322,8 @@ class Gun(Weapon):
 
                 # successful hit
                 if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy *
-                                 self.chambered_bullet.usable_properties.accuracy_factor) - range_penalty \
-                        - recoil_penalty:
+                                 self.chambered_bullet.usable_properties.accuracy_factor
+                                 * attacker.fighter.ranged_accuracy) - range_penalty - recoil_penalty:
 
                     # does damage to given bodypart
                     target.bodyparts[part_index].deal_damage(

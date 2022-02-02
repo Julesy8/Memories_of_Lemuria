@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from copy import deepcopy
+from random import randint
 from typing import Optional, TYPE_CHECKING
 
 from entity import Actor, Entity
@@ -24,7 +26,6 @@ class Bodypart:
                  base_chance_to_hit: int,
                  part_type: Optional[str],
                  vital: bool = False,
-                 destroyable: bool = True
                  ):
 
         self.max_hp = hp
@@ -38,9 +39,6 @@ class Bodypart:
         # base modifier of how likely the body part is to be hit when attacked between
         # 1 and 100. Higher = more likely to hit.
         self.base_chance_to_hit = base_chance_to_hit
-
-        # whether or not the body part should be able to be destroyed i.e. cut off, explode
-        self.destroyable = destroyable
 
         self.part_type = part_type  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
         self.functional = True  # whether or not bodypart is crippled
@@ -61,20 +59,24 @@ class Bodypart:
     def hp(self, value: int) -> None:
         self._hp = max(0, min(value, self.max_hp))
 
+        if self._hp <= self.max_hp * 0.70 and self.parent.bleeds:
+            blood_copy = deepcopy(self.parent.blood_entity)
+            blood_copy.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+
         if self._hp == 0 and self.parent.ai:
 
             if self.vital:
                 self.die()
 
-            elif self.functional:
-                self.cripple()
+        elif self._hp <= self.max_hp * 1/3 and self.functional:
+            self.cripple()
 
-                if self.parent.player:
-                    self.engine.message_log.add_message(f"Your {self.name} is crippled", fg=colour.RED)
+            if self.parent.player:
+                self.engine.message_log.add_message(f"Your {self.name} is crippled", fg=colour.RED)
 
-                else:
-                    self.engine.message_log.add_message(f"The {self.parent.name}'s {self.name} is crippled!",
-                                                        fg=colour.GREEN)
+            else:
+                self.engine.message_log.add_message(f"The {self.parent.name}'s {self.name} is crippled!",
+                                                    fg=colour.GREEN)
 
     @defence.setter
     def defence(self, value):
@@ -83,7 +85,7 @@ class Bodypart:
     def die(self) -> None:
 
         self.parent.fg_colour = colour.WHITE
-        self.parent.bg_colour = colour.LIGHT_RED
+        #self.parent.bg_colour = colour.LIGHT_RED
         self.parent.blocks_movement = False
         self.parent.ai = None
         self.parent.name = f"remains of {self.parent.name}"
@@ -111,10 +113,6 @@ class Bodypart:
         # attack w/ weapon
         if item:
             if damage > 0:
-
-                if damage >= self.max_hp * 0.45 and self.hp - damage <= 0 and self.functional and self.destroyable:
-                    self.destroy(item)
-
                 self.hp -= damage
 
             # hit, no damage dealt
@@ -132,12 +130,6 @@ class Bodypart:
 
     def cripple(self) -> None:
         self.functional = False
-
-    def destroy(self, item: Optional[Item]):
-
-        #blood_entity = deepcopy(blood)  # TODO: bleeding here, place limb object onto map
-
-        self.cripple()
 
     def heal(self, amount: int) -> int:
         if self.hp == self.max_hp:
@@ -157,12 +149,6 @@ class Bodypart:
 
     def restore(self):
 
-        """
-        this is only intended to be used on the player since they can't have their limbs destroyed
-        if this needs to be used for other entities, need to implement a system not restoring limb functionality
-        while having limbs destroyed
-        """
-
         for bodypart in self.parent.bodyparts:
             bodypart.functional = True
 
@@ -172,9 +158,9 @@ class Bodypart:
         self.parent.move_interval = self.parent.move_interval_original
         self.parent.moves_per_turn = self.parent.moves_per_turn_original
 
-    def bodypart_to_entity(self,):
-        return Entity(x=0, y=0, char=',', name=f"{self.parent.name} {self.name}", bg_colour=None,
-                      fg_colour=colour.LIGHT_RED)
+        # restores original entity base accuracy stats
+        self.parent.fighter.ranged_accuracy = self.parent.fighter.ranged_accuracy_original
+        self.parent.fighter.melee_accuracy = self.parent.fighter.melee_accuracy_original
 
 
 class Arm(Bodypart):
@@ -182,7 +168,7 @@ class Arm(Bodypart):
                  hp: int,
                  defence: int,
                  name: str,
-                 base_chance_to_hit: int,
+                 base_chance_to_hit: int = 90,
                  part_type: Optional[str] = 'Arms',
                  ):
 
@@ -207,13 +193,16 @@ class Arm(Bodypart):
                 self.engine.message_log.add_message(f"The {self.parent.inventory.held.name} slips from your grasp",
                                                     colour.RED)
 
+        self.parent.fighter.ranged_accuracy = self.parent.fighter.ranged_accuracy * 0.8
+        self.parent.fighter.ranged_accuracy = self.parent.fighter.ranged_accuracy * 0.8
+
 
 class Leg(Bodypart):
     def __init__(self,
                  hp: int,
                  defence: int,
                  name: str,
-                 base_chance_to_hit: int,
+                 base_chance_to_hit: int = 90,
                  part_type: Optional[str] = 'Legs',
                  ):
 
@@ -246,3 +235,53 @@ class Leg(Bodypart):
 
         else:
             self.parent.move_interval = 2 * self.parent.move_interval
+
+
+class Head(Bodypart):
+    def __init__(self,
+                 hp: int,
+                 defence: int,
+                 base_chance_to_hit: int = 80,
+                 name: str = 'head',
+                 part_type: Optional[str] = 'Head',
+                 ):
+
+        super().__init__(
+            hp=hp,
+            defence=defence,
+            name=name,
+            base_chance_to_hit=base_chance_to_hit,
+            part_type=part_type,
+            vital=True
+        )
+
+    def cripple(self) -> None:
+
+        # crippling the head 'knocks out' the entity for a random amount of turns
+
+        if not self.parent == self.engine.player:
+
+            self.functional = False
+
+            turns_inactive = randint(3, 6)
+            self.parent.turns_move_inactive = turns_inactive
+            self.parent.turns_attack_inactive = turns_inactive
+
+
+class Body(Bodypart):
+    def __init__(self,
+                 hp: int,
+                 defence: int,
+                 base_chance_to_hit: int = 100,
+                 name: str = 'body',
+                 part_type: Optional[str] = 'Body',
+                 ):
+
+        super().__init__(
+            hp=hp,
+            defence=defence,
+            name=name,
+            base_chance_to_hit=base_chance_to_hit,
+            part_type=part_type,
+            vital=True
+        )

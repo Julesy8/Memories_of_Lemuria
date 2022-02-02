@@ -30,7 +30,6 @@ class Fighter(BaseComponent):
                  unarmed_armour_damage,
                  melee_accuracy: float = 1.0,
                  ranged_accuracy: float = 1.0,
-                 bleeds: bool = True,
                  ):
 
         # unarmed melee attack damage
@@ -41,12 +40,6 @@ class Fighter(BaseComponent):
         self.melee_accuracy = melee_accuracy
         self.ranged_accuracy = ranged_accuracy
 
-        # whether or not the entity bleeds
-        self.bleeds = bleeds
-
-        # TODO: make bleeding matter
-
-        if self.bleeds is not None:
-            self.blood = 100  # the amount of blood an entity has out of 100
-
-        self.bleeding_turns: int = 0
+        # accuracy prior to any status effects being applied
+        self.melee_accuracy_original = melee_accuracy
+        self.ranged_accuracy_original = ranged_accuracy
