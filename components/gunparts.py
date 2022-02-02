@@ -45,6 +45,7 @@ class GunParts:
                                                    range_accuracy_dropoff=self.parent.range_accuracy_dropoff,
                                                    chambered_bullet=None,
                                                    enemy_attack_range=self.parent.enemy_attack_range,
+                                                   possible_parts={}
                                                    )
 
             elif isinstance(self.parent, GunIntegratedMag):
@@ -62,6 +63,7 @@ class GunParts:
                                             compatible_magazine_type=part.compatible_magazine_type,
                                             chambered_bullet=None,
                                             enemy_attack_range=self.parent.enemy_attack_range,
+                                            possible_parts={}
                                             )
 
             part_properties = part.__dict__
@@ -84,4 +86,12 @@ class GunParts:
             if gun_item in inventory.items:
                 for part in self.part_list:
                     inventory.items.append(part)
+
+                if isinstance(gun_item.usable_properties, GunMagFed):
+                    if gun_item.usable_properties.loaded_magazine is not None:
+                        gun_item.usable_properties.unload_gun()
+
+                elif isinstance(gun_item.usable_properties, GunIntegratedMag):
+                    gun_item.usable_properties.unload_magazine()
+
                 inventory.items.remove(gun_item)
