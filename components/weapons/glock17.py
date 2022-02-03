@@ -77,6 +77,7 @@ glock_17 = Item(
         range_accuracy_dropoff=40,
         parts=GunParts(),
         enemy_attack_range=5,
-        possible_parts=glock_parts_dict
+        possible_parts=glock_parts_dict,
+        sound_radius=10,
     )
 )

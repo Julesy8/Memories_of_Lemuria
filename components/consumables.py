@@ -13,7 +13,7 @@ import components.inventory
 from components.npc_templates import BaseComponent
 if TYPE_CHECKING:
     from components.gunparts import GunParts
-    from entity import Actor, Item
+    from entity import Item, Actor
     from input_handlers import ActionOrHandler
 
 
@@ -145,6 +145,7 @@ class Bullet(Usable):
                  armour_damage_factor: float,
                  accuracy_factor: float,
                  recoil_modifier: int,  # reduces accuracy of followup automatic shots
+                 sound_modifier: float,  # alters amount of noise the gun makes
                  ):
 
         self.bullet_type = bullet_type
@@ -152,6 +153,7 @@ class Bullet(Usable):
         self.armour_damage_factor = armour_damage_factor
         self.accuracy_factor = accuracy_factor
         self.recoil_modifier = recoil_modifier
+        self.sound_modifier = sound_modifier
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -216,7 +218,6 @@ class Magazine(Usable):
                         self.mag_capacity:
                     break
 
-            # every 5 bullets loaded into the magazine takes 1 turn
             turns_used = 0
 
             if self.engine.player == entity:
@@ -284,6 +285,7 @@ class Gun(Weapon):
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
+                 sound_radius: int,  # radius at which enemies can 'hear' the shot
                  chambered_bullet=None,
                  ):
 
@@ -296,6 +298,7 @@ class Gun(Weapon):
         self.fire_modes = fire_modes
         self.current_fire_mode = current_fire_mode
         self.enemy_attack_range = enemy_attack_range
+        self.sound_radius = sound_radius
 
         super().__init__(
             base_meat_damage=base_meat_damage,
@@ -313,6 +316,7 @@ class Gun(Weapon):
 
         recoil_penalty = 0
 
+        # fires rounds
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
                 range_penalty = 0
@@ -327,8 +331,10 @@ class Gun(Weapon):
 
                     # does damage to given bodypart
                     target.bodyparts[part_index].deal_damage(
-                        meat_damage=self.base_meat_damage * self.chambered_bullet.usable_properties.meat_damage_factor,
-                        armour_damage=self.base_armour_damage * self.chambered_bullet.usable_properties.armour_damage_factor,
+                        meat_damage=self.base_meat_damage
+                                    * self.chambered_bullet.usable_properties.meat_damage_factor,
+                        armour_damage=self.base_armour_damage
+                                      * self.chambered_bullet.usable_properties.armour_damage_factor,
                         attacker=attacker, item=self.parent)
 
                 # miss
@@ -428,6 +434,7 @@ class GunMagFed(Gun):
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,
+                 sound_radius: int,
                  possible_parts: dict,
                  chambered_bullet=None,
                  loaded_magazine=None,
@@ -450,7 +457,8 @@ class GunMagFed(Gun):
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
             enemy_attack_range=enemy_attack_range,
-            possible_parts=possible_parts
+            possible_parts=possible_parts,
+            sound_radius=sound_radius
         )
 
     def load_gun(self, magazine):
@@ -531,6 +539,7 @@ class GunIntegratedMag(Gun, Magazine):
                  keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
                  enemy_attack_range: int,
                  possible_parts: dict,
+                 sound_radius: int,
                  chambered_bullet=None,
                  ):
 
@@ -552,7 +561,8 @@ class GunIntegratedMag(Gun, Magazine):
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
             enemy_attack_range=enemy_attack_range,
-            possible_parts=possible_parts
+            possible_parts=possible_parts,
+            sound_radius=sound_radius
         )
 
     def chamber_round(self):

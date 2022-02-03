@@ -16,6 +16,7 @@ bullet_9mm = Item(
         armour_damage_factor=1.0,
         accuracy_factor=1.0,
         recoil_modifier=4,
+        sound_modifier=1.0,
     )
 )
 

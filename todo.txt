@@ -1,7 +1,5 @@
 -----
 TO DO
-different rounds take different time to load into magazine/gun
-gunshots alert enemies
 firearms parts and ammunition crafting
 cannot disassemble/assemble items while enemies are active
 

@@ -159,46 +159,28 @@ class HostileEnemy(BaseAI):
                     distance_dijkstra[touched] *= -6
                     distance_dijkstra[touched] //= 5
                     tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
-                    path_xy = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
-                                                    cardinal=True, diagonal=True)[1:].tolist()
-                    if path_xy:
-                        dest_x, dest_y = path_xy.pop(0)
-                        move_turns -= 1
-                        self.entity.last_move_turn = self.entity.turn_counter
-                        self.entity.fleeing_turns -= 1
-                        MovementAction(self.entity, dest_x - self.entity.x, dest_y - self.entity.y, ).perform()
-                    else:
-                        self.entity.fleeing_turns = 0
-                        break
+                    self.path = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
+                                                      cardinal=True, diagonal=True)[1:].tolist()
+                    self.entity.fleeing_turns -= 1
 
                 elif self.engine.game_map.visible[self.entity.x, self.entity.y]:
                     self.path = self.get_path_to(target.x, target.y)
 
-                    # path towards player given player is visible and entity is not fleeing
-                    if self.path:
-                        dest_x, dest_y = self.path.pop(0)
-                        MovementAction(
-                            self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                        ).perform()
-                        self.entity.last_move_turn = self.entity.turn_counter
-                        move_turns -= 1
-
                 # move towards the target if not too far away and entity is active
                 elif self.entity.active and distance < self.entity.active_radius:
                     self.path = self.get_path_to(target.x, target.y)
-                    if self.path:
-                        dest_x, dest_y = self.path.pop(0)
-                        MovementAction(
-                            self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                        ).perform()
-                        self.entity.last_move_turn = self.entity.turn_counter
-                        move_turns -= 1
-                    else:
-                        break
 
                 # if target too far away and not visible, become inactive (stop following)
                 elif self.entity.active:
                     self.entity.active = False
+
+                if self.path:
+                    dest_x, dest_y = self.path.pop(0)
+                    MovementAction(
+                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                    ).perform()
+                    self.entity.last_move_turn = self.entity.turn_counter
+                    move_turns -= 1
 
                 else:
                     break
