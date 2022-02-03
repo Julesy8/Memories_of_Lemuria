@@ -159,10 +159,15 @@ class WeaponAttackAction(AttackAction):
             sound_radius = self.item.usable_properties.sound_radius * bullet_sound_modifier
             for x in self.engine.game_map.entities:
                 if x != self.entity and hasattr(x, 'ai'):
-                    if not x.active and hasattr(x.ai, 'path'):
-                        path = x.ai.get_path_to(self.entity.x, self.entity.y)
-                        if len(path) <= sound_radius:
-                            setattr(x.ai, 'path', path)
+                    if hasattr(x.ai, 'path'):
+                        dx = x.x - self.entity.x
+                        dy = x.y - self.entity.y
+                        distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
+                        if distance <= sound_radius:
+                            path = x.ai.get_path_to(self.entity.x, self.entity.y)
+                            if len(path) <= sound_radius:
+                                setattr(x.ai, 'path', path)
 
         self.item.usable_properties.attack(distance=self.distance, target=self.targeted_actor, attacker=self.entity,
                                            part_index=self.part_index, hitchance=self.hitchance)

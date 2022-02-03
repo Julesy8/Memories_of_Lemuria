@@ -85,7 +85,6 @@ class Bodypart:
     def die(self) -> None:
 
         self.parent.fg_colour = colour.WHITE
-        #self.parent.bg_colour = colour.LIGHT_RED
         self.parent.blocks_movement = False
         self.parent.ai = None
         self.parent.name = f"remains of {self.parent.name}"
