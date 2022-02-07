@@ -11,6 +11,7 @@ glock_mag_9mm = Item(
     name="Glock Magazine 9mm",
     weight=1,
     stacking=None,
+    description='glock magazine accepting 9mm bullets',
     usable_properties=Magazine(
         magazine_type='glock9mm',
         compatible_bullet_type='9mm',

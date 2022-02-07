@@ -3,13 +3,15 @@ from __future__ import annotations
 import os
 from typing import Optional, TYPE_CHECKING, Union
 from math import ceil, floor
+import textwrap
 
 import tcod.event
 
 from entity import Item
 import actions
 from components.weapons.gundict import guns_dict
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent, Wearable, Weapon, \
+    HealingConsumable
 from actions import (
     Action,
     BumpAction,
@@ -381,7 +383,7 @@ class UserOptionsWithPages(AskUserEventHandler):
         super().__init__(engine)
         self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
         self.page = page
-        self.options = options
+        self.options = sorted(options, key=str.lower)
         self.TITLE = title
 
         super().__init__(engine)
@@ -552,7 +554,7 @@ class InventoryEventHandler(UserOptionsWithPages):
     def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
-        options = ['Use', 'Equip', 'Drop']
+        options = ['Use', 'Equip', 'Drop', 'Inspect']
 
         if isinstance(item.usable_properties, Gun):
             options.append('Disassemble')
@@ -608,6 +610,9 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 self.item.usable_properties.parts.disassemble(entity=self.engine.player)
                 self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
+
+        elif option == 'Inspect':
+            return InspectItemViewer(engine=self.engine, item=self.item)
 
         else:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -695,7 +700,7 @@ class EquipmentEventHandler(AskUserEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        return ItemInteractionHandler(item=item, options=['Unequip'], engine=self.engine)
+        return ItemInteractionHandler(item=item, options=['Unequip', 'Inspect'], engine=self.engine)
 
 
 class DropItemEventHandler(TypeAmountEventHandler):
@@ -1163,3 +1168,169 @@ class CraftItem(UserOptionsWithPages):
             self.current_part_selection += 1
             return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
                              item_to_craft=self.item_name, parts=self.parts, part_dict=self.part_dict)
+
+
+class InspectItemViewer(AskUserEventHandler):
+
+    def __init__(self, engine, item):
+        super().__init__(engine=engine)
+
+        self.TITLE = item.name
+        self.description = item.description
+
+        item_info = {
+            "description": item.description,
+            "weight": item.weight,
+        }
+
+        if isinstance(item.usable_properties, Weapon):
+
+            weapon_info = {
+                "damage": item.usable_properties.base_meat_damage,
+                "armour damage": item.usable_properties.base_armour_damage,
+                "accuracy": item.usable_properties.base_accuracy,
+                "equip time": item.usable_properties.equip_time,
+            }
+
+            item_info.update(weapon_info)
+
+            if isinstance(item.usable_properties, Gun):
+
+                fire_modes = ""
+
+                for key, value in item.usable_properties.fire_modes.items():
+                    fire_modes += f"{key} - {value}RPM, "
+
+                part_str = ""
+                for part in item.usable_properties.parts.part_list:
+                    part_str += f"{part.name}, "
+
+                gun_info = {
+                    "damage": item.usable_properties.base_meat_damage,
+                    "armour damage": item.usable_properties.base_armour_damage,
+                    "accuracy": item.usable_properties.base_accuracy,
+                    "effective range": item.usable_properties.range_accuracy_dropoff,
+                    "equip time": item.usable_properties.equip_time,
+                    "recoil": item.usable_properties.recoil,
+                    "fire modes": fire_modes,
+                    "shot sound radius": item.usable_properties.sound_radius,
+                    "parts": part_str
+                }
+
+                item_info.update(gun_info)
+
+                if isinstance(item.usable_properties, GunMagFed):
+
+                    gun_info = {
+                        "magazine type": item.usable_properties.compatible_magazine_type,
+                    }
+
+                    item_info.update(gun_info)
+
+                for key, value in item.usable_properties.parts.__dict__.items():
+                    if value in item.usable_properties.parts.part_list:
+                        gun_info[key] = value.name
+
+        if isinstance(item.usable_properties, Magazine):
+            mag_info = {
+                "magazine capacity": item.usable_properties.mag_capacity,
+                "round type": item.usable_properties.compatible_bullet_type,
+            }
+
+            if not isinstance(item.usable_properties, GunIntegratedMag):
+                item_info["magazine type"] = item.usable_properties.magazine_type
+                item_info["magazine size"] = item.usable_properties.magazine_size
+
+            item_info.update(mag_info)
+
+        if isinstance(item.usable_properties, Wearable):
+            armour_info = {
+                "fits bodypart": item.usable_properties.fits_bodypart,
+                "protection": item.usable_properties.protection,
+                "large mag slots": item.usable_properties.large_mag_slots,
+                "medium mag slots": item.usable_properties.medium_mag_slots,
+                "small mag slots": item.usable_properties.small_mag_slots,
+            }
+
+            item_info.update(armour_info)
+
+        if isinstance(item.usable_properties, Bullet):
+            bullet_info = {
+                "round type": item.usable_properties.bullet_type,
+                "damage modifier": item.usable_properties.meat_damage_factor,
+                "armour damage modifier": item.usable_properties.armour_damage_factor,
+                "sound radius modifier": item.usable_properties.sound_modifier,
+                "recoil modifier": item.usable_properties.recoil_modifier
+            }
+
+            item_info.update(bullet_info)
+
+        if isinstance(item.usable_properties, GunComponent):
+
+            fire_modes = None
+
+            if item.usable_properties.fire_modes is not None:
+                fire_modes = ""
+
+                for key, value in item.usable_properties.fire_modes.items():
+                    fire_modes += f"│{key} - {value}RPM│"
+
+            part_info = {
+                "damage modifier": item.usable_properties.base_meat_damage,
+                "armour damage modifier": item.usable_properties.base_armour_damage,
+                "accuracy modifier": item.usable_properties.base_accuracy,
+                "effective range modifier": item.usable_properties.range_accuracy_dropoff,
+                "equip time modifier": item.usable_properties.equip_time,
+                "recoil modifier": item.usable_properties.recoil,
+                "fire modes": fire_modes,
+                "shot sound radius": item.usable_properties.sound_radius,
+                "magazine capacity": item.usable_properties.mag_capacity,
+                "magazine type": item.usable_properties.compatible_magazine_type,
+                "round type": item.usable_properties.compatible_bullet_type,
+            }
+
+            remove_dict = {}
+
+            for key, value in part_info.items():
+                if value is None:
+                    remove_dict[key] = value
+
+            for key, value in remove_dict.items():
+                part_info.pop(key, value)
+
+            item_info.update(part_info)
+
+        if isinstance(item.usable_properties, HealingConsumable):
+            item_info["healing amount"] = item.usable_properties.amount
+
+        self.item_info = item_info
+
+    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+        super().on_render(console, camera)  # Draw the main state as the background.
+
+        height = len(self.item_info) + 2
+
+        for key, value in self.item_info.items():
+            if len(key) + len(str(value)) + 3 > 35:
+                height += ceil((len(key) + len(str(value))) / 35)
+
+        console.draw_frame(
+            x=1,
+            y=1,
+            width=40,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        y = 2
+
+        for key, value in self.item_info.items():
+            wrapper = textwrap.TextWrapper(width=32 - len(key))
+            word_list = wrapper.wrap(text=str(value))
+            console.print(x=2, y=y, string=f"{key} - ", fg=colour.LIGHT_GREEN)
+            for string in word_list:
+                console.print(x=2 + len(key) + 3, y=y, string=string)
+                y += 1

@@ -59,17 +59,6 @@ caverns_enemies = {
     }
 }
 
-placeholder_item = Item(
-    x=0, y=0,
-    char="?",
-    fg_colour=colour.MAGENTA,
-    bg_colour=None,
-    name="Placeholder Item",
-    weight=1,
-    stacking=None,
-    usable_properties=None,
-)
-
 helmet = Item(
     x=0, y=0,
     char="/",
@@ -78,6 +67,7 @@ helmet = Item(
     name="Helmet",
     weight=1,
     stacking=None,
+    description='goes on your head',
     usable_properties=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Head',
@@ -95,6 +85,7 @@ pauldron = Item(
     name="Pauldrons",
     weight=1,
     stacking=None,
+    description='goes on your arms',
     usable_properties=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Arms',
@@ -112,6 +103,7 @@ greaves = Item(
     name="Greaves",
     weight=1,
     stacking=None,
+    description='goes on your legs',
     usable_properties=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Legs',
@@ -129,6 +121,7 @@ chestplate = Item(
     name="Chestplate",
     weight=1,
     stacking=None,
+    description='protects your chest test test test test test test test test test test test test test test test test',
     usable_properties=(consumables.Wearable(
         protection=2,
         fits_bodypart_type='Body',
@@ -146,6 +139,7 @@ medkit = Item(
     name="Medkit",
     weight=1,
     stacking=Stacking(stack_size=1),
+    description='heals you',
     usable_properties=consumables.HealingConsumable(amount=20),
 )
 

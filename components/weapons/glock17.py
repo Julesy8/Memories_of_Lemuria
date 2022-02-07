@@ -12,7 +12,8 @@ glock17_frame = Item(
     name="Glock 17 Frame",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock17_frame')
+    usable_properties=GunComponent(part_type='glock17_frame'),
+    description='glock barrel'
 )
 
 glock17_slide = Item(
@@ -23,7 +24,8 @@ glock17_slide = Item(
     name="Glock 17 Slide",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock17_slide')
+    usable_properties=GunComponent(part_type='glock17_slide'),
+    description='glock slide'
 )
 
 glock17_barrel = Item(
@@ -34,7 +36,8 @@ glock17_barrel = Item(
     name="Glock 17 Barrel",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock17_barrel')
+    usable_properties=GunComponent(part_type='glock17_barrel'),
+    description='glock barrel'
 )
 
 glock_stock = Item(
@@ -45,7 +48,8 @@ glock_stock = Item(
     name="Glock Stock",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock_stock')
+    usable_properties=GunComponent(part_type='glock_stock'),
+    description='glock stock'
 )
 
 glock_parts_dict = {
@@ -63,6 +67,7 @@ glock_17 = Item(
     name="Glock 17",
     weight=1,
     stacking=None,
+    description='glock 17 handgun',
     usable_properties=GunMagFed(
         compatible_magazine_type='glock9mm',
         chambered_bullet=None,
@@ -79,5 +84,6 @@ glock_17 = Item(
         enemy_attack_range=5,
         possible_parts=glock_parts_dict,
         sound_radius=10,
+        recoil=3,
     )
 )

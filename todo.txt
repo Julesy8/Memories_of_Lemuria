@@ -1,13 +1,11 @@
 -----
 TO DO
-firearms parts and ammunition crafting
+firearms parts and ammunition crafting - collectable data packages
 cannot disassemble/assemble items while enemies are active
 
-12) item stat screen
-13) weapon firing graphics
-15) ranged enemies
+vats style targeting
 17) more room shapes on level generation
-18) enemy drops
+18) enemy drops - next up
 19) weapon graphics
 20) config + error log txt
 character creation

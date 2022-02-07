@@ -180,6 +180,7 @@ class Item(Entity):
         weight: int,
         stacking: Optional[Stacking],
         usable_properties: Optional[Usable],
+        description: str,
     ):
 
         self.weight = weight
@@ -188,6 +189,8 @@ class Item(Entity):
         self.usable_properties = usable_properties
         if usable_properties:
             self.usable_properties.parent = self
+
+        self.description = description
 
         super().__init__(
             x=x,

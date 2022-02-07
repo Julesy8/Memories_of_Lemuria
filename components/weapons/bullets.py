@@ -10,12 +10,13 @@ bullet_9mm = Item(
     name='9mm Bullet',
     weight=1,
     stacking=Stacking(stack_size=1),
+    description='9mm bullet',
     usable_properties=Bullet(
         bullet_type='9mm',
         meat_damage_factor=1.0,
         armour_damage_factor=1.0,
         accuracy_factor=1.0,
-        recoil_modifier=4,
+        recoil_modifier=1.0,
         sound_modifier=1.0,
     )
 )

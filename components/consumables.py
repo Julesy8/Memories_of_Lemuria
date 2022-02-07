@@ -144,7 +144,7 @@ class Bullet(Usable):
                  meat_damage_factor: float,
                  armour_damage_factor: float,
                  accuracy_factor: float,
-                 recoil_modifier: int,  # reduces accuracy of followup automatic shots
+                 recoil_modifier: float,  # reduces accuracy of followup automatic shots
                  sound_modifier: float,  # alters amount of noise the gun makes
                  ):
 
@@ -286,6 +286,7 @@ class Gun(Weapon):
                  keep_round_chambered: bool,
                  enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
                  sound_radius: int,  # radius at which enemies can 'hear' the shot
+                 recoil: int,
                  chambered_bullet=None,
                  ):
 
@@ -293,6 +294,7 @@ class Gun(Weapon):
         self.parts.parent = self
         self.possible_parts = possible_parts  # dict containing possible part options the gun is able to spawn with
 
+        self.recoil = recoil
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
         self.fire_modes = fire_modes
@@ -436,6 +438,7 @@ class GunMagFed(Gun):
                  enemy_attack_range: int,
                  sound_radius: int,
                  possible_parts: dict,
+                 recoil: int,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
@@ -458,7 +461,8 @@ class GunMagFed(Gun):
             chambered_bullet=chambered_bullet,
             enemy_attack_range=enemy_attack_range,
             possible_parts=possible_parts,
-            sound_radius=sound_radius
+            sound_radius=sound_radius,
+            recoil=recoil,
         )
 
     def load_gun(self, magazine):
@@ -540,6 +544,7 @@ class GunIntegratedMag(Gun, Magazine):
                  enemy_attack_range: int,
                  possible_parts: dict,
                  sound_radius: int,
+                 recoil: int,
                  chambered_bullet=None,
                  ):
 
@@ -562,7 +567,8 @@ class GunIntegratedMag(Gun, Magazine):
             chambered_bullet=chambered_bullet,
             enemy_attack_range=enemy_attack_range,
             possible_parts=possible_parts,
-            sound_radius=sound_radius
+            sound_radius=sound_radius,
+            recoil=recoil
         )
 
     def chamber_round(self):
@@ -589,6 +595,8 @@ class GunComponent(Usable):
                  equip_time: Optional[float] = None,
                  fire_modes: Optional[dict] = None,  # fire rates in rpm
                  keep_round_chambered: Optional[bool] = None,
+                 sound_radius: Optional[float] = None,
+                 recoil: Optional[float] = None,
                  ):
 
         self.part_type = part_type
@@ -603,6 +611,8 @@ class GunComponent(Usable):
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
         self.fire_modes = fire_modes
+        self.sound_radius = sound_radius
+        self.recoil = recoil
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
