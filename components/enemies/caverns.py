@@ -22,6 +22,18 @@ L_Leg = Leg(hp=10, defence=5, name='left leg')
 
 body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
+medkit = Item(
+    x=0, y=0,
+    char="+",
+    fg_colour=colour.GREEN,
+    bg_colour=None,
+    name="Medkit",
+    weight=1,
+    stacking=Stacking(stack_size=1),
+    description='heals you',
+    usable_properties=consumables.HealingConsumable(amount=20),
+)
+
 placeholder_common = Actor(
     x=0, y=0,
     char='N',
@@ -54,8 +66,8 @@ caverns_enemies = {
         'weapon weight': [2, 1],
         'armour': [],
         'armour weight': [],
-        'drops': [],
-        'drop weight': [],
+        'inventory items': [None, medkit],
+        'inventory items weight': [2, 1],
     }
 }
 
@@ -131,15 +143,4 @@ chestplate = Item(
     ))
 )
 
-medkit = Item(
-    x=0, y=0,
-    char="+",
-    fg_colour=colour.GREEN,
-    bg_colour=None,
-    name="Medkit",
-    weight=1,
-    stacking=Stacking(stack_size=1),
-    description='heals you',
-    usable_properties=consumables.HealingConsumable(amount=20),
-)
 

@@ -45,7 +45,10 @@ class GunParts:
                                                    range_accuracy_dropoff=self.parent.range_accuracy_dropoff,
                                                    chambered_bullet=None,
                                                    enemy_attack_range=self.parent.enemy_attack_range,
-                                                   possible_parts={}
+                                                   possible_parts={},
+                                                   recoil=self.parent.recoil,
+                                                   sound_radius=self.parent.sound_radius,
+                                                   close_range_accuracy=self.parent.close_range_accuracy,
                                                    )
 
             elif isinstance(self.parent, GunIntegratedMag):
@@ -63,7 +66,10 @@ class GunParts:
                                             compatible_magazine_type=part.compatible_magazine_type,
                                             chambered_bullet=None,
                                             enemy_attack_range=self.parent.enemy_attack_range,
-                                            possible_parts={}
+                                            possible_parts={},
+                                            recoil=self.parent.recoil,
+                                            sound_radius=self.parent.sound_radius,
+                                            close_range_accuracy=self.parent.close_range_accuracy,
                                             )
 
             part_properties = part.__dict__

@@ -286,6 +286,7 @@ class Gun(Weapon):
                  keep_round_chambered: bool,
                  enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
                  sound_radius: int,  # radius at which enemies can 'hear' the shot
+                 close_range_accuracy: float,
                  recoil: int,
                  chambered_bullet=None,
                  ):
@@ -301,6 +302,7 @@ class Gun(Weapon):
         self.current_fire_mode = current_fire_mode
         self.enemy_attack_range = enemy_attack_range
         self.sound_radius = sound_radius
+        self.close_range_accuracy = close_range_accuracy
 
         super().__init__(
             base_meat_damage=base_meat_damage,
@@ -318,16 +320,23 @@ class Gun(Weapon):
 
         recoil_penalty = 0
 
+        range_penalty = 0
+
+        # long range accuracy penalty
+        if distance > self.range_accuracy_dropoff:
+            range_penalty = distance - self.range_accuracy_dropoff
+
+        # close range accuracy penalty
+        functional_accuracy = self.base_accuracy
+        if distance < 7:
+            functional_accuracy = self.base_accuracy * self.close_range_accuracy
+
         # fires rounds
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
-                range_penalty = 0
-
-                if distance > self.range_accuracy_dropoff:
-                    range_penalty = distance - self.range_accuracy_dropoff
 
                 # successful hit
-                if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy *
+                if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * functional_accuracy *
                                  self.chambered_bullet.usable_properties.accuracy_factor
                                  * attacker.fighter.ranged_accuracy) - range_penalty - recoil_penalty:
 
@@ -439,6 +448,7 @@ class GunMagFed(Gun):
                  sound_radius: int,
                  possible_parts: dict,
                  recoil: int,
+                 close_range_accuracy: float,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
@@ -463,6 +473,7 @@ class GunMagFed(Gun):
             possible_parts=possible_parts,
             sound_radius=sound_radius,
             recoil=recoil,
+            close_range_accuracy=close_range_accuracy,
         )
 
     def load_gun(self, magazine):
@@ -545,6 +556,7 @@ class GunIntegratedMag(Gun, Magazine):
                  possible_parts: dict,
                  sound_radius: int,
                  recoil: int,
+                 close_range_accuracy: float,
                  chambered_bullet=None,
                  ):
 
@@ -568,7 +580,8 @@ class GunIntegratedMag(Gun, Magazine):
             enemy_attack_range=enemy_attack_range,
             possible_parts=possible_parts,
             sound_radius=sound_radius,
-            recoil=recoil
+            recoil=recoil,
+            close_range_accuracy=close_range_accuracy,
         )
 
     def chamber_round(self):
@@ -597,6 +610,7 @@ class GunComponent(Usable):
                  keep_round_chambered: Optional[bool] = None,
                  sound_radius: Optional[float] = None,
                  recoil: Optional[float] = None,
+                 close_range_accuracy: Optional[float] = None,
                  ):
 
         self.part_type = part_type
@@ -613,6 +627,7 @@ class GunComponent(Usable):
         self.fire_modes = fire_modes
         self.sound_radius = sound_radius
         self.recoil = recoil
+        self.close_range_accuracy = close_range_accuracy
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError

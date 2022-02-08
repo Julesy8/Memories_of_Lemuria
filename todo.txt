@@ -1,20 +1,14 @@
 -----
 TO DO
 firearms parts and ammunition crafting - collectable data packages
-cannot disassemble/assemble items while enemies are active
 
-vats style targeting
+
 17) more room shapes on level generation
-18) enemy drops - next up
 19) weapon graphics
 20) config + error log txt
-character creation
-proper death screen
-load options
-tutorial option
 
 -music
--enemies spawning in groups
+-score board
 -save guns to look at in main menu
 -grave yard
 -in the dungeon you find enemies using your looted equipment from previous runs

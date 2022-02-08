@@ -90,6 +90,9 @@ class Bodypart:
         self.parent.name = f"remains of {self.parent.name}"
         self.parent.render_order = RenderOrder.CORPSE
 
+        for item in self.parent.inventory.items:
+            item.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+
         if self.parent.player:
             self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
 

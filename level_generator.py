@@ -12,7 +12,7 @@ from components.consumables import Gun, GunIntegratedMag, GunMagFed
 from components.weapons.bullets import bullet_dict
 from components.weapons.magazines import magazine_dict
 from components.enemies.caverns import caverns_enemies
-from entity import Entity
+from entity import Entity, Item
 import colour
 from render_order import RenderOrder
 
@@ -304,6 +304,15 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
             enemy = copy.deepcopy(choices(population=Enemies_by_level[level][0], weights=Enemies_by_level[level][1],
                                           k=1)[0])
             enemy.place(x, y, dungeon)
+
+            # places random item in inventory
+            inventory_item = copy.deepcopy(choices(population=caverns_enemies[enemy.name]["inventory items"],
+                                                   weights=caverns_enemies[enemy.name]["inventory items weight"],
+                                                   k=1)[0])
+
+            if isinstance(inventory_item, Item):
+                inventory_item.parent = enemy.inventory
+                enemy.inventory.items.append(inventory_item)
 
             if enemy.can_spawn_armed:
                 # selects weapon for given entity

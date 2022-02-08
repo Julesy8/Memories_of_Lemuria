@@ -7,7 +7,7 @@ import textwrap
 
 import tcod.event
 
-from entity import Item
+from entity import Item, Actor
 import actions
 from components.weapons.gundict import guns_dict
 from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent, Wearable, Weapon, \
@@ -196,8 +196,23 @@ class MainGameEventHandler(EventHandler):
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine)
+
         elif key == tcod.event.K_c:
-            return CraftingEventHandler(self.engine)
+
+            entities_active = False
+
+            for entity in self.engine.game_map.entities:
+                if isinstance(entity, Actor):
+                    if entity.active:
+                        entities_active = True
+                        break
+
+            if not entities_active:
+                return CraftingEventHandler(self.engine)
+
+            else:
+                self.engine.message_log.add_message("Cannot perform this action while enemies are active", colour.RED)
+
         elif key == tcod.event.K_i:
             return InventoryEventHandler(self.engine)
         elif key == tcod.event.K_e:
@@ -383,7 +398,7 @@ class UserOptionsWithPages(AskUserEventHandler):
         super().__init__(engine)
         self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
         self.page = page
-        self.options = sorted(options, key=str.lower)
+        self.options = options
         self.TITLE = title
 
         super().__init__(engine)
@@ -529,15 +544,20 @@ class TypeAmountEventHandler(AskUserEventHandler):
                         elif event.scancode == tcod.event.SCANCODE_RETURN:
 
                             if self.buffer == '':
-                                if self.item.stacking:
-                                    self.buffer = f'{self.item.stacking.stack_size}'
-                                else:
-                                    self.buffer = '1'
+                                self.buffer = f'{self.item.stacking.stack_size}'
 
                             return self.on_option_selected()
 
                     except AttributeError:
                         pass
+
+            else:
+                self.buffer = '1'
+                return self.on_option_selected()
+
+        else:
+            self.buffer = '1'
+            return self.on_option_selected()
 
     def on_option_selected(self):
         return NotImplementedError
@@ -606,10 +626,24 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Disassemble':
-            if isinstance(self.item.usable_properties, Gun):
-                self.item.usable_properties.parts.disassemble(entity=self.engine.player)
-                self.engine.handle_enemy_turns()
-                return MainGameEventHandler(self.engine)
+
+            entities_active = False
+
+            for entity in self.engine.game_map.entities:
+                if isinstance(entity, Actor):
+                    if entity.active:
+                        entities_active = True
+                        break
+
+            if not entities_active:
+                if isinstance(self.item.usable_properties, Gun):
+                    self.item.usable_properties.parts.disassemble(entity=self.engine.player)
+                    self.engine.handle_enemy_turns()
+                    return MainGameEventHandler(self.engine)
+
+                else:
+                    self.engine.message_log.add_message("Cannot perform this action while enemies are active",
+                                                        colour.RED)
 
         elif option == 'Inspect':
             return InspectItemViewer(engine=self.engine, item=self.item)
@@ -1199,7 +1233,10 @@ class InspectItemViewer(AskUserEventHandler):
                 fire_modes = ""
 
                 for key, value in item.usable_properties.fire_modes.items():
-                    fire_modes += f"{key} - {value}RPM, "
+                    if key == "single shot":
+                        fire_modes += f"single shot,"
+                    else:
+                        fire_modes += f"{key} - {value}RPM,"
 
                 part_str = ""
                 for part in item.usable_properties.parts.part_list:
@@ -1208,7 +1245,7 @@ class InspectItemViewer(AskUserEventHandler):
                 gun_info = {
                     "damage": item.usable_properties.base_meat_damage,
                     "armour damage": item.usable_properties.base_armour_damage,
-                    "accuracy": item.usable_properties.base_accuracy,
+                    "effective short range accuracy": item.usable_properties.close_range_accuracy,
                     "effective range": item.usable_properties.range_accuracy_dropoff,
                     "equip time": item.usable_properties.equip_time,
                     "recoil": item.usable_properties.recoil,
@@ -1273,12 +1310,16 @@ class InspectItemViewer(AskUserEventHandler):
                 fire_modes = ""
 
                 for key, value in item.usable_properties.fire_modes.items():
-                    fire_modes += f"│{key} - {value}RPM│"
+                    if key == "single shot":
+                        fire_modes += f"single shot,"
+                    else:
+                        fire_modes += f"{key} - {value}RPM,"
 
             part_info = {
                 "damage modifier": item.usable_properties.base_meat_damage,
                 "armour damage modifier": item.usable_properties.base_armour_damage,
                 "accuracy modifier": item.usable_properties.base_accuracy,
+                "effective close range accuracy modifier": item.usable_properties.close_range_accuracy,
                 "effective range modifier": item.usable_properties.range_accuracy_dropoff,
                 "equip time modifier": item.usable_properties.equip_time,
                 "recoil modifier": item.usable_properties.recoil,

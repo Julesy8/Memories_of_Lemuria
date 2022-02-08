@@ -85,5 +85,6 @@ glock_17 = Item(
         possible_parts=glock_parts_dict,
         sound_radius=10,
         recoil=3,
+        close_range_accuracy=1.0,
     )
 )
