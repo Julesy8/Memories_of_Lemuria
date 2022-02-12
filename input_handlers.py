@@ -10,8 +10,8 @@ import tcod.event
 from entity import Item, Actor
 import actions
 from components.weapons.gundict import guns_dict
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent, Wearable, Weapon, \
-    HealingConsumable
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart, Wearable, \
+    Weapon, HealingConsumable
 from actions import (
     Action,
     BumpAction,
@@ -203,7 +203,7 @@ class MainGameEventHandler(EventHandler):
 
             for entity in self.engine.game_map.entities:
                 if isinstance(entity, Actor):
-                    if entity.active:
+                    if entity.active and not entity.player:
                         entities_active = True
                         break
 
@@ -1113,18 +1113,20 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
 class CraftingEventHandler(UserOptionsEventHandler):
     def __init__(self, engine: Engine):
-        super().__init__(engine=engine, options=['guns'], title='crafting')
+        super().__init__(engine=engine, options=['guns', 'gun parts', 'ammo', 'ammo parts', 'magazines', 'armour'],
+                         title='crafting')
 
     def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         if option == 'guns':
-            return SelectGunToCraft(engine=self.engine)
+            return SelectItemToCraft(engine=self.engine, item_dict=guns_dict, title='gun crafting')
 
 
-class SelectGunToCraft(UserOptionsWithPages):
-    def __init__(self, engine: Engine):
-        super().__init__(engine=engine, options=list(guns_dict.keys()), page=0, title="gun crafting")
+class SelectItemToCraft(UserOptionsWithPages):
+    def __init__(self, engine: Engine, title: str, item_dict: dict):
+        super().__init__(engine=engine, options=list(item_dict.keys()), page=0, title=title)
+        self.item_dict = item_dict
 
     def on_option_selected(self, option):
 
@@ -1132,27 +1134,28 @@ class SelectGunToCraft(UserOptionsWithPages):
 
         available_compatible_parts = []
 
-        for part in guns_dict[option]["compatible parts"]:
+        for part in self.item_dict[option]["compatible parts"]:
             for item in self.engine.player.inventory.items:
-                if isinstance(item.usable_properties, GunComponent):
+                if isinstance(item.usable_properties, ComponentPart):
                     if item.usable_properties.part_type == part:
                         available_compatible_parts.append(part)
 
         # all required and compatible parts
-        parts = guns_dict[option]["required parts"] + available_compatible_parts
+        parts = self.item_dict[option]["required parts"] + available_compatible_parts
 
         # adds all required and compatible parts to the dictionary and sets their value to None before player selects
         for part in parts:
             part_dict[part] = None
 
-        return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0, parts=parts, part_dict=part_dict)
+        return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0, parts=parts,
+                         part_dict=self.item_dict)
 
 
 class CraftItem(UserOptionsWithPages):
     def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, parts: list, part_dict: dict):
 
         self.item_name = item_to_craft
-        self.item_to_craft = guns_dict[item_to_craft]
+        self.item_to_craft = part_dict[item_to_craft]
 
         # all parts with their values
         self.part_dict = part_dict
@@ -1163,17 +1166,17 @@ class CraftItem(UserOptionsWithPages):
         # index of current part to be selected set to first part
         self.current_part_selection = current_part_index
 
-        title = guns_dict[item_to_craft]["parts names"][current_part_index]
+        title = self.part_dict[item_to_craft]["parts names"][current_part_index]
 
         # parts of a given type available in inventory
         options = []
 
         # if part is not required, gives the option to select none
-        if self.parts[self.current_part_selection] in guns_dict[self.item_name]["compatible parts"]:
+        if self.parts[self.current_part_selection] in self.part_dict[self.item_name]["compatible parts"]:
             options.append('none')
 
         for item in engine.player.inventory.items:
-            if isinstance(item.usable_properties, GunComponent):
+            if isinstance(item.usable_properties, ComponentPart):
                 if item.usable_properties.part_type == self.parts[self.current_part_selection]:
                     options.append(item)
 
@@ -1186,7 +1189,7 @@ class CraftItem(UserOptionsWithPages):
             self.part_dict[self.parts[self.current_part_selection]] = option
 
         if self.parts[self.current_part_selection] == self.parts[-1]:
-            item = guns_dict[self.item_name]['item']
+            item = self.part_dict[self.item_name]['item']
 
             for key, value in self.part_dict.items():
                 if value is not None:
@@ -1302,44 +1305,7 @@ class InspectItemViewer(AskUserEventHandler):
 
             item_info.update(bullet_info)
 
-        if isinstance(item.usable_properties, GunComponent):
-
-            fire_modes = None
-
-            if item.usable_properties.fire_modes is not None:
-                fire_modes = ""
-
-                for key, value in item.usable_properties.fire_modes.items():
-                    if key == "single shot":
-                        fire_modes += f"single shot,"
-                    else:
-                        fire_modes += f"{key} - {value}RPM,"
-
-            part_info = {
-                "damage modifier": item.usable_properties.base_meat_damage,
-                "armour damage modifier": item.usable_properties.base_armour_damage,
-                "accuracy modifier": item.usable_properties.base_accuracy,
-                "effective close range accuracy modifier": item.usable_properties.close_range_accuracy,
-                "effective range modifier": item.usable_properties.range_accuracy_dropoff,
-                "equip time modifier": item.usable_properties.equip_time,
-                "recoil modifier": item.usable_properties.recoil,
-                "fire modes": fire_modes,
-                "shot sound radius": item.usable_properties.sound_radius,
-                "magazine capacity": item.usable_properties.mag_capacity,
-                "magazine type": item.usable_properties.compatible_magazine_type,
-                "round type": item.usable_properties.compatible_bullet_type,
-            }
-
-            remove_dict = {}
-
-            for key, value in part_info.items():
-                if value is None:
-                    remove_dict[key] = value
-
-            for key, value in remove_dict.items():
-                part_info.pop(key, value)
-
-            item_info.update(part_info)
+        # TODO: show part info for component parts / rework to make more general
 
         if isinstance(item.usable_properties, HealingConsumable):
             item_info["healing amount"] = item.usable_properties.amount

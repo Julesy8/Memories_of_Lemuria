@@ -1,5 +1,5 @@
 from entity import Item
-from components.consumables import GunMagFed, GunComponent
+from components.consumables import GunMagFed, ComponentPart
 from components.gunparts import GunParts
 import colour
 
@@ -12,7 +12,7 @@ glock17_frame = Item(
     name="Glock 17 Frame",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock17_frame'),
+    usable_properties=ComponentPart(part_type='glock17_frame'),
     description='glock barrel'
 )
 
@@ -24,7 +24,7 @@ glock17_slide = Item(
     name="Glock 17 Slide",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock17_slide'),
+    usable_properties=ComponentPart(part_type='glock17_slide'),
     description='glock slide'
 )
 
@@ -36,7 +36,7 @@ glock17_barrel = Item(
     name="Glock 17 Barrel",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock17_barrel'),
+    usable_properties=ComponentPart(part_type='glock17_barrel'),
     description='glock barrel'
 )
 
@@ -48,7 +48,7 @@ glock_stock = Item(
     name="Glock Stock",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock_stock'),
+    usable_properties=ComponentPart(part_type='glock_stock'),
     description='glock stock'
 )
 

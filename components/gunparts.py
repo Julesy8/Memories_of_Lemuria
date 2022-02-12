@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from components.inventory import Inventory
-from components.consumables import Gun, GunMagFed, GunIntegratedMag, GunComponent
+from components.consumables import Gun, GunMagFed, GunIntegratedMag, Bullet, ComponentPart
 from entity import Item
 
 
@@ -19,7 +19,7 @@ class GunParts:
 
         for attribute in all_attributes:
             if isinstance(attribute, Item):
-                if isinstance(attribute.usable_properties, GunComponent):
+                if isinstance(attribute.usable_properties, ComponentPart):
                     self.part_list.append(attribute)
 
         self.update_gun_properties()
@@ -101,3 +101,7 @@ class GunParts:
                     gun_item.usable_properties.unload_magazine()
 
                 inventory.items.remove(gun_item)
+
+
+class BulletParts(GunParts):
+    parent: Bullet

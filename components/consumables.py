@@ -140,6 +140,7 @@ class Weapon(Usable):
 class Bullet(Usable):
 
     def __init__(self,
+                 parts,
                  bullet_type: str,
                  meat_damage_factor: float,
                  armour_damage_factor: float,
@@ -148,6 +149,7 @@ class Bullet(Usable):
                  sound_modifier: float,  # alters amount of noise the gun makes
                  ):
 
+        self.parts = parts
         self.bullet_type = bullet_type
         self.meat_damage_factor = meat_damage_factor
         self.armour_damage_factor = armour_damage_factor
@@ -589,45 +591,10 @@ class GunIntegratedMag(Gun, Magazine):
             self.chambered_bullet = self.magazine.pop()
 
 
-class GunComponent(Usable):
-    def __init__(self,
-
-                 part_type: str,
-
-                 # for mag fed gun
-                 compatible_magazine_type: Optional[str] = None,
-
-                 # for gun w integrated mag
-                 compatible_bullet_type: Optional[str] = None,
-                 mag_capacity: Optional[int] = None,
-
-                 base_meat_damage: Optional[float] = None,
-                 base_armour_damage: Optional[float] = None,
-                 base_accuracy: Optional[float] = None,
-                 range_accuracy_dropoff: Optional[float] = None,
-                 equip_time: Optional[float] = None,
-                 fire_modes: Optional[dict] = None,  # fire rates in rpm
-                 keep_round_chambered: Optional[bool] = None,
-                 sound_radius: Optional[float] = None,
-                 recoil: Optional[float] = None,
-                 close_range_accuracy: Optional[float] = None,
-                 ):
-
+class ComponentPart(Usable):
+    def __init__(self, part_type: str, **kwargs):
         self.part_type = part_type
-
-        self.base_meat_damage = base_meat_damage
-        self.base_armour_damage = base_armour_damage
-        self.base_accuracy = base_accuracy
-        self.range_accuracy_dropoff = range_accuracy_dropoff
-        self.equip_time = equip_time
-        self.keep_round_chambered = keep_round_chambered
-        self.compatible_magazine_type = compatible_magazine_type
-        self.compatible_bullet_type = compatible_bullet_type
-        self.mag_capacity = mag_capacity
-        self.fire_modes = fire_modes
-        self.sound_radius = sound_radius
-        self.recoil = recoil
-        self.close_range_accuracy = close_range_accuracy
+        self.__dict__.update(kwargs)
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError

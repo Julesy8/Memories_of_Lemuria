@@ -1,11 +1,10 @@
 -----
 TO DO
 firearms parts and ammunition crafting - collectable data packages
-
+- crafting catagories - guns, bullets, bullet parts, magazines, weapon parts, armour parts, armour
 
 17) more room shapes on level generation
 19) weapon graphics
-20) config + error log txt
 
 -music
 -score board
