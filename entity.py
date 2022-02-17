@@ -99,8 +99,6 @@ class Actor(Entity):
             bodyparts,  # list of bodyparts belonging to the entity
             inventory: Inventory,
             can_spawn_armed: bool,  # whether entity can spawn with a weapon
-            blood_entity=Entity(x=0, y=0, char=' ', fg_colour=colour.RED, bg_colour=colour.RED, name='Blood',
-                                render_order=RenderOrder.BACKGROUND),
             attack_interval=0,
             attacks_per_turn=1,
             move_interval=0,
@@ -121,7 +119,6 @@ class Actor(Entity):
             blocks_movement=True,
             render_order=RenderOrder.ACTOR,
         )
-        self.blood_entity = blood_entity
         self.bleeds = bleeds
         self.active = False
         self.ai = ai(self)
@@ -160,6 +157,9 @@ class Actor(Entity):
         self.fears_death = fears_death
         self.fleeing_turns = 0
         self.has_fled_death = False
+
+        if self.player:
+            self.crafting_recipes = []
 
     @property
     def is_alive(self) -> bool:

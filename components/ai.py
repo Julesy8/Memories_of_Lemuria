@@ -81,7 +81,8 @@ class HostileEnemy(BaseAI):
 
             # perform attack action
             if attack_turns > 0 and self.entity.last_attack_turn + self.entity.attack_interval <= \
-                    self.entity.turn_counter and self.entity.turns_attack_inactive <= 0:
+                    self.entity.turn_counter and self.entity.turns_attack_inactive <= 0 and self.entity.active and \
+                    self.engine.game_map.visible[self.entity.x, self.entity.y]:
 
                 held_item = self.entity.inventory.held
 

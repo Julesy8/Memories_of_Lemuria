@@ -598,3 +598,24 @@ class ComponentPart(Usable):
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
+
+
+class RecipeUnlock(Usable):
+
+    def __init__(self, recipe: str):
+        self.recipe = recipe
+
+    def activate(self, action: actions.ItemAction) -> None:
+        consumer = action.entity
+
+        if consumer == self.engine.player:
+            consumer.crafting_recipes.append(self.recipe)
+
+        self.engine.message_log.add_message(
+            f"Crafting recipe unlocked: {self.recipe}",
+            colour.GREEN,
+        )
+
+        self.parent.stacking.stack_size -= 1
+        if self.parent.stacking.stack_size <= 0:
+            self.consume()

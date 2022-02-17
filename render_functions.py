@@ -24,7 +24,17 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
             # omits player name from list
             try:
                 if not entity.player:
-                    names.append(entity.name)
+
+                    weapon_name = ''
+
+                    if hasattr(entity, 'inventory'):
+                        if entity.inventory.held is not None:
+                            weapon_name = entity.inventory.held.name
+
+                    if weapon_name == '':
+                        names.append(entity.name)
+                    else:
+                        names.append(f"{entity.name} - {weapon_name}")
 
             except AttributeError:
                 names.append(entity.name)

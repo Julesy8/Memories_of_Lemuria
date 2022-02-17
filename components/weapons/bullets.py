@@ -54,7 +54,7 @@ bullet_dict = {
     }
 }
 
-bullet_part_dict = {
+bullet_crafting_dict = {
     "9mm Bullet": {
         "required parts": ["brass_9mm", "bullet_9mm", "powder_charge"],
         "compatible parts": [],

@@ -114,7 +114,8 @@ class GameMap:
                 screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
                 if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
                     console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
-                    entity.active = True
+                    if not entity == self.engine.player:
+                        entity.active = True
 
     def generate_level(self) -> None:
         from level_generator import MessyBSPTree

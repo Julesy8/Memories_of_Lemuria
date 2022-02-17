@@ -88,5 +88,28 @@ class Engine:
         console.print(x=66, y=46, string=f"{level_names[self.current_level]} {self.current_floor + 1}",
                       fg=colour.WHITE, bg_blend=1)
 
+        # displays current ammo
+        if self.player.inventory.held is not None:
+
+            # for magazine fed gun
+            if hasattr(self.player.inventory.held.usable_properties, "loaded_magazine"):
+                chamber = 0
+                if self.player.inventory.held.usable_properties.chambered_bullet is not None:
+                    chamber = 1
+                magazine = self.player.inventory.held.usable_properties.loaded_magazine
+                if self.player.inventory.held.usable_properties.loaded_magazine is not None:
+                    console.print(x=66, y=47, string=f"{len(magazine.magazine) + chamber}/{magazine.mag_capacity}",
+                                  fg=colour.WHITE, bg_blend=1)
+                else:
+                    console.print(x=66, y=47, string="No Mag", fg=colour.WHITE, bg_blend=1)
+
+            # for gun with integrated magazine
+            elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):
+                chamber = 0
+                if self.player.inventory.held.usable_properties.chambered_bullet is not None:
+                    chamber = 1
+                gun = self.player.inventory.held.usable_properties
+                console.print(x=66, y=47, string=f"{len(gun.magazine) + chamber}/{gun.mag_capacity}",
+                              fg=colour.WHITE, bg_blend=1)
+
         render_names_at_mouse_location(console=console, x=1, y=45, engine=self)
-        # render_mouse_location(console=console, engine=self, game_map=self.game_map)

@@ -1,19 +1,14 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from random import randint
 from typing import Optional, TYPE_CHECKING
 
 from entity import Actor, Entity
-from render_order import RenderOrder
 import colour
 
 if TYPE_CHECKING:
     from entity import Item
     from engine import Engine
-
-blood = Entity(x=0, y=0, char=' ', fg_colour=colour.RED, bg_colour=colour.RED, name='Blood')
-
 
 class Bodypart:
 
@@ -60,8 +55,7 @@ class Bodypart:
         self._hp = max(0, min(value, self.max_hp))
 
         if self._hp <= self.max_hp * 0.70 and self.parent.bleeds:
-            blood_copy = deepcopy(self.parent.blood_entity)
-            blood_copy.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+            self.engine.game_map.tiles[self.parent.x, self.parent.y][3][2] = colour.RED
 
         if self._hp == 0 and self.parent.ai:
 
@@ -84,17 +78,20 @@ class Bodypart:
 
     def die(self) -> None:
 
-        self.parent.fg_colour = colour.WHITE
-        self.parent.blocks_movement = False
         self.parent.ai = None
-        self.parent.name = f"remains of {self.parent.name}"
-        self.parent.render_order = RenderOrder.CORPSE
+
+        entity = Entity(x=0, y=0, char=self.parent.char, fg_colour=colour.WHITE, bg_colour=None,
+                        name=f"{self.parent.name} remains", blocks_movement=False, parent=self.engine.game_map)
+
+        entity.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
         for item in self.parent.inventory.items:
             item.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
         if self.parent.player:
             self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
+
+        self.engine.game_map.entities.remove(self.parent)
 
     def deal_damage(self, meat_damage: int, armour_damage: int, attacker: Actor, item: Optional[Item] = None):
 

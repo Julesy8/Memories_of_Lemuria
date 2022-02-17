@@ -25,12 +25,16 @@ class GunParts:
         self.update_gun_properties()
 
     def update_gun_properties(self):
+
+        prefixes = ''
+        suffixes = ''
+
         for part in self.part_list:
 
             if isinstance(self.parent, GunMagFed):
 
-                if part.usable_properties.compatible_bullet_type is not None and part.usable_properties.mag_capacity\
-                        is not None:
+                if hasattr(part.usable_properties, 'compatible_bullet_type') and hasattr(part.usable_properties,
+                                                                                         'mag_capacity'):
 
                     self.parent = GunIntegratedMag(parts=self,
                                                    base_meat_damage=self.parent.base_meat_damage,
@@ -74,6 +78,13 @@ class GunParts:
 
             part_properties = part.__dict__
 
+            # adds prefixes and suffixes
+            if hasattr(part.usable_properties, 'prefix'):
+                prefixes += f"{part.usable_properties.prefix} "
+            if hasattr(part.usable_properties, 'suffix'):
+                suffixes += f"{part.usable_properties.suffix} "
+
+            # alters propeties of the item according to part properties
             for property_str in part_properties.keys():
                 if hasattr(self.parent, property_str):
                     if type(part_properties[property_str]) is float:
@@ -81,6 +92,12 @@ class GunParts:
                         setattr(self.parent, property_str, part_properties[property_str] * gun_property)
                     elif type(part_properties[property_str]) is str or type(part_properties[property_str]) is dict:
                         setattr(self.parent, property_str, part_properties[property_str])
+
+        # gives item suitable prefixes and suffixes
+        if not prefixes == '':
+            self.parent.parent.name = f"{prefixes}{self.parent.parent.name}"
+        if not suffixes == '':
+            self.parent.parent.name = f"{self.parent.parent.name} {suffixes}"
 
     def disassemble(self, entity):
 

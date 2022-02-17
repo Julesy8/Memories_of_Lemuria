@@ -36,7 +36,7 @@ glock17_barrel = Item(
     name="Glock 17 Barrel",
     weight=1,
     stacking=None,
-    usable_properties=ComponentPart(part_type='glock17_barrel'),
+    usable_properties=ComponentPart(part_type='glock17_barrel', prefix='standard'),
     description='glock barrel'
 )
 

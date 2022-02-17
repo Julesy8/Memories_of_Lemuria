@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 import os
+from copy import deepcopy
 from typing import Optional, TYPE_CHECKING, Union
 from math import ceil, floor
 import textwrap
 
 import tcod.event
 
-from entity import Item, Actor
+from entity import Item
 import actions
 from components.weapons.gundict import guns_dict
 from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart, Wearable, \
     Weapon, HealingConsumable
+#from components.weapons.bullets import bullet_crafting_dict
+#from components.weapons.magazines import magazine_crafting_dict
 from actions import (
     Action,
     BumpAction,
@@ -198,20 +201,7 @@ class MainGameEventHandler(EventHandler):
             return QuitEventHandler(self.engine)
 
         elif key == tcod.event.K_c:
-
-            entities_active = False
-
-            for entity in self.engine.game_map.entities:
-                if isinstance(entity, Actor):
-                    if entity.active and not entity.player:
-                        entities_active = True
-                        break
-
-            if not entities_active:
-                return CraftingEventHandler(self.engine)
-
-            else:
-                self.engine.message_log.add_message("Cannot perform this action while enemies are active", colour.RED)
+            return CraftingEventHandler(self.engine)
 
         elif key == tcod.event.K_i:
             return InventoryEventHandler(self.engine)
@@ -603,13 +593,13 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Equip':
-            try:
-                self.item.usable_properties.equip()
-                self.engine.handle_enemy_turns()
-                return MainGameEventHandler(self.engine)
+            #try:
+            self.item.usable_properties.equip()
+            self.engine.handle_enemy_turns()
+            return MainGameEventHandler(self.engine)
 
-            except AttributeError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+            #except AttributeError:
+            #    self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Unequip':
             try:
@@ -626,24 +616,13 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Disassemble':
-
-            entities_active = False
-
-            for entity in self.engine.game_map.entities:
-                if isinstance(entity, Actor):
-                    if entity.active:
-                        entities_active = True
-                        break
-
-            if not entities_active:
-                if isinstance(self.item.usable_properties, Gun):
-                    self.item.usable_properties.parts.disassemble(entity=self.engine.player)
+            if hasattr(self.item.usable_properties, 'parts'):
+                self.item.usable_properties.parts.disassemble(entity=self.engine.player)
+                turns_taken = 0
+                while turns_taken < 5:
+                    turns_taken += 1
                     self.engine.handle_enemy_turns()
-                    return MainGameEventHandler(self.engine)
-
-                else:
-                    self.engine.message_log.add_message("Cannot perform this action while enemies are active",
-                                                        colour.RED)
+                return MainGameEventHandler(self.engine)
 
         elif option == 'Inspect':
             return InspectItemViewer(engine=self.engine, item=self.item)
@@ -1120,7 +1099,24 @@ class CraftingEventHandler(UserOptionsEventHandler):
         """Called when the user selects a valid item."""
 
         if option == 'guns':
-            return SelectItemToCraft(engine=self.engine, item_dict=guns_dict, title='gun crafting')
+            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(guns_dict), title='gun crafting')
+
+        """
+        elif option == 'gun parts':
+            return SelectItemToCraft(engine=self.engine, item_dict=, title='gun part crafting')
+
+        elif option == 'ammo':
+            return SelectItemToCraft(engine=self.engine, item_dict=bullet_crafting_dict, title='ammo crafting')
+
+        elif option == 'ammo parts':
+            return SelectItemToCraft(engine=self.engine, item_dict=, title='ammo part crafting')
+
+        elif option == 'magazines':
+            return SelectItemToCraft(engine=self.engine, item_dict=magazine_crafting_dict, title='magazine crafting')
+
+        elif option == 'armour':
+            return SelectItemToCraft(engine=self.engine, item_dict=, title='armour crafting')
+        """
 
 
 class SelectItemToCraft(UserOptionsWithPages):
@@ -1130,35 +1126,41 @@ class SelectItemToCraft(UserOptionsWithPages):
 
     def on_option_selected(self, option):
 
-        part_dict = {}
+        # dictionary has parts list, can proceed with creating item
+        if 'required parts' in list(self.item_dict[option].keys()):
+            part_dict = {}
 
-        available_compatible_parts = []
+            available_compatible_parts = []
 
-        for part in self.item_dict[option]["compatible parts"]:
-            for item in self.engine.player.inventory.items:
-                if isinstance(item.usable_properties, ComponentPart):
-                    if item.usable_properties.part_type == part:
-                        available_compatible_parts.append(part)
+            for part in self.item_dict[option]["compatible parts"]:
+                for item in self.engine.player.inventory.items:
+                    if isinstance(item.usable_properties, ComponentPart):
+                        if item.usable_properties.part_type == part:
+                            available_compatible_parts.append(part)
 
-        # all required and compatible parts
-        parts = self.item_dict[option]["required parts"] + available_compatible_parts
+            # all required and compatible parts
+            parts = self.item_dict[option]["required parts"] + available_compatible_parts
 
-        # adds all required and compatible parts to the dictionary and sets their value to None before player selects
-        for part in parts:
-            part_dict[part] = None
+            # adds all required and compatible parts to the dictionary and sets
+            # their value to None before player selects
+            for part in parts:
+                part_dict[part] = None
+            return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0, parts=parts,
+                             item_dict=self.item_dict)
 
-        return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0, parts=parts,
-                         part_dict=self.item_dict)
+        # dictionary selected does not have parts list
+        else:
+            return SelectItemToCraft(engine=self.engine, title=option, item_dict=self.item_dict[option])
 
 
 class CraftItem(UserOptionsWithPages):
-    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, parts: list, part_dict: dict):
+    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, parts: list, item_dict: dict):
 
         self.item_name = item_to_craft
-        self.item_to_craft = part_dict[item_to_craft]
+        self.item_to_craft = item_dict[item_to_craft]
 
         # all parts with their values
-        self.part_dict = part_dict
+        self.item_dict = item_dict
 
         # all part keys in list format
         self.parts = parts
@@ -1166,13 +1168,13 @@ class CraftItem(UserOptionsWithPages):
         # index of current part to be selected set to first part
         self.current_part_selection = current_part_index
 
-        title = self.part_dict[item_to_craft]["parts names"][current_part_index]
+        title = self.item_dict[item_to_craft]["parts names"][current_part_index]
 
         # parts of a given type available in inventory
         options = []
 
         # if part is not required, gives the option to select none
-        if self.parts[self.current_part_selection] in self.part_dict[self.item_name]["compatible parts"]:
+        if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
             options.append('none')
 
         for item in engine.player.inventory.items:
@@ -1186,25 +1188,31 @@ class CraftItem(UserOptionsWithPages):
 
         if not option == 'none':
             # sets part in part dict to be the selected part
-            self.part_dict[self.parts[self.current_part_selection]] = option
+            self.item_dict[self.parts[self.current_part_selection]] = option
 
         if self.parts[self.current_part_selection] == self.parts[-1]:
-            item = self.part_dict[self.item_name]['item']
+            item = self.item_dict[self.item_name]['item']
 
-            for key, value in self.part_dict.items():
+            for key, value in self.item_dict.items():
                 if value is not None:
-                    self.engine.player.inventory.items.remove(value)
+                    if value in self.engine.player.inventory.items:
+                        self.engine.player.inventory.items.remove(value)
                     setattr(item.usable_properties.parts, key, value)
 
             item.usable_properties.parts.update_partlist()
+            item.parent = self.engine.player.inventory
             self.engine.player.inventory.items.append(item)
-            self.engine.handle_enemy_turns()
+
+            turns_taken = 0
+            while turns_taken < 5:
+                turns_taken += 1
+                self.engine.handle_enemy_turns()
             return MainGameEventHandler(engine=self.engine)
 
         else:
             self.current_part_selection += 1
             return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
-                             item_to_craft=self.item_name, parts=self.parts, part_dict=self.part_dict)
+                             item_to_craft=self.item_name, parts=self.parts, item_dict=self.item_dict)
 
 
 class InspectItemViewer(AskUserEventHandler):
