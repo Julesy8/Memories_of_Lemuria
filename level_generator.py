@@ -3,12 +3,13 @@ import copy
 from random import random, randint, choice, choices
 from copy import deepcopy
 
+from components.datapacks import datapackdict
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level, Items_by_level
 from tile_types import down_stairs
-from components.consumables import Gun, GunIntegratedMag, GunMagFed
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, RecipeUnlock
 from components.weapons.bullets import bullet_dict
 from components.weapons.magazines import magazine_dict
 from components.enemies.caverns import caverns_enemies
@@ -313,6 +314,14 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
             if isinstance(inventory_item, Item):
                 inventory_item.parent = enemy.inventory
                 enemy.inventory.items.append(inventory_item)
+
+                # gives PDA datapack properties
+                if inventory_item.name == 'PDA':
+                    inventory_item.usable_properties = RecipeUnlock(choices(population=datapackdict[level][0],
+                                                                            weights=datapackdict[level][1], k=1)[0])
+
+                inventory_item.usable_properties.parent = inventory_item
+
 
             if enemy.can_spawn_armed:
                 # selects weapon for given entity

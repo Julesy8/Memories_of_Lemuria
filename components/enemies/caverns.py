@@ -22,6 +22,18 @@ L_Leg = Leg(hp=10, defence=5, name='left leg')
 
 body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
+pda = Item(
+    x=0, y=0,
+    char="p",
+    fg_colour=colour.JADE,
+    bg_colour=None,
+    stacking=None,
+    name="PDA",
+    weight=1,
+    description='contains data',
+    usable_properties=consumables.Usable(),
+)
+
 medkit = Item(
     x=0, y=0,
     char="+",
@@ -66,8 +78,8 @@ caverns_enemies = {
         'weapon weight': [2, 1],
         'armour': [],
         'armour weight': [],
-        'inventory items': [None, medkit],
-        'inventory items weight': [2, 1],
+        'inventory items': [None, medkit, pda],
+        'inventory items weight': [2, 1, 3],
     }
 }
 

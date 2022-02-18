@@ -159,7 +159,7 @@ class Actor(Entity):
         self.has_fled_death = False
 
         if self.player:
-            self.crafting_recipes = []
+            self.crafting_recipes = ['pistols']
 
     @property
     def is_alive(self) -> bool:

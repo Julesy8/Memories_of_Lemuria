@@ -602,20 +602,18 @@ class ComponentPart(Usable):
 
 class RecipeUnlock(Usable):
 
-    def __init__(self, recipe: str):
-        self.recipe = recipe
+    def __init__(self, datapack: list):
+        self.datapack = datapack
 
     def activate(self, action: actions.ItemAction) -> None:
         consumer = action.entity
 
         if consumer == self.engine.player:
-            consumer.crafting_recipes.append(self.recipe)
+            consumer.crafting_recipes += self.datapack
 
         self.engine.message_log.add_message(
-            f"Crafting recipe unlocked: {self.recipe}",
+            f"Crafting recipe unlocked: {self.datapack[0]}",
             colour.GREEN,
         )
 
-        self.parent.stacking.stack_size -= 1
-        if self.parent.stacking.stack_size <= 0:
-            self.consume()
+        self.consume()

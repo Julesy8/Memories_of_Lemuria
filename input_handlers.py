@@ -1121,7 +1121,14 @@ class CraftingEventHandler(UserOptionsEventHandler):
 
 class SelectItemToCraft(UserOptionsWithPages):
     def __init__(self, engine: Engine, title: str, item_dict: dict):
-        super().__init__(engine=engine, options=list(item_dict.keys()), page=0, title=title)
+
+        options = []
+
+        for option in list(item_dict.keys()):
+            if option in engine.player.crafting_recipes:
+                options.append(option)
+
+        super().__init__(engine=engine, options=options, page=0, title=title)
         self.item_dict = item_dict
 
     def on_option_selected(self, option):
