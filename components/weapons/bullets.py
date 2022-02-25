@@ -15,8 +15,8 @@ round_9mm = Item(
     usable_properties=Bullet(
         parts=BulletParts(),
         bullet_type='9mm',
-        meat_damage_factor=1.0,
-        armour_damage_factor=1.0,
+        meat_damage=20,
+        armour_damage=10,
         accuracy_factor=1.0,
         recoil_modifier=1.0,
         sound_modifier=1.0,
@@ -32,7 +32,7 @@ brass_9mm = Item(
     weight=1,
     stacking=Stacking(stack_size=1),
     description='9mm bullet casing',
-    usable_properties=ComponentPart(part_type="brass_9mm")
+    usable_properties=ComponentPart(part_type="brass_9mm", incompatible_parts=[])
 )
 
 bullet_9mm = Item(
@@ -44,7 +44,7 @@ bullet_9mm = Item(
     weight=1,
     stacking=Stacking(stack_size=1),
     description='9mm bullet',
-    usable_properties=ComponentPart(part_type="bullet_9mm")
+    usable_properties=ComponentPart(part_type="bullet_9mm", incompatible_parts=[])
 )
 
 bullet_dict = {

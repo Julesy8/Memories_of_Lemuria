@@ -29,18 +29,18 @@ def new_game() -> Engine:
     # initialises player entity
     fighter_component = Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
-    Head_part = Head(hp=50, defence=20)
-    Body_part = Body(hp=50, defence=20)
-    R_Arm = Arm(hp=50, defence=20, name='right arm')
-    L_Arm = Arm(hp=50, defence=20, name='left arm')
-    R_Leg = Leg(hp=50, defence=20, name='right leg')
-    L_Leg = Leg(hp=50, defence=20, name='left leg')
+    Head_part = Head(hp=50, defence=50)
+    Body_part = Body(hp=100, defence=50)
+    R_Arm = Arm(hp=30, defence=50, name='right arm')
+    L_Arm = Arm(hp=30, defence=50, name='left arm')
+    R_Leg = Leg(hp=30, defence=50, name='right leg')
+    L_Leg = Leg(hp=30, defence=50, name='left leg')
 
     body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
     player = Actor(0, 0,
                    '@',
-                   colour.WHITE,
+                   colour.GREEN,
                    None,
                    'Player',
                    ai=HostileEnemy,

@@ -24,7 +24,7 @@ body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
 pda = Item(
     x=0, y=0,
-    char="p",
+    char="{",
     fg_colour=colour.JADE,
     bg_colour=None,
     stacking=None,

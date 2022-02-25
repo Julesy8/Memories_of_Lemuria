@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from random import randint
+from math import floor
 from typing import Optional, TYPE_CHECKING
 
 from entity import Actor, Entity
@@ -9,6 +10,7 @@ import colour
 if TYPE_CHECKING:
     from entity import Item
     from engine import Engine
+
 
 class Bodypart:
 
@@ -88,14 +90,15 @@ class Bodypart:
         for item in self.parent.inventory.items:
             item.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
+        if self.parent.inventory.held is not None:
+            self.parent.inventory.held.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+
         if self.parent.player:
             self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
 
         self.engine.game_map.entities.remove(self.parent)
 
     def deal_damage(self, meat_damage: int, armour_damage: int, attacker: Actor, item: Optional[Item] = None):
-
-        damage = meat_damage
 
         fail_colour = colour.LIGHT_BLUE
 
@@ -108,6 +111,10 @@ class Bodypart:
 
         if armour_damage < self.defence + armour_protection:
             damage = 0
+        elif self.defence + armour_protection == 0:
+            damage = meat_damage
+        else:
+            damage = floor(((armour_protection + self.defence)/armour_damage)) * meat_damage
 
         # attack w/ weapon
         if item:

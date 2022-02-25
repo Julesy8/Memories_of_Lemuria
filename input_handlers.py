@@ -1153,7 +1153,7 @@ class SelectItemToCraft(UserOptionsWithPages):
             for part in parts:
                 part_dict[part] = None
             return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0, parts=parts,
-                             item_dict=self.item_dict)
+                             item_dict=self.item_dict, incompatibilities=[])
 
         # dictionary selected does not have parts list
         else:
@@ -1161,7 +1161,8 @@ class SelectItemToCraft(UserOptionsWithPages):
 
 
 class CraftItem(UserOptionsWithPages):
-    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, parts: list, item_dict: dict):
+    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, parts: list, item_dict: dict,
+                 incompatibilities: list):
 
         self.item_name = item_to_craft
         self.item_to_craft = item_dict[item_to_craft]
@@ -1180,14 +1181,19 @@ class CraftItem(UserOptionsWithPages):
         # parts of a given type available in inventory
         options = []
 
+        # list of names of incompatible parts
+        self.incompatibilities = incompatibilities
+
         # if part is not required, gives the option to select none
         if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
             options.append('none')
 
         for item in engine.player.inventory.items:
             if isinstance(item.usable_properties, ComponentPart):
-                if item.usable_properties.part_type == self.parts[self.current_part_selection]:
+                if item.usable_properties.part_type == self.parts[self.current_part_selection] \
+                        and item.name not in self.incompatibilities:
                     options.append(item)
+                    self.incompatibilities.append(item.usable_properties.incompatible_parts)
 
         super().__init__(engine=engine, options=options, page=0, title=title)
 
@@ -1200,26 +1206,71 @@ class CraftItem(UserOptionsWithPages):
         if self.parts[self.current_part_selection] == self.parts[-1]:
             item = self.item_dict[self.item_name]['item']
 
-            for key, value in self.item_dict.items():
-                if value is not None:
-                    if value in self.engine.player.inventory.items:
-                        self.engine.player.inventory.items.remove(value)
-                    setattr(item.usable_properties.parts, key, value)
+            if item.stacking:
+                return CraftAmountEventHander(item=item, engine=self.engine, itemdict=self.item_dict)
+
+            else:
+                for key, value in self.item_dict.items():
+                    if value is not None:
+                        if value in self.engine.player.inventory.items:
+                            self.engine.player.inventory.items.remove(value)
+                        setattr(item.usable_properties.parts, key, value)
 
             item.usable_properties.parts.update_partlist()
             item.parent = self.engine.player.inventory
-            self.engine.player.inventory.items.append(item)
 
             turns_taken = 0
-            while turns_taken < 5:
+            while turns_taken < 5:  # TODO: replace with range
                 turns_taken += 1
                 self.engine.handle_enemy_turns()
+
+            self.engine.player.inventory.items.append(item)
             return MainGameEventHandler(engine=self.engine)
 
         else:
             self.current_part_selection += 1
             return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
-                             item_to_craft=self.item_name, parts=self.parts, item_dict=self.item_dict)
+                             item_to_craft=self.item_name, parts=self.parts, item_dict=self.item_dict,
+                             incompatibilities=self.incompatibilities)
+
+
+class CraftAmountEventHander(TypeAmountEventHandler):
+
+    def __init__(self, item, engine: Engine, itemdict):
+        self.item_dict = itemdict
+        super().__init__(engine=engine, item=item, prompt_string="Amount to craft: ")
+
+    def on_option_selected(self) -> Optional[ActionOrHandler]:
+        craftable = True
+
+        for key, value in self.item_dict.items():
+            if value is not None:
+                for item in self.engine.player.inventory.items:
+                    if item.name == value.name:
+                        if item.stacking.stack_size < int(self.buffer):
+                            craftable = False
+                        elif item.stacking.stack_size == int(self.buffer):
+                            self.engine.player.inventory.items.remove(value)
+                        else:
+                            item.stacking.stack_size -= int(self.buffer)
+                setattr(self.item.usable_properties.parts, key, value)
+
+        if craftable:
+            self.item.stacking.stack_size = int(self.buffer)
+            self.item.usable_properties.parts.update_partlist()
+            self.item.parent = self.engine.player.inventory
+
+            turns_taken = 0
+            while turns_taken < 5:  # TODO: replace with range
+                turns_taken += 1
+                self.engine.handle_enemy_turns()
+
+            self.engine.player.inventory.items.append(self.item)
+            return MainGameEventHandler(engine=self.engine)
+
+        else:
+            self.engine.message_log.add_message("Insufficient materials", colour.RED)
+            return MainGameEventHandler(engine=self.engine)
 
 
 class InspectItemViewer(AskUserEventHandler):
@@ -1312,8 +1363,8 @@ class InspectItemViewer(AskUserEventHandler):
         if isinstance(item.usable_properties, Bullet):
             bullet_info = {
                 "round type": item.usable_properties.bullet_type,
-                "damage modifier": item.usable_properties.meat_damage_factor,
-                "armour damage modifier": item.usable_properties.armour_damage_factor,
+                "damage modifier": item.usable_properties.meat_damage,
+                "armour damage modifier": item.usable_properties.armour_damage,
                 "sound radius modifier": item.usable_properties.sound_modifier,
                 "recoil modifier": item.usable_properties.recoil_modifier
             }

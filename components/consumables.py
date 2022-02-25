@@ -63,8 +63,8 @@ class HealingConsumable(Usable):
 class Weapon(Usable):
 
     def __init__(self,
-                 base_meat_damage: int,
-                 base_armour_damage: int,
+                 base_meat_damage,
+                 base_armour_damage,
                  maximum_range: int,
                  base_accuracy: float,
                  equip_time: int,
@@ -142,8 +142,8 @@ class Bullet(Usable):
     def __init__(self,
                  parts,
                  bullet_type: str,
-                 meat_damage_factor: float,
-                 armour_damage_factor: float,
+                 meat_damage: int,
+                 armour_damage: int,
                  accuracy_factor: float,
                  recoil_modifier: float,  # reduces accuracy of followup automatic shots
                  sound_modifier: float,  # alters amount of noise the gun makes
@@ -151,8 +151,8 @@ class Bullet(Usable):
 
         self.parts = parts
         self.bullet_type = bullet_type
-        self.meat_damage_factor = meat_damage_factor
-        self.armour_damage_factor = armour_damage_factor
+        self.meat_damage = meat_damage
+        self.armour_damage = armour_damage
         self.accuracy_factor = accuracy_factor
         self.recoil_modifier = recoil_modifier
         self.sound_modifier = sound_modifier
@@ -277,8 +277,8 @@ class Magazine(Usable):
 class Gun(Weapon):
     def __init__(self,
                  parts: GunParts,
-                 base_meat_damage: int,
-                 base_armour_damage: int,
+                 base_meat_damage: float,
+                 base_armour_damage: float,
                  base_accuracy: float,
                  range_accuracy_dropoff: int,
                  equip_time: int,
@@ -345,9 +345,9 @@ class Gun(Weapon):
                     # does damage to given bodypart
                     target.bodyparts[part_index].deal_damage(
                         meat_damage=self.base_meat_damage
-                                    * self.chambered_bullet.usable_properties.meat_damage_factor,
+                                    * self.chambered_bullet.usable_properties.meat_damage,
                         armour_damage=self.base_armour_damage
-                                      * self.chambered_bullet.usable_properties.armour_damage_factor,
+                                      * self.chambered_bullet.usable_properties.armour_damage,
                         attacker=attacker, item=self.parent)
 
                 # miss
@@ -438,8 +438,8 @@ class GunMagFed(Gun):
     def __init__(self,
                  parts,
                  compatible_magazine_type: str,
-                 base_meat_damage: int,
-                 base_armour_damage: int,
+                 base_meat_damage: float,
+                 base_armour_damage: float,
                  base_accuracy: float,
                  range_accuracy_dropoff: int,
                  equip_time: int,
@@ -544,8 +544,8 @@ class GunMagFed(Gun):
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
                  parts,
-                 base_meat_damage: int,
-                 base_armour_damage: int,
+                 base_meat_damage: float,
+                 base_armour_damage: float,
                  base_accuracy: float,
                  range_accuracy_dropoff: int,
                  equip_time: int,
@@ -592,8 +592,9 @@ class GunIntegratedMag(Gun, Magazine):
 
 
 class ComponentPart(Usable):
-    def __init__(self, part_type: str, **kwargs):
+    def __init__(self, part_type: str, incompatible_parts: list, **kwargs):
         self.part_type = part_type
+        self.incompatible_parts = incompatible_parts
         self.__dict__.update(kwargs)
 
     def activate(self, action: actions.ItemAction):
