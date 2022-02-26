@@ -12,7 +12,7 @@ import colour
 import components.inventory
 from components.npc_templates import BaseComponent
 if TYPE_CHECKING:
-    from components.gunparts import GunParts
+    from components.gunparts import Parts
     from entity import Item, Actor
     from input_handlers import ActionOrHandler
 
@@ -276,7 +276,7 @@ class Magazine(Usable):
 
 class Gun(Weapon):
     def __init__(self,
-                 parts: GunParts,
+                 parts: Parts,
                  base_meat_damage: float,
                  base_armour_damage: float,
                  base_accuracy: float,
@@ -436,7 +436,7 @@ class Wearable(Usable):
 
 class GunMagFed(Gun):
     def __init__(self,
-                 parts,
+                 parts: Parts,
                  compatible_magazine_type: str,
                  base_meat_damage: float,
                  base_armour_damage: float,
@@ -543,7 +543,7 @@ class GunMagFed(Gun):
 
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
-                 parts,
+                 parts: Parts,
                  base_meat_damage: float,
                  base_armour_damage: float,
                  base_accuracy: float,
@@ -592,7 +592,9 @@ class GunIntegratedMag(Gun, Magazine):
 
 
 class ComponentPart(Usable):
-    def __init__(self, part_type: str, incompatible_parts: list, **kwargs):
+    def __init__(self, part_type: str, incompatible_parts: list, material: Item = None, disassemblable=True, **kwargs):
+        self.disassemblable = disassemblable
+        self.material = material
         self.part_type = part_type
         self.incompatible_parts = incompatible_parts
         self.__dict__.update(kwargs)

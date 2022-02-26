@@ -17,7 +17,6 @@ from entity import Entity, Item
 import colour
 from render_order import RenderOrder
 
-
 stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_GRAY, bg_colour=None, name='Stairs',
                        render_order=RenderOrder.ITEM)
 
@@ -252,7 +251,7 @@ class Leaf:  # used for the BSP tree algorithm
 
             if self.child_1 and self.child_2:
                 bspTree.createHall(self.child_1.getRoom(),
-                                self.child_2.getRoom())
+                                   self.child_2.getRoom())
 
         else:
             # Create rooms in the end branches of the bsp tree
@@ -322,7 +321,6 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
 
                 inventory_item.usable_properties.parent = inventory_item
 
-
             if enemy.can_spawn_armed:
                 # selects weapon for given entity
                 enemy.inventory.held = copy.deepcopy(choices(population=caverns_enemies[enemy.name]["weapons"],
@@ -341,20 +339,21 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
 
                         # selects parts from possible parts
                         for value in weapon.usable_properties.possible_parts.values():
-                            part_selected = choices(population=value[0], weights=value[1])
-                            part_selected.append(gun_parts)
+                            part_selected = choices(population=value[0], weights=value[1])[0]
+                            gun_parts.append(part_selected)
 
                         for part in gun_parts:
-                            setattr(weapon.usable_properties.parts, part.part_type, part)
+                            if part is not None:
+                                setattr(weapon.usable_properties.parts, part.usable_properties.part_type, part)
 
                         weapon.usable_properties.parts.update_partlist()
 
                         # gives gun magazine if mag fed
                         if isinstance(weapon.usable_properties, GunMagFed):
-
                             # sets gun loaded magazine to magazine compatible with held gun
                             enemy.inventory.held.usable_properties.loaded_magazine = copy.deepcopy(choices(
-                                population=magazine_dict[weapon.usable_properties.compatible_magazine_type]["mag_items"],
+                                population=magazine_dict[weapon.usable_properties.compatible_magazine_type][
+                                    "mag_items"],
                                 weights=magazine_dict[weapon.usable_properties.compatible_magazine_type]["mag_weight"],
                                 k=1)[0])
 
@@ -380,7 +379,6 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
 
                         # loads gun with bullets if gun has integrated magazine
                         if isinstance(weapon.usable_properties, GunIntegratedMag):
-
                             ammo = copy.deepcopy(choices(population=bullet_dict[weapon.usable_properties.
                                                          compatible_bullet_type]["bullet_items"],
                                                          weights=bullet_dict[weapon.usable_properties.
@@ -394,6 +392,7 @@ def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_
         x = randint(room.x1 + 1, room.x2 - 1)
         y = randint(room.y1 + 1, room.y2 - 1)
 
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and dungeon.tiles[x, y] != down_stairs:
+        if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and dungeon.tiles[
+            x, y] != down_stairs:
             item = copy.deepcopy(choices(population=Items_by_level[level][0], weights=Items_by_level[level][1], k=1)[0])
             item.place(x, y, dungeon)

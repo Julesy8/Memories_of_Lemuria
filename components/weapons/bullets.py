@@ -1,7 +1,8 @@
 import colour
 from entity import Item, Stacking
 from components.consumables import Bullet, ComponentPart
-from components.gunparts import BulletParts
+from components.gunparts import Parts
+from components.commonitems import brass, lead
 
 round_9mm = Item(
     x=0, y=0,
@@ -9,11 +10,11 @@ round_9mm = Item(
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name='9mm Bullet',
-    weight=1,
+    weight=0.0,
     stacking=Stacking(stack_size=1),
     description='9mm bullet',
     usable_properties=Bullet(
-        parts=BulletParts(),
+        parts=Parts(),
         bullet_type='9mm',
         meat_damage=20,
         armour_damage=10,
@@ -29,10 +30,10 @@ brass_9mm = Item(
     fg_colour=colour.YELLOW,
     bg_colour=None,
     name='9mm Casing',
-    weight=1,
+    weight=0.0,
     stacking=Stacking(stack_size=1),
     description='9mm bullet casing',
-    usable_properties=ComponentPart(part_type="brass_9mm", incompatible_parts=[])
+    usable_properties=ComponentPart(part_type="brass_9mm", incompatible_parts=[], material=brass)
 )
 
 bullet_9mm = Item(
@@ -41,10 +42,10 @@ bullet_9mm = Item(
     fg_colour=colour.YELLOW,
     bg_colour=None,
     name='9mm Bullet',
-    weight=1,
+    weight=0.0,
     stacking=Stacking(stack_size=1),
     description='9mm bullet',
-    usable_properties=ComponentPart(part_type="bullet_9mm", incompatible_parts=[])
+    usable_properties=ComponentPart(part_type="bullet_9mm", incompatible_parts=[], material=lead)
 )
 
 bullet_dict = {

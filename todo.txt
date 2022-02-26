@@ -2,6 +2,7 @@
 TO DO
 start implementing crafting recipes
 firearms parts and ammunition crafting - collectable data packages
+item inspection streamline
 
 17) more room shapes on level generation
 19) weapon graphics

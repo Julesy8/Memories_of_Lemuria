@@ -177,7 +177,7 @@ class Item(Entity):
         fg_colour,
         bg_colour,
         name: str = "<Unnamed>",
-        weight: int,
+        weight: float,
         stacking: Optional[Stacking],
         usable_properties: Optional[Usable],
         description: str,

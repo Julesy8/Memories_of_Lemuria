@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from components.inventory import Inventory
-from components.consumables import Gun, GunMagFed, GunIntegratedMag, Bullet, ComponentPart
+from components.consumables import GunMagFed, GunIntegratedMag, ComponentPart, Usable
 from entity import Item
 
 
-class GunParts:
+class Parts:
 
-    parent: Gun
+    parent: Usable
 
     def __init__(self):
-
         self.part_list = []
         self.update_partlist()
 
@@ -118,7 +117,3 @@ class GunParts:
                     gun_item.usable_properties.unload_magazine()
 
                 inventory.items.remove(gun_item)
-
-
-class BulletParts(GunParts):
-    parent: Bullet

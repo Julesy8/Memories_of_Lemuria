@@ -569,6 +569,10 @@ class InventoryEventHandler(UserOptionsWithPages):
         if isinstance(item.usable_properties, Gun):
             options.append('Disassemble')
 
+        if isinstance(item.usable_properties, ComponentPart):
+            if item.usable_properties.disassemblable:
+                options.append('Scrap')
+
         return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
@@ -593,13 +597,13 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Equip':
-            #try:
-            self.item.usable_properties.equip()
-            self.engine.handle_enemy_turns()
-            return MainGameEventHandler(self.engine)
+            try:
+                self.item.usable_properties.equip()
+                self.engine.handle_enemy_turns()
+                return MainGameEventHandler(self.engine)
 
-            #except AttributeError:
-            #    self.engine.message_log.add_message("Invalid entry", colour.RED)
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'Unequip':
             try:
@@ -623,6 +627,16 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                     turns_taken += 1
                     self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
+
+        elif option == 'Scrap':
+            scrap_item = deepcopy(self.item.usable_properties.material)
+            if self.item.stacking:
+                scrap_item.stacking.stack_size = self.item.stacking.stack_size
+
+            scrap_item.parent = self.engine.player.inventory
+            self.engine.player.inventory.items.append(scrap_item)
+            self.engine.player.inventory.items.remove(self.item)
+            return MainGameEventHandler(self.engine)
 
         elif option == 'Inspect':
             return InspectItemViewer(engine=self.engine, item=self.item)
@@ -1037,7 +1051,7 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
         self.magazine = magazine
         ammo_list = []
 
-        for item in self.engine.player.inventory.items:
+        for item in engine.player.inventory.items:
             if isinstance(item.usable_properties, Bullet):
                 if item.usable_properties.bullet_type == self.magazine.usable_properties.compatible_bullet_type:
                     ammo_list.append(item)
