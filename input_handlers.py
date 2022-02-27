@@ -1292,103 +1292,63 @@ class InspectItemViewer(AskUserEventHandler):
     def __init__(self, engine, item):
         super().__init__(engine=engine)
 
+        self.item = item
         self.TITLE = item.name
         self.description = item.description
+
+        self.inspect_parts_option = False
+
+        if hasattr(item.usable_properties, 'parts'):
+            self.inspect_parts_option = True
 
         item_info = {
             "description": item.description,
             "weight": item.weight,
         }
 
-        if isinstance(item.usable_properties, Weapon):
+        fire_modes = ""
 
-            weapon_info = {
-                "damage": item.usable_properties.base_meat_damage,
-                "armour damage": item.usable_properties.base_armour_damage,
-                "accuracy": item.usable_properties.base_accuracy,
-                "equip time": item.usable_properties.equip_time,
-            }
+        if isinstance(item.usable_properties, Gun):
 
-            item_info.update(weapon_info)
+            for key, value in item.usable_properties.fire_modes.items():
+                if key == "single shot":
+                    fire_modes += f"single shot,"
+                else:
+                    fire_modes += f"{key} - {value}RPM,"
 
-            if isinstance(item.usable_properties, Gun):
+        additonal_info = {
+            "damage": 'base_meat_damage',
+            "armour damage": 'base_armour_damage',
+            "accuracy": 'base_accuracy',
+            "equip time": 'equip_time',
+            "effective short range accuracy": 'close_range_accuracy',
+            "effective range": 'range_accuracy_dropoff',
+            "recoil": 'recoil',
+            "shot sound radius": 'sound_radius',
+            "compatible magazine": 'compatible_magazine_type',
+            "magazine type": 'magazine_type',
+            "magazine size": 'magazine_size',
+            "magazine capacity": 'mag_capacity',
+            "compatible round": 'compatible_bullet_type',
+            "fits bodypart": 'fits_bodypart',
+            "protection": 'protection',
+            "large mag slots": 'large_mag_slots',
+            "medium mag slots": 'medium_mag_slots',
+            "small mag slots": '.mall_mag_slots',
+            "round type": 'bullet_type',
+            "damage modifier": 'meat_damage',
+            "armour damage modifier": 'armour_damage',
+            "sound radius modifier": 'sound_modifier',
+            "recoil modifier": 'recoil_modifier',
+            "healing amount": 'amount',
+        }
 
-                fire_modes = ""
+        for key, value in additonal_info.items():
+            if hasattr(item.usable_properties, value):
+                item_info[key] = getattr(item.usable_properties, value)
 
-                for key, value in item.usable_properties.fire_modes.items():
-                    if key == "single shot":
-                        fire_modes += f"single shot,"
-                    else:
-                        fire_modes += f"{key} - {value}RPM,"
-
-                part_str = ""
-                for part in item.usable_properties.parts.part_list:
-                    part_str += f"{part.name}, "
-
-                gun_info = {
-                    "damage": item.usable_properties.base_meat_damage,
-                    "armour damage": item.usable_properties.base_armour_damage,
-                    "effective short range accuracy": item.usable_properties.close_range_accuracy,
-                    "effective range": item.usable_properties.range_accuracy_dropoff,
-                    "equip time": item.usable_properties.equip_time,
-                    "recoil": item.usable_properties.recoil,
-                    "fire modes": fire_modes,
-                    "shot sound radius": item.usable_properties.sound_radius,
-                    "parts": part_str
-                }
-
-                item_info.update(gun_info)
-
-                if isinstance(item.usable_properties, GunMagFed):
-
-                    gun_info = {
-                        "magazine type": item.usable_properties.compatible_magazine_type,
-                    }
-
-                    item_info.update(gun_info)
-
-                for key, value in item.usable_properties.parts.__dict__.items():
-                    if value in item.usable_properties.parts.part_list:
-                        gun_info[key] = value.name
-
-        if isinstance(item.usable_properties, Magazine):
-            mag_info = {
-                "magazine capacity": item.usable_properties.mag_capacity,
-                "round type": item.usable_properties.compatible_bullet_type,
-            }
-
-            if not isinstance(item.usable_properties, GunIntegratedMag):
-                item_info["magazine type"] = item.usable_properties.magazine_type
-                item_info["magazine size"] = item.usable_properties.magazine_size
-
-            item_info.update(mag_info)
-
-        if isinstance(item.usable_properties, Wearable):
-            armour_info = {
-                "fits bodypart": item.usable_properties.fits_bodypart,
-                "protection": item.usable_properties.protection,
-                "large mag slots": item.usable_properties.large_mag_slots,
-                "medium mag slots": item.usable_properties.medium_mag_slots,
-                "small mag slots": item.usable_properties.small_mag_slots,
-            }
-
-            item_info.update(armour_info)
-
-        if isinstance(item.usable_properties, Bullet):
-            bullet_info = {
-                "round type": item.usable_properties.bullet_type,
-                "damage modifier": item.usable_properties.meat_damage,
-                "armour damage modifier": item.usable_properties.armour_damage,
-                "sound radius modifier": item.usable_properties.sound_modifier,
-                "recoil modifier": item.usable_properties.recoil_modifier
-            }
-
-            item_info.update(bullet_info)
-
-        # TODO: show part info for component parts / rework to make more general
-
-        if isinstance(item.usable_properties, HealingConsumable):
-            item_info["healing amount"] = item.usable_properties.amount
+        if fire_modes != "":
+            item_info['fire modes'] = fire_modes
 
         self.item_info = item_info
 
@@ -1414,6 +1374,10 @@ class InspectItemViewer(AskUserEventHandler):
 
         y = 2
 
+        if self.inspect_parts_option:
+            console.print(x=2, y=y, string=f"(i) show parts")
+            y += 1
+
         for key, value in self.item_info.items():
             wrapper = textwrap.TextWrapper(width=32 - len(key))
             word_list = wrapper.wrap(text=str(value))
@@ -1421,3 +1385,28 @@ class InspectItemViewer(AskUserEventHandler):
             for string in word_list:
                 console.print(x=2 + len(key) + 3, y=y, string=string)
                 y += 1
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
+
+        key = event.sym
+
+        if key == tcod.event.K_i:
+            if self.inspect_parts_option:
+                return ShowParts(engine=self.engine, item=self.item)
+
+        elif key == tcod.event.K_ESCAPE:
+            return MainGameEventHandler(self.engine)
+
+
+class ShowParts(UserOptionsWithPages):
+
+    def __init__(self, engine, item):
+        title = f"parts - {item.name}"
+
+        super().__init__(engine=engine, options=item.usable_properties.parts.part_list, page=0, title=title)
+
+    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+
+        options = ['Inspect']
+        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
