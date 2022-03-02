@@ -1,7 +1,6 @@
 -----
 TO DO
-start implementing crafting recipes
-firearms parts and ammunition crafting - collectable data packages
+-start on sewer level
 
 17) more room shapes on level generation
 19) weapon graphics

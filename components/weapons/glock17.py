@@ -12,7 +12,7 @@ glock17_frame = Item(
     name="Glock 17 Frame",
     weight=0.2,
     stacking=None,
-    usable_properties=ComponentPart(part_type='glock17_frame', incompatible_parts=[], material=polymer),
+    usable_properties=ComponentPart(part_type='glock17_frame', incompatible_parts=[], material={polymer: 1}),
     description='glock barrel'
 )
 
@@ -24,7 +24,7 @@ glock17_slide = Item(
     name="Glock 17 Slide",
     weight=0.2,
     stacking=None,
-    usable_properties=ComponentPart(part_type='glock17_slide', incompatible_parts=[], material=steel),
+    usable_properties=ComponentPart(part_type='glock17_slide', incompatible_parts=[], material={steel: 1}),
     description='glock slide'
 )
 
@@ -37,7 +37,7 @@ glock17_barrel = Item(
     weight=0.2,
     stacking=None,
     usable_properties=ComponentPart(part_type='glock17_barrel', prefix='standard', incompatible_parts=[],
-                                    material=steel),
+                                    material={steel: 1}),
     description='glock barrel'
 )
 
@@ -49,7 +49,7 @@ glock_stock = Item(
     name="Glock Stock",
     weight=0.4,
     stacking=None,
-    usable_properties=ComponentPart(part_type='glock_stock', incompatible_parts=[], material=polymer),
+    usable_properties=ComponentPart(part_type='glock_stock', incompatible_parts=[], material={polymer: 1}),
     description='glock stock'
 )
 

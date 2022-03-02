@@ -11,8 +11,7 @@ import tcod.event
 from entity import Item
 import actions
 from components.weapons.gundict import guns_dict
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart, Wearable, \
-    Weapon, HealingConsumable
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart
 #from components.weapons.bullets import bullet_crafting_dict
 #from components.weapons.magazines import magazine_crafting_dict
 from actions import (
@@ -497,7 +496,6 @@ class TypeAmountEventHandler(AskUserEventHandler):
         super().__init__(engine)
         self.item = item
         self.engine = engine
-        self.pick_up_amount = 0
         self.buffer = ''
         self.prompt_string = prompt_string
 
@@ -533,13 +531,13 @@ class TypeAmountEventHandler(AskUserEventHandler):
 
                         elif event.scancode == tcod.event.SCANCODE_RETURN:
 
-                            if self.buffer == '':
+                            if self.buffer == '' or int(self.buffer) < 1:
                                 self.buffer = f'{self.item.stacking.stack_size}'
 
                             return self.on_option_selected()
 
                     except AttributeError:
-                        pass
+                        self.buffer = f'{self.item.stacking.stack_size}'
 
             else:
                 self.buffer = '1'
@@ -556,7 +554,7 @@ class TypeAmountEventHandler(AskUserEventHandler):
 class InventoryEventHandler(UserOptionsWithPages):
 
     def __init__(self, engine: Engine):
-        title = "Inventory" + f" - {engine.player.inventory.current_item_weight()}" \
+        title = "Inventory" + f" - {round(engine.player.inventory.current_item_weight(), 2)}" \
                                   f"/{engine.player.inventory.capacity}kg"
 
         super().__init__(engine=engine, options=engine.player.inventory.items, page=0, title=title)
@@ -629,17 +627,45 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 return MainGameEventHandler(self.engine)
 
         elif option == 'Scrap':
-            scrap_item = deepcopy(self.item.usable_properties.material)
-            if self.item.stacking:
-                scrap_item.stacking.stack_size = self.item.stacking.stack_size
-
-            scrap_item.parent = self.engine.player.inventory
-            self.engine.player.inventory.items.append(scrap_item)
-            self.engine.player.inventory.items.remove(self.item)
-            return MainGameEventHandler(self.engine)
+            return AmountToScrap(item=self.item, engine=self.engine)
 
         elif option == 'Inspect':
             return InspectItemViewer(engine=self.engine, item=self.item)
+
+        else:
+            self.engine.message_log.add_message("Invalid entry", colour.RED)
+
+
+class AmountToScrap(TypeAmountEventHandler):
+    def __init__(self, engine: Engine, item: Item):
+        super().__init__(engine=engine, item=item, prompt_string="amount to scrap (leave blank for all):")
+
+    def on_option_selected(self) -> Optional[ActionOrHandler]:
+
+        successful = True
+
+        if self.item.stacking.stack_size < int(self.buffer):
+            successful = False
+
+        scrap_dict = deepcopy(self.item.usable_properties.material)
+
+        if successful:
+
+            for key, value in scrap_dict.items():
+                scrap_item = key
+                scrap_item.stacking.stack_size = value
+                scrap_item.parent = self.engine.player.inventory
+                scrap_item.stacking.stack_size = self.item.stacking.stack_size * int(self.buffer)
+                scrap_item.append(self.engine.player.inventory.items)
+
+            if self.item.stacking.stack_size == int(self.buffer):
+                self.engine.player.inventory.items.remove(self.item)
+
+            else:
+                self.item.stacking.stack_size -= int(self.buffer)
+
+            self.engine.handle_enemy_turns()
+            return MainGameEventHandler(self.engine)
 
         else:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -1118,7 +1144,7 @@ class CraftingEventHandler(UserOptionsEventHandler):
         """
         elif option == 'gun parts':
             return SelectItemToCraft(engine=self.engine, item_dict=, title='gun part crafting')
-
+        
         elif option == 'ammo':
             return SelectItemToCraft(engine=self.engine, item_dict=bullet_crafting_dict, title='ammo crafting')
 
@@ -1138,6 +1164,7 @@ class SelectItemToCraft(UserOptionsWithPages):
 
         options = []
 
+        # if crafting recipe is available, adds it to options
         for option in list(item_dict.keys()):
             if option in engine.player.crafting_recipes:
                 options.append(option)
@@ -1153,21 +1180,23 @@ class SelectItemToCraft(UserOptionsWithPages):
 
             available_compatible_parts = []
 
-            for part in self.item_dict[option]["compatible parts"]:
+            # finds compatible component parts in inventory
+            for part in list(self.item_dict[option]["compatible parts"].keys()):
                 for item in self.engine.player.inventory.items:
                     if isinstance(item.usable_properties, ComponentPart):
                         if item.usable_properties.part_type == part:
                             available_compatible_parts.append(part)
 
             # all required and compatible parts
-            parts = self.item_dict[option]["required parts"] + available_compatible_parts
+            parts = list(self.item_dict[option]["required parts"].keys()) + available_compatible_parts
 
             # adds all required and compatible parts to the dictionary and sets
             # their value to None before player selects
             for part in parts:
                 part_dict[part] = None
-            return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0, parts=parts,
-                             item_dict=self.item_dict, incompatibilities=[])
+
+            return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0,
+                             item_dict=self.item_dict, incompatibilities=[], part_dict=part_dict)
 
         # dictionary selected does not have parts list
         else:
@@ -1175,17 +1204,19 @@ class SelectItemToCraft(UserOptionsWithPages):
 
 
 class CraftItem(UserOptionsWithPages):
-    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, parts: list, item_dict: dict,
-                 incompatibilities: list):
+    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, item_dict: dict,
+                 incompatibilities: list, part_dict: dict):
+
+        # values of all parts
+        self.part_dict = part_dict
 
         self.item_name = item_to_craft
-        self.item_to_craft = item_dict[item_to_craft]
 
-        # all parts with their values
+        # item crafting dict
         self.item_dict = item_dict
 
         # all part keys in list format
-        self.parts = parts
+        self.parts = list(part_dict.keys())
 
         # index of current part to be selected set to first part
         self.current_part_selection = current_part_index
@@ -1215,58 +1246,101 @@ class CraftItem(UserOptionsWithPages):
 
         if not option == 'none':
             # sets part in part dict to be the selected part
-            self.item_dict[self.parts[self.current_part_selection]] = option
+            self.part_dict[self.parts[self.current_part_selection]] = option
 
+        # part is last part to select
         if self.parts[self.current_part_selection] == self.parts[-1]:
             item = self.item_dict[self.item_name]['item']
+            # if stacking item, asks player how many they want to make
+
+            print(self.part_dict)
 
             if item.stacking:
-                return CraftAmountEventHander(item=item, engine=self.engine, itemdict=self.item_dict)
+                return CraftAmountEventHander(item=item, engine=self.engine, itemdict=self.item_dict,
+                                              part_dict=self.part_dict, item_name=self.item_name)
 
             else:
-                for key, value in self.item_dict.items():
+
+                craftable = True
+
+                # all possible components with the amount required to craft
+                full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
+                                  **self.item_dict[self.item_name]['required parts']}
+
+                for key, value in self.part_dict.items():
                     if value is not None:
                         if value in self.engine.player.inventory.items:
-                            self.engine.player.inventory.items.remove(value)
+
+                            # if crafting component in inventory is stacking, removes appropriate amount of item from
+                            # inventory
+                            if value.stacking:
+                                if value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] > 0:
+                                    value.stacking.stack_size -= full_part_dict[value.usable_properties.part_type]
+                                elif value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] == 0:
+                                    self.engine.player.inventory.items.remove(value)
+                                else:
+                                    craftable = False
+
+                            # not stacking, removes from inventory
+                            else:
+                                self.engine.player.inventory.items.remove(value)
+
                         setattr(item.usable_properties.parts, key, value)
 
-            item.usable_properties.parts.update_partlist()
-            item.parent = self.engine.player.inventory
+            if craftable:
+                item.usable_properties.parts.update_partlist()
+                item.parent = self.engine.player.inventory
 
-            turns_taken = 0
-            while turns_taken < 5:  # TODO: replace with range
-                turns_taken += 1
-                self.engine.handle_enemy_turns()
+                turns_taken = 0
+                while turns_taken < 5:  # TODO: replace with range
+                    turns_taken += 1
+                    self.engine.handle_enemy_turns()
 
-            self.engine.player.inventory.items.append(item)
-            return MainGameEventHandler(engine=self.engine)
+                self.engine.player.inventory.items.append(item)
+                return MainGameEventHandler(engine=self.engine)
+
+            else:
+                self.engine.message_log.add_message("Insufficient materials", colour.RED)
+                return MainGameEventHandler(engine=self.engine)
 
         else:
             self.current_part_selection += 1
             return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
-                             item_to_craft=self.item_name, parts=self.parts, item_dict=self.item_dict,
-                             incompatibilities=self.incompatibilities)
+                             item_to_craft=self.item_name, item_dict=self.item_dict,
+                             incompatibilities=self.incompatibilities, part_dict=self.part_dict)
 
 
 class CraftAmountEventHander(TypeAmountEventHandler):
 
-    def __init__(self, item, engine: Engine, itemdict):
+    def __init__(self, item, engine: Engine, itemdict: dict, item_name: str, part_dict: dict):
         self.item_dict = itemdict
+        self.part_dict = part_dict
+        self.item_name = item_name
         super().__init__(engine=engine, item=item, prompt_string="Amount to craft: ")
 
     def on_option_selected(self) -> Optional[ActionOrHandler]:
         craftable = True
 
-        for key, value in self.item_dict.items():
+        full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
+                          **self.item_dict[self.item_name]['required parts']}
+
+        for key, value in self.part_dict.items():
             if value is not None:
-                for item in self.engine.player.inventory.items:
-                    if item.name == value.name:
-                        if item.stacking.stack_size < int(self.buffer):
-                            craftable = False
-                        elif item.stacking.stack_size == int(self.buffer):
+                if value in self.engine.player.inventory.items:
+
+                    # if crafting component in inventory is stacking, removes appropriate amount of item from
+                    # inventory
+                    if value.stacking:
+                        if value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] \
+                                * int(self.buffer) > 0:
+                            value.stacking.stack_size -= full_part_dict[value.usable_properties.part_type] \
+                                                         * int(self.buffer)
+                        elif value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] \
+                                * int(self.buffer) == 0:
                             self.engine.player.inventory.items.remove(value)
                         else:
-                            item.stacking.stack_size -= int(self.buffer)
+                            craftable = False
+
                 setattr(self.item.usable_properties.parts, key, value)
 
         if craftable:
@@ -1374,10 +1448,6 @@ class InspectItemViewer(AskUserEventHandler):
 
         y = 2
 
-        if self.inspect_parts_option:
-            console.print(x=2, y=y, string=f"(i) show parts")
-            y += 1
-
         for key, value in self.item_info.items():
             wrapper = textwrap.TextWrapper(width=32 - len(key))
             word_list = wrapper.wrap(text=str(value))
@@ -1385,6 +1455,9 @@ class InspectItemViewer(AskUserEventHandler):
             for string in word_list:
                 console.print(x=2 + len(key) + 3, y=y, string=string)
                 y += 1
+        
+        if self.inspect_parts_option:
+            console.print(x=2, y=y+1, string=f"(i) show parts")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
 
@@ -1408,5 +1481,4 @@ class ShowParts(UserOptionsWithPages):
     def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
-        options = ['Inspect']
-        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
+        return InspectItemViewer(item=item, engine=self.engine)

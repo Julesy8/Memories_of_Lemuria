@@ -592,7 +592,7 @@ class GunIntegratedMag(Gun, Magazine):
 
 
 class ComponentPart(Usable):
-    def __init__(self, part_type: str, incompatible_parts: list, material: Item = None, disassemblable=True, **kwargs):
+    def __init__(self, part_type: str, incompatible_parts: list, material: dict = None, disassemblable=True, **kwargs):
         self.disassemblable = disassemblable
         self.material = material
         self.part_type = part_type
