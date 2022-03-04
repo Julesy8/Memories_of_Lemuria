@@ -106,6 +106,7 @@ class Actor(Entity):
             active_radius=10,
             bleeds=True,
             fears_death=True,
+            drops_items=False,
             player: bool = False,
             leaves_corpse: bool = True
     ):
@@ -134,6 +135,7 @@ class Actor(Entity):
         for bodypart in self.bodyparts:
             bodypart.parent = self
         self.can_spawn_armed = can_spawn_armed
+        self.drops_items = drops_items
 
         # original values before changes occur i.e. crippled limbs
         self.attack_interval_original = attack_interval

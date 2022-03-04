@@ -1,7 +1,6 @@
 from numpy import array
 from components.enemies.caverns import *
-
-import components.weapons.glock17
+from components.commonitems import medkit
 
 # this dictionary has the parameters for all the levels in the game
 # NOTE: map width/height must be larger than screen size!
@@ -24,18 +23,18 @@ level_names = {
 # these dictionaries contain lists of the enemies that should appear on a given level
 
 Enemies_by_level = {
-    0: (
+    0:
         (
-         placeholder_common,
-         placeholder_uncommon
+         [giant_snake, 1],
+         [large_rat, 3]
          ),
-        (1, 1)
-    )
+
 }
 
 Items_by_level = {
-    0: (
-        (medkit, medkit),
-        (1, 1)
-    )
+    0:
+        (
+        [medkit, 1],
+        [medkit, 1]
+        ),
 }

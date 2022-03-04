@@ -54,10 +54,10 @@ glock_stock = Item(
 )
 
 glock_parts_dict = {
-    "glock17_frame": ([glock17_frame], [1]),
-    "glock17_slide": ([glock17_slide], [1]),
-    "glock17_barrel": ([glock17_barrel], [1]),
-    "glock_stock": ([None, glock_stock], [1,1]),
+    "glock17_frame": ([glock17_frame, 1], [glock17_frame, 1]),
+    "glock17_slide": ([glock17_slide, 1], [glock17_slide, 1]),
+    "glock17_barrel": ([glock17_barrel, 1], [glock17_barrel, 1]),
+    "glock_stock": ([None, 1], [glock_stock, 1]),
 }
 
 glock_17 = Item(

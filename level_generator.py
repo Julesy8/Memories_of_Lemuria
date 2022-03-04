@@ -3,17 +3,16 @@ import copy
 from random import random, randint, choice, choices
 from copy import deepcopy
 
-from components.datapacks import datapackdict
+from components.enemies.equipment import enemy_equipment
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level, Items_by_level
 from tile_types import down_stairs
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, RecipeUnlock
+from components.consumables import Gun, GunIntegratedMag, GunMagFed
 from components.weapons.bullets import bullet_dict
 from components.weapons.magazines import magazine_dict
-from components.enemies.caverns import caverns_enemies
-from entity import Entity, Item
+from entity import Entity
 import colour
 from render_order import RenderOrder
 
@@ -41,6 +40,20 @@ class MessyBSPTree:
         self.max_items_per_room = max_items_per_room
         self.player = engine.player
         self._rooms = []
+
+        self.enemy_population = []
+        self.enemy_weight = []
+
+        self.item_population = []
+        self.item_weight = []
+
+        for i in Enemies_by_level[self.current_level]:
+            self.enemy_population.append(i[0])
+            self.enemy_weight.append(i[1])
+
+        for i in Items_by_level[self.current_level]:
+            self.item_population.append(i[0])
+            self.item_weight.append(i[1])
 
         # makes tuple of possible combinations of tile colours and characters
         self.colours_chars_tuple = MapColoursChars(current_level)
@@ -93,8 +106,7 @@ class MessyBSPTree:
                 self.player.place(room_centre_x, room_centre_y, self.dungeon)
 
             else:
-                place_entities(room, self.dungeon, self.max_monsters_per_room,
-                               self.max_items_per_room, self.current_level)
+                self.place_entities(room)
 
             if room == self._rooms[stair_room]:
                 room_centre_x, room_centre_y = room.centre()
@@ -187,6 +199,124 @@ class MessyBSPTree:
     def createVirTunnel(self, y1, y2, x):
         for y in range(min(y1, y2), max(y1, y2) + 1):
             self.dungeon.tiles[x, y] = select_random_tile(self.colours_chars_array)
+
+    def place_entities(self, room: Rect):
+        number_of_monsters = randint(0, self.max_monsters_per_room)
+        number_of_items = randint(0, self.max_items_per_room)
+
+        for i in range(number_of_monsters):
+            x = randint(room.x1 + 1, room.x2 - 1)
+            y = randint(room.y1 + 1, room.y2 - 1)
+
+            if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities):
+                # place enemy
+                enemy = copy.deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
+                                              k=1)[0])
+                enemy.place(x, y, self.dungeon)
+
+                if enemy.can_spawn_armed:
+
+                    weapon_pop = []
+                    weapon_weight = []
+
+                    for weapon in enemy_equipment[enemy.name]["weapons"]:
+                        weapon_pop.append(weapon[0])
+                        weapon_weight.append(weapon[1])
+
+                    # selects weapon for given entity
+                    enemy.inventory.held = copy.deepcopy(choices(population=weapon_pop, weights=weapon_weight, k=1)[0])
+
+                    # weapon selected
+                    if enemy.inventory.held is not None:
+
+                        weapon = enemy.inventory.held
+                        weapon.parent = enemy.inventory
+
+                        # if the weapon is a gun, generates gun parts and updates part list
+                        if isinstance(weapon.usable_properties, Gun):
+                            gun_parts = []
+
+                            # selects parts from possible parts
+                            for value in weapon.usable_properties.possible_parts.values():
+
+                                part_pop = []
+                                part_weight = []
+
+                                for possible_part in value:
+                                    part_pop.append(possible_part[0])
+                                    part_weight.append(possible_part[1])
+
+                                part_selected = choices(population=part_pop, weights=part_weight)[0]
+                                gun_parts.append(part_selected)
+
+                            for part in gun_parts:
+                                if part is not None:
+                                    setattr(weapon.usable_properties.parts, part.usable_properties.part_type, part)
+
+                            weapon.usable_properties.parts.update_partlist()
+
+                            # gives gun magazine if mag fed
+                            if isinstance(weapon.usable_properties, GunMagFed):
+
+                                mag_pop = []
+                                mag_weight = []
+
+                                for mag in magazine_dict[weapon.usable_properties.compatible_magazine_type]:
+                                    mag_pop.append(mag[0])
+                                    mag_weight.append(mag[1])
+
+                                # sets gun loaded magazine to magazine compatible with held gun
+                                enemy.inventory.held.usable_properties.loaded_magazine = copy.deepcopy(choices(
+                                    population=mag_pop, weights=mag_weight, k=1)[0])
+
+                                magazine = weapon.usable_properties.loaded_magazine
+
+                                magazine.parent = enemy.inventory
+
+                                ammo_pop = []
+                                ammo_weight = []
+
+                                for bullet in bullet_dict[magazine.usable_properties.compatible_bullet_type]:
+                                    ammo_pop.append(bullet[0])
+                                    ammo_weight.append(bullet[1])
+
+                                # selects appropriate ammo type for magazine and chamber
+                                ammo = copy.deepcopy(choices(population=ammo_pop, weights=ammo_weight, k=1)[0])
+
+                                ammo.stacking.stack_size = magazine.usable_properties.mag_capacity
+
+                                magazine.usable_properties.load_magazine(ammo=ammo, load_amount=ammo.stacking.stack_size)
+
+                                weapon.usable_properties.previously_loaded_magazine = \
+                                    copy.deepcopy(magazine)
+
+                                weapon.usable_properties.chambered_bullet = \
+                                    copy.deepcopy(magazine.usable_properties.magazine[-1])
+
+                            # loads gun with bullets if gun has integrated magazine
+                            if isinstance(weapon.usable_properties, GunIntegratedMag):
+
+                                ammo_pop = []
+                                ammo_weight = []
+
+                                for bullet in bullet_dict[weapon.usable_properties.compatible_bullet_type]["bullet_items"]:
+                                    ammo_pop.append(bullet[0])
+                                    ammo_weight.append(bullet[1])
+
+                                ammo = copy.deepcopy(choices(population=ammo_pop, weights=ammo_weight, k=1)[0])
+
+                                ammo.stacking.stack_size = weapon.usable_properties.mag_capacity
+
+                                weapon.usable_properties.load_magazine(ammo=ammo, load_amount=ammo.stacking.stack_size)
+
+        for i in range(number_of_items):
+            x = randint(room.x1 + 1, room.x2 - 1)
+            y = randint(room.y1 + 1, room.y2 - 1)
+
+            if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities) and \
+                    self.dungeon.tiles[x, y] != down_stairs:
+                item = copy.deepcopy(choices(population=self.item_population, weights=self.item_weight, k=1)[0])
+                item.place(x, y, self.dungeon)
 
 
 class Leaf:  # used for the BSP tree algorithm
@@ -289,110 +419,3 @@ class Leaf:  # used for the BSP tree algorithm
                 return self.room_1
             else:
                 return self.room_2
-
-
-def place_entities(room: Rect, dungeon: GameMap, maximum_monsters: int, maximum_items: int, level: int):
-    number_of_monsters = randint(0, maximum_monsters)
-    number_of_items = randint(0, maximum_items)
-
-    for i in range(number_of_monsters):
-        x = randint(room.x1 + 1, room.x2 - 1)
-        y = randint(room.y1 + 1, room.y2 - 1)
-
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
-            # place enemy
-            enemy = copy.deepcopy(choices(population=Enemies_by_level[level][0], weights=Enemies_by_level[level][1],
-                                          k=1)[0])
-            enemy.place(x, y, dungeon)
-
-            # places random item in inventory
-            inventory_item = copy.deepcopy(choices(population=caverns_enemies[enemy.name]["inventory items"],
-                                                   weights=caverns_enemies[enemy.name]["inventory items weight"],
-                                                   k=1)[0])
-
-            if isinstance(inventory_item, Item):
-                inventory_item.parent = enemy.inventory
-                enemy.inventory.items.append(inventory_item)
-
-                # gives PDA datapack properties
-                if inventory_item.name == 'PDA':
-                    inventory_item.usable_properties = RecipeUnlock(choices(population=datapackdict[level][0],
-                                                                            weights=datapackdict[level][1], k=1)[0])
-
-                inventory_item.usable_properties.parent = inventory_item
-
-            if enemy.can_spawn_armed:
-                # selects weapon for given entity
-                enemy.inventory.held = copy.deepcopy(choices(population=caverns_enemies[enemy.name]["weapons"],
-                                                             weights=caverns_enemies[enemy.name]["weapon weight"],
-                                                             k=1)[0])
-
-                # weapon selected
-                if enemy.inventory.held is not None:
-
-                    weapon = enemy.inventory.held
-                    weapon.parent = enemy.inventory
-
-                    # if the weapon is a gun, generates gun parts and updates part list
-                    if isinstance(weapon.usable_properties, Gun):
-                        gun_parts = []
-
-                        # selects parts from possible parts
-                        for value in weapon.usable_properties.possible_parts.values():
-                            part_selected = choices(population=value[0], weights=value[1])[0]
-                            gun_parts.append(part_selected)
-
-                        for part in gun_parts:
-                            if part is not None:
-                                setattr(weapon.usable_properties.parts, part.usable_properties.part_type, part)
-
-                        weapon.usable_properties.parts.update_partlist()
-
-                        # gives gun magazine if mag fed
-                        if isinstance(weapon.usable_properties, GunMagFed):
-                            # sets gun loaded magazine to magazine compatible with held gun
-                            enemy.inventory.held.usable_properties.loaded_magazine = copy.deepcopy(choices(
-                                population=magazine_dict[weapon.usable_properties.compatible_magazine_type][
-                                    "mag_items"],
-                                weights=magazine_dict[weapon.usable_properties.compatible_magazine_type]["mag_weight"],
-                                k=1)[0])
-
-                            magazine = weapon.usable_properties.loaded_magazine
-
-                            magazine.parent = enemy.inventory
-
-                            # selects appropriate ammo type for magazine and chamber
-                            ammo = copy.deepcopy(choices(population=bullet_dict[magazine.usable_properties.
-                                                         compatible_bullet_type]["bullet_items"],
-                                                         weights=bullet_dict[magazine.usable_properties.
-                                                         compatible_bullet_type]["bullet_weight"], k=1)[0])
-
-                            ammo.stacking.stack_size = magazine.usable_properties.mag_capacity
-
-                            magazine.usable_properties.load_magazine(ammo=ammo, load_amount=ammo.stacking.stack_size)
-
-                            weapon.usable_properties.previously_loaded_magazine = \
-                                copy.deepcopy(magazine)
-
-                            weapon.usable_properties.chambered_bullet = \
-                                copy.deepcopy(magazine.usable_properties.magazine[-1])
-
-                        # loads gun with bullets if gun has integrated magazine
-                        if isinstance(weapon.usable_properties, GunIntegratedMag):
-                            ammo = copy.deepcopy(choices(population=bullet_dict[weapon.usable_properties.
-                                                         compatible_bullet_type]["bullet_items"],
-                                                         weights=bullet_dict[weapon.usable_properties.
-                                                         compatible_bullet_type]["bullet_weight"], k=1)[0])
-
-                            ammo.stacking.stack_size = weapon.usable_properties.mag_capacity
-
-                            weapon.usable_properties.load_magazine(ammo=ammo, load_amount=ammo.stacking.stack_size)
-
-    for i in range(number_of_items):
-        x = randint(room.x1 + 1, room.x2 - 1)
-        y = randint(room.y1 + 1, room.y2 - 1)
-
-        if not any(entity.x == x and entity.y == y for entity in dungeon.entities) and dungeon.tiles[
-            x, y] != down_stairs:
-            item = copy.deepcopy(choices(population=Items_by_level[level][0], weights=Items_by_level[level][1], k=1)[0])
-            item.place(x, y, dungeon)

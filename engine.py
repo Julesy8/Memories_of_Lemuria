@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class Engine:
     game_map: GameMap
 
-    def __init__(self, player: Actor, current_level: int, current_floor:int):
+    def __init__(self, player: Actor, current_level: int, current_floor: int):
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
         self.current_level = current_level  # denotes the floor type

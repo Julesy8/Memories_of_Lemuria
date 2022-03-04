@@ -3,12 +3,16 @@ from __future__ import annotations
 from random import randint
 from math import floor
 from typing import Optional, TYPE_CHECKING
+from copy import deepcopy
+from random import choices
 
-from entity import Actor, Entity
+from components.consumables import RecipeUnlock
+from components.datapacks import datapackdict
+from entity import Actor, Entity, Item
+from components.enemies.equipment import enemy_equipment
 import colour
 
 if TYPE_CHECKING:
-    from entity import Item
     from engine import Engine
 
 
@@ -87,8 +91,36 @@ class Bodypart:
 
         entity.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
-        for item in self.parent.inventory.items:
-            item.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+        item_pop = []
+        item_weight = []
+
+        # puts items in enemy inventory
+        if self.parent.drops_items:
+            for item in enemy_equipment[self.parent.name]["dropped items"]:
+                item_pop.append(item[0])
+                item_weight.append(item[1])
+
+            # places random item in inventory
+            item_drop = deepcopy(choices(population=item_pop, weights=item_weight, k=1)[0])
+
+            if isinstance(item_drop, Item):
+
+                # gives PDA datapack properties
+                if item_drop.name == 'PDA':
+
+                    data_pack_pop = []
+                    data_pack_weight = []
+
+                    for i in datapackdict[self.engine.current_level]:
+                        data_pack_pop.append(i[0])
+                        data_pack_weight.append(i[1])
+
+                    item_drop.usable_properties = RecipeUnlock(choices(population=data_pack_pop,
+                                                                       weights=data_pack_weight, k=1)[0])
+
+                item_drop.usable_properties.parent = item_drop
+
+                item_drop.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
         if self.parent.inventory.held is not None:
             self.parent.inventory.held.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)

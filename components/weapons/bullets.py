@@ -62,10 +62,7 @@ bullet_9mm = Item(
 )
 
 bullet_dict = {
-    "9mm": {
-        "bullet_items": [round_9mm],
-        "bullet_weight": [1]
-    }
+    "9mm": ([round_9mm, 1], [round_9mm, 1])
 }
 
 bullet_crafting_dict = {

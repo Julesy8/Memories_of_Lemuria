@@ -2,6 +2,30 @@ from entity import Item, Stacking
 from components import consumables
 import colour
 
+pda = Item(
+    x=0, y=0,
+    char="{",
+    fg_colour=colour.JADE,
+    bg_colour=None,
+    stacking=None,
+    name="PDA",
+    weight=1,
+    description='contains data',
+    usable_properties=consumables.Usable(),
+)
+
+medkit = Item(
+    x=0, y=0,
+    char="+",
+    fg_colour=colour.GREEN,
+    bg_colour=None,
+    name="Medkit",
+    weight=1,
+    stacking=Stacking(stack_size=1),
+    description='heals you',
+    usable_properties=consumables.HealingConsumable(amount=20),
+)
+
 steel = Item(
     x=0, y=0,
     char="*",

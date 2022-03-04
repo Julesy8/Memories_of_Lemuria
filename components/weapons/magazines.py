@@ -21,10 +21,7 @@ glock_mag_9mm = Item(
 )
 
 magazine_dict = {
-    "glock9mm": {
-        "mag_items": [glock_mag_9mm],
-        "mag_weight": [1]
-    }
+    "glock9mm": ([glock_mag_9mm, 1], [glock_mag_9mm, 1])
 }
 
 magazine_crafting_dict = {

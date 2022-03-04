@@ -2,5 +2,5 @@ glock = ['Glock 17', 'Glock Parts', 'Glock 17 Barrel', 'Glock 17 Frame', 'Glock 
          'Glock Magazine 9mm - 17 Round']
 
 datapackdict = {
-    0: ([glock, glock],(1,1))
+    0: ([glock, 1], [glock, 1])
 }

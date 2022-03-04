@@ -1,87 +1,53 @@
 from components.npc_templates import Fighter
-from entity import Actor, Item, Stacking
+from entity import Actor
 from components.ai import HostileEnemy
 from components.bodyparts import Arm, Leg, Head, Body
-from components import consumables
 from components.inventory import Inventory
 import colour
 
-import components.weapons.glock17
-
 
 def placeholder_fighter():
-    return Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
+    return Fighter(unarmed_meat_damage=5, unarmed_armour_damage=5)
 
 
-Head_part = Head(hp=10, defence=5)
-Body_part = Body(hp=10, defence=5)
-R_Arm = Arm(hp=10, defence=5, name='right arm')
-L_Arm = Arm(hp=10, defence=5, name='left arm')
-R_Leg = Leg(hp=10, defence=5, name='right leg')
-L_Leg = Leg(hp=10, defence=5, name='left leg')
+#Head_part = Head(hp=10, defence=5)
+#Body_part = Body(hp=10, defence=5)
+#R_Arm = Arm(hp=10, defence=5, name='right arm')
+#L_Arm = Arm(hp=10, defence=5, name='left arm')
+#R_Leg = Leg(hp=10, defence=5, name='right leg')
+#L_Leg = Leg(hp=10, defence=5, name='left leg')
 
-body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
+#body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
-pda = Item(
+giant_snake = Actor(
     x=0, y=0,
-    char="{",
+    char='s',
     fg_colour=colour.JADE,
     bg_colour=None,
-    stacking=None,
-    name="PDA",
-    weight=1,
-    description='contains data',
-    usable_properties=consumables.Usable(),
-)
-
-medkit = Item(
-    x=0, y=0,
-    char="+",
-    fg_colour=colour.GREEN,
-    bg_colour=None,
-    name="Medkit",
-    weight=1,
-    stacking=Stacking(stack_size=1),
-    description='heals you',
-    usable_properties=consumables.HealingConsumable(amount=20),
-)
-
-placeholder_common = Actor(
-    x=0, y=0,
-    char='N',
-    fg_colour=colour.WHITE,
-    bg_colour=None,
-    name='Placeholder',
-    fighter=placeholder_fighter(),
+    name='Giant Snake',
+    fighter=Fighter(unarmed_meat_damage=5, unarmed_armour_damage=5),
     ai=HostileEnemy,
-    bodyparts=body_parts,
+    bodyparts=(Body(hp=10, defence=5), Head(hp=10, defence=5)),
     inventory=Inventory(capacity=0),
-    can_spawn_armed=True,
+    can_spawn_armed=False,
+    fears_death=False,
 )
 
-placeholder_uncommon = Actor(
+large_rat = Actor(
     x=0, y=0,
-    char='N',
-    fg_colour=colour.GREEN,
+    char='r',
+    fg_colour=colour.BROWN,
     bg_colour=None,
-    name='Placeholder',
-    fighter=placeholder_fighter(),
+    name='Large Rat',
+    fighter=Fighter(unarmed_meat_damage=5, unarmed_armour_damage=5),
     ai=HostileEnemy,
-    bodyparts=body_parts,
+    bodyparts=(Body(hp=10, defence=5), Head(hp=10, defence=5), ),
     inventory=Inventory(capacity=0),
-    can_spawn_armed=True,
+    can_spawn_armed=False,
+    fears_death=False,
+    drops_items=True,
 )
 
-caverns_enemies = {
-    'Placeholder': {
-        'weapons': [None, components.weapons.glock17.glock_17],
-        'weapon weight': [2, 1],
-        'armour': [],
-        'armour weight': [],
-        'inventory items': [None, medkit, pda],
-        'inventory items weight': [2, 1, 3],
-    }
-}
 
 
 
