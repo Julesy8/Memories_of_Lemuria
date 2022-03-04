@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import List, TYPE_CHECKING
+from copy import deepcopy
+from colour import RED
 
 from components.npc_templates import BaseComponent
 
@@ -23,6 +25,44 @@ class Inventory(BaseComponent):
         self.small_magazines = []
         self.medium_magazines = []
         self.large_magazines = []
+
+    def add_to_inventory(self, item: Item, item_container, amount: int):
+
+        item_copy = deepcopy(item)
+        stack_amount = 1
+
+        if self.current_item_weight() + item.weight * stack_amount > self.capacity:
+            self.engine.message_log.add_message("Inventory full.", RED)
+
+        else:
+            item_copy.parent = self
+
+            if item.stacking:
+
+                if 0 < amount <= item.stacking.stack_size:
+                    stack_amount = amount
+                else:
+                    stack_amount = item.stacking.stack_size
+
+                item_copy.stacking.stack_size = stack_amount
+
+                # if item of this type already in inventory, tries to add it to existing stack
+                repeat_found = False
+                for i in self.items:
+                    if i.name == item.name:
+                        repeat_item_index = self.items.index(i)
+                        self.items[repeat_item_index].stacking.stack_size += item_copy.stacking.stack_size
+                        repeat_found = True
+                if repeat_found:
+                    item.stacking.stack_size -= item_copy.stacking.stack_size
+                else:
+                    # item of this type not already present in inventory
+                    self.items.append(item_copy)
+
+            else:
+                self.items.append(item_copy)
+                if item_container is not None:
+                    item_container.remove(item)
 
     def current_item_weight(self) -> float:
         #  returns current combined weight of items in inventory

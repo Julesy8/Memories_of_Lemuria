@@ -28,10 +28,13 @@ magazine_dict = {
 }
 
 magazine_crafting_dict = {
-    "Glock Magazine 9mm - 17 rounds": {
-        "required parts": ["material"],
-        "compatible parts": [],
-        "parts names": ["Material"],
+    "Glock Magazine 9mm - 17 Round": {
+        "required parts": {
+            "polymer": 1,
+            "steel": 1,
+            },
+        "compatible parts": {},
+        "parts names": ["Material", "Material"],
         "item": glock_mag_9mm
     },
 }

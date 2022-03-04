@@ -4,6 +4,19 @@ from components.consumables import Bullet, ComponentPart
 from components.gunparts import Parts
 from components.commonitems import brass, lead
 
+propellant = Item(
+    x=0, y=0,
+    char="'",
+    fg_colour=colour.YELLOW,
+    bg_colour=None,
+    name='Smokeless Powder',
+    weight=0.0,
+    stacking=Stacking(stack_size=1),
+    description='Smokeless Powder',
+    usable_properties=ComponentPart(part_type="propellant", incompatible_parts=[], disassemblable=False)
+)
+
+
 round_9mm = Item(
     x=0, y=0,
     char="!",
@@ -33,7 +46,7 @@ brass_9mm = Item(
     weight=0.0,
     stacking=Stacking(stack_size=1),
     description='9mm bullet casing',
-    usable_properties=ComponentPart(part_type="brass_9mm", incompatible_parts=[], material=brass)
+    usable_properties=ComponentPart(part_type="brass_9mm", incompatible_parts=[], material={brass: 1})
 )
 
 bullet_9mm = Item(
@@ -45,7 +58,7 @@ bullet_9mm = Item(
     weight=0.0,
     stacking=Stacking(stack_size=1),
     description='9mm bullet',
-    usable_properties=ComponentPart(part_type="bullet_9mm", incompatible_parts=[], material=lead)
+    usable_properties=ComponentPart(part_type="bullet_9mm", incompatible_parts=[], material={lead: 1})
 )
 
 bullet_dict = {
@@ -56,10 +69,33 @@ bullet_dict = {
 }
 
 bullet_crafting_dict = {
-    "9mm Bullet": {
-        "required parts": ["brass_9mm", "bullet_9mm", "powder_charge"],
-        "compatible parts": [],
+    "9mm Round": {
+        "required parts": {
+            "brass_9mm": 1,
+            "bullet_9mm": 1,
+            "propellant": 1,
+            },
+        "compatible parts": {},
         "parts names": ["Casing", "Bullet", "Propellant"],
+        "item": round_9mm
+    },
+}
+
+bullet_part_crafting_dict = {
+    "9mm Bullet": {
+        "required parts": {
+            "lead": 1,
+            },
+        "compatible parts": {},
+        "parts names": ["Material"],
         "item": bullet_9mm
+    },
+    "9mm Brass": {
+        "required parts": {
+            "brass": 1,
+            },
+        "compatible parts": {},
+        "parts names": ["Material"],
+        "item": brass_9mm
     },
 }

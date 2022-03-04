@@ -226,49 +226,8 @@ class PickupAction(Action):
         self.pickup_amount = pickup_amount
 
     def perform(self) -> None:
-
-        stack_amount = 1
-
-        item_copy = deepcopy(self.item)
-        
-        if self.item.stacking:
-            if 0 < self.pickup_amount <= self.item.stacking.stack_size:
-                stack_amount = self.pickup_amount
-            else:
-                stack_amount = self.item.stacking.stack_size
-
-            item_copy.stacking.stack_size = stack_amount
-
-        # weight check
-        if self.entity.inventory.current_item_weight() + self.item.weight * stack_amount > \
-                self.entity.inventory.capacity:
-            raise exceptions.Impossible("Your inventory is full.")
-
-        if self.item.stacking:
-
-            # if item of this type already in inventory, tries to add it to existing stack
-            try:
-                for i in self.entity.inventory.items:
-                    if i.name == self.item.name:
-                        repeat_item_index = self.entity.inventory.items.index(i)
-                self.entity.inventory.items[repeat_item_index].stacking.stack_size += item_copy.stacking.stack_size
-
-            # item of this type not already present in inventory
-            except UnboundLocalError:
-                self.entity.inventory.items.append(item_copy)
-
-            # removes item from map / reduces item on map stack size
-            if self.item.stacking.stack_size - stack_amount > 0:
-                self.item.stacking.stack_size -= stack_amount
-            else:
-                self.engine.game_map.entities.remove(self.item)
-
-        # item not stacking
-        else:
-            self.entity.inventory.items.append(item_copy)
-            self.engine.game_map.entities.remove(self.item)
-
-        item_copy.parent = self.entity.inventory
+        self.entity.inventory.add_to_inventory(item=self.item, item_container=self.engine.game_map.entities,
+                                               amount=self.pickup_amount)
 
 
 class DropAction(Action):

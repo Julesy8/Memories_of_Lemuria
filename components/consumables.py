@@ -257,17 +257,7 @@ class Magazine(Usable):
 
                         bullet.stacking.stack_size = bullet_counter
 
-                        # if bullet of same type already in inventory, adds unloaded bullets to stack
-                        bullet_type_in_inventory = False
-
-                        for item in inventory.items:
-                            if item.name == bullet.name:
-                                item.stacking.stack_size += bullet.stacking.stack_size
-                                bullet_type_in_inventory = True
-
-                        # if no bullets of same type in inventory, adds to inventory
-                        if not bullet_type_in_inventory:
-                            inventory.items.append(bullet)
+                        inventory.add_to_inventory(item=bullet, item_container=None, amount=bullet_counter)
                 self.magazine = []
 
             else:

@@ -10,10 +10,11 @@ import tcod.event
 
 from entity import Item
 import actions
-from components.weapons.gundict import guns_dict
+from components.weapons.gundict import guns_dict, gun_parts_dict
 from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart
-#from components.weapons.bullets import bullet_crafting_dict
-#from components.weapons.magazines import magazine_crafting_dict
+from components.weapons.bullets import bullet_crafting_dict, bullet_part_crafting_dict
+from components.weapons.magazines import magazine_crafting_dict
+from components.armour import armour_crafting_dict
 from actions import (
     Action,
     BumpAction,
@@ -327,9 +328,14 @@ class UserOptionsEventHandler(AskUserEventHandler):
         longest_option_name = 0
 
         for option in self.options:
+
             if isinstance(option, Item):
-                if len(option.name) > longest_option_name:
-                    longest_option_name = len(option.name)
+                stack_size = 0
+
+                if option.stacking:
+                    stack_size = 3 + option.stacking.stack_size
+                if len(option.name) + stack_size > longest_option_name:
+                    longest_option_name = len(option.name) + stack_size
             else:
                 if len(option) > longest_option_name:
                     longest_option_name = len(option)
@@ -345,7 +351,7 @@ class UserOptionsEventHandler(AskUserEventHandler):
         console.draw_frame(
             x=x,
             y=y,
-            width=width + 6,
+            width=width + 8,
             height=len(self.options) + 2,
             title=self.TITLE,
             clear=True,
@@ -417,13 +423,12 @@ class UserOptionsWithPages(AskUserEventHandler):
         for item in self.options[index_range:index_range+self.max_list_length]:
 
             if isinstance(item, Item):
-                if item.stacking:
-                    if len(item.name) + len(str(item.stacking.stack_size)) > longest_name_len:
-                        longest_name_len = len(item.name) + len(str(item.stacking.stack_size))
-                else:
-                    if len(item.name) > longest_name_len:
-                        longest_name_len = len(item.name)
+                stack_size = 0
 
+                if item.stacking:
+                    stack_size = 3 + item.stacking.stack_size
+                if len(item.name) + stack_size > longest_name_len:
+                    longest_name_len = len(item.name) + stack_size
             else:
                 if len(item) > longest_name_len:
                     longest_name_len = len(item)
@@ -642,9 +647,12 @@ class AmountToScrap(TypeAmountEventHandler):
 
     def on_option_selected(self) -> Optional[ActionOrHandler]:
 
+        stack_size = 1
         successful = True
+        if self.item.stacking:
+            stack_size = self.item.stacking.stack_size
 
-        if self.item.stacking.stack_size < int(self.buffer):
+        if stack_size < int(self.buffer):
             successful = False
 
         scrap_dict = deepcopy(self.item.usable_properties.material)
@@ -655,14 +663,17 @@ class AmountToScrap(TypeAmountEventHandler):
                 scrap_item = key
                 scrap_item.stacking.stack_size = value
                 scrap_item.parent = self.engine.player.inventory
-                scrap_item.stacking.stack_size = self.item.stacking.stack_size * int(self.buffer)
-                scrap_item.append(self.engine.player.inventory.items)
+                scrap_item.stacking.stack_size = stack_size * int(self.buffer)
+                self.engine.player.inventory.add_to_inventory(item=scrap_item, item_container=None, amount=1)
 
-            if self.item.stacking.stack_size == int(self.buffer):
+            if stack_size == int(self.buffer):
                 self.engine.player.inventory.items.remove(self.item)
 
             else:
-                self.item.stacking.stack_size -= int(self.buffer)
+                stack_size -= int(self.buffer)
+
+            if self.item.stacking:
+                self.item.stacking.stack_size = stack_size
 
             self.engine.handle_enemy_turns()
             return MainGameEventHandler(self.engine)
@@ -1141,22 +1152,24 @@ class CraftingEventHandler(UserOptionsEventHandler):
         if option == 'guns':
             return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(guns_dict), title='gun crafting')
 
-        """
         elif option == 'gun parts':
-            return SelectItemToCraft(engine=self.engine, item_dict=, title='gun part crafting')
-        
-        elif option == 'ammo':
-            return SelectItemToCraft(engine=self.engine, item_dict=bullet_crafting_dict, title='ammo crafting')
+            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(gun_parts_dict), title='gun part crafting')
 
-        elif option == 'ammo parts':
-            return SelectItemToCraft(engine=self.engine, item_dict=, title='ammo part crafting')
+        elif option == 'ammo':
+            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(bullet_crafting_dict),
+                                     title='ammo crafting')
 
         elif option == 'magazines':
-            return SelectItemToCraft(engine=self.engine, item_dict=magazine_crafting_dict, title='magazine crafting')
+            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(magazine_crafting_dict),
+                                     title='magazine crafting')
+
+        elif option == 'ammo parts':
+            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(bullet_part_crafting_dict),
+                                     title='ammo part crafting')
 
         elif option == 'armour':
-            return SelectItemToCraft(engine=self.engine, item_dict=, title='armour crafting')
-        """
+            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(armour_crafting_dict),
+                                     title='armour crafting')
 
 
 class SelectItemToCraft(UserOptionsWithPages):
@@ -1253,8 +1266,6 @@ class CraftItem(UserOptionsWithPages):
             item = self.item_dict[self.item_name]['item']
             # if stacking item, asks player how many they want to make
 
-            print(self.part_dict)
-
             if item.stacking:
                 return CraftAmountEventHander(item=item, engine=self.engine, itemdict=self.item_dict,
                                               part_dict=self.part_dict, item_name=self.item_name)
@@ -1285,10 +1296,12 @@ class CraftItem(UserOptionsWithPages):
                             else:
                                 self.engine.player.inventory.items.remove(value)
 
-                        setattr(item.usable_properties.parts, key, value)
+                        if hasattr(item.usable_properties, 'parts'):
+                            setattr(item.usable_properties.parts, key, value)
 
             if craftable:
-                item.usable_properties.parts.update_partlist()
+                if hasattr(item.usable_properties, 'parts'):
+                    item.usable_properties.parts.update_partlist()
                 item.parent = self.engine.player.inventory
 
                 turns_taken = 0
@@ -1296,7 +1309,7 @@ class CraftItem(UserOptionsWithPages):
                     turns_taken += 1
                     self.engine.handle_enemy_turns()
 
-                self.engine.player.inventory.items.append(item)
+                self.engine.player.inventory.add_to_inventory(item=item, item_container=None, amount=1)
                 return MainGameEventHandler(engine=self.engine)
 
             else:
@@ -1353,7 +1366,7 @@ class CraftAmountEventHander(TypeAmountEventHandler):
                 turns_taken += 1
                 self.engine.handle_enemy_turns()
 
-            self.engine.player.inventory.items.append(self.item)
+            self.engine.player.inventory.add_to_inventory(item=self.item, item_container=None, amount=1)
             return MainGameEventHandler(engine=self.engine)
 
         else:
