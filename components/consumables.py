@@ -119,9 +119,7 @@ class Weapon(Usable):
         if isinstance(inventory, components.inventory.Inventory):
 
             if inventory.parent == self.engine.player:
-                turns_taken = 0
-                while turns_taken < self.equip_time:
-                    turns_taken += 1
+                for i in range(self.equip_time):
                     self.engine.handle_enemy_turns()
 
             inventory.items.remove(entity)
@@ -169,6 +167,7 @@ class Magazine(Usable):
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
                  turns_to_load: int,  # amount of turns it takes to load magazine into gun
+                 base_accuracy: float = 1.0,
                  ):
         self.magazine_type = magazine_type
         self.compatible_bullet_type = compatible_bullet_type
@@ -176,6 +175,7 @@ class Magazine(Usable):
         self.magazine_size = magazine_size
         self.turns_to_load = turns_to_load
         self.magazine = []
+        self.base_accuracy = base_accuracy
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -208,23 +208,17 @@ class Magazine(Usable):
                 if self.engine.player == entity:
                     inventory.items.remove(ammo)
 
-            rounds_loaded = 0
-
             single_round = deepcopy(ammo)
             single_round.stacking.stack_size = 1
 
-            while rounds_loaded < load_amount:
+            for i in range(load_amount):
                 self.magazine.append(single_round)
-                rounds_loaded += 1
                 if len(self.magazine) == \
                         self.mag_capacity:
                     break
 
-            turns_used = 0
-
             if self.engine.player == entity:
-                while turns_used < ceil(load_amount / 5):
-                    turns_used += 1
+                for i in range(ceil(load_amount / 5)):
                     self.engine.handle_enemy_turns()
 
             if isinstance(self, GunIntegratedMag):
@@ -314,6 +308,12 @@ class Gun(Weapon):
 
         range_penalty = 0
 
+        magazine_accuracy_factor = 1.0
+
+        if isinstance(self, GunMagFed):
+            if self.loaded_magazine is not None:
+                magazine_accuracy_factor = self.loaded_magazine.usable_properties.base_accuracy
+
         # long range accuracy penalty
         if distance > self.range_accuracy_dropoff:
             range_penalty = distance - self.range_accuracy_dropoff
@@ -329,6 +329,7 @@ class Gun(Weapon):
 
                 # successful hit
                 if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * functional_accuracy *
+                                 magazine_accuracy_factor *
                                  self.chambered_bullet.usable_properties.accuracy_factor
                                  * attacker.fighter.ranged_accuracy) - range_penalty - recoil_penalty:
 
@@ -582,15 +583,60 @@ class GunIntegratedMag(Gun, Magazine):
 
 
 class ComponentPart(Usable):
-    def __init__(self, part_type: str, incompatible_parts: list, material: dict = None, disassemblable=True, **kwargs):
+    def __init__(self, part_type: str,
+                 prerequisite_parts: list = None,
+                 incompatible_parts: list = None,
+                 compatible_items: list = None,
+                 material: dict = None,
+                 disassemblable=True,
+                 **kwargs
+                 ):
         self.disassemblable = disassemblable
         self.material = material
         self.part_type = part_type
+        self.prerequisite_parts = prerequisite_parts
         self.incompatible_parts = incompatible_parts
+        self.compatible_items = compatible_items
         self.__dict__.update(kwargs)
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
+
+
+class GunComponent(ComponentPart):
+    def __init__(self,
+                 part_type: str,
+                 prerequisite_parts: list = None,
+                 incompatible_parts: list = None,
+                 compatible_items: list = None,
+                 material: dict = None,
+                 disassemblable=True,
+                 prevents_suppression=False,
+                 is_suppressor=False,
+                 large_optics_mount=False,
+                 pistol_optics_mount=False,
+                 is_large_optic=False,
+                 is_pistol_optic=False,
+                 accessory_attachment=False,
+                 **kwargs,
+                 ):
+        self.prevents_suppression = prevents_suppression
+        self.is_suppressor = is_suppressor
+        self.large_optics_mount = large_optics_mount
+        self.pistol_optics_mount = pistol_optics_mount
+        self.is_large_optic = is_large_optic
+        self.is_pistol_optic = is_pistol_optic
+        self.accessory_attachment = accessory_attachment
+        self.__dict__.update(kwargs)
+
+        super().__init__(
+            part_type=part_type,
+            prerequisite_parts=prerequisite_parts,
+            incompatible_parts=incompatible_parts,
+            compatible_items=compatible_items,
+            material=material,
+            disassemblable=disassemblable
+        )
 
 
 class RecipeUnlock(Usable):

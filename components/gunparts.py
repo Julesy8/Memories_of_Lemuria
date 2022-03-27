@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from math import floor
 from components.inventory import Inventory
 from components.consumables import GunMagFed, GunIntegratedMag, ComponentPart, Usable
 from entity import Item
@@ -88,7 +89,7 @@ class Parts:
                 if hasattr(self.parent, property_str):
                     if type(part_properties[property_str]) is float:
                         gun_property = getattr(self.parent, property_str)
-                        setattr(self.parent, property_str, part_properties[property_str] * gun_property)
+                        setattr(self.parent, property_str, floor(part_properties[property_str] * gun_property))
                     elif type(part_properties[property_str]) is str or type(part_properties[property_str]) is dict:
                         setattr(self.parent, property_str, part_properties[property_str])
 

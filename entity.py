@@ -4,8 +4,6 @@ from typing import Optional, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
 
-import colour
-
 if TYPE_CHECKING:
     from game_map import GameMap
     from components.consumables import Usable
@@ -161,7 +159,15 @@ class Actor(Entity):
         self.has_fled_death = False
 
         if self.player:
-            self.crafting_recipes = ['pistols']
+            self.crafting_recipes = ['pistols',
+                                     '9mm',
+                                     '9mm FMJ Bullet',
+                                     '9mm JHP Bullet',
+                                     '9mm AP Bullet',
+                                     '9mm Brass',
+                                     '9mm Round +P',
+                                     '9mm Round Subsonic',
+                                     ]
 
     @property
     def is_alive(self) -> bool:

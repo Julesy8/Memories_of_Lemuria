@@ -1,6 +1,7 @@
 -----
 TO DO
 -start on sewer level
+-weapon equip slots on armour
 
 17) more room shapes on level generation
 19) weapon graphics

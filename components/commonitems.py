@@ -10,7 +10,7 @@ pda = Item(
     stacking=None,
     name="PDA",
     weight=1,
-    description='contains data',
+    description='Contains data including weapon and parts schematics',
     usable_properties=consumables.Usable(),
 )
 
@@ -22,7 +22,7 @@ medkit = Item(
     name="Medkit",
     weight=1,
     stacking=Stacking(stack_size=1),
-    description='heals you',
+    description='Heals you',
     usable_properties=consumables.HealingConsumable(amount=20),
 )
 
@@ -35,7 +35,7 @@ steel = Item(
     name="Steel",
     weight=0.5,
     description='Raw crafting material',
-    usable_properties=consumables.ComponentPart(part_type='steel', incompatible_parts=[], disassemblable=False)
+    usable_properties=consumables.ComponentPart(part_type='steel', disassemblable=False)
 )
 
 polymer = Item(
@@ -47,7 +47,7 @@ polymer = Item(
     name="Polymer",
     weight=0.3,
     description='Raw crafting material',
-    usable_properties=consumables.ComponentPart(part_type='polymer', incompatible_parts=[], disassemblable=False)
+    usable_properties=consumables.ComponentPart(part_type='polymer', disassemblable=False)
 )
 
 aluminium = Item(
@@ -59,7 +59,7 @@ aluminium = Item(
     name="Aluminum",
     weight=0.5,
     description='Raw crafting material',
-    usable_properties=consumables.ComponentPart(part_type='aluminium', incompatible_parts=[], disassemblable=False)
+    usable_properties=consumables.ComponentPart(part_type='aluminium', disassemblable=False)
 )
 
 brass = Item(
@@ -71,7 +71,7 @@ brass = Item(
     name="Brass",
     weight=0.001,
     description='Raw crafting material',
-    usable_properties=consumables.ComponentPart(part_type='brass', incompatible_parts=[], disassemblable=False)
+    usable_properties=consumables.ComponentPart(part_type='brass', disassemblable=False)
 )
 
 lead = Item(
@@ -83,5 +83,29 @@ lead = Item(
     name="Lead",
     weight=0.001,
     description='Raw crafting material',
-    usable_properties=consumables.ComponentPart(part_type='lead', incompatible_parts=[], disassemblable=False)
+    usable_properties=consumables.ComponentPart(part_type='lead', disassemblable=False)
+)
+
+glass = Item(
+    x=0, y=0,
+    char="*",
+    fg_colour=colour.WHITE,
+    bg_colour=None,
+    stacking=Stacking(stack_size=1),
+    name="Glass",
+    weight=0.1,
+    description='Raw crafting material',
+    usable_properties=consumables.ComponentPart(part_type='glass', disassemblable=False)
+)
+
+battery = Item(
+    x=0, y=0,
+    char="*",
+    fg_colour=colour.YELLOW,
+    bg_colour=None,
+    stacking=Stacking(stack_size=1),
+    name="Battery",
+    weight=0.1,
+    description='Raw crafting material',
+    usable_properties=consumables.ComponentPart(part_type='battery', disassemblable=False)
 )

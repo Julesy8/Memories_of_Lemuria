@@ -1,18 +1,18 @@
 from entity import Item
 from components.consumables import GunMagFed, ComponentPart
-from components.gunparts import GunParts
+from components.gunparts import Parts
 import colour
 
 mac10_reciever = Item(
     x=0, y=0,
-    char="?",
+    char="!",
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
     name="MAC 10 Reciever",
     weight=1,
     stacking=None,
     usable_properties=ComponentPart(part_type='mac10_reciever'),
-    description='glock barrel'
+    description='Mac 10 Reciever'
 )
 
 mac10 = Item(
@@ -34,13 +34,13 @@ mac10 = Item(
         current_fire_mode='single shot',
         base_meat_damage=10,
         base_armour_damage=10,
-        base_accuracy=1.0,
+        base_accuracy=0.8,
         range_accuracy_dropoff=40,
-        parts=GunParts(),
+        parts=Parts(),
         enemy_attack_range=5,
         possible_parts=glock_parts_dict,
         sound_radius=10,
         recoil=3,
-        close_range_accuracy=1.0,
+        close_range_accuracy=0.9,
     )
 )

@@ -10,8 +10,16 @@ guns_dict = {
                                },
             "compatible parts": {
                 "glock_stock": 1,
+                "gun_accessory": 1,
+                "muzzle_device_9mm": 1,
+                "optic": 1
                                  },
-            "parts names": ["Frame", "Slide", "Barrel", "Stock"],
+            "parts names": ["Frame",
+                            "Slide",
+                            "Barrel",
+                            "Stock",
+                            "Muzzle Device"
+                            ],
             "item": glock17.glock_17
         },
     }
@@ -26,6 +34,14 @@ gun_parts_dict = {
             "compatible parts": {},
             "parts names": ["Material"],
             "item": glock17.glock17_barrel
+        },
+        "Glock 17L Barrel": {
+            "required parts": {
+                "steel": 1,
+            },
+            "compatible parts": {},
+            "parts names": ["Material"],
+            "item": glock17.glock17l_barrel
         },
         "Glock 17 Frame": {
             "required parts": {
@@ -43,6 +59,14 @@ gun_parts_dict = {
             "parts names": ["Material"],
             "item": glock17.glock17_slide
         },
+        "Glock 17L Slide": {
+            "required parts": {
+                "steel": 1,
+            },
+            "compatible parts": {},
+            "parts names": ["Material"],
+            "item": glock17.glock17l_slide
+        },
         "Glock Stock": {
             "required parts": {
                 "polymer": 2,
@@ -50,6 +74,14 @@ gun_parts_dict = {
             "compatible parts": {},
             "parts names": ["Material"],
             "item": glock17.glock17_barrel
+        },
+        "Glock Compensator": {
+            "required parts": {
+                "steel": 1,
+            },
+            "compatible parts": {},
+            "parts names": ["Material"],
+            "item": glock17.glock_9mm_compensator
         },
     }
 }
