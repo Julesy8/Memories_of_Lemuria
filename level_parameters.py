@@ -1,6 +1,9 @@
 from numpy import array
 from components.enemies.caverns import *
 from components.commonitems import medkit
+from components.weapons.glock17 import glock_17
+from components.weapons.bullets import round_9mm
+from components.weapons.magazines import glock_mag_9mm
 
 # this dictionary has the parameters for all the levels in the game
 # NOTE: map width/height must be larger than screen size!
@@ -12,7 +15,7 @@ level_params = {
               15,     # ROOM_MAX_SIZE
               9,      # ROOM_MIN_SIZE
               2,      # Max monsters per room
-              10,      # Max items per room
+              1,      # Max items per room
               ])
 }
 
@@ -35,6 +38,8 @@ Items_by_level = {
     0:
         (
         [medkit, 1],
-        [medkit, 1]
+        [glock_17, 1],
+        [round_9mm, 1],
+        [glock_mag_9mm, 1],
         ),
 }

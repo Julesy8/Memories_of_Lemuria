@@ -5,7 +5,7 @@ from typing import Optional, TYPE_CHECKING
 from exceptions import Impossible
 
 from copy import deepcopy
-from math import ceil
+from pydantic.utils import deep_update
 
 import actions
 import colour
@@ -68,7 +68,7 @@ class Weapon(Usable):
                  maximum_range: int,
                  base_accuracy: float,
                  equip_time: int,
-                 range_accuracy_dropoff: Optional[int],
+                 range_accuracy_dropoff: Optional[float],
                  ranged: bool = False,
                  ):
 
@@ -131,8 +131,8 @@ class Weapon(Usable):
         inventory = entity.parent
 
         if isinstance(inventory, components.inventory.Inventory):
-            inventory.items.append(inventory.held)
             inventory.held = None
+            inventory.items.append(entity)
 
 
 class Bullet(Usable):
@@ -217,8 +217,8 @@ class Magazine(Usable):
                         self.mag_capacity:
                     break
 
-            if self.engine.player == entity:
-                for i in range(ceil(load_amount / 5)):
+            if self.engine.player == inventory.parent:
+                for i in range(round(load_amount / 5)):
                     self.engine.handle_enemy_turns()
 
             if isinstance(self, GunIntegratedMag):
@@ -251,7 +251,7 @@ class Magazine(Usable):
 
                         bullet.stacking.stack_size = bullet_counter
 
-                        inventory.add_to_inventory(item=bullet, item_container=None, amount=bullet_counter)
+                        actions.AddToInventory(item=bullet, amount=bullet_counter, entity=inventory.parent).perform()
                 self.magazine = []
 
             else:
@@ -264,16 +264,18 @@ class Gun(Weapon):
                  base_meat_damage: float,
                  base_armour_damage: float,
                  base_accuracy: float,
-                 range_accuracy_dropoff: int,
+                 range_accuracy_dropoff: float,
                  equip_time: int,
                  fire_modes: dict,  # fire rates in rpm
                  possible_parts: dict,
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
-                 sound_radius: int,  # radius at which enemies can 'hear' the shot
+                 sound_radius: float,  # radius at which enemies can 'hear' the shot
                  close_range_accuracy: float,
-                 recoil: int,
+                 recoil: float,
+                 fire_rate_modifier: float = 1.0,
+                 load_time_modifier: float = 1.0,
                  chambered_bullet=None,
                  ):
 
@@ -288,6 +290,8 @@ class Gun(Weapon):
         self.current_fire_mode = current_fire_mode
         self.enemy_attack_range = enemy_attack_range
         self.sound_radius = sound_radius
+        self.fire_rate_modifier = fire_rate_modifier
+        self.load_time_modifier = load_time_modifier
         self.close_range_accuracy = close_range_accuracy
 
         super().__init__(
@@ -302,7 +306,7 @@ class Gun(Weapon):
 
     def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
-        rounds_to_fire = ceil(self.fire_modes[self.current_fire_mode] / 60 / 5)
+        rounds_to_fire = round(self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier)
 
         recoil_penalty = 0
 
@@ -405,6 +409,8 @@ class Wearable(Usable):
                             item_removed = True
                         bodypart.equipped = entity
 
+            self.engine.handle_enemy_turns()
+
     def unequip(self) -> None:
 
         entity = self.parent
@@ -424,6 +430,8 @@ class Wearable(Usable):
 
             inventory.items.append(entity)
 
+            self.engine.handle_enemy_turns()
+
 
 class GunMagFed(Gun):
     def __init__(self,
@@ -432,16 +440,18 @@ class GunMagFed(Gun):
                  base_meat_damage: float,
                  base_armour_damage: float,
                  base_accuracy: float,
-                 range_accuracy_dropoff: int,
+                 range_accuracy_dropoff: float,
                  equip_time: int,
                  fire_modes: dict,
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,
-                 sound_radius: int,
+                 sound_radius: float,
                  possible_parts: dict,
-                 recoil: int,
+                 recoil: float,
                  close_range_accuracy: float,
+                 fire_rate_modifier: float = 1.0,
+                 load_time_modifier: float = 1.0,
                  chambered_bullet=None,
                  loaded_magazine=None,
                  ):
@@ -465,6 +475,8 @@ class GunMagFed(Gun):
             enemy_attack_range=enemy_attack_range,
             possible_parts=possible_parts,
             sound_radius=sound_radius,
+            fire_rate_modifier=fire_rate_modifier,
+            load_time_modifier=load_time_modifier,
             recoil=recoil,
             close_range_accuracy=close_range_accuracy,
         )
@@ -494,6 +506,10 @@ class GunMagFed(Gun):
             if len(self.loaded_magazine.usable_properties.magazine) > 0:
                 if self.chambered_bullet is None:
                     self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+
+            # takes appropriate amount of turns to load magazine into gun
+            for i in range(round(magazine.usable_properties.turns_to_load * self.load_time_modifier)):
+                self.engine.handle_enemy_turns()
 
     def unload_gun(self):
 
@@ -538,7 +554,7 @@ class GunIntegratedMag(Gun, Magazine):
                  base_meat_damage: float,
                  base_armour_damage: float,
                  base_accuracy: float,
-                 range_accuracy_dropoff: int,
+                 range_accuracy_dropoff: float,
                  equip_time: int,
                  fire_modes: dict,
                  current_fire_mode: str,
@@ -547,9 +563,11 @@ class GunIntegratedMag(Gun, Magazine):
                  keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
                  enemy_attack_range: int,
                  possible_parts: dict,
-                 sound_radius: int,
-                 recoil: int,
+                 sound_radius: float,
+                 recoil: float,
                  close_range_accuracy: float,
+                 fire_rate_modifier: float = 1.0,
+                 load_time_modifier: float = 1.0,
                  chambered_bullet=None,
                  ):
 
@@ -573,6 +591,8 @@ class GunIntegratedMag(Gun, Magazine):
             enemy_attack_range=enemy_attack_range,
             possible_parts=possible_parts,
             sound_radius=sound_radius,
+            fire_rate_modifier=fire_rate_modifier,
+            load_time_modifier=load_time_modifier,
             recoil=recoil,
             close_range_accuracy=close_range_accuracy,
         )
@@ -584,9 +604,9 @@ class GunIntegratedMag(Gun, Magazine):
 
 class ComponentPart(Usable):
     def __init__(self, part_type: str,
-                 prerequisite_parts: list = None,
-                 incompatible_parts: list = None,
-                 compatible_items: list = None,
+                 prerequisite_parts: tuple = (),
+                 incompatible_parts: tuple = (),
+                 compatible_items: tuple = (),
                  material: dict = None,
                  disassemblable=True,
                  **kwargs
@@ -606,27 +626,30 @@ class ComponentPart(Usable):
 class GunComponent(ComponentPart):
     def __init__(self,
                  part_type: str,
-                 prerequisite_parts: list = None,
-                 incompatible_parts: list = None,
-                 compatible_items: list = None,
+                 optics_mount_required: str = '',  # type of optics mount required
+                 prerequisite_parts: tuple = (),
+                 incompatible_parts: tuple = (),
+                 compatible_items: tuple = (),
                  material: dict = None,
                  disassemblable=True,
                  prevents_suppression=False,
+                 is_optic=False,
                  is_suppressor=False,
-                 large_optics_mount=False,
-                 pistol_optics_mount=False,
-                 is_large_optic=False,
-                 is_pistol_optic=False,
+                 optics_mount_types: tuple = (),  # types of optics compatible
                  accessory_attachment=False,
+                 compatible_calibres: tuple = (),
                  **kwargs,
                  ):
         self.prevents_suppression = prevents_suppression
+        self.is_optic = is_optic
         self.is_suppressor = is_suppressor
-        self.large_optics_mount = large_optics_mount
-        self.pistol_optics_mount = pistol_optics_mount
-        self.is_large_optic = is_large_optic
-        self.is_pistol_optic = is_pistol_optic
         self.accessory_attachment = accessory_attachment
+        self.compatible_calibres = compatible_calibres
+        self.optics_mount_types = optics_mount_types
+
+        if self.is_optic:
+            self.optics_mount_required = optics_mount_required
+
         self.__dict__.update(kwargs)
 
         super().__init__(
@@ -641,17 +664,14 @@ class GunComponent(ComponentPart):
 
 class RecipeUnlock(Usable):
 
-    def __init__(self, datapack: list):
+    def __init__(self, datapack: dict):
         self.datapack = datapack
 
     def activate(self, action: actions.ItemAction) -> None:
-        consumer = action.entity
 
-        if consumer == self.engine.player:
-            consumer.crafting_recipes += self.datapack
-
+        self.engine.crafting_recipes = deep_update(self.engine.crafting_recipes, self.datapack)
         self.engine.message_log.add_message(
-            f"Crafting recipe unlocked: {self.datapack[0]}",
+            f"Crafting recipes unlocked - {list(self.datapack.keys())[0]}",
             colour.GREEN,
         )
 

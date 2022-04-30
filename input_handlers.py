@@ -10,11 +10,8 @@ import tcod.event
 
 from entity import Item
 import actions
-from components.weapons.gundict import guns_dict, gun_parts_dict
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart, GunComponent
-from components.weapons.bullets import bullet_crafting_dict, bullet_part_crafting_dict
-from components.weapons.magazines import magazine_crafting_dict
-from components.armour import armour_crafting_dict
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart, GunComponent, \
+    Wearable
 from actions import (
     Action,
     BumpAction,
@@ -201,7 +198,7 @@ class MainGameEventHandler(EventHandler):
             return QuitEventHandler(self.engine)
 
         elif key == tcod.event.K_c:
-            return CraftingEventHandler(self.engine)
+            return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting')
 
         elif key == tcod.event.K_i:
             return InventoryEventHandler(self.engine)
@@ -567,12 +564,18 @@ class InventoryEventHandler(UserOptionsWithPages):
     def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
-        options = ['Use', 'Equip', 'Drop', 'Inspect']
+        options = ['Drop', 'Inspect']
+
+        if hasattr(item, 'usable_properties'):
+            options.append('Use')
+
+        if isinstance(item.usable_properties, Wearable):
+            options.append('Equip')
 
         if isinstance(item.usable_properties, Gun):
-            options.append('Disassemble')
+            options += ['Equip', 'Disassemble']
 
-        if isinstance(item.usable_properties, ComponentPart):
+        if isinstance(item.usable_properties, ComponentPart) or isinstance(item.usable_properties, GunComponent):
             if item.usable_properties.disassemblable:
                 options.append('Scrap')
 
@@ -589,7 +592,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         """Called when the user selects a valid item."""
         if option == 'Use':
             try:
-                if type(self.item.usable_properties) is Magazine:
+                if isinstance(self.item.usable_properties, Magazine):
                     return MagazineOptionsHandler(engine=self.engine, magazine=self.item)
                 elif isinstance(self.item.usable_properties, Gun):
                     return GunOptionsHandler(engine=self.engine, gun=self.item)
@@ -611,7 +614,6 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'Unequip':
             try:
                 self.item.usable_properties.unequip()
-                self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -762,7 +764,9 @@ class EquipmentEventHandler(AskUserEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        return ItemInteractionHandler(item=item, options=['Unequip', 'Inspect'], engine=self.engine)
+        options = ['Unequip', 'Inspect']
+
+        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
 class DropItemEventHandler(TypeAmountEventHandler):
@@ -797,11 +801,11 @@ class PickUpEventHandler(UserOptionsWithPages):
             if item.stacking.stack_size > 1:
                 return AmountToPickUpMenu(item=item, engine=self.engine)
             else:
-                PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+                PickupAction(entity=self.engine.player, item=item, amount=1).perform()
                 self.engine.handle_enemy_turns()
                 return MainGameEventHandler(engine=self.engine)
         else:
-            PickupAction(entity=self.engine.player, item=item, pickup_amount=1).perform()
+            PickupAction(entity=self.engine.player, item=item, amount=1).perform()
             self.engine.handle_enemy_turns()
             return MainGameEventHandler(engine=self.engine)
 
@@ -814,7 +818,7 @@ class AmountToPickUpMenu(TypeAmountEventHandler):
     def on_option_selected(self) -> Optional[ActionOrHandler]:
 
         try:
-            actions.PickupAction(entity=self.engine.player, item=self.item, pickup_amount=int(self.buffer)).perform()
+            actions.PickupAction(entity=self.engine.player, item=self.item, amount=int(self.buffer)).perform()
             self.engine.handle_enemy_turns()
 
         except AttributeError:
@@ -1068,10 +1072,6 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
     def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
-        # takes appropriate amount of turns to load magazine into gun
-        for i in range(item.usable_properties.turns_to_load):
-            self.engine.handle_enemy_turns()
-
         self.gun.usable_properties.load_gun(item)
         return MainGameEventHandler(engine=self.engine)
 
@@ -1102,17 +1102,12 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
 class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
 
     def __init__(self, engine: Engine, magazine: Item, ammo: Item):
+        self.magazine = magazine
         self.ammo = ammo
-        super().__init__(engine=engine, item=magazine, prompt_string="amount to load (leave blank for maximum):")
+        super().__init__(engine=engine, item=ammo, prompt_string="amount to load (leave blank for maximum):")
 
     def on_option_selected(self):
-
-        try:
-            self.item.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
-
-        except ValueError:
-            self.engine.message_log.add_message("Invalid entry", colour.RED)
-
+        self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
         return MainGameEventHandler(self.engine)
 
 
@@ -1137,48 +1132,10 @@ class LoadoutEventHandler(UserOptionsWithPages):
         return MagazineOptionsHandler(engine=self.engine, magazine=option)
 
 
-class CraftingEventHandler(UserOptionsEventHandler):
-    def __init__(self, engine: Engine):
-        super().__init__(engine=engine, options=['guns', 'gun parts', 'ammo', 'ammo parts', 'magazines', 'armour'],
-                         title='crafting')
-
-    def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
-        """Called when the user selects a valid item."""
-
-        if option == 'guns':
-            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(guns_dict), title='gun crafting')
-
-        elif option == 'gun parts':
-            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(gun_parts_dict), title='gun part crafting')
-
-        elif option == 'ammo':
-            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(bullet_crafting_dict),
-                                     title='ammo crafting')
-
-        elif option == 'magazines':
-            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(magazine_crafting_dict),
-                                     title='magazine crafting')
-
-        elif option == 'ammo parts':
-            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(bullet_part_crafting_dict),
-                                     title='ammo part crafting')
-
-        elif option == 'armour':
-            return SelectItemToCraft(engine=self.engine, item_dict=deepcopy(armour_crafting_dict),
-                                     title='armour crafting')
-
-
 class SelectItemToCraft(UserOptionsWithPages):
     def __init__(self, engine: Engine, title: str, item_dict: dict):
 
-        options = []
-
-        # if crafting recipe is available, adds it to options
-        for option in list(item_dict.keys()):
-            if option in engine.player.crafting_recipes:
-                options.append(option)
-
-        super().__init__(engine=engine, options=options, page=0, title=title)
+        super().__init__(engine=engine, options=list(item_dict.keys()), page=0, title=title)
         self.item_dict = item_dict
 
     def on_option_selected(self, option):
@@ -1208,31 +1165,36 @@ class SelectItemToCraft(UserOptionsWithPages):
             for part in parts:
                 part_dict[part] = None
 
-            return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0,
-                             item_dict=self.item_dict,
-                             prerequisite_parts=[],
-                             part_dict=part_dict,
-                             incompatible_parts=[],
-                             large_optic_mount=False,
-                             pistol_optic_mount=False,
-                             prevent_suppression=False,
-                             accessory_attachment=False,
-                             )
+            # TODO: extend for other item types
+            if isinstance(self.item_dict[option]["item"].usable_properties, Gun):
+                return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0,
+                                 item_dict=self.item_dict,
+                                 prerequisite_parts=[],
+                                 part_dict=part_dict,
+                                 incompatible_parts=[],
+                                 prevent_suppression=False,
+                                 accessory_attachment=False,
+                                 compatible_calibres=[],
+                                 optics_mount_types=[],
+                                 )
+            else:
+                return MainGameEventHandler(engine=self.engine)
 
         # dictionary selected does not have parts list
         else:
             return SelectItemToCraft(engine=self.engine, title=option, item_dict=self.item_dict[option])
 
 
+# for now this is only for guns, need additional classes to work with other item types
 class CraftItem(UserOptionsWithPages):
     def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, item_dict: dict,
                  prerequisite_parts: list,
                  incompatible_parts: list,
                  part_dict: dict,
                  prevent_suppression: bool,
-                 large_optic_mount: bool,
-                 pistol_optic_mount: bool,
                  accessory_attachment: bool,
+                 compatible_calibres: list,
+                 optics_mount_types: list,
                  ):
 
         # values of all parts
@@ -1257,9 +1219,9 @@ class CraftItem(UserOptionsWithPages):
         self.incompatible_parts = incompatible_parts
         self.prerequisite_parts = prerequisite_parts
         self.prevent_suppression = prevent_suppression
-        self.large_optic_mount = large_optic_mount
-        self.pistol_optic_mount = pistol_optic_mount
         self.accessory_attachment = accessory_attachment
+        self.compatible_calibres = compatible_calibres
+        self.optics_mount_types = optics_mount_types
 
         # if part is not required, gives the option to select none
         if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
@@ -1289,13 +1251,28 @@ class CraftItem(UserOptionsWithPages):
 
                     if isinstance(item.usable_properties, GunComponent):
 
-                        if item.usable_properties.is_pistol_optic:
-                            if not pistol_optic_mount:
-                                add_option = False
+                        calibre_compatible = False
 
-                        if item.usable_properties.is_large_optic:
-                            if not large_optic_mount:
-                                add_option = False
+                        if len(item.usable_properties.compatible_calibres) > 0:
+                            for calibre in item.usable_properties.compatible_calibres:
+                                if calibre in self.compatible_calibres:
+                                    calibre_compatible = True
+                        else:
+                            calibre_compatible = True
+
+                        if not calibre_compatible:
+                            add_option = False
+
+                        if item.usable_properties.is_optic:
+
+                            mount_compatible = False
+
+                            for mount_type in self.optics_mount_types:
+                                if mount_type in item.usable_properties.optics_mount_required:
+                                    mount_compatible = True
+
+                            if mount_compatible:
+                                add_option = True
 
                         if item.usable_properties.is_suppressor:
                             if prevent_suppression:
@@ -1322,58 +1299,48 @@ class CraftItem(UserOptionsWithPages):
         if not option == 'none':
             # sets part in part dict to be the selected part
             self.part_dict[self.parts[self.current_part_selection]] = option
-            if option.usable_properties.prerequisite_parts is not None:
-                self.prerequisite_parts.append(option.usable_properties.prerequisite_parts)
-            if option.usable_properties.incompatible_parts is not None:
-                self.incompatible_parts.append(option.usable_properties.incompatible_parts)
+            self.prerequisite_parts.extend(option.usable_properties.prerequisite_parts)
+            self.incompatible_parts.extend(option.usable_properties.incompatible_parts)
+            self.optics_mount_types.extend(option.usable_properties.optics_mount_types)
+            self.compatible_calibres.extend(option.usable_properties.compatible_calibres)
 
-            if isinstance(option.usable_properties, GunComponent):
-                if option.usable_properties.prevents_suppression:
-                    self.prevent_suppression = True
-                if option.usable_properties.large_optics_mount:
-                    self.large_optic_mount = True
-                if option.usable_properties.pistol_optics_mount:
-                    self.pistol_optic_mount = True
-                if option.usable_properties.accessory_attachment:
-                    self.accessory_attachment = True
+            if option.usable_properties.prevents_suppression:
+                self.prevent_suppression = True
+            if option.usable_properties.accessory_attachment:
+                self.accessory_attachment = True
+            if len(option.usable_properties.compatible_calibres) > 0:
+                self.compatible_calibres = option.usable_properties.compatible_calibres
 
         # part is last part to select
         if self.parts[self.current_part_selection] == self.parts[-1]:
             item = self.item_dict[self.item_name]['item']
-            # if stacking item, asks player how many they want to make
-            if item.stacking:
-                return CraftAmountEventHander(item=item, engine=self.engine, itemdict=self.item_dict,
-                                              part_dict=self.part_dict, item_name=self.item_name,
-                                              prerequisite_parts=self.prerequisite_parts,
-                                              incompatible_parts=self.incompatible_parts)
 
-            else:
-                craftable = True
+            craftable = True
 
-                # all possible components with the amount required to craft
-                full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
-                                  **self.item_dict[self.item_name]['required parts']}
+            # all possible components with the amount required to craft
+            full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
+                              **self.item_dict[self.item_name]['required parts']}
 
-                for key, value in self.part_dict.items():
-                    if value is not None:
-                        if value in self.engine.player.inventory.items:
+            for key, value in self.part_dict.items():
+                if value is not None:
+                    if value in self.engine.player.inventory.items:
 
-                            # if crafting component in inventory is stacking, removes appropriate amount of item from
-                            # inventory
-                            if value.stacking:
-                                if value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] > 0:
-                                    value.stacking.stack_size -= full_part_dict[value.usable_properties.part_type]
-                                elif value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] == 0:
-                                    self.engine.player.inventory.items.remove(value)
-                                else:
-                                    craftable = False
-
-                            # not stacking, removes from inventory
-                            else:
+                        # if crafting component in inventory is stacking, removes appropriate amount of item from
+                        # inventory
+                        if value.stacking:
+                            if value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] > 0:
+                                value.stacking.stack_size -= full_part_dict[value.usable_properties.part_type]
+                            elif value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] == 0:
                                 self.engine.player.inventory.items.remove(value)
+                            else:
+                                craftable = False
 
-                            if hasattr(item.usable_properties, 'parts'):
-                                setattr(item.usable_properties.parts, key, value)
+                        # not stacking, removes from inventory
+                        else:
+                            self.engine.player.inventory.items.remove(value)
+
+                        if hasattr(item.usable_properties, 'parts'):
+                            setattr(item.usable_properties.parts, key, value)
 
             if craftable:
                 if hasattr(item.usable_properties, 'parts'):
@@ -1397,10 +1364,10 @@ class CraftItem(UserOptionsWithPages):
                              part_dict=self.part_dict,
                              prerequisite_parts=self.prerequisite_parts,
                              incompatible_parts=self.incompatible_parts,
-                             large_optic_mount=self.large_optic_mount,
-                             pistol_optic_mount=self.pistol_optic_mount,
                              prevent_suppression=self.prevent_suppression,
                              accessory_attachment=self.accessory_attachment,
+                             compatible_calibres=self.compatible_calibres,
+                             optics_mount_types=self.optics_mount_types
                              )
 
 
@@ -1513,6 +1480,7 @@ class InspectItemViewer(AskUserEventHandler):
             "sound radius modifier": 'sound_modifier',
             "recoil modifier": 'recoil_modifier',
             "healing amount": 'amount',
+            "reload time modifier": 'reload_time_modifier'
         }
 
         for key, value in additonal_info.items():

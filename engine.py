@@ -15,6 +15,8 @@ from level_parameters import level_names
 from message_log import MessageLog
 from render_functions import render_names_at_mouse_location, render_part
 
+from components.weapons import glock17
+
 if TYPE_CHECKING:
     from entity import Actor
     from game_map import GameMap
@@ -29,6 +31,13 @@ class Engine:
         self.current_level = current_level  # denotes the floor type
         self.current_floor = current_floor  # denotes the sublevel of the floor type
         self.player = player
+        self.crafting_recipes = {
+            "guns": {},
+            "gun parts": {},
+            "ammunition": {},
+            "magazines": {},
+            "armour": {},
+        }
 
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""

@@ -103,24 +103,22 @@ class Bodypart:
             # places random item in inventory
             item_drop = deepcopy(choices(population=item_pop, weights=item_weight, k=1)[0])
 
-            if isinstance(item_drop, Item):
+            # gives PDA datapack properties
+            if item_drop.name == 'PDA':
 
-                # gives PDA datapack properties
-                if item_drop.name == 'PDA':
+                data_pack_pop = []
+                data_pack_weight = []
 
-                    data_pack_pop = []
-                    data_pack_weight = []
+                for i in datapackdict[self.engine.current_level]:
+                    data_pack_pop.append(i[0])
+                    data_pack_weight.append(i[1])
 
-                    for i in datapackdict[self.engine.current_level]:
-                        data_pack_pop.append(i[0])
-                        data_pack_weight.append(i[1])
+                item_drop.usable_properties = RecipeUnlock(choices(population=data_pack_pop,
+                                                                   weights=data_pack_weight, k=1)[0])
 
-                    item_drop.usable_properties = RecipeUnlock(choices(population=data_pack_pop,
-                                                                       weights=data_pack_weight, k=1)[0])
+            item_drop.usable_properties.parent = item_drop
 
-                item_drop.usable_properties.parent = item_drop
-
-                item_drop.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+            item_drop.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
         if self.parent.inventory.held is not None:
             self.parent.inventory.held.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
@@ -146,7 +144,7 @@ class Bodypart:
         elif self.defence + armour_protection == 0:
             damage = meat_damage
         else:
-            damage = floor(((armour_protection + self.defence)/armour_damage)) * meat_damage
+            damage = meat_damage - floor(((armour_protection + self.defence)/armour_damage)) * meat_damage
 
         # attack w/ weapon
         if item:

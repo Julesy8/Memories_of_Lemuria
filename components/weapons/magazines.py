@@ -2,6 +2,10 @@ import colour
 from entity import Item
 from components.consumables import Magazine
 
+"""
+GLOCK 9mm
+"""
+
 glock_mag_9mm = Item(
     x=0, y=0,
     char="!",
@@ -77,8 +81,67 @@ glock_mag_9mm_100 = Item(
     )
 )
 
+"""
+MAC 10 45
+"""
+
+mac10_mag_45 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="M10/45 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='M10/45 magazine .45 ACP - 30 round capacity. Originally made for the M3 grease gun and '
+                'later retrofitted for the M10/45.',
+    usable_properties=Magazine(
+        magazine_type='mac1045',
+        compatible_bullet_type='45',
+        mag_capacity=30,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
+mac10_mag_45_extended = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="M10/45 Extended Magazine",
+    weight=0.2,
+    stacking=None,
+    description='M10/45 magazine .45 ACP - 40 round capacity. An original magazine modified for greater capacity',
+    usable_properties=Magazine(
+        magazine_type='mac1045',
+        compatible_bullet_type='45',
+        mag_capacity=30,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
+mac10_mag_9 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="M10/9 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='M10/9 Magazine 9mm - 30 round capacity',
+    usable_properties=Magazine(
+        magazine_type='mac109',
+        compatible_bullet_type='9mm',
+        mag_capacity=32,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
 magazine_dict = {
-    "glock9mm": ([glock_mag_9mm, 2], [glock_mag_9mm_33, 1])
+    "glock9mm": ((glock_mag_9mm, 2), (glock_mag_9mm_33, 1))
 }
 
 magazine_crafting_dict = {

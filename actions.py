@@ -217,17 +217,70 @@ class BumpAction(ActionWithDirection):
                 return WaitAction(self.entity).perform()
 
 
-class PickupAction(Action):
-    """Pickup an item and add it to the inventory, if there is room for it."""
+class AddToInventory(Action):
 
-    def __init__(self, entity: Actor, item: Item, pickup_amount: int):
+    def __init__(self, entity: Actor, item: Item, amount: int):
         super().__init__(entity)
         self.item = item
-        self.pickup_amount = pickup_amount
+        self.amount = amount
+        self.item_copy = deepcopy(self.item)
 
     def perform(self) -> None:
-        self.entity.inventory.add_to_inventory(item=self.item, item_container=self.engine.game_map.entities,
-                                               amount=self.pickup_amount)
+
+        if self.item.stacking:
+
+            # checks if there is enough capacity for the item
+            if self.entity.inventory.current_item_weight() + self.item.weight * self.item.stacking.stack_size > \
+                    self.entity.inventory.capacity:
+                self.engine.message_log.add_message("Inventory full.", colour.RED)
+                return
+
+            if self.item.stacking.stack_size >= self.amount > 0:
+                stack_amount = self.amount
+            else:
+                stack_amount = self.item.stacking.stack_size
+
+            self.item_copy.stacking.stack_size = stack_amount
+
+            # if item of this type already in inventory, tries to add it to existing stack
+            repeat_found = False
+            for i in self.entity.inventory.items:
+                if i.name == self.item.name:
+                    repeat_item_index = self.entity.inventory.items.index(i)
+                    self.entity.inventory.items[repeat_item_index].stacking.stack_size += \
+                        self.item_copy.stacking.stack_size
+                    repeat_found = True
+
+            if not repeat_found:
+                # item of this type not already present in inventory
+                self.entity.inventory.items.append(self.item_copy)
+
+            self.item.stacking.stack_size -= self.item_copy.stacking.stack_size
+
+            if self.item.stacking.stack_size <= 0:
+                self.remove_from_container()
+
+        else:
+
+            if self.entity.inventory.current_item_weight() + self.item.weight > self.entity.inventory.capacity:
+                self.engine.message_log.add_message("Inventory full.", colour.RED)
+
+            else:
+                self.entity.inventory.items.append(self.item_copy)
+                self.remove_from_container()
+
+        self.item_copy.parent = self.entity.inventory
+
+    def remove_from_container(self):
+        pass
+
+
+class PickupAction(AddToInventory):
+    def __init__(self, entity: Actor, item: Item, amount: int):
+        super().__init__(entity, item, amount)
+
+    def remove_from_container(self):
+        self.engine.game_map.entities.remove(self.item)
 
 
 class DropAction(Action):
