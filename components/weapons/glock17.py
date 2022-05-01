@@ -16,6 +16,24 @@ glock17_frame = Item(
     description='Standard Glock frame compatible with Glock 17, 17L and 34 slides and barrels'
 )
 
+glock17_frame_stippled = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock 17 Frame - Stippled",
+    weight=0.2,
+    stacking=None,
+    usable_properties=GunComponent(part_type='glock17_frame',
+                                   material={polymer: 2},
+                                   accessory_attachment=True,
+                                   recoil=0.95,
+                                   base_accuracy=1.04
+                                   ),
+    description='Standard Glock frame compatible with Glock 17, 17L and 34 slides and barrels. Stippling has been added'
+                'to improve grip in adverse conditions.'
+)
+
 """
 BARRELS
 """
@@ -135,7 +153,8 @@ glock17_slide = Item(
     usable_properties=GunComponent(part_type='glock17_slide',
                                    suffix='17',
                                    material={steel: 1},
-                                   prerequisite_parts=(glock17_barrel, glock17l_barrel, glock_9in_barrel)
+                                   prerequisite_parts=(glock17_barrel, glock17l_barrel, glock_9in_barrel),
+                                   optics_mount_types=('dovetail', 'glock')
                                    ),
     description='Glock 17 slide'
 )
@@ -154,6 +173,7 @@ glock17l_slide = Item(
                                    prerequisite_parts=(glock17l_barrel, glock_9in_barrel),
                                    recoil=0.94,
                                    close_range_accuracy=0.95,
+                                   optics_mount_types=('dovetail', 'glock')
                                    ),
     description='Glock 17L slide. Longer than the standard Glock 17 slide'
 )
@@ -171,6 +191,7 @@ glock17_slide_custom = Item(
                                    material={steel: 1},
                                    recoil=1.1,
                                    base_accuracy=1.1,
+                                   optics_mount_types=('dovetail', 'glock')
                                    ),
     description='Custom milled Glock 17 slide, reducing weight and vastly improving aesthetics'
 )
@@ -189,6 +210,7 @@ glock17l_slide_custom = Item(
                                    recoil=1.04,
                                    base_accuracy=1.1,
                                    close_range_accuracy=0.95,
+                                   optics_mount_types=('dovetail', 'glock')
                                    ),
     description='Custom milled Glock 17L slide, reducing weight and vastly improving aesthetics'
 )
@@ -209,6 +231,7 @@ glock17_slide_ported = Item(
                                    suffix='17 Ported',
                                    prerequisite_parts=(glock17_barrel_ported,),
                                    material={steel: 1},
+                                   optics_mount_types=('dovetail', 'glock')
                                    ),
     description='Glock 17 slide with milled cutouts for use with a ported barrel'
 )
@@ -226,6 +249,7 @@ glock17l_slide_ported = Item(
                                    prerequisite_parts=(glock17l_barrel_ported,),
                                    material={steel: 1},
                                    close_range_accuracy=0.95,
+                                   optics_mount_types=('dovetail', 'glock')
                                    ),
     description='Glock 17L slide with milled cutouts for use with a ported barrel'
 )
@@ -292,11 +316,11 @@ glock_kit_pdw = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='glock_stock',
                                    suffix='PDW',
-                                   material={polymer: 1},
+                                   material={polymer: 3},
                                    base_accuracy=1.1,
                                    recoil=0.70,
                                    close_range_accuracy=0.85,
-                                   large_optics_mount=True,
+                                   optics_mount_types=('picrail',)
                                    ),
     description='A chassis for the glock 17 that provides a more carbine like profile and a stock'
 )
@@ -309,10 +333,92 @@ glock_flared_magwell = Item(
     name="Glock Flared Magwell",
     weight=0.2,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock_switch', prefix='Automatic',
+    usable_properties=GunComponent(part_type='magwell', prefix='Automatic',
                                    material={steel: 1}, load_time_modifier=0.8
                                    ),
     description='Aftermarket Magwell for Glock Handguns, allows for more rapid reloads in tense situations'
+)
+
+glock_pic_rail = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock Picatinny Sight Mount",
+    weight=0.2,
+    stacking=None,
+    usable_properties=GunComponent(part_type='glock_baseplate', prefix='Automatic',
+                                   material={steel: 1},
+                                   close_range_accuracy=0.95,
+                                   optics_mount_types=('picrail',)
+                                   ),
+    description='An aftermarket picatinny rail sight mount for Glock handguns'
+)
+
+glock_night_sights = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock Night Sights",
+    weight=0.2,
+    stacking=None,
+    usable_properties=GunComponent(part_type='optic', prefix='Automatic',
+                                   material={steel: 1},
+                                   incompatible_parts=(glock_kit_pdw,),
+                                   base_accuracy=1.03,
+                                   ),
+    description='Glow in the dark replacement for the standard Glock iron sights for enhanced accuracy in low light '
+                'situations'
+)
+
+glock_pistol_brace = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Flux Defense Glock Pistol Brace",
+    weight=0.2,
+    stacking=None,
+    usable_properties=GunComponent(part_type='glock_stock', prefix='Automatic',
+                                   material={steel: 2},
+                                   close_range_accuracy=0.95,
+                                   recoil=0.80,
+                                   base_accuracy=1.06,
+                                   ),
+    description='Collapsing pistol brace for Glock handguns designed by Flux Defense'
+)
+
+glock_charging_handle = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock Slide Charging Handle",
+    weight=0.2,
+    stacking=None,
+    usable_properties=GunComponent(part_type='glock_baseplate',
+                                   material={steel: 1},
+                                   load_time_modifier=0.9
+                                   ),
+    description='Aftermarket replacement base plate for Glock handguns featuring a rifle style side charging handle '
+                'for more rapid reloads. Favoured by competition shooters.'
+)
+
+glock_competition_trigger = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock Competition Trigger",
+    weight=0.2,
+    stacking=None,
+    usable_properties=GunComponent(part_type='glock_trigger',
+                                   material={steel: 1},
+                                   base_accuacy=1.05,
+                                   ),
+    description='Aftermarket trigger for Glock handguns featuring a lighter pull, allowing for more accurate shot '
+                'placement'
 )
 
 glock_parts_dict = {
@@ -350,6 +456,23 @@ glock_17 = Item(
         recoil=3,
         close_range_accuracy=1.1,
     )
+)
+
+glock_frame_weight = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Glock Frame Weight",
+    weight=0.2,
+    stacking=None,
+    usable_properties=GunComponent(part_type='gun_accessory',
+                                   compatible_items=(glock_17,),
+                                   material={steel: 1},
+                                   recoil=0.90,
+                                   close_range_accuracy=0.94,
+                                   ),
+    description='Adds weight towards the muzzle end of the firearm. Reduces muzzle flip.'
 )
 
 glock17dict = {
@@ -390,6 +513,14 @@ glock17dict = {
                     "compatible parts": {},
                     "parts names": ["Material"],
                     "item": glock17_frame
+                },
+                "Glock 17/34 Frame - Stippled": {
+                    "required parts": {
+                        "polymer": 2,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock17_frame_stippled
                 },
             },
 
@@ -473,6 +604,22 @@ glock17dict = {
                     "parts names": ["Material"],
                     "item": glock17l_slide_ported
                 },
+                "Glock 17 Slide - Custom Milled": {
+                    "required parts": {
+                        "steel": 3,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock17_slide_custom
+                },
+                "Glock 17L Slide - Custom Milled": {
+                    "required parts": {
+                        "steel": 3,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock17l_slide_custom
+                },
             },
 
 
@@ -488,11 +635,22 @@ glock17dict = {
                 },
                 "Glock PDW Kit": {
                     "required parts": {
-                        "steel": 1,
+                        "polymer": 2,
+                        "steel": 3,
+
                     },
                     "compatible parts": {},
                     "parts names": ["Material"],
                     "item": glock_kit_pdw
+                },
+                "Flux Defense Glock Pistol Brace": {
+                    "required parts": {
+                        "steel": 3,
+                        "polymer": 1,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock_pistol_brace
                 },
             },
 
@@ -514,6 +672,54 @@ glock17dict = {
                     "compatible parts": {},
                     "parts names": ["Material"],
                     "item": glock_9mm_compensator
+                },
+                "Glock Flared Magwell": {
+                    "required parts": {
+                        "steel": 1,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock_flared_magwell
+                },
+                "Glock Picatinny Optics Mount": {
+                    "required parts": {
+                        "steel": 1,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock_pic_rail
+                },
+                "Glock Night Sights": {
+                    "required parts": {
+                        "steel": 1,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock_night_sights
+                },
+                "Glock Slide Charging Handle": {
+                    "required parts": {
+                        "steel": 1,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock_charging_handle
+                },
+                "Glock Competition Trigger": {
+                    "required parts": {
+                        "steel": 1,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock_competition_trigger
+                },
+                "Glock Frame Weight": {
+                    "required parts": {
+                        "steel": 2,
+                    },
+                    "compatible parts": {},
+                    "parts names": ["Material"],
+                    "item": glock_frame_weight
                 },
             }
         }
