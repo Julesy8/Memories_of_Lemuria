@@ -153,7 +153,6 @@ glock17_slide = Item(
     usable_properties=GunComponent(part_type='glock17_slide',
                                    suffix='17',
                                    material={steel: 1},
-                                   prerequisite_parts=(glock17_barrel, glock17l_barrel, glock_9in_barrel),
                                    optics_mount_types=('dovetail', 'glock')
                                    ),
     description='Glock 17 slide'
@@ -170,7 +169,6 @@ glock17l_slide = Item(
     usable_properties=GunComponent(part_type='glock17_slide',
                                    material={steel: 1},
                                    suffix='17L',
-                                   prerequisite_parts=(glock17l_barrel, glock_9in_barrel),
                                    recoil=0.94,
                                    close_range_accuracy=0.95,
                                    optics_mount_types=('dovetail', 'glock')
@@ -229,7 +227,6 @@ glock17_slide_ported = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='glock17_slide',
                                    suffix='17 Ported',
-                                   prerequisite_parts=(glock17_barrel_ported,),
                                    material={steel: 1},
                                    optics_mount_types=('dovetail', 'glock')
                                    ),
@@ -246,7 +243,6 @@ glock17l_slide_ported = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='glock17_slide',
                                    suffix='17L Ported',
-                                   prerequisite_parts=(glock17l_barrel_ported,),
                                    material={steel: 1},
                                    close_range_accuracy=0.95,
                                    optics_mount_types=('dovetail', 'glock')
@@ -268,7 +264,7 @@ glock_switch = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='glock_switch', prefix='Automatic',
                                    material={steel: 1},
-                                   fire_modes={'single shot': 1, 'automatic': 1200}, ),
+                                   fire_modes={'automatic': 1200}, ),
     description='Modifed Glock cover plate enabling automatic fire'
 )
 
@@ -333,7 +329,7 @@ glock_flared_magwell = Item(
     name="Glock Flared Magwell",
     weight=0.2,
     stacking=None,
-    usable_properties=GunComponent(part_type='magwell', prefix='Automatic',
+    usable_properties=GunComponent(part_type='magwell',
                                    material={steel: 1}, load_time_modifier=0.8
                                    ),
     description='Aftermarket Magwell for Glock Handguns, allows for more rapid reloads in tense situations'
@@ -347,7 +343,7 @@ glock_pic_rail = Item(
     name="Glock Picatinny Sight Mount",
     weight=0.2,
     stacking=None,
-    usable_properties=GunComponent(part_type='glock_baseplate', prefix='Automatic',
+    usable_properties=GunComponent(part_type='glock_baseplate',
                                    material={steel: 1},
                                    close_range_accuracy=0.95,
                                    optics_mount_types=('picrail',)
@@ -363,7 +359,7 @@ glock_night_sights = Item(
     name="Glock Night Sights",
     weight=0.2,
     stacking=None,
-    usable_properties=GunComponent(part_type='optic', prefix='Automatic',
+    usable_properties=GunComponent(part_type='optic',
                                    material={steel: 1},
                                    incompatible_parts=(glock_kit_pdw,),
                                    base_accuracy=1.03,
@@ -418,7 +414,7 @@ glock_competition_trigger = Item(
                                    base_accuacy=1.05,
                                    ),
     description='Aftermarket trigger for Glock handguns featuring a lighter pull, allowing for more accurate shot '
-                'placement'
+                'placement more shots in rapid fire'
 )
 
 glock_parts_dict = {
@@ -443,7 +439,7 @@ glock_17 = Item(
         keep_round_chambered=True,
         loaded_magazine=None,
         equip_time=1,
-        fire_modes={'single shot': 1},
+        fire_modes={'single shot': 60, 'semi-auto rapid fire': 180},
         current_fire_mode='single shot',
         base_meat_damage=1.0,
         base_armour_damage=1.0,
@@ -481,11 +477,14 @@ glock17dict = {
             "Glock 17": {
                 "required parts": {
                     "glock17_frame": 1,
-                    "glock17_slide": 1,
                     "glock17_barrel": 1,
-                                   },
+                    "glock17_slide": 1,
+                },
                 "compatible parts": {
+                    "glock_trigger": 1,
                     "glock_stock": 1,
+                    "glock_optics_mount": 1,
+                    "glock_base_plate": 1,
                     "gun_accessory": 1,
                     "muzzle_device_9mm": 1,
                     "optic": 1

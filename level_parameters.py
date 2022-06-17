@@ -1,7 +1,7 @@
 from numpy import array
 from components.enemies.caverns import *
 from components.commonitems import medkit
-from components.weapons.glock17 import glock_17
+from components.weapons.glock17 import glock_17, glock17_frame, glock17_barrel, glock17_slide, glock_switch, glock_competition_trigger
 from components.weapons.bullets import round_9mm
 from components.weapons.magazines import glock_mag_9mm
 
@@ -15,7 +15,7 @@ level_params = {
               15,     # ROOM_MAX_SIZE
               9,      # ROOM_MIN_SIZE
               2,      # Max monsters per room
-              1,      # Max items per room
+              5,      # Max items per room
               ])
 }
 
@@ -38,8 +38,13 @@ Items_by_level = {
     0:
         (
         [medkit, 1],
-        [glock_17, 1],
+        #[glock_17, 1],
         [round_9mm, 1],
         [glock_mag_9mm, 1],
+        [glock17_frame, 1],
+        [glock17_barrel, 1],
+        [glock17_slide, 1],
+        [glock_switch, 1],
+        [glock_competition_trigger, 1],
         ),
 }

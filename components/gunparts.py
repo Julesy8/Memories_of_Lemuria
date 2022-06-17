@@ -86,16 +86,20 @@ class Parts:
 
             # alters propeties of the item according to part properties
             for property_str in part_properties.keys():
+                print(part_properties[property_str])
                 if hasattr(self.parent, property_str):
                     if type(part_properties[property_str]) is float:
                         gun_property = getattr(self.parent, property_str)
                         setattr(self.parent, property_str, floor(part_properties[property_str] * gun_property))
-                    elif type(part_properties[property_str]) is str or type(part_properties[property_str]) is dict:
+                    elif type(part_properties[property_str]) is str:
                         setattr(self.parent, property_str, part_properties[property_str])
+                    elif type(part_properties[property_str]) is dict:
+                        gun_property = getattr(self.parent, property_str)
+                        setattr(self.parent, property_str, gun_property.update(part_properties[property_str]))
 
         # gives item suitable prefixes and suffixes
         if not prefixes == '':
-            self.parent.parent.name = f"{prefixes}{self.parent.parent.name}"
+            self.parent.parent.name = f"{prefixes} {self.parent.parent.name}"
         if not suffixes == '':
             self.parent.parent.name = f"{self.parent.parent.name} {suffixes}"
 

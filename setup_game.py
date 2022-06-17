@@ -21,6 +21,9 @@ from components.ai import HostileEnemy
 from components.npc_templates import Fighter
 from components.bodyparts import Body, Arm, Leg, Head
 
+from copy import deepcopy
+
+from components.weapons.glock17 import glock_17, glock17_frame, glock17_barrel, glock17_slide, glock_switch, glock_competition_trigger
 
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance."""
@@ -52,6 +55,13 @@ def new_game() -> Engine:
                    )
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)
+
+    inventory_items = [glock17_frame, glock17_barrel, glock17_slide]
+
+    for item in inventory_items:
+        itemcopy = deepcopy(item)
+        player.inventory.items.append(itemcopy)
+        itemcopy.parent = player.inventory
 
     engine.game_map = MessyBSPTree(level_params[current_level][0],  # messy tunnels
                                    level_params[current_level][1],  # map width

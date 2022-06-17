@@ -1187,7 +1187,10 @@ class SelectItemToCraft(UserOptionsWithPages):
 
 # for now this is only for guns, need additional classes to work with other item types
 class CraftItem(UserOptionsWithPages):
-    def __init__(self, engine: Engine, item_to_craft: str, current_part_index: int, item_dict: dict,
+    def __init__(self, engine: Engine,
+                 item_to_craft: str,
+                 current_part_index: int,
+                 item_dict: dict,
                  prerequisite_parts: list,
                  incompatible_parts: list,
                  part_dict: dict,
@@ -1196,6 +1199,8 @@ class CraftItem(UserOptionsWithPages):
                  compatible_calibres: list,
                  optics_mount_types: list,
                  ):
+
+        self.engine = engine
 
         # values of all parts
         self.part_dict = part_dict
@@ -1223,30 +1228,38 @@ class CraftItem(UserOptionsWithPages):
         self.compatible_calibres = compatible_calibres
         self.optics_mount_types = optics_mount_types
 
-        # if part is not required, gives the option to select none
-        if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
-            self.options.append('none')
+        self.add_options()
+
+        super().__init__(engine=engine, options=self.options, page=0, title=title)
+
+    def add_options(self):
 
         # checks if current part selection is the same as the type an item in the prerequisite parts
         # if it is, only adds parts to options that are in prerequisites
         add_only_prerequisites = False
-        for prerequisites in prerequisite_parts:
+        for prerequisites in self.prerequisite_parts:
             if prerequisites.usable_properties.part_type == self.parts[self.current_part_selection]:
                 add_only_prerequisites = True
 
-        for item in engine.player.inventory.items:
-            if isinstance(item.usable_properties, ComponentPart) or isinstance(item.usable_properties, GunComponent):
+        for item in self.engine.player.inventory.items:
+            if isinstance(item.usable_properties, GunComponent):
+
+                print(self.prerequisite_parts)
 
                 if item.usable_properties.part_type == self.parts[self.current_part_selection]:
 
                     add_option = True
 
                     # if part compatible with item being crafted, adds to options
-                    if item.usable_properties.compatible_items is not None:
+                    if len(item.usable_properties.compatible_items) > 0:
                         if self.item_name not in item.usable_properties.compatible_items:
+                            print(item.usable_properties.compatible_items)
+                            print(self.item_name)
+                            print('failed compatibility check')
                             add_option = False
 
-                    if item.name in incompatible_parts:
+                    if item.name in self.incompatible_parts:
+                        print('found in incompatible parts')
                         add_option = False
 
                     if isinstance(item.usable_properties, GunComponent):
@@ -1262,6 +1275,7 @@ class CraftItem(UserOptionsWithPages):
 
                         if not calibre_compatible:
                             add_option = False
+                            print('failed compatible calibres check')
 
                         if item.usable_properties.is_optic:
 
@@ -1275,41 +1289,68 @@ class CraftItem(UserOptionsWithPages):
                                 add_option = True
 
                         if item.usable_properties.is_suppressor:
-                            if prevent_suppression:
+                            if self.prevent_suppression:
                                 add_option = False
 
                         if item.usable_properties.part_type == 'gun_accessory':
-                            if not accessory_attachment:
+                            if not self.accessory_attachment:
                                 add_option = False
 
                     if add_option:
-                        if add_only_prerequisites and item in prerequisite_parts:
+                        if add_only_prerequisites and item in self.prerequisite_parts:
                             self.options.append(item)
                         elif not add_only_prerequisites:
                             self.options.append(item)
+                        else:
+                            print('failed prerequisite test')
 
-        super().__init__(engine=engine, options=self.options, page=0, title=title)
+        if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
+
+            # if part is not required and there are no parts of this type in inventory, skips to the next part type
+            if len(self.options) == 0:
+                self.current_part_selection += 1
+                return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
+                                 item_to_craft=self.item_name,
+                                 item_dict=self.item_dict,
+                                 part_dict=self.part_dict,
+                                 prerequisite_parts=self.prerequisite_parts,
+                                 incompatible_parts=self.incompatible_parts,
+                                 prevent_suppression=self.prevent_suppression,
+                                 accessory_attachment=self.accessory_attachment,
+                                 compatible_calibres=self.compatible_calibres,
+                                 optics_mount_types=self.optics_mount_types
+                                 )
+
+            # part is not required, adds the option to select no part
+            else:
+                self.options = ['none',] + self.options
+
+        # if part is required but no item of this type in inventory, cancels crafting
+        else:
+            if len(self.options) < 1:
+                self.engine.message_log.add_message("Missing parts required to craft this item", colour.RED)
+                return MainGameEventHandler(engine=self.engine)
+
+    def update_crafting_properties(self, option):
+
+        self.prerequisite_parts.extend(option.usable_properties.prerequisite_parts)
+        self.incompatible_parts.extend(option.usable_properties.incompatible_parts)
+        self.optics_mount_types.extend(option.usable_properties.optics_mount_types)
+        self.compatible_calibres.extend(option.usable_properties.compatible_calibres)
+
+        if option.usable_properties.prevents_suppression:
+            self.prevent_suppression = True
+        if option.usable_properties.accessory_attachment:
+            self.accessory_attachment = True
+        if len(option.usable_properties.compatible_calibres) > 0:
+            self.compatible_calibres = option.usable_properties.compatible_calibres
 
     def on_option_selected(self, option):
-
-        if len(self.options) < 1:
-            self.engine.message_log.add_message("Missing parts required to craft this item", colour.RED)
-            return MainGameEventHandler(engine=self.engine)
 
         if not option == 'none':
             # sets part in part dict to be the selected part
             self.part_dict[self.parts[self.current_part_selection]] = option
-            self.prerequisite_parts.extend(option.usable_properties.prerequisite_parts)
-            self.incompatible_parts.extend(option.usable_properties.incompatible_parts)
-            self.optics_mount_types.extend(option.usable_properties.optics_mount_types)
-            self.compatible_calibres.extend(option.usable_properties.compatible_calibres)
-
-            if option.usable_properties.prevents_suppression:
-                self.prevent_suppression = True
-            if option.usable_properties.accessory_attachment:
-                self.accessory_attachment = True
-            if len(option.usable_properties.compatible_calibres) > 0:
-                self.compatible_calibres = option.usable_properties.compatible_calibres
+            self.update_crafting_properties(option)
 
         # part is last part to select
         if self.parts[self.current_part_selection] == self.parts[-1]:
