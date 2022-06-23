@@ -50,6 +50,19 @@ polymer = Item(
     usable_properties=consumables.ComponentPart(part_type='polymer', disassemblable=False)
 )
 
+wood = Item(
+    x=0, y=0,
+    char="*",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    stacking=Stacking(stack_size=1),
+    name="Wood",
+    weight=0.4,
+    description='Raw crafting material',
+    usable_properties=consumables.ComponentPart(part_type='wood', disassemblable=False)
+)
+
+
 aluminium = Item(
     x=0, y=0,
     char="*",

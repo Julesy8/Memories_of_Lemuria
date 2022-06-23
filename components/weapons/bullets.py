@@ -645,6 +645,85 @@ bullet_308_ap = Item(
                                     )
 )
 
+
+"""
+7.62x54R
+"""
+
+round_76254R = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name='7.62x54R Round',
+    weight=0.0,
+    stacking=Stacking(stack_size=1),
+    description='A 7.62x54R round',
+    usable_properties=Bullet(
+        parts=Parts(),
+        bullet_type='76254',
+        meat_damage=36,
+        armour_damage=21,
+        accuracy_factor=1.0,
+        recoil_modifier=8,
+        sound_modifier=18,
+    )
+)
+
+brass_76254R = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.YELLOW,
+    bg_colour=None,
+    name='7.62x54R Casing',
+    weight=0.0,
+    stacking=Stacking(stack_size=1),
+    description='7.62x51 bullet casing',
+    usable_properties=ComponentPart(part_type="brass_76254", material={brass: 1})
+)
+
+bullet_76254R_fmj = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.YELLOW,
+    bg_colour=None,
+    name='7.62x54R FMJ',
+    weight=0.0,
+    stacking=Stacking(stack_size=1),
+    description='7.62x51 full metal jacket bullet',
+    usable_properties=ComponentPart(part_type="bullet_76254", suffix='FMJ', material={lead: 1})
+)
+
+bullet_76254R_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.YELLOW,
+    bg_colour=None,
+    name='7.62x54R JHP',
+    weight=0.0,
+    stacking=Stacking(stack_size=1),
+    description='7.62x51 jacketed hollow point bullet',
+    usable_properties=ComponentPart(part_type="bullet_76254", suffix='JHP', material={lead: 1},
+                                    meat_damage=1.2,
+                                    armour_damage=0.8,
+                                    )
+)
+
+bullet_76254R_ap = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.YELLOW,
+    bg_colour=None,
+    name='7.62x54R AP',
+    weight=0.0,
+    stacking=Stacking(stack_size=1),
+    description='7.62x51 armour piercing bullet',
+    usable_properties=ComponentPart(part_type="bullet_76254", suffix='AP', material={lead: 1},
+                                    meat_damage=0.9,
+                                    armour_damage=1.3,
+                                    )
+)
+
 bullet_dict = {
     "9mm": ([round_9mm, 1], [round_9mm, 1])
 }

@@ -626,7 +626,7 @@ class ComponentPart(Usable):
 class GunComponent(ComponentPart):
     def __init__(self,
                  part_type: str,
-                 optics_mount_required: str = '',  # type of optics mount required
+                 optics_mount_required: str = '',  # type of mount required for attachment of the optic
                  prerequisite_parts: tuple = (),
                  incompatible_parts: tuple = (),
                  compatible_items: tuple = (),
@@ -635,15 +635,21 @@ class GunComponent(ComponentPart):
                  prevents_suppression=False,
                  is_optic=False,
                  is_suppressor=False,
-                 optics_mount_types: tuple = (),  # types of optics compatible
-                 accessory_attachment=False,
+                 optics_mount_types: tuple = (),  # types of optics attachments compatible
+                 accessory_attachment_underbarrel=False,  # whether the attachment is an underbarrel attachment point
+                 accessory_attachment_sidemount=False,
+                 is_underbarrel_attachment=False,  # whether the attachment is an underbarrel accessory
+                 is_sidemount_attachment=False,
                  compatible_calibres: tuple = (),
                  **kwargs,
                  ):
         self.prevents_suppression = prevents_suppression
         self.is_optic = is_optic
         self.is_suppressor = is_suppressor
-        self.accessory_attachment = accessory_attachment
+        self.accessory_attachment_underbarrel = accessory_attachment_underbarrel
+        self.accessory_attachment_sidemount = accessory_attachment_sidemount
+        self.is_underbarrel_attachment = is_underbarrel_attachment
+        self.is_sidemount_attachment = is_sidemount_attachment
         self.compatible_calibres = compatible_calibres
         self.optics_mount_types = optics_mount_types
 

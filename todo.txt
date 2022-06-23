@@ -3,6 +3,9 @@ TO DO
 -start on sewer level
 -weapon equip slots on armour
 -ability for parts to have multiple part types at once e.g. for combined pistol grip and butt stocks
+-ability to change optics magnification
+-shotgun shells
+-underbarrel grenade launchers
 
 17) more room shapes on level generation
 19) weapon graphics

@@ -31,11 +31,11 @@ class Parts:
 
         for part in self.part_list:
 
-            if isinstance(self.parent, GunMagFed):
+            item = self.parent.parent
 
+            if isinstance(self.parent, GunMagFed):
                 if hasattr(part.usable_properties, 'compatible_bullet_type') and hasattr(part.usable_properties,
                                                                                          'mag_capacity'):
-
                     self.parent = GunIntegratedMag(parts=self,
                                                    base_meat_damage=self.parent.base_meat_damage,
                                                    base_armour_damage=self.parent.base_armour_damage,
@@ -43,7 +43,7 @@ class Parts:
                                                    compatible_bullet_type=part.compatible_bullet_type,
                                                    current_fire_mode=self.parent.current_fire_mode,
                                                    equip_time=self.parent.equip_time,
-                                                   mag_capacity=part.mag_capacity,
+                                                   mag_capacity=part.usable_properties.mag_capacity,
                                                    fire_modes=self.parent.fire_modes,
                                                    keep_round_chambered=self.parent.keep_round_chambered,
                                                    range_accuracy_dropoff=self.parent.range_accuracy_dropoff,
@@ -55,9 +55,11 @@ class Parts:
                                                    close_range_accuracy=self.parent.close_range_accuracy,
                                                    )
 
-            elif isinstance(self.parent, GunIntegratedMag):
+                    self.parent.parent = item
+                    item.usable_properties = self.parent
 
-                if part.usable_properties.compatible_magazine_type is not None:
+            elif isinstance(self.parent, GunIntegratedMag):
+                if hasattr(part.usable_properties, 'compatible_magazine_type'):
                     self.parent = GunMagFed(parts=self,
                                             base_meat_damage=self.parent.base_meat_damage,
                                             base_armour_damage=self.parent.base_armour_damage,
@@ -67,7 +69,7 @@ class Parts:
                                             fire_modes=self.parent.fire_modes,
                                             keep_round_chambered=self.parent.keep_round_chambered,
                                             range_accuracy_dropoff=self.parent.range_accuracy_dropoff,
-                                            compatible_magazine_type=part.compatible_magazine_type,
+                                            compatible_magazine_type=part.usable_properties.compatible_magazine_type,
                                             chambered_bullet=None,
                                             enemy_attack_range=self.parent.enemy_attack_range,
                                             possible_parts={},
@@ -76,26 +78,29 @@ class Parts:
                                             close_range_accuracy=self.parent.close_range_accuracy,
                                             )
 
-            part_properties = part.__dict__
+                    self.parent.parent = item
+                    item.usable_properties = self.parent
+
+            part_properties = part.usable_properties.__dict__
 
             # adds prefixes and suffixes
             if hasattr(part.usable_properties, 'prefix'):
-                prefixes += f"{part.usable_properties.prefix} "
+                prefixes += f"{part.usable_properties.prefix}"
             if hasattr(part.usable_properties, 'suffix'):
-                suffixes += f"{part.usable_properties.suffix} "
+                suffixes += f"{part.usable_properties.suffix}"
 
             # alters propeties of the item according to part properties
             for property_str in part_properties.keys():
-                print(part_properties[property_str])
                 if hasattr(self.parent, property_str):
+
                     if type(part_properties[property_str]) is float:
                         gun_property = getattr(self.parent, property_str)
                         setattr(self.parent, property_str, floor(part_properties[property_str] * gun_property))
                     elif type(part_properties[property_str]) is str:
                         setattr(self.parent, property_str, part_properties[property_str])
                     elif type(part_properties[property_str]) is dict:
-                        gun_property = getattr(self.parent, property_str)
-                        setattr(self.parent, property_str, gun_property.update(part_properties[property_str]))
+                        new_dict = {**getattr(self.parent, property_str), **part_properties[property_str]}
+                        setattr(self.parent, property_str, new_dict)
 
         # gives item suitable prefixes and suffixes
         if not prefixes == '':

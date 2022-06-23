@@ -140,6 +140,28 @@ mac10_mag_9 = Item(
     )
 )
 
+"""
+Mosin Nagant
+"""
+
+mosin_nagant = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="Mosin-Nagant Magazine",
+    weight=0.2,
+    stacking=None,
+    description='An aftermarket "Archangel" polymer magazine for 7.62x54R Mosin-Nagant rifles designed by ProMag',
+    usable_properties=Magazine(
+        magazine_type='Mosin-Nagant',
+        compatible_bullet_type='7.62x54R',
+        mag_capacity=10,
+        turns_to_load=1,
+        magazine_size='large',
+    )
+)
+
 magazine_dict = {
     "glock9mm": ((glock_mag_9mm, 2), (glock_mag_9mm_33, 1))
 }

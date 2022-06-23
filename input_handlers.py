@@ -23,7 +23,6 @@ import colour
 import exceptions
 from scrolling_map import Camera
 
-
 if TYPE_CHECKING:
     from engine import Engine
 
@@ -172,7 +171,7 @@ class MainGameEventHandler(EventHandler):
         player = self.engine.player
 
         if key == tcod.event.K_PERIOD and modifier & (
-            tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
+                tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
         ):
             return actions.TakeStairsAction(player)
 
@@ -417,7 +416,7 @@ class UserOptionsWithPages(AskUserEventHandler):
 
         longest_name_len = 0
 
-        for item in self.options[index_range:index_range+self.max_list_length]:
+        for item in self.options[index_range:index_range + self.max_list_length]:
 
             if isinstance(item, Item):
                 stack_size = 0
@@ -447,9 +446,9 @@ class UserOptionsWithPages(AskUserEventHandler):
 
         if number_of_options > 0:
             console.print(x + 1, y + height - 1,
-                          f"Page {self.page + 1}/{ceil(len(self.options)/self.max_list_length)}")
+                          f"Page {self.page + 1}/{ceil(len(self.options) / self.max_list_length)}")
 
-            for i, item in enumerate(self.options[index_range:index_range+self.max_list_length]):
+            for i, item in enumerate(self.options[index_range:index_range + self.max_list_length]):
                 item_key = chr(ord("a") + i)
 
                 if isinstance(item, Item):
@@ -557,7 +556,7 @@ class InventoryEventHandler(UserOptionsWithPages):
 
     def __init__(self, engine: Engine):
         title = "Inventory" + f" - {round(engine.player.inventory.current_item_weight(), 2)}" \
-                                  f"/{engine.player.inventory.capacity}kg"
+                              f"/{engine.player.inventory.capacity}kg"
 
         super().__init__(engine=engine, options=engine.player.inventory.items, page=0, title=title)
 
@@ -741,7 +740,6 @@ class EquipmentEventHandler(AskUserEventHandler):
 
         if len(self.equipped_list) > 0:
             for i, item in enumerate(self.equipped_list):
-
                 item_key = chr(ord("a") + i)
 
                 console.print(x + 1, y + i + 1, f"({item_key}) {equipment_dictionary[item.name]} | {item.name}")
@@ -775,7 +773,6 @@ class DropItemEventHandler(TypeAmountEventHandler):
         super().__init__(engine=engine, item=item, prompt_string="amount to drop (leave blank for all):")
 
     def on_option_selected(self) -> Optional[ActionOrHandler]:
-
         actions.DropAction(entity=self.engine.player, item=self.item, drop_amount=int(self.buffer)).perform()
 
         self.engine.handle_enemy_turns()
@@ -1077,7 +1074,6 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
 
 class SelectBulletsToLoadHandler(UserOptionsWithPages):
-
     TITLE = "Select Bullets"
 
     def __init__(self, engine: Engine, magazine: Item):
@@ -1167,16 +1163,17 @@ class SelectItemToCraft(UserOptionsWithPages):
 
             # TODO: extend for other item types
             if isinstance(self.item_dict[option]["item"].usable_properties, Gun):
-                return CraftItem(engine=self.engine, item_to_craft=option, current_part_index=0,
-                                 item_dict=self.item_dict,
-                                 prerequisite_parts=[],
-                                 part_dict=part_dict,
-                                 incompatible_parts=[],
-                                 prevent_suppression=False,
-                                 accessory_attachment=False,
-                                 compatible_calibres=[],
-                                 optics_mount_types=[],
-                                 )
+                return CraftGun(engine=self.engine, item_to_craft=option, current_part_index=0,
+                                item_dict=self.item_dict,
+                                prerequisite_parts=[],
+                                part_dict=part_dict,
+                                incompatible_parts=[],
+                                prevent_suppression=False,
+                                compatible_calibres=[],
+                                optics_mount_types=[],
+                                accessory_attachment_underbarrel=False,
+                                accessory_attachment_sidemount=False,
+                                )
             else:
                 return MainGameEventHandler(engine=self.engine)
 
@@ -1185,21 +1182,16 @@ class SelectItemToCraft(UserOptionsWithPages):
             return SelectItemToCraft(engine=self.engine, title=option, item_dict=self.item_dict[option])
 
 
-# for now this is only for guns, need additional classes to work with other item types
 class CraftItem(UserOptionsWithPages):
-    def __init__(self, engine: Engine,
+    def __init__(self,
+                 engine: Engine,
                  item_to_craft: str,
                  current_part_index: int,
                  item_dict: dict,
                  prerequisite_parts: list,
                  incompatible_parts: list,
                  part_dict: dict,
-                 prevent_suppression: bool,
-                 accessory_attachment: bool,
-                 compatible_calibres: list,
-                 optics_mount_types: list,
                  ):
-
         self.engine = engine
 
         # values of all parts
@@ -1216,21 +1208,51 @@ class CraftItem(UserOptionsWithPages):
         # index of current part to be selected set to first part
         self.current_part_selection = current_part_index
 
-        title = self.item_dict[item_to_craft]["parts names"][current_part_index]
+        title = self.parts[current_part_index]
 
         # parts of a given type available in inventory
         self.options = []
 
         self.incompatible_parts = incompatible_parts
         self.prerequisite_parts = prerequisite_parts
-        self.prevent_suppression = prevent_suppression
-        self.accessory_attachment = accessory_attachment
-        self.compatible_calibres = compatible_calibres
-        self.optics_mount_types = optics_mount_types
-
         self.add_options()
 
         super().__init__(engine=engine, options=self.options, page=0, title=title)
+
+    def add_options(self):
+        return NotImplementedError
+
+
+class CraftGun(CraftItem):
+    def __init__(self,
+                 engine: Engine,
+                 item_to_craft: str,
+                 current_part_index: int,
+                 item_dict: dict,
+                 prerequisite_parts: list,
+                 incompatible_parts: list,
+                 part_dict: dict,
+                 prevent_suppression: bool,
+                 compatible_calibres: list,
+                 optics_mount_types: list,
+                 accessory_attachment_underbarrel: bool,
+                 accessory_attachment_sidemount: bool,
+                 ):
+
+        self.prevent_suppression = prevent_suppression
+        self.compatible_calibres = compatible_calibres
+        self.optics_mount_types = optics_mount_types
+        self.accessory_attachment_underbarrel = accessory_attachment_underbarrel
+        self.accessory_attachment_sidemount = accessory_attachment_sidemount
+
+        super().__init__(engine=engine,
+                         item_to_craft=item_to_craft,
+                         current_part_index=current_part_index,
+                         item_dict=item_dict,
+                         prerequisite_parts=prerequisite_parts,
+                         incompatible_parts=incompatible_parts,
+                         part_dict=part_dict,
+                         )
 
     def add_options(self):
 
@@ -1244,8 +1266,6 @@ class CraftItem(UserOptionsWithPages):
         for item in self.engine.player.inventory.items:
             if isinstance(item.usable_properties, GunComponent):
 
-                print(self.prerequisite_parts)
-
                 if item.usable_properties.part_type == self.parts[self.current_part_selection]:
 
                     add_option = True
@@ -1253,48 +1273,49 @@ class CraftItem(UserOptionsWithPages):
                     # if part compatible with item being crafted, adds to options
                     if len(item.usable_properties.compatible_items) > 0:
                         if self.item_name not in item.usable_properties.compatible_items:
-                            print(item.usable_properties.compatible_items)
-                            print(self.item_name)
                             print('failed compatibility check')
                             add_option = False
 
+                    # checks for incompatible parts
                     if item.name in self.incompatible_parts:
                         print('found in incompatible parts')
                         add_option = False
 
-                    if isinstance(item.usable_properties, GunComponent):
+                    # checks for calibre compatibility
+                    calibre_compatible = False
+                    if len(item.usable_properties.compatible_calibres) > 0:
+                        for calibre in item.usable_properties.compatible_calibres:
+                            if calibre in self.compatible_calibres:
+                                calibre_compatible = True
+                    else:
+                        calibre_compatible = True
+                    if not calibre_compatible:
+                        add_option = False
+                        print('failed compatible calibres check')
 
-                        calibre_compatible = False
+                    # checks optic mount compatibility
+                    if item.usable_properties.is_optic:
+                        mount_compatible = False
+                        for mount_type in self.optics_mount_types:
+                            if mount_type in item.usable_properties.optics_mount_required:
+                                mount_compatible = True
+                        if mount_compatible:
+                            add_option = True
 
-                        if len(item.usable_properties.compatible_calibres) > 0:
-                            for calibre in item.usable_properties.compatible_calibres:
-                                if calibre in self.compatible_calibres:
-                                    calibre_compatible = True
-                        else:
-                            calibre_compatible = True
-
-                        if not calibre_compatible:
+                    # checks suppressor compatibility
+                    if item.usable_properties.is_suppressor:
+                        if self.prevent_suppression:
                             add_option = False
-                            print('failed compatible calibres check')
 
-                        if item.usable_properties.is_optic:
+                    # checks compatibility with underbarrel accessories
+                    if item.usable_properties.is_underbarrel_attachment:
+                        if not self.accessory_attachment_sidemount:
+                            add_option = False
 
-                            mount_compatible = False
-
-                            for mount_type in self.optics_mount_types:
-                                if mount_type in item.usable_properties.optics_mount_required:
-                                    mount_compatible = True
-
-                            if mount_compatible:
-                                add_option = True
-
-                        if item.usable_properties.is_suppressor:
-                            if self.prevent_suppression:
-                                add_option = False
-
-                        if item.usable_properties.part_type == 'gun_accessory':
-                            if not self.accessory_attachment:
-                                add_option = False
+                    # checks compatibility with side mounted accessories
+                    if item.usable_properties.is_sidemount_attachment:
+                        if not self.accessory_attachment_sidemount:
+                            add_option = False
 
                     if add_option:
                         if add_only_prerequisites and item in self.prerequisite_parts:
@@ -1309,21 +1330,23 @@ class CraftItem(UserOptionsWithPages):
             # if part is not required and there are no parts of this type in inventory, skips to the next part type
             if len(self.options) == 0:
                 self.current_part_selection += 1
-                return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
-                                 item_to_craft=self.item_name,
-                                 item_dict=self.item_dict,
-                                 part_dict=self.part_dict,
-                                 prerequisite_parts=self.prerequisite_parts,
-                                 incompatible_parts=self.incompatible_parts,
-                                 prevent_suppression=self.prevent_suppression,
-                                 accessory_attachment=self.accessory_attachment,
-                                 compatible_calibres=self.compatible_calibres,
-                                 optics_mount_types=self.optics_mount_types
-                                 )
+                return CraftGun(engine=self.engine,
+                                current_part_index=self.current_part_selection,
+                                item_to_craft=self.item_name,
+                                item_dict=self.item_dict,
+                                part_dict=self.part_dict,
+                                prerequisite_parts=self.prerequisite_parts,
+                                incompatible_parts=self.incompatible_parts,
+                                prevent_suppression=self.prevent_suppression,
+                                compatible_calibres=self.compatible_calibres,
+                                optics_mount_types=self.optics_mount_types,
+                                accessory_attachment_underbarrel=self.accessory_attachment_underbarrel,
+                                accessory_attachment_sidemount=self.accessory_attachment_sidemount,
+                                )
 
             # part is not required, adds the option to select no part
             else:
-                self.options = ['none',] + self.options
+                self.options = ['none', ] + self.options
 
         # if part is required but no item of this type in inventory, cancels crafting
         else:
@@ -1340,8 +1363,10 @@ class CraftItem(UserOptionsWithPages):
 
         if option.usable_properties.prevents_suppression:
             self.prevent_suppression = True
-        if option.usable_properties.accessory_attachment:
-            self.accessory_attachment = True
+        if option.usable_properties.accessory_attachment_underbarrel:
+            self.accessory_attachment_underbarrel = True
+        if option.usable_properties.accessory_attachment_sidemount:
+            self.accessory_attachment_sidemount = True
         if len(option.usable_properties.compatible_calibres) > 0:
             self.compatible_calibres = option.usable_properties.compatible_calibres
 
@@ -1399,17 +1424,19 @@ class CraftItem(UserOptionsWithPages):
 
         else:
             self.current_part_selection += 1
-            return CraftItem(engine=self.engine, current_part_index=self.current_part_selection,
-                             item_to_craft=self.item_name,
-                             item_dict=self.item_dict,
-                             part_dict=self.part_dict,
-                             prerequisite_parts=self.prerequisite_parts,
-                             incompatible_parts=self.incompatible_parts,
-                             prevent_suppression=self.prevent_suppression,
-                             accessory_attachment=self.accessory_attachment,
-                             compatible_calibres=self.compatible_calibres,
-                             optics_mount_types=self.optics_mount_types
-                             )
+            return CraftGun(engine=self.engine,
+                            current_part_index=self.current_part_selection,
+                            item_to_craft=self.item_name,
+                            item_dict=self.item_dict,
+                            part_dict=self.part_dict,
+                            prerequisite_parts=self.prerequisite_parts,
+                            incompatible_parts=self.incompatible_parts,
+                            prevent_suppression=self.prevent_suppression,
+                            compatible_calibres=self.compatible_calibres,
+                            optics_mount_types=self.optics_mount_types,
+                            accessory_attachment_underbarrel=self.accessory_attachment_underbarrel,
+                            accessory_attachment_sidemount=self.accessory_attachment_sidemount,
+                            )
 
 
 class CraftAmountEventHander(TypeAmountEventHandler):
@@ -1486,22 +1513,23 @@ class InspectItemViewer(AskUserEventHandler):
             "weight": item.weight,
         }
 
-        fire_modes = ""
+        fire_modes = {}
 
         if isinstance(item.usable_properties, Gun):
-
             for key, value in item.usable_properties.fire_modes.items():
                 if key == "single shot":
-                    fire_modes += f"single shot,"
+                    fire_modes["single shot"] = ''
+                elif key == "rapid fire (semi-auto)":
+                    pass
                 else:
-                    fire_modes += f"{key} - {value}RPM,"
+                    fire_modes[key] = f"{value}RPM"
 
         additonal_info = {
             "damage": 'base_meat_damage',
             "armour damage": 'base_armour_damage',
             "accuracy": 'base_accuracy',
             "equip time": 'equip_time',
-            "effective short range accuracy": 'close_range_accuracy',
+            "short range accuracy": 'close_range_accuracy',
             "effective range": 'range_accuracy_dropoff',
             "recoil": 'recoil',
             "shot sound radius": 'sound_radius',
@@ -1528,8 +1556,7 @@ class InspectItemViewer(AskUserEventHandler):
             if hasattr(item.usable_properties, value):
                 item_info[key] = getattr(item.usable_properties, value)
 
-        if fire_modes != "":
-            item_info['fire modes'] = fire_modes
+        item_info.update(fire_modes)
 
         self.item_info = item_info
 
@@ -1564,7 +1591,7 @@ class InspectItemViewer(AskUserEventHandler):
                 y += 1
 
         if self.inspect_parts_option:
-            console.print(x=2, y=y+1, string=f"(i) show parts")
+            console.print(x=2, y=y + 1, string=f"(i) show parts")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
 
