@@ -24,9 +24,14 @@ from components.bodyparts import Body, Arm, Leg, Head
 from copy import deepcopy
 
 #from components.weapons.glock17 import glock_17, glock17_frame, glock17_barrel, glock17_slide, glock_switch, glock_competition_trigger
-from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
-    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, mosin_pistol_grip, \
-    mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak
+#from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
+#    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, mosin_pistol_grip, \
+#    mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak
+
+from components.weapons.mac10 import mac1045_lower, mac1045_upper, mac1045_upper_tactical, mac1045_upper_max, \
+    mac1045_barrel, mac1045_extended_barrel, mac1045_carbine_barrel, mac10_full_stock, mac10_folding_stock, \
+    mac1045_sionics_suppressor
+
 
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance."""
@@ -61,10 +66,13 @@ def new_game() -> Engine:
 
     #inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide, glock_switch, glock_competition_trigger]
 
-    inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
-                       mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount,
-                       mosin_pistol_grip, mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak]
+    #inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
+    #                   mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount,
+    #                   mosin_pistol_grip, mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak]
 
+    inventory_items = [mac1045_lower, mac1045_upper, mac1045_upper_tactical, mac1045_upper_max,mac1045_barrel,
+                       mac1045_extended_barrel, mac1045_carbine_barrel, mac10_full_stock, mac10_folding_stock,
+                       mac1045_sionics_suppressor, ]
 
     for item in inventory_items:
         itemcopy = deepcopy(item)

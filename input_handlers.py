@@ -1147,10 +1147,6 @@ class SelectItemToCraft(UserOptionsWithPages):
                 for item in self.engine.player.inventory.items:
                     if isinstance(item.usable_properties, ComponentPart):
                         if item.usable_properties.part_type == part:
-                            if len(item.usable_properties.compatible_items) > 0:
-                                if self.item_dict[option] in item.usable_properties.compatible_items:
-                                    available_compatible_parts.append(part)
-                            else:
                                 available_compatible_parts.append(part)
 
             # all required and compatible parts
@@ -1165,14 +1161,13 @@ class SelectItemToCraft(UserOptionsWithPages):
             if isinstance(self.item_dict[option]["item"].usable_properties, Gun):
                 return CraftGun(engine=self.engine, item_to_craft=option, current_part_index=0,
                                 item_dict=self.item_dict,
-                                prerequisite_parts=[],
+                                compatible_parts={},
                                 part_dict=part_dict,
-                                incompatible_parts=[],
                                 prevent_suppression=False,
-                                compatible_calibres=[],
-                                optics_mount_types=[],
+                                optics_mount_types='',
                                 accessory_attachment_underbarrel=False,
                                 accessory_attachment_sidemount=False,
+                                barrel_attachment_type=''
                                 )
             else:
                 return MainGameEventHandler(engine=self.engine)
@@ -1188,8 +1183,7 @@ class CraftItem(UserOptionsWithPages):
                  item_to_craft: str,
                  current_part_index: int,
                  item_dict: dict,
-                 prerequisite_parts: list,
-                 incompatible_parts: list,
+                 compatible_parts: dict,
                  part_dict: dict,
                  ):
         self.engine = engine
@@ -1213,8 +1207,7 @@ class CraftItem(UserOptionsWithPages):
         # parts of a given type available in inventory
         self.options = []
 
-        self.incompatible_parts = incompatible_parts
-        self.prerequisite_parts = prerequisite_parts
+        self.compatible_parts = compatible_parts
         self.add_options()
 
         super().__init__(engine=engine, options=self.options, page=0, title=title)
@@ -1229,19 +1222,18 @@ class CraftGun(CraftItem):
                  item_to_craft: str,
                  current_part_index: int,
                  item_dict: dict,
-                 prerequisite_parts: list,
-                 incompatible_parts: list,
+                 compatible_parts: dict,
                  part_dict: dict,
                  prevent_suppression: bool,
-                 compatible_calibres: list,
-                 optics_mount_types: list,
+                 optics_mount_types: str,
+                 barrel_attachment_type: str,
                  accessory_attachment_underbarrel: bool,
                  accessory_attachment_sidemount: bool,
                  ):
 
         self.prevent_suppression = prevent_suppression
-        self.compatible_calibres = compatible_calibres
         self.optics_mount_types = optics_mount_types
+        self.barrel_attachment_type = barrel_attachment_type
         self.accessory_attachment_underbarrel = accessory_attachment_underbarrel
         self.accessory_attachment_sidemount = accessory_attachment_sidemount
 
@@ -1249,8 +1241,7 @@ class CraftGun(CraftItem):
                          item_to_craft=item_to_craft,
                          current_part_index=current_part_index,
                          item_dict=item_dict,
-                         prerequisite_parts=prerequisite_parts,
-                         incompatible_parts=incompatible_parts,
+                         compatible_parts=compatible_parts,
                          part_dict=part_dict,
                          )
 
@@ -1258,10 +1249,11 @@ class CraftGun(CraftItem):
 
         # checks if current part selection is the same as the type an item in the prerequisite parts
         # if it is, only adds parts to options that are in prerequisites
-        add_only_prerequisites = False
-        for prerequisites in self.prerequisite_parts:
-            if prerequisites.usable_properties.part_type == self.parts[self.current_part_selection]:
-                add_only_prerequisites = True
+        add_only_compatible = False
+        for part_type in self.compatible_parts.keys():
+            if part_type == self.parts[self.current_part_selection]:
+                add_only_compatible = True
+                break
 
         for item in self.engine.player.inventory.items:
             if isinstance(item.usable_properties, GunComponent):
@@ -1270,37 +1262,15 @@ class CraftGun(CraftItem):
 
                     add_option = True
 
-                    # if part compatible with item being crafted, adds to options
-                    if len(item.usable_properties.compatible_items) > 0:
-                        if self.item_name not in item.usable_properties.compatible_items:
-                            print('failed compatibility check')
-                            add_option = False
-
-                    # checks for incompatible parts
-                    if item.name in self.incompatible_parts:
-                        print('found in incompatible parts')
-                        add_option = False
-
-                    # checks for calibre compatibility
-                    calibre_compatible = False
-                    if len(item.usable_properties.compatible_calibres) > 0:
-                        for calibre in item.usable_properties.compatible_calibres:
-                            if calibre in self.compatible_calibres:
-                                calibre_compatible = True
-                    else:
-                        calibre_compatible = True
-                    if not calibre_compatible:
-                        add_option = False
-                        print('failed compatible calibres check')
-
                     # checks optic mount compatibility
                     if item.usable_properties.is_optic:
-                        mount_compatible = False
-                        for mount_type in self.optics_mount_types:
-                            if mount_type in item.usable_properties.optics_mount_required:
-                                mount_compatible = True
-                        if mount_compatible:
-                            add_option = True
+                        if not self.optics_mount_types == item.usable_properties.optics_mount_required:
+                            add_option = False
+
+                    # checks muzzle device compatibility
+                    if item.usable_properties.is_barrel_attachment:
+                        if not self.barrel_attachment_type == item.usable_properties.barrel_attachment_required:
+                            add_option = False
 
                     # checks suppressor compatibility
                     if item.usable_properties.is_suppressor:
@@ -1309,7 +1279,7 @@ class CraftGun(CraftItem):
 
                     # checks compatibility with underbarrel accessories
                     if item.usable_properties.is_underbarrel_attachment:
-                        if not self.accessory_attachment_sidemount:
+                        if not self.accessory_attachment_underbarrel:
                             add_option = False
 
                     # checks compatibility with side mounted accessories
@@ -1318,9 +1288,10 @@ class CraftGun(CraftItem):
                             add_option = False
 
                     if add_option:
-                        if add_only_prerequisites and item in self.prerequisite_parts:
+                        if add_only_compatible and item.name in \
+                                self.compatible_parts[self.parts[self.current_part_selection]]:
                             self.options.append(item)
-                        elif not add_only_prerequisites:
+                        elif not add_only_compatible:
                             self.options.append(item)
                         else:
                             print('failed prerequisite test')
@@ -1328,20 +1299,19 @@ class CraftGun(CraftItem):
         if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
 
             # if part is not required and there are no parts of this type in inventory, skips to the next part type
-            if len(self.options) == 0:
+            if len(self.options) == 0 and self.parts[self.current_part_selection] != self.parts[-1]:
                 self.current_part_selection += 1
                 return CraftGun(engine=self.engine,
                                 current_part_index=self.current_part_selection,
                                 item_to_craft=self.item_name,
                                 item_dict=self.item_dict,
                                 part_dict=self.part_dict,
-                                prerequisite_parts=self.prerequisite_parts,
-                                incompatible_parts=self.incompatible_parts,
+                                compatible_parts=self.compatible_parts,
                                 prevent_suppression=self.prevent_suppression,
-                                compatible_calibres=self.compatible_calibres,
                                 optics_mount_types=self.optics_mount_types,
                                 accessory_attachment_underbarrel=self.accessory_attachment_underbarrel,
                                 accessory_attachment_sidemount=self.accessory_attachment_sidemount,
+                                barrel_attachment_type=self.barrel_attachment_type
                                 )
 
             # part is not required, adds the option to select no part
@@ -1356,10 +1326,18 @@ class CraftGun(CraftItem):
 
     def update_crafting_properties(self, option):
 
-        self.prerequisite_parts.extend(option.usable_properties.prerequisite_parts)
-        self.incompatible_parts.extend(option.usable_properties.incompatible_parts)
-        self.optics_mount_types.extend(option.usable_properties.optics_mount_types)
-        self.compatible_calibres.extend(option.usable_properties.compatible_calibres)
+        # updates the compatible parts dictionary
+        if hasattr(option.usable_properties, 'compatible_parts'):
+            part_keys = option.usable_properties.compatible_parts.keys()
+            for key, value in self.compatible_parts.items():
+                if key in part_keys:
+                    self.compatible_parts[key] = value.extend(option.usable_properties.compatible_parts[key])
+            for key, value in option.usable_properties.compatible_parts.items():
+                if key not in self.compatible_parts.keys():
+                    self.compatible_parts[key] = option.usable_properties.compatible_parts[key]
+
+        self.barrel_attachment_type = option.usable_properties.barrel_attachment_type
+        self.optics_mount_types = option.usable_properties.optics_mount_types
 
         if option.usable_properties.prevents_suppression:
             self.prevent_suppression = True
@@ -1367,8 +1345,6 @@ class CraftGun(CraftItem):
             self.accessory_attachment_underbarrel = True
         if option.usable_properties.accessory_attachment_sidemount:
             self.accessory_attachment_sidemount = True
-        if len(option.usable_properties.compatible_calibres) > 0:
-            self.compatible_calibres = option.usable_properties.compatible_calibres
 
     def on_option_selected(self, option):
 
@@ -1429,16 +1405,16 @@ class CraftGun(CraftItem):
                             item_to_craft=self.item_name,
                             item_dict=self.item_dict,
                             part_dict=self.part_dict,
-                            prerequisite_parts=self.prerequisite_parts,
-                            incompatible_parts=self.incompatible_parts,
+                            compatible_parts=self.compatible_parts,
                             prevent_suppression=self.prevent_suppression,
-                            compatible_calibres=self.compatible_calibres,
                             optics_mount_types=self.optics_mount_types,
                             accessory_attachment_underbarrel=self.accessory_attachment_underbarrel,
                             accessory_attachment_sidemount=self.accessory_attachment_sidemount,
+                            barrel_attachment_type=self.barrel_attachment_type
                             )
 
 
+# TODO: this menu is broke
 class CraftAmountEventHander(TypeAmountEventHandler):
 
     def __init__(self, item, engine: Engine, itemdict: dict, item_name: str, part_dict: dict,

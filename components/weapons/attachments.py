@@ -8,6 +8,8 @@ from components.commonitems import steel
 OPTICS
 """
 
+# TODO: give these items proper properties
+
 holosun503 = Item(
     x=0, y=0,
     char="!",

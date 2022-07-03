@@ -18,6 +18,7 @@ mosin_stock = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
                                    material={wood: 3},
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]}
                                    ),
     description='Standard M91/30 stock'
 )
@@ -35,6 +36,7 @@ mosin_archangel_stock = Item(
                                    material={polymer: 3},
                                    recoil=0.92,
                                    close_range_accuracy=0.94,
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]}
                                    ),
     description='Tactical polymer Archangel replacement stock for the M91/30 Mosin-Nagant designed by ProMag'
 )
@@ -51,6 +53,8 @@ mosin_carbine_stock = Item(
                                    material={wood: 3},
                                    recoil=1.03,
                                    close_range_accuracy=1.05,
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",
+                                                                             "Mosin-Nagant Carbine Barrel",]}
                                    ),
     description='A shortened carbine stock for the Mosin-Nagant'
 )
@@ -67,6 +71,7 @@ mosin_obrez_stock = Item(
                                    material={wood: 2},
                                    recoil=1.1,
                                    close_range_accuracy=1.05,
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant Obrez Barrel",]}
                                    ),
     description='A stockless pistol length housing for the Mosin-Nagant, perfect for concealment'
 )
@@ -85,7 +90,7 @@ mosin_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    material={steel: 4},
-                                   prerequisite_parts=(mosin_stock, mosin_archangel_stock, mosin_carbine_stock)
+                                   barrel_attachment_type='Mosin-Nagant',
                                    ),
     description='Standard length M91/30 barrel assembly'
 )
@@ -102,12 +107,12 @@ mosin_carbine_barrel = Item(
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    suffix="Carbine",
                                    material={steel: 3},
-                                   prerequisite_parts=(mosin_carbine_stock, mosin_obrez_stock),
                                    recoil=1.04,
                                    close_range_accuracy=1.08,
                                    base_meat_damage=0.95,
                                    base_armour_damage=0.95,
                                    base_accuracy=0.96,
+                                   barrel_attachment_type='Mosin-Nagant'
                                    ),
     description='A shortened carbine length barrel assembly for the Mosin-Nagant'
 )
@@ -129,6 +134,7 @@ mosin_obrez_barrel = Item(
                                    base_meat_damage=0.80,
                                    base_armour_damage=0.80,
                                    base_accuracy=0.88,
+                                   barrel_attachment_type='Mosin-Nagant'
                                    ),
     description='A pistol length barrel assembly for the Mosin-Nagant'
 )
@@ -147,9 +153,8 @@ mosin_pic_scope_mount = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Accessory Mount',
                                    material={wood: 2},
-                                   optics_mount_types=('picrail',),
+                                   optics_mount_types='picrail',
                                    accessory_attachment_sidemount=True,
-                                   optics_attachment_point=True,
                                    ),
     description='A three sided picatinny rail for mounting optics and other accessories to Mosin-Nagant rifles'
 )
@@ -183,7 +188,7 @@ mosin_magazine_conversion = Item(
     usable_properties=GunComponent(part_type='Mosin-Nagant Magazine Conversion',
                                    suffix="Magazine Conversion",
                                    material={steel: 1},
-                                   compatible_magazine_type='Mosin-Nagant'
+                                   compatible_magazine_type='Mosin-Nagant',
                                    ),
     description='Converts the mosin nagant to take after market magazines'
 )
@@ -196,13 +201,15 @@ mosin_suppressor = Item(
     name="Mosin-Nagant Bramit Suppressor",
     weight=0.2,
     stacking=None,
-    usable_properties=GunComponent(part_type='Mosin-Nagant Muzzle Device',
+    usable_properties=GunComponent(part_type='Muzzle Device',
                                    suffix="Suppressed",
                                    material={steel: 1},
                                    is_suppressor=True,
+                                   is_barrel_attachment=True,
                                    recoil=0.95,
                                    close_range_accuracy=0.95,
                                    sound_radius=0.7,
+                                   barrel_attachment_required='Mosin-Nagant'
                                    ),
     description='Suppressor for 7.62x54R Mosin-Nagant rifles'
 )
@@ -215,9 +222,11 @@ mosin_muzzlebreak = Item(
     name="Mosin-Nagant Texas Precision Muzzle Break",
     weight=0.2,
     stacking=None,
-    usable_properties=GunComponent(part_type='Mosin-Nagant Muzzle Device',
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   is_barrel_attachment=True,
                                    material={steel: 1},
                                    recoil=0.92,
+                                   barrel_attachment_required='Mosin-Nagant'
                                    ),
     description='Muzzle break for 7.62x54R Mosin-Nagant rifles by Texas Precision'
 )
@@ -265,7 +274,7 @@ mosindict = {
                     "Mosin-Nagant Accessory Mount": 1,
                     "Mosin-Nagant Grip": 1,
                     "Mosin-Nagant Magazine Conversion": 1,
-                    "Mosin-Nagant Muzzle Device": 1,
+                    "Muzzle Device": 1,
                     "Side Mounted Accessory": 1,
                     "Optic": 1
                 },

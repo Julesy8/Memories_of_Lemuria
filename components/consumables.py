@@ -603,10 +603,8 @@ class GunIntegratedMag(Gun, Magazine):
 
 
 class ComponentPart(Usable):
-    def __init__(self, part_type: str,
-                 prerequisite_parts: tuple = (),
-                 incompatible_parts: tuple = (),
-                 compatible_items: tuple = (),
+    def __init__(self,
+                 part_type: str,
                  material: dict = None,
                  disassemblable=True,
                  **kwargs
@@ -614,9 +612,6 @@ class ComponentPart(Usable):
         self.disassemblable = disassemblable
         self.material = material
         self.part_type = part_type
-        self.prerequisite_parts = prerequisite_parts
-        self.incompatible_parts = incompatible_parts
-        self.compatible_items = compatible_items
         self.__dict__.update(kwargs)
 
     def activate(self, action: actions.ItemAction):
@@ -626,21 +621,20 @@ class ComponentPart(Usable):
 class GunComponent(ComponentPart):
     def __init__(self,
                  part_type: str,
-                 optics_mount_required: str = '',  # type of mount required for attachment of the optic
-                 prerequisite_parts: tuple = (),
-                 incompatible_parts: tuple = (),
-                 compatible_items: tuple = (),
+                 optics_mount_required: str = '',  # type of mount required for attachment of the optic FOR OPTIC
+                 barrel_attachment_required: str = '',  # FOR MUZZLE DEVICE
                  material: dict = None,
                  disassemblable=True,
                  prevents_suppression=False,
                  is_optic=False,
                  is_suppressor=False,
-                 optics_mount_types: tuple = (),  # types of optics attachments compatible
+                 optics_mount_types: str = '',  # types of optics attachments compatible FOR OPTIC ATTACH POINT
+                 barrel_attachment_type: str = '',  # FOR MUZZLE DEVICE ATTACHMENT POINT
                  accessory_attachment_underbarrel=False,  # whether the attachment is an underbarrel attachment point
                  accessory_attachment_sidemount=False,
                  is_underbarrel_attachment=False,  # whether the attachment is an underbarrel accessory
                  is_sidemount_attachment=False,
-                 compatible_calibres: tuple = (),
+                 is_barrel_attachment=False,
                  **kwargs,
                  ):
         self.prevents_suppression = prevents_suppression
@@ -650,19 +644,20 @@ class GunComponent(ComponentPart):
         self.accessory_attachment_sidemount = accessory_attachment_sidemount
         self.is_underbarrel_attachment = is_underbarrel_attachment
         self.is_sidemount_attachment = is_sidemount_attachment
-        self.compatible_calibres = compatible_calibres
         self.optics_mount_types = optics_mount_types
+        self.is_barrel_attachment = is_barrel_attachment
+        self.barrel_attachment_type = barrel_attachment_type
 
         if self.is_optic:
             self.optics_mount_required = optics_mount_required
+
+        if self.is_barrel_attachment:
+            self.barrel_attachment_required = barrel_attachment_required
 
         self.__dict__.update(kwargs)
 
         super().__init__(
             part_type=part_type,
-            prerequisite_parts=prerequisite_parts,
-            incompatible_parts=incompatible_parts,
-            compatible_items=compatible_items,
             material=material,
             disassemblable=disassemblable
         )

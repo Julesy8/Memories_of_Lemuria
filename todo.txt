@@ -6,6 +6,9 @@ TO DO
 -ability to change optics magnification
 -shotgun shells
 -underbarrel grenade launchers
+-add stipper clips
+-remove compatible items?
+-change how recoil works - maximumum amount of recoil effect for each calibre
 
 17) more room shapes on level generation
 19) weapon graphics
