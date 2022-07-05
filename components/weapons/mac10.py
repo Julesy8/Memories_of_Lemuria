@@ -44,6 +44,8 @@ mac1045_upper = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/45 Upper',
+                                   compatible_parts={'M10/45 Barrel': ['M10/45 Barrel',
+                                                                       'M10/45 Extended Barrel w/ Shroud']},
                                    ),
     description='M10/45 upper reciever'
 )
@@ -57,7 +59,9 @@ mac1045_upper_tactical = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/45 Upper',
-                                   optics_mount_types='picrail',
+                                   is_attachment_point_types=['Picrail Optics Mount',],
+                                   compatible_parts={'M10/45 Barrel': ['M10/45 Barrel',
+                                                                       'M10/45 Extended Barrel w/ Shroud']},
                                    ),
     description='M10/45 side cocking upper reciever featuring a picatinny rail for optics mounting.'
 )
@@ -73,10 +77,9 @@ mac1045_upper_max = Item(
     usable_properties=GunComponent(part_type='M10/45 Upper',
                                    fire_modes={'automatic': 750},
                                    base_accuracy=1.1,
-                                   optics_mount_types='picrail',
-                                   accessory_attachment_sidemount=True,
-                                   accessory_attachment_underbarrel=True,
-                                   compatible_parts={'M10/45 Barrel': ['M10/45 Extended Barrel',]},
+                                   is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount',
+                                                              'Picrail Underbarrel'],
+                                   compatible_parts={'M10/45 Barrel': ['MAX-10/45 Barrel',]},
                                    ),
     description='MAX-10 side charging extended upper reciever for the M10/45 by Lage Manufacturing. '
                 'Decreases rate of fire and sports picatinny rail attachment points.'
@@ -92,7 +95,10 @@ mac109_upper = Item(
     name="M10/9 Upper Reciever",
     weight=1,
     stacking=None,
-    usable_properties=GunComponent(part_type='M10/9 Upper'),
+    usable_properties=GunComponent(part_type='M10/9 Upper',
+                                   compatible_parts={'M10/9 Barrel': ['M10/9 Barrel',
+                                                                      'M10/9 Extended Barrel w/ Shroud']},
+                                   ),
     description='M10/9 upper reciever'
 )
 
@@ -105,7 +111,9 @@ mac109_upper_tactical = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/9 Upper',
-                                   optics_mount_types='picrail',
+                                   is_attachment_point_types=['Picrail Optics Mount',],
+                                   compatible_parts={'M10/9 Barrel': ['M10/9 Barrel',
+                                                                      'M10/9 Extended Barrel w/ Shroud']},
                                    ),
     description='M10/9 side cocking upper reciever featuring a picatinny rail for optics mounting.'
 )
@@ -121,10 +129,9 @@ mac109_upper_max = Item(
     usable_properties=GunComponent(part_type='M10/9 Upper',
                                    fire_modes={'automatic': 750},
                                    base_accuracy=1.1,
-                                   accessory_attachment_sidemount=True,
-                                   accessory_attachment_underbarrel=True,
-                                   optics_mount_types='picrail',
-                                   compatible_parts={'M10/9 Barrel': ['M10/9 Extended Barrel', ]},
+                                   is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount',
+                                                              'Picrail Underbarrel'],
+                                   compatible_parts={'M10/9 Barrel': ['MAX-10/9 Barrel', ]},
                                    ),
     description='MAX-10 side charging extended upper reciever for the M10/9 by Lage Manufacturing. '
                 'Decreases rate of fire and sports picatinny rail attachment points.'
@@ -145,7 +152,7 @@ mac1045_barrel = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/45 Barrel',
-                                   barrel_attachment_type='7/8x9',
+                                   is_attachment_point_types=['Barrel Thread 7/8x9', 'M10 Barrel'],
                                    ),
     description='A standard length M10/45 barrel'
 )
@@ -155,11 +162,11 @@ mac1045_max_barrel = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
-    name="MAX-10 Barrel",
+    name="MAX-10/45 Barrel",
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/45 Barrel',
-                                   barrel_attachment_type='.578x28',
+                                   is_attachment_point_types=['Barrel Thread .578x28',],
                                    base_meat_damage=1.07,
                                    base_armour_damage=1.07,
                                    base_accuracy=1.2,
@@ -179,7 +186,7 @@ mac1045_extended_barrel = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/45 Barrel',
-                                   barrel_attachment_type='.578x28',
+                                   is_attachment_point_types=['Barrel Thread .578x28', 'M10 Barrel'],
                                    base_meat_damage=1.04,
                                    base_armour_damage=1.04,
                                    base_accuracy=1.12,
@@ -199,7 +206,7 @@ mac1045_carbine_barrel = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/45 Barrel',
-                                   barrel_attachment_type='.578x28',
+                                   is_attachment_point_types=['Barrel Thread .578x28',],
                                    base_meat_damage=1.1,
                                    base_armour_damage=1.1,
                                    base_accuracy=1.3,
@@ -221,7 +228,7 @@ mac109_barrel = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/9 Barrel',
-                                   barrel_attachment_type='3/4x10',
+                                   is_attachment_point_types=['Barrel Thread 3/4x10', 'M10 Barrel'],
                                    ),
     description='A standard length M10/9 barrel'
 )
@@ -235,7 +242,7 @@ mac109_extended_barrel = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/9 Barrel',
-                                   barrel_attachment_type='1/2x28',
+                                   is_attachment_point_types=['Barrel Thread 1/2x28', 'M10 Barrel'],
                                    base_meat_damage=1.04,
                                    base_armour_damage=1.04,
                                    base_accuracy=1.12,
@@ -255,7 +262,7 @@ mac109_max_barrel = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/9 Barrel',
-                                   barrel_attachment_type='1/2x28',
+                                   is_attachment_point_types=['Barrel Thread 1/2x28',],
                                    base_meat_damage=1.06,
                                    base_armour_damage=1.06,
                                    base_accuracy=1.2,
@@ -275,7 +282,7 @@ mac109_carbine_barrel = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10/9 Barrel',
-                                   barrel_attachment_type='1/2x28',
+                                   is_attachment_point_types=['Barrel Thread 1/2x28',],
                                    base_meat_damage=1.1,
                                    base_armour_damage=1.1,
                                    base_accuracy=1.3,
@@ -335,10 +342,11 @@ mac10_vertical_grip = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   recoil=0.80,
-                                   close_range_accuracy=0.85,
+                                   attachment_point_required='M10 Barrel',
+                                   recoil=0.94,
+                                   close_range_accuracy=1.03,
                                    ),
-    description='A large suppressor for the M10/45 that significantly reduces the sound of firing'
+    description='A vertical grip that clamps onto the barrel of M10 pattern guns'
 )
 
 mac1045_sionics_suppressor = Item(
@@ -354,8 +362,7 @@ mac1045_sionics_suppressor = Item(
                                    close_range_accuracy=0.85,
                                    sound_radius=0.60,
                                    is_suppressor=True,
-                                   is_barrel_attachment=True,
-                                   barrel_attachment_required='7/8x9'
+                                   attachment_point_required='Barrel Thread 7/8x9'
                                    ),
     description='A large suppressor for the M10/45 that significantly reduces the sound of firing'
 )
@@ -375,12 +382,12 @@ mac1045 = Item(
     description='An American blowback operated machine pistol, commonly known as the MAC-10. '
                 'It is known for its blistering rate of fire.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='mac1045',
+        compatible_magazine_type='M10/45',
         chambered_bullet=None,
         keep_round_chambered=False,
         loaded_magazine=None,
         equip_time=1,
-        fire_modes={'single shot': 1, 'automatic': 1100},
+        fire_modes={'single shot': 1, 'rapid fire (semi-auto)': 3, 'automatic': 1100},
         current_fire_mode='single shot',
         base_meat_damage=1.0,
         base_armour_damage=1.0,
@@ -406,12 +413,12 @@ mac109 = Item(
     description='An American blowback operated machine pistol, commonly known as the MAC-10. '
                 'It is known for its blistering rate of fire.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='mac109',
+        compatible_magazine_type='M10/9',
         chambered_bullet=None,
         keep_round_chambered=False,
         loaded_magazine=None,
         equip_time=1,
-        fire_modes={'single shot': 1, 'automatic': 1200},
+        fire_modes={'single shot': 1, 'rapid fire (semi-auto)': 3, 'automatic': 1200},
         current_fire_mode='single shot',
         base_meat_damage=1.0,
         base_armour_damage=1.0,
@@ -421,7 +428,7 @@ mac109 = Item(
         enemy_attack_range=8,
         possible_parts={},
         sound_radius=1.0,
-        recoil=1.0,
+        recoil=1.1,
         close_range_accuracy=0.9,
     )
 )
@@ -459,7 +466,7 @@ mac10dict = {
                     "Underbarrel Accessory": 1,
                     "Optic": 1
                 },
-                "item": mac1045
+                "item": mac109
             },
         }
     },

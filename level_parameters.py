@@ -1,7 +1,7 @@
 from numpy import array
 from components.enemies.caverns import *
 from components.commonitems import medkit
-from components.weapons.glock17 import glock_17, glock17_frame, glock17_barrel, glock17_slide, glock_switch, glock_competition_trigger
+from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide, glock_switch
 from components.weapons.bullets import round_9mm
 from components.weapons.magazines import glock_mag_9mm
 
@@ -45,6 +45,5 @@ Items_by_level = {
         [glock17_barrel, 1],
         [glock17_slide, 1],
         [glock_switch, 1],
-        [glock_competition_trigger, 1],
         ),
 }

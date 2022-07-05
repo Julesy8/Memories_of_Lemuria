@@ -480,7 +480,7 @@ class UserOptionsWithPages(AskUserEventHandler):
 
         if 0 <= index <= self.max_list_length - 1:
             try:
-                selected_item = self.options[index]
+                selected_item = self.options[index + (self.page * self.max_list_length)]
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
                 return None
@@ -574,10 +574,6 @@ class InventoryEventHandler(UserOptionsWithPages):
         if isinstance(item.usable_properties, Gun):
             options += ['Equip', 'Disassemble']
 
-        if isinstance(item.usable_properties, ComponentPart) or isinstance(item.usable_properties, GunComponent):
-            if item.usable_properties.disassemblable:
-                options.append('Scrap')
-
         return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
@@ -629,9 +625,6 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 for i in range(5):
                     self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
-
-        elif option == 'Scrap':
-            return AmountToScrap(item=self.item, engine=self.engine)
 
         elif option == 'Inspect':
             return InspectItemViewer(engine=self.engine, item=self.item)
@@ -1164,10 +1157,7 @@ class SelectItemToCraft(UserOptionsWithPages):
                                 compatible_parts={},
                                 part_dict=part_dict,
                                 prevent_suppression=False,
-                                optics_mount_types='',
-                                accessory_attachment_underbarrel=False,
-                                accessory_attachment_sidemount=False,
-                                barrel_attachment_type=''
+                                attachment_points=[]
                                 )
             else:
                 return MainGameEventHandler(engine=self.engine)
@@ -1225,17 +1215,11 @@ class CraftGun(CraftItem):
                  compatible_parts: dict,
                  part_dict: dict,
                  prevent_suppression: bool,
-                 optics_mount_types: str,
-                 barrel_attachment_type: str,
-                 accessory_attachment_underbarrel: bool,
-                 accessory_attachment_sidemount: bool,
+                 attachment_points: list
                  ):
 
         self.prevent_suppression = prevent_suppression
-        self.optics_mount_types = optics_mount_types
-        self.barrel_attachment_type = barrel_attachment_type
-        self.accessory_attachment_underbarrel = accessory_attachment_underbarrel
-        self.accessory_attachment_sidemount = accessory_attachment_sidemount
+        self.attachment_points = attachment_points
 
         super().__init__(engine=engine,
                          item_to_craft=item_to_craft,
@@ -1262,29 +1246,15 @@ class CraftGun(CraftItem):
 
                     add_option = True
 
-                    # checks optic mount compatibility
-                    if item.usable_properties.is_optic:
-                        if not self.optics_mount_types == item.usable_properties.optics_mount_required:
-                            add_option = False
-
-                    # checks muzzle device compatibility
-                    if item.usable_properties.is_barrel_attachment:
-                        if not self.barrel_attachment_type == item.usable_properties.barrel_attachment_required:
+                    # checks if there is an attachment point compatible with the attachment
+                    if hasattr(item.usable_properties, 'attachment_point_required'):
+                        attachment_point = getattr(item.usable_properties, 'attachment_point_required')
+                        if attachment_point not in self.attachment_points:
                             add_option = False
 
                     # checks suppressor compatibility
                     if item.usable_properties.is_suppressor:
                         if self.prevent_suppression:
-                            add_option = False
-
-                    # checks compatibility with underbarrel accessories
-                    if item.usable_properties.is_underbarrel_attachment:
-                        if not self.accessory_attachment_underbarrel:
-                            add_option = False
-
-                    # checks compatibility with side mounted accessories
-                    if item.usable_properties.is_sidemount_attachment:
-                        if not self.accessory_attachment_sidemount:
                             add_option = False
 
                     if add_option:
@@ -1293,13 +1263,13 @@ class CraftGun(CraftItem):
                             self.options.append(item)
                         elif not add_only_compatible:
                             self.options.append(item)
-                        else:
-                            print('failed prerequisite test')
 
         if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
 
-            # if part is not required and there are no parts of this type in inventory, skips to the next part type
+            # if part is not required and there are no parts of this type available,
+            # skips to the next part type
             if len(self.options) == 0 and self.parts[self.current_part_selection] != self.parts[-1]:
+                self.options = ['none', ] + self.options
                 self.current_part_selection += 1
                 return CraftGun(engine=self.engine,
                                 current_part_index=self.current_part_selection,
@@ -1308,10 +1278,7 @@ class CraftGun(CraftItem):
                                 part_dict=self.part_dict,
                                 compatible_parts=self.compatible_parts,
                                 prevent_suppression=self.prevent_suppression,
-                                optics_mount_types=self.optics_mount_types,
-                                accessory_attachment_underbarrel=self.accessory_attachment_underbarrel,
-                                accessory_attachment_sidemount=self.accessory_attachment_sidemount,
-                                barrel_attachment_type=self.barrel_attachment_type
+                                attachment_points=self.attachment_points
                                 )
 
             # part is not required, adds the option to select no part
@@ -1336,15 +1303,12 @@ class CraftGun(CraftItem):
                 if key not in self.compatible_parts.keys():
                     self.compatible_parts[key] = option.usable_properties.compatible_parts[key]
 
-        self.barrel_attachment_type = option.usable_properties.barrel_attachment_type
-        self.optics_mount_types = option.usable_properties.optics_mount_types
+        if hasattr(option.usable_properties, 'is_attachment_point_types'):
+            attachment_point_types = getattr(option.usable_properties, 'is_attachment_point_types')
+            self.attachment_points.extend(attachment_point_types)
 
         if option.usable_properties.prevents_suppression:
             self.prevent_suppression = True
-        if option.usable_properties.accessory_attachment_underbarrel:
-            self.accessory_attachment_underbarrel = True
-        if option.usable_properties.accessory_attachment_sidemount:
-            self.accessory_attachment_sidemount = True
 
     def on_option_selected(self, option):
 
@@ -1407,10 +1371,7 @@ class CraftGun(CraftItem):
                             part_dict=self.part_dict,
                             compatible_parts=self.compatible_parts,
                             prevent_suppression=self.prevent_suppression,
-                            optics_mount_types=self.optics_mount_types,
-                            accessory_attachment_underbarrel=self.accessory_attachment_underbarrel,
-                            accessory_attachment_sidemount=self.accessory_attachment_sidemount,
-                            barrel_attachment_type=self.barrel_attachment_type
+                            attachment_points=self.attachment_points
                             )
 
 
@@ -1489,17 +1450,6 @@ class InspectItemViewer(AskUserEventHandler):
             "weight": item.weight,
         }
 
-        fire_modes = {}
-
-        if isinstance(item.usable_properties, Gun):
-            for key, value in item.usable_properties.fire_modes.items():
-                if key == "single shot":
-                    fire_modes["single shot"] = ''
-                elif key == "rapid fire (semi-auto)":
-                    pass
-                else:
-                    fire_modes[key] = f"{value}RPM"
-
         additonal_info = {
             "damage": 'base_meat_damage',
             "armour damage": 'base_armour_damage',
@@ -1532,18 +1482,28 @@ class InspectItemViewer(AskUserEventHandler):
             if hasattr(item.usable_properties, value):
                 item_info[key] = getattr(item.usable_properties, value)
 
-        item_info.update(fire_modes)
+        if isinstance(item.usable_properties, Gun):
+            fire_modes = {"fire modes": ''}
+            for key, value in item.usable_properties.fire_modes.items():
+                if key == "single shot":
+                    fire_modes["fire modes"] += 'single shot, '
+                elif key == "rapid fire (semi-auto)":
+                    pass
+                else:
+                    fire_modes["fire modes"] += f"{key} - {value}RPM, "
+
+            item_info.update(fire_modes)
 
         self.item_info = item_info
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         super().on_render(console, camera)  # Draw the main state as the background.
 
-        height = len(self.item_info) + 2
+        height = len(self.item_info) * 2 + 2
 
         for key, value in self.item_info.items():
-            if len(key) + len(str(value)) + 3 > 35:
-                height += ceil((len(key) + len(str(value))) / 35)
+            if len(str(value)) > 36:
+                height += ceil((len(str(value))) / 36)
 
         console.draw_frame(
             x=1,
@@ -1559,11 +1519,12 @@ class InspectItemViewer(AskUserEventHandler):
         y = 2
 
         for key, value in self.item_info.items():
-            wrapper = textwrap.TextWrapper(width=32 - len(key))
+            wrapper = textwrap.TextWrapper(width=36)
             word_list = wrapper.wrap(text=str(value))
-            console.print(x=2, y=y, string=f"{key} - ", fg=colour.LIGHT_GREEN)
+            console.print(x=2, y=y, string=f"{key}", fg=colour.LIGHT_GREEN)
+            y += 1
             for string in word_list:
-                console.print(x=2 + len(key) + 3, y=y, string=string)
+                console.print(x=2, y=y, string=string)
                 y += 1
 
         if self.inspect_parts_option:

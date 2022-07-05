@@ -95,7 +95,7 @@ class Parts:
 
                     if type(part_properties[property_str]) is float:
                         gun_property = getattr(self.parent, property_str)
-                        setattr(self.parent, property_str, floor(part_properties[property_str] * gun_property))
+                        setattr(self.parent, property_str, round((part_properties[property_str] * gun_property), 2))
                     elif type(part_properties[property_str]) is str:
                         setattr(self.parent, property_str, part_properties[property_str])
                     elif type(part_properties[property_str]) is dict:

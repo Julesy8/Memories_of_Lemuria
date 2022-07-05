@@ -2,7 +2,6 @@ from entity import Item
 from components.consumables import GunIntegratedMag, GunComponent
 from components.gunparts import Parts
 import colour
-from components.commonitems import steel, polymer, wood
 
 """
 STOCKS
@@ -17,7 +16,6 @@ mosin_stock = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
-                                   material={wood: 3},
                                    compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]}
                                    ),
     description='Standard M91/30 stock'
@@ -33,7 +31,6 @@ mosin_archangel_stock = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
                                    prefix="Archangel",
-                                   material={polymer: 3},
                                    recoil=0.92,
                                    close_range_accuracy=0.94,
                                    compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]}
@@ -50,7 +47,6 @@ mosin_carbine_stock = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
-                                   material={wood: 3},
                                    recoil=1.03,
                                    close_range_accuracy=1.05,
                                    compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",
@@ -68,7 +64,6 @@ mosin_obrez_stock = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
-                                   material={wood: 2},
                                    recoil=1.1,
                                    close_range_accuracy=1.05,
                                    compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant Obrez Barrel",]}
@@ -89,8 +84,7 @@ mosin_barrel = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
-                                   material={steel: 4},
-                                   barrel_attachment_type='Mosin-Nagant',
+                                   is_attachment_point_types=['Mosin-Nagant Barrel',],
                                    ),
     description='Standard length M91/30 barrel assembly'
 )
@@ -106,13 +100,12 @@ mosin_carbine_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    suffix="Carbine",
-                                   material={steel: 3},
                                    recoil=1.04,
                                    close_range_accuracy=1.08,
                                    base_meat_damage=0.95,
                                    base_armour_damage=0.95,
                                    base_accuracy=0.96,
-                                   barrel_attachment_type='Mosin-Nagant'
+                                   is_attachment_point_types=['Mosin-Nagant Barrel',],
                                    ),
     description='A shortened carbine length barrel assembly for the Mosin-Nagant'
 )
@@ -127,14 +120,13 @@ mosin_obrez_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    suffix="Obrez",
-                                   material={wood: 2},
                                    prerequisite_parts=(mosin_obrez_stock,),
                                    recoil=1.1,
                                    close_range_accuracy=1.14,
                                    base_meat_damage=0.80,
                                    base_armour_damage=0.80,
                                    base_accuracy=0.88,
-                                   barrel_attachment_type='Mosin-Nagant'
+                                   is_attachment_point_types=['Mosin-Nagant Barrel',],
                                    ),
     description='A pistol length barrel assembly for the Mosin-Nagant'
 )
@@ -152,9 +144,7 @@ mosin_pic_scope_mount = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Accessory Mount',
-                                   material={wood: 2},
-                                   optics_mount_types='picrail',
-                                   accessory_attachment_sidemount=True,
+                                   is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount'],
                                    ),
     description='A three sided picatinny rail for mounting optics and other accessories to Mosin-Nagant rifles'
 )
@@ -170,7 +160,6 @@ mosin_pistol_grip = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Grip',
                                    prefix="Bubba'd",
-                                   material={wood: 2},
                                    base_accuracy=0.96,
                                    close_range_accuracy=1.05,
                                    ),
@@ -187,7 +176,6 @@ mosin_magazine_conversion = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Magazine Conversion',
                                    suffix="Magazine Conversion",
-                                   material={steel: 1},
                                    compatible_magazine_type='Mosin-Nagant',
                                    ),
     description='Converts the mosin nagant to take after market magazines'
@@ -203,13 +191,11 @@ mosin_suppressor = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    suffix="Suppressed",
-                                   material={steel: 1},
-                                   is_suppressor=True,
-                                   is_barrel_attachment=True,
                                    recoil=0.95,
                                    close_range_accuracy=0.95,
                                    sound_radius=0.7,
-                                   barrel_attachment_required='Mosin-Nagant'
+                                   attachment_point_required='Mosin-Nagant Barrel',
+                                   is_suppressor=True
                                    ),
     description='Suppressor for 7.62x54R Mosin-Nagant rifles'
 )
@@ -223,10 +209,8 @@ mosin_muzzlebreak = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   is_barrel_attachment=True,
-                                   material={steel: 1},
                                    recoil=0.92,
-                                   barrel_attachment_required='Mosin-Nagant'
+                                   attachment_point_required='Mosin-Nagant Barrel'
                                    ),
     description='Muzzle break for 7.62x54R Mosin-Nagant rifles by Texas Precision'
 )

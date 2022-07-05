@@ -306,7 +306,10 @@ class Gun(Weapon):
 
     def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
-        rounds_to_fire = round(self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier)
+        if self.current_fire_mode == 'automatic' or self.current_fire_mode == 'burst':
+            rounds_to_fire = round(self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier)
+        else:
+            rounds_to_fire = self.fire_modes[self.current_fire_mode]
 
         recoil_penalty = 0
 
@@ -605,12 +608,8 @@ class GunIntegratedMag(Gun, Magazine):
 class ComponentPart(Usable):
     def __init__(self,
                  part_type: str,
-                 material: dict = None,
-                 disassemblable=True,
                  **kwargs
                  ):
-        self.disassemblable = disassemblable
-        self.material = material
         self.part_type = part_type
         self.__dict__.update(kwargs)
 
@@ -621,45 +620,16 @@ class ComponentPart(Usable):
 class GunComponent(ComponentPart):
     def __init__(self,
                  part_type: str,
-                 optics_mount_required: str = '',  # type of mount required for attachment of the optic FOR OPTIC
-                 barrel_attachment_required: str = '',  # FOR MUZZLE DEVICE
-                 material: dict = None,
-                 disassemblable=True,
                  prevents_suppression=False,
-                 is_optic=False,
                  is_suppressor=False,
-                 optics_mount_types: str = '',  # types of optics attachments compatible FOR OPTIC ATTACH POINT
-                 barrel_attachment_type: str = '',  # FOR MUZZLE DEVICE ATTACHMENT POINT
-                 accessory_attachment_underbarrel=False,  # whether the attachment is an underbarrel attachment point
-                 accessory_attachment_sidemount=False,
-                 is_underbarrel_attachment=False,  # whether the attachment is an underbarrel accessory
-                 is_sidemount_attachment=False,
-                 is_barrel_attachment=False,
                  **kwargs,
                  ):
         self.prevents_suppression = prevents_suppression
-        self.is_optic = is_optic
         self.is_suppressor = is_suppressor
-        self.accessory_attachment_underbarrel = accessory_attachment_underbarrel
-        self.accessory_attachment_sidemount = accessory_attachment_sidemount
-        self.is_underbarrel_attachment = is_underbarrel_attachment
-        self.is_sidemount_attachment = is_sidemount_attachment
-        self.optics_mount_types = optics_mount_types
-        self.is_barrel_attachment = is_barrel_attachment
-        self.barrel_attachment_type = barrel_attachment_type
-
-        if self.is_optic:
-            self.optics_mount_required = optics_mount_required
-
-        if self.is_barrel_attachment:
-            self.barrel_attachment_required = barrel_attachment_required
-
         self.__dict__.update(kwargs)
 
         super().__init__(
             part_type=part_type,
-            material=material,
-            disassemblable=disassemblable
         )
 
 
