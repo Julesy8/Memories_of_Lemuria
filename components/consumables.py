@@ -327,8 +327,8 @@ class Gun(Weapon):
 
         # close range accuracy penalty
         functional_accuracy = self.base_accuracy
-        if distance < 7:
-            functional_accuracy = self.base_accuracy * self.close_range_accuracy
+        if distance <= 7:
+            functional_accuracy = self.close_range_accuracy
 
         # fires rounds
         while rounds_to_fire > 0:

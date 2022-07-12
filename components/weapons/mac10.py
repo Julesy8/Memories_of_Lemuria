@@ -62,6 +62,7 @@ mac1045_upper_tactical = Item(
                                    is_attachment_point_types=['Picrail Optics Mount',],
                                    compatible_parts={'M10/45 Barrel': ['M10/45 Barrel',
                                                                        'M10/45 Extended Barrel w/ Shroud']},
+                                   additional_required_parts=['Optic', ]
                                    ),
     description='M10/45 side cocking upper reciever featuring a picatinny rail for optics mounting.'
 )
@@ -80,6 +81,7 @@ mac1045_upper_max = Item(
                                    is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount',
                                                               'Picrail Underbarrel'],
                                    compatible_parts={'M10/45 Barrel': ['MAX-10/45 Barrel',]},
+                                   additional_required_parts=['Optic', ]
                                    ),
     description='MAX-10 side charging extended upper reciever for the M10/45 by Lage Manufacturing. '
                 'Decreases rate of fire and sports picatinny rail attachment points.'
@@ -114,6 +116,7 @@ mac109_upper_tactical = Item(
                                    is_attachment_point_types=['Picrail Optics Mount',],
                                    compatible_parts={'M10/9 Barrel': ['M10/9 Barrel',
                                                                       'M10/9 Extended Barrel w/ Shroud']},
+                                   additional_required_parts=['Optic', ]
                                    ),
     description='M10/9 side cocking upper reciever featuring a picatinny rail for optics mounting.'
 )
@@ -132,6 +135,7 @@ mac109_upper_max = Item(
                                    is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount',
                                                               'Picrail Underbarrel'],
                                    compatible_parts={'M10/9 Barrel': ['MAX-10/9 Barrel', ]},
+                                   additional_required_parts=['Optic', ]
                                    ),
     description='MAX-10 side charging extended upper reciever for the M10/9 by Lage Manufacturing. '
                 'Decreases rate of fire and sports picatinny rail attachment points.'

@@ -293,6 +293,7 @@ glock_pic_rail = Item(
     usable_properties=GunComponent(part_type='Glock Optics Mount',
                                    close_range_accuracy=0.95,
                                    is_attachment_point_types=['Picrail Optics Mount', ],
+                                   additional_required_parts=['Optic', ]
                                    ),
     description='An aftermarket picatinny rail sight mount for Glock handguns'
 )
@@ -331,7 +332,7 @@ glock_17 = Item(
     stacking=None,
     description='The classic Glock 9mm handgun, famous for its simplicity and reliability',
     usable_properties=GunMagFed(
-        compatible_magazine_type='glock9mm',
+        compatible_magazine_type='Glock 9mm',
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,

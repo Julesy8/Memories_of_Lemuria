@@ -395,10 +395,6 @@ class UserOptionsWithPages(AskUserEventHandler):
         super().__init__(engine)
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
-        Will move to a different position based on where the player is located, so the player can always see where
-        they are.
-        """
         super().on_render(console, camera)
 
         number_of_options = len(self.options)
@@ -1133,17 +1129,9 @@ class SelectItemToCraft(UserOptionsWithPages):
         if 'required parts' in list(self.item_dict[option].keys()):
             part_dict = {}
 
-            available_compatible_parts = []
-
-            # finds compatible component parts in inventory
-            for part in list(self.item_dict[option]["compatible parts"].keys()):
-                for item in self.engine.player.inventory.items:
-                    if isinstance(item.usable_properties, ComponentPart):
-                        if item.usable_properties.part_type == part:
-                                available_compatible_parts.append(part)
-
             # all required and compatible parts
-            parts = list(self.item_dict[option]["required parts"].keys()) + available_compatible_parts
+            parts = list(self.item_dict[option]["required parts"].keys()) + \
+                    list(self.item_dict[option]["compatible parts"].keys())
 
             # adds all required and compatible parts to the dictionary and sets
             # their value to None before player selects
@@ -1184,7 +1172,7 @@ class CraftItem(UserOptionsWithPages):
         self.item_name = item_to_craft
 
         # item crafting dict
-        self.item_dict = item_dict
+        self.item_dict = deepcopy(item_dict)
 
         # all part keys in list format
         self.parts = list(part_dict.keys())
@@ -1252,6 +1240,17 @@ class CraftGun(CraftItem):
                         if attachment_point not in self.attachment_points:
                             add_option = False
 
+                    if hasattr(item.usable_properties, 'incompatibilities'):
+                        all_parts = []
+                        for value in self.part_dict.values():
+                            if hasattr(value, 'tags'):
+                                all_parts += value.tags
+                        incompatibilities = getattr(item.usable_properties, 'incompatibilities')
+                        for setups in incompatibilities:
+                            for items in setups:
+                                if all(item in all_parts for item in items):
+                                    add_option = False
+
                     # checks suppressor compatibility
                     if item.usable_properties.is_suppressor:
                         if self.prevent_suppression:
@@ -1265,7 +1264,6 @@ class CraftGun(CraftItem):
                             self.options.append(item)
 
         if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
-
             # if part is not required and there are no parts of this type available,
             # skips to the next part type
             if len(self.options) == 0 and self.parts[self.current_part_selection] != self.parts[-1]:
@@ -1288,8 +1286,8 @@ class CraftGun(CraftItem):
         # if part is required but no item of this type in inventory, cancels crafting
         else:
             if len(self.options) < 1:
-                self.engine.message_log.add_message("Missing parts required to craft this item", colour.RED)
-                return MainGameEventHandler(engine=self.engine)
+                self.engine.message_log.add_message(f"Missing parts: {self.parts[self.current_part_selection]}",
+                                                    colour.RED)
 
     def update_crafting_properties(self, option):
 
@@ -1306,6 +1304,11 @@ class CraftGun(CraftItem):
         if hasattr(option.usable_properties, 'is_attachment_point_types'):
             attachment_point_types = getattr(option.usable_properties, 'is_attachment_point_types')
             self.attachment_points.extend(attachment_point_types)
+
+        if hasattr(option.usable_properties, 'additional_required_parts'):
+            for i in option.usable_properties.additional_required_parts:
+                if i in self.item_dict[self.item_name]["compatible parts"]:
+                    del self.item_dict[self.item_name]["compatible parts"][i]
 
         if option.usable_properties.prevents_suppression:
             self.prevent_suppression = True

@@ -16,7 +16,7 @@ mosin_stock = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
-                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]}
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]},
                                    ),
     description='Standard M91/30 stock'
 )
@@ -145,6 +145,7 @@ mosin_pic_scope_mount = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Accessory Mount',
                                    is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount'],
+                                   additional_required_parts=['Optic',]
                                    ),
     description='A three sided picatinny rail for mounting optics and other accessories to Mosin-Nagant rifles'
 )
@@ -259,8 +260,8 @@ mosindict = {
                     "Mosin-Nagant Grip": 1,
                     "Mosin-Nagant Magazine Conversion": 1,
                     "Muzzle Device": 1,
+                    "Optic": 1,
                     "Side Mounted Accessory": 1,
-                    "Optic": 1
                 },
                 "item": mosin_nagant
             },

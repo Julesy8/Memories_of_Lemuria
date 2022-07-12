@@ -268,7 +268,7 @@ round_762 = Item(
     description='A 7.62x39 round',
     usable_properties=Bullet(
         parts=Parts(),
-        bullet_type='762',
+        bullet_type='7.62x39',
         meat_damage=30,
         armour_damage=25,
         accuracy_factor=1.0,
@@ -286,7 +286,7 @@ brass_762 = Item(
     weight=0.0,
     stacking=Stacking(stack_size=1),
     description='7.62x39 bullet casing',
-    usable_properties=ComponentPart(part_type="brass_762", material={brass: 1})
+    usable_properties=ComponentPart(part_type="7.62x39 Brass", material={brass: 1})
 )
 
 bullet_762_fmj = Item(
@@ -298,7 +298,7 @@ bullet_762_fmj = Item(
     weight=0.0,
     stacking=Stacking(stack_size=1),
     description='7.62x39 full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_762", suffix='FMJ', material={lead: 1})
+    usable_properties=ComponentPart(part_type="7.62x39 Bullet", suffix='FMJ', material={lead: 1})
 )
 
 bullet_762_jhp = Item(
@@ -310,7 +310,7 @@ bullet_762_jhp = Item(
     weight=0.0,
     stacking=Stacking(stack_size=1),
     description='7.62x39 jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_762", suffix='JHP', material={lead: 1},
+    usable_properties=ComponentPart(part_type="7.62x39 Bullet", suffix='JHP', material={lead: 1},
                                     meat_damage=1.2,
                                     armour_damage=0.8,
                                     )
@@ -325,7 +325,7 @@ bullet_762_ap = Item(
     weight=0.0,
     stacking=Stacking(stack_size=1),
     description='7.62x39 armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_762", suffix='AP', material={lead: 1},
+    usable_properties=ComponentPart(part_type="7.62x39 Bullet", suffix='AP', material={lead: 1},
                                     meat_damage=0.9,
                                     armour_damage=1.3,
                                     )

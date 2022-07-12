@@ -68,16 +68,16 @@ def new_game() -> Engine:
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)
 
-    inventory_items = [mac1045,]
+    #inventory_items = [mac1045,]
 
     #inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel, glock_9in_barrel,
     #                   glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide,
     #                   glock17_slide_custom, glock17l_slide_custom, glock17_slide_ported, glock17l_slide_ported,
     #                   glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, glock_pistol_brace]
 
-    #inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
-    #                   mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount,
-    #                   mosin_pistol_grip, mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak]
+    inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
+                       mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount,
+                       mosin_pistol_grip, mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak]
 
     #inventory_items = [mac1045_lower, mac1045_upper, mac1045_upper_tactical, mac1045_upper_max,mac1045_barrel,
     #                   mac1045_extended_barrel, mac1045_carbine_barrel, mac10_full_stock, mac10_folding_stock,

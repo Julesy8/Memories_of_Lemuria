@@ -16,7 +16,7 @@ glock_mag_9mm = Item(
     stacking=None,
     description='9mm Glock magazine - 17 round capacity',
     usable_properties=Magazine(
-        magazine_type='glock9mm',
+        magazine_type='Glock 9mm',
         compatible_bullet_type='9mm',
         mag_capacity=17,
         turns_to_load=1,
@@ -34,7 +34,7 @@ glock_mag_9mm_33 = Item(
     stacking=None,
     description='extended 9mm Glock magazine - 33 round capacity',
     usable_properties=Magazine(
-        magazine_type='glock9mm',
+        magazine_type='Glock 9mm',
         compatible_bullet_type='9mm',
         mag_capacity=33,
         turns_to_load=1,
@@ -53,7 +53,7 @@ glock_mag_9mm_50 = Item(
     stacking=None,
     description='9mm Glock drum - 50 round capacity',
     usable_properties=Magazine(
-        magazine_type='glock9mm',
+        magazine_type='Glock 9mm',
         compatible_bullet_type='9mm',
         mag_capacity=50,
         turns_to_load=2,
@@ -72,7 +72,7 @@ glock_mag_9mm_100 = Item(
     stacking=None,
     description='9mm Glock Beta Mag - 100 round capacity',
     usable_properties=Magazine(
-        magazine_type='glock9mm',
+        magazine_type='Glock 9mm',
         compatible_bullet_type='9mm',
         mag_capacity=100,
         turns_to_load=3,
@@ -162,45 +162,263 @@ mosin_nagant = Item(
     )
 )
 
+"""
+AK 7.62x39
+"""
+
+ak762_30rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 7.62x39 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='Standard 30 round capacity 7.62x39 AK magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type='7.62x39',
+        mag_capacity=30,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
+ak762_40rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="RPK 7.62x39 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='40 round capacity 7.62x39 AK magazine designed for RPK light machine guns',
+    usable_properties=Magazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type='7.62x39',
+        mag_capacity=40,
+        turns_to_load=2,
+        magazine_size='medium',
+        base_accuracy=0.96,
+    )
+)
+
+ak762_60rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 7.62x39 Quad Magazine",
+    weight=0.2,
+    stacking=None,
+    description='60 round capacity 7.62x39 AK quad stack magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type='7.62x39',
+        mag_capacity=60,
+        turns_to_load=2,
+        magazine_size='medium',
+        base_accuracy=0.95,
+    )
+)
+
+ak762_75rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 7.62x39 75 Round Drum",
+    weight=0.2,
+    stacking=None,
+    description='75 round capacity 7.62x39 AK drum magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type='7.62x39',
+        mag_capacity=75,
+        turns_to_load=3,
+        magazine_size='large',
+        base_accuracy=0.90,
+    )
+)
+
+ak762_100rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 7.62x39 100 Round Drum",
+    weight=0.2,
+    stacking=None,
+    description='100 round capacity 7.62x39 AK drum magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type='7.62x39',
+        mag_capacity=100,
+        turns_to_load=4,
+        magazine_size='large',
+        base_accuracy=0.87,
+    )
+)
+
+"""
+AK 5.45x39
+"""
+
+ak545_30rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 5.45x39 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='Standard 30 round capacity 5.45x39 AK magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 5.45x39',
+        compatible_bullet_type='5.45x39',
+        mag_capacity=30,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
+ak545_45rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="RPK-74 5.45x39 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='45 round capacity 5.45x39 AK magazine designed for RPK-74 light machine guns',
+    usable_properties=Magazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type='7.62x39',
+        mag_capacity=45,
+        turns_to_load=2,
+        magazine_size='medium',
+        base_accuracy=0.96,
+    )
+)
+
+ak545_60rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 5.45x39 Quad Magazine",
+    weight=0.2,
+    stacking=None,
+    description='60 round capacity 5.45x39 AK quad stack magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 5.45x39',
+        compatible_bullet_type='5.45x39',
+        mag_capacity=60,
+        turns_to_load=2,
+        magazine_size='medium',
+        base_accuracy=0.95,
+    )
+)
+
+ak545_77rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 7.62x39 77 Round Drum",
+    weight=0.2,
+    stacking=None,
+    description='77 round capacity 5.45x39 AK drum magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 5.45x39',
+        compatible_bullet_type='5.45x39',
+        mag_capacity=77,
+        turns_to_load=3,
+        magazine_size='large',
+        base_accuracy=0.90,
+    )
+)
+
+ak545_100rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 5.45x39 95 Round Drum",
+    weight=0.2,
+    stacking=None,
+    description='95 round capacity 5.45x39 AK drum magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 5.45x39',
+        compatible_bullet_type='5.45x39',
+        mag_capacity=95,
+        turns_to_load=4,
+        magazine_size='large',
+        base_accuracy=0.87,
+    )
+)
+
+"""
+AK 5.56x45
+"""
+
+ak556_30rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 5.56x45 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='Standard 30 round capacity 5.56x45 AK magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 5.56x45',
+        compatible_bullet_type='5.56x45',
+        mag_capacity=30,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
+ak556_50rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="RPK-74 5.56x45 Magazine",
+    weight=0.2,
+    stacking=None,
+    description='50 round capacity 5.56x45 AK magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 5.56x45',
+        compatible_bullet_type='5.56x45',
+        mag_capacity=50,
+        turns_to_load=2,
+        magazine_size='medium',
+        base_accuracy=0.96,
+    )
+)
+
+ak556_120rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK 5.56x45 120 Round Drum",
+    weight=0.2,
+    stacking=None,
+    description='120 round capacity 5.56x45 AK drum magazine',
+    usable_properties=Magazine(
+        magazine_type='AK 5.56x45',
+        compatible_bullet_type='5.56x45',
+        mag_capacity=120,
+        turns_to_load=5,
+        magazine_size='large',
+        base_accuracy=0.85,
+    )
+)
+
 magazine_dict = {
-    "glock9mm": ((glock_mag_9mm, 2), (glock_mag_9mm_33, 1))
+    "Glock 9mm": ((glock_mag_9mm, 2), (glock_mag_9mm_33, 1))
 }
 
-magazine_crafting_dict = {
-    "Glock Magazine 9mm - 17 Round": {
-        "required parts": {
-            "polymer": 1,
-            "steel": 1,
-            },
-        "compatible parts": {},
-        "parts names": ["Material", "Material"],
-        "item": glock_mag_9mm
-    },
-    "Glock Magazine 9mm - 33 Round": {
-        "required parts": {
-            "polymer": 2,
-            "steel": 1,
-        },
-        "compatible parts": {},
-        "parts names": ["Material", "Material"],
-        "item": glock_mag_9mm_33
-    },
-    "Glock Drum 9mm - 50 Rounds": {
-        "required parts": {
-            "polymer": 3,
-            "steel": 2,
-        },
-        "compatible parts": {},
-        "parts names": ["Material", "Material"],
-        "item": glock_mag_9mm_50
-    },
-    "Glock Beta Mag 9mm - 100 Rounds": {
-        "required parts": {
-            "polymer": 3,
-            "steel": 3,
-        },
-        "compatible parts": {},
-        "parts names": ["Material", "Material"],
-        "item": glock_mag_9mm_100
-    },
-}
