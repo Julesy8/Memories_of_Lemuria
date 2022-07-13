@@ -33,9 +33,7 @@ upper_ar_m16a2 = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Upper Reciever',
-                                   compatible_parts={'AR Optics Mount': [],
-                                                     'AR Front Sight': ['AR A2 Front Sight',]
-                                                     },
+                                   additional_required_parts=['AR Front Sight', ],
                                    ),
     description='A standard AR-15 type upper reciever for 5.56x45 or .300 Blackout rifles with integrated '
                 'carrying handle'
@@ -509,7 +507,7 @@ ar_handguard_magpul = Item(
                                    base_accuracy=1.03,
                                    recoil=0.97,
                                    close_range_accuracy=0.97,
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    tags=['full length covers barrel', ],
                                    ),
     description='A polymer handguard for AR rifles by Magpul featuring MLOK accessory mounts'
@@ -527,7 +525,7 @@ ar_handguard_magpul_carbine = Item(
                                    base_accuracy=0.97,
                                    recoil=1.02,
                                    close_range_accuracy=1.03,
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    tags=['carbine length covers barrel', ],
                                    ),
     description='A carbine length polymer handguard for AR rifles by Magpul featuring MLOK accessory mounts'
@@ -543,7 +541,7 @@ ar_handguard_magpul_pistol = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Handguard',
                                    recoil=0.97,
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    ),
     description='A pistol length polymer handguard for AR rifles by Magpul featuring MLOK accessory mounts'
 )
@@ -561,7 +559,8 @@ ar_handguard_aero = Item(
                                    base_accuracy=1.04,
                                    recoil=1.03,
                                    close_range_accuracy=1.03,
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
                                    tags=['full length covers barrel', ],
                                    ),
     description='A light weight free floated handguard for AR rifles featuring MLOK accessory mounts'
@@ -580,7 +579,8 @@ ar_handguard_aero_carbine = Item(
                                    base_accuracy=1.02,
                                    recoil=1.05,
                                    close_range_accuracy=1.05,
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
                                    tags=['carbine length covers barrel', ],
                                    ),
     description='A carbine length light weight free floated handguard for AR rifles featuring MLOK accessory mounts'
@@ -595,7 +595,8 @@ ar_handguard_aero_pistol = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Handguard',
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
                                    tags=['pistol length covers barrel', ],
                                    ),
     description='A pistol length light weight free floated handguard for AR rifles featuring MLOK accessory mounts'
@@ -614,7 +615,7 @@ ar_handguard_faxon = Item(
                                    base_accuracy=1.08,
                                    recoil=1.06,
                                    close_range_accuracy=1.05,
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    tags=['full length covers barrel', ],
                                    ),
     description='A super light weight carbon fibre handguard for AR rifles with MLOK accessory mounts'
@@ -633,7 +634,7 @@ ar_handguard_faxon_carbine = Item(
                                    base_accuracy=1.05,
                                    recoil=1.08,
                                    close_range_accuracy=1.09,
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    tags=['carbine length covers barrel', ],
                                    ),
     description='A super light weight carbon fibre carbine length handguard for AR rifles with MLOK accessory mounts'
@@ -648,7 +649,7 @@ ar_handguard_faxon_pistol = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Handguard',
-                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel'],
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    tags=['pistol length covers barrel', ],
                                    ),
     description='A super light weight carbon fibre pistol length handguard for AR rifles with MLOK accessory mounts'
@@ -667,7 +668,8 @@ ar_handguard_mk18 = Item(
                                    base_accuracy=0.97,
                                    recoil=0.95,
                                    close_range_accuracy=0.97,
-                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel'],
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
                                    tags=['full length covers barrel', ],
                                    ),
     description='An M4 style handguard with picatinny rail mounts by Daniel Defense'
@@ -684,7 +686,8 @@ ar_handguard_mk18_carbine = Item(
     usable_properties=GunComponent(part_type='AR Handguard',
                                    equip_time=1.03,
                                    recoil=0.97,
-                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel'],
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
                                    tags=['carbine length covers barrel', ],
                                    ),
     description='An M4 style carbine length handguard with picatinny rail mounts by Daniel Defense'
@@ -700,7 +703,8 @@ ar_handguard_mk18_pistol = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Handguard',
                                    recoil=0.98,
-                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel'],
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
                                    tags=['pistol length covers barrel', ],
                                    ),
     description='An M4 style pistol length handguard with picatinny rail mounts by Daniel Defense'
@@ -856,6 +860,35 @@ ar_front_sight = Item(
     description='A 10" pistol length AR 5.56x45 barrel'
 )
 
+ar_front_sight_picatinny = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR Picatinny Rail Front Sight",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Front Sight',
+                                   attachment_point_required=('Picrail Top Mount',)
+                                   ),
+    description='A 10" pistol length AR 5.56x45 barrel'
+)
+
+ar_front_sight_mlok = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR MLOK Front Sight",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Front Sight',
+                                   attachment_point_required=('MLOK Top Mount',)
+                                   ),
+    description='A 10" pistol length AR 5.56x45 barrel'
+)
+
+
 ar_carry_handle = Item(
     x=0, y=0,
     char="!",
@@ -865,6 +898,7 @@ ar_carry_handle = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='Optics',
+                                   tags=['Carry Handle Attachment',]
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel'
 )
@@ -878,7 +912,9 @@ carry_handle_optic_mount = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Optics Mount',
+                                   is_attachment_point_types=['Picrail Optics Mount', ],
                                    additional_required_parts=['Optic', ],
+                                   incompatibilities=[['Carry Handle Attachment',]]
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel'
 )

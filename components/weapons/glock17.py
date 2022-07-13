@@ -261,7 +261,7 @@ glock_9mm_compensator = Item(
                                    sound_radius=1.3,
                                    base_accuracy=1.05,
                                    close_range_accuracy=0.95,
-                                   attachment_point_required='Barrel Thread M13.5x1 LH'
+                                   attachment_point_required=('Barrel Thread M13.5x1 LH',)
                                    ),
     description='A large compensator for Glock 9mm pistols'
 )

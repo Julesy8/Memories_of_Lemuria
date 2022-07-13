@@ -195,7 +195,7 @@ mosin_suppressor = Item(
                                    recoil=0.95,
                                    close_range_accuracy=0.95,
                                    sound_radius=0.7,
-                                   attachment_point_required='Mosin-Nagant Barrel',
+                                   attachment_point_required=('Mosin-Nagant Barrel',),
                                    is_suppressor=True
                                    ),
     description='Suppressor for 7.62x54R Mosin-Nagant rifles'
@@ -211,7 +211,7 @@ mosin_muzzlebreak = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    recoil=0.92,
-                                   attachment_point_required='Mosin-Nagant Barrel'
+                                   attachment_point_required=('Mosin-Nagant Barrel',)
                                    ),
     description='Muzzle break for 7.62x54R Mosin-Nagant rifles by Texas Precision'
 )

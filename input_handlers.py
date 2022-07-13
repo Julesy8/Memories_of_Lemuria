@@ -1237,8 +1237,9 @@ class CraftGun(CraftItem):
                     # checks if there is an attachment point compatible with the attachment
                     if hasattr(item.usable_properties, 'attachment_point_required'):
                         attachment_point = getattr(item.usable_properties, 'attachment_point_required')
-                        if attachment_point not in self.attachment_points:
-                            add_option = False
+                        if any(item in attachment_point for item in self.attachment_points):
+                            if attachment_point not in self.attachment_points:
+                                add_option = False
 
                     if hasattr(item.usable_properties, 'incompatibilities'):
                         all_parts = []

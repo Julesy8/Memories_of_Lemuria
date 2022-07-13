@@ -346,7 +346,7 @@ mac10_vertical_grip = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required='M10 Barrel',
+                                   attachment_point_required=('M10 Barrel',),
                                    recoil=0.94,
                                    close_range_accuracy=1.03,
                                    ),
@@ -366,7 +366,7 @@ mac1045_sionics_suppressor = Item(
                                    close_range_accuracy=0.85,
                                    sound_radius=0.60,
                                    is_suppressor=True,
-                                   attachment_point_required='Barrel Thread 7/8x9'
+                                   attachment_point_required=('Barrel Thread 7/8x9',)
                                    ),
     description='A large suppressor for the M10/45 that significantly reduces the sound of firing'
 )
