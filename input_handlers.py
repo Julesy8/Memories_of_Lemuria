@@ -21,7 +21,6 @@ from actions import (
 
 import colour
 import exceptions
-from scrolling_map import Camera
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -80,7 +79,7 @@ class BaseEventHandler(tcod.event.EventDispatch[ActionOrHandler]):
         assert not isinstance(state, Action), f"{self!r} can not handle actions."
         return self
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+    def on_render(self, console: tcod.Console) -> None:
         raise NotImplementedError
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
@@ -94,9 +93,9 @@ class PopupMessage(BaseEventHandler):
         self.parent = parent_handler
         self.text = text
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+    def on_render(self, console: tcod.Console) -> None:
         """Render the parent and dim the result, then print the message on top."""
-        self.parent.on_render(console, camera)
+        self.parent.on_render(console)
         console.tiles_rgb["fg"] //= 8
         console.tiles_rgb["bg"] //= 8
 
@@ -156,8 +155,8 @@ class EventHandler(BaseEventHandler):
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
             self.engine.mouse_location = event.tile.x, event.tile.y
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        self.engine.render(console, camera)
+    def on_render(self, console: tcod.Console) -> None:
+        self.engine.render(console)
 
 
 class MainGameEventHandler(EventHandler):
@@ -239,8 +238,8 @@ class HistoryViewer(EventHandler):
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)  # Draw the main state as the background.
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)  # Draw the main state as the background.
 
         log_console = tcod.Console(console.width - 6, console.height - 6)
 
@@ -318,8 +317,8 @@ class UserOptionsEventHandler(AskUserEventHandler):
         self.TITLE = title
         super().__init__(engine)
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
 
         longest_option_name = 0
 
@@ -394,8 +393,8 @@ class UserOptionsWithPages(AskUserEventHandler):
 
         super().__init__(engine)
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
 
         number_of_options = len(self.options)
 
@@ -496,8 +495,8 @@ class TypeAmountEventHandler(AskUserEventHandler):
         self.buffer = ''
         self.prompt_string = prompt_string
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
 
         console.draw_frame(
             x=1,
@@ -678,12 +677,12 @@ class EquipmentEventHandler(AskUserEventHandler):
         super().__init__(engine)
         self.equipped_list = []  # equipped items
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+    def on_render(self, console: tcod.Console) -> None:
         """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         Will move to a different position based on where the player is located, so the player can always see where
         they are.
         """
-        super().on_render(console, camera)
+        super().on_render(console)
 
         equipment_dictionary = {}  # dictionary containing bodypart associated with the item equipped
 
@@ -825,16 +824,14 @@ class ChangeTargetActor(AskUserEventHandler):
         self.bodypart_index = 0
         self.bodypartlist = []
 
-        self.camera = None
         self.console = None
 
         self.item = self.engine.player.inventory.held
 
-    def on_render(self, console: tcod.Console, camera: Camera):
-        super().on_render(console, camera)  # Draw the main state as the background.
+    def on_render(self, console: tcod.Console):
+        super().on_render(console)  # Draw the main state as the background.
 
         self.console = console
-        self.camera = camera
 
         player = self.engine.player
         target_visible = False
@@ -914,7 +911,7 @@ class ChangeTargetActor(AskUserEventHandler):
                                            targeted_actor=player.target_actor,
                                            targeted_bodypart=self.selected_bodypart).attack()
                 self.engine.handle_enemy_turns()
-                self.engine.render(console=self.console, camera=self.camera)
+                self.engine.render(console=self.console)
                 return MainGameEventHandler(self.engine)
 
             else:
@@ -926,8 +923,8 @@ class ChangeTargetActor(AskUserEventHandler):
 
 class QuitEventHandler(AskUserEventHandler):
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)  # Draw the main state as the background.
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)  # Draw the main state as the background.
 
         console.draw_frame(
             x=24,
@@ -1500,8 +1497,8 @@ class InspectItemViewer(AskUserEventHandler):
 
         self.item_info = item_info
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
-        super().on_render(console, camera)  # Draw the main state as the background.
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)  # Draw the main state as the background.
 
         height = len(self.item_info) * 2 + 2
 

@@ -8,7 +8,6 @@ from tcod.console import Console
 import tile_types
 from colours_and_chars import MapColoursChars
 from entity import Actor, Item
-from scrolling_map import Camera
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -44,6 +43,9 @@ class GameMap:
         )  # Tiles the player has seen before
 
         self.downstairs_location = (0, 0)
+
+        self.camera_x = 0
+        self.camera_y = 0
 
     @property
     def gamemap(self) -> GameMap:
@@ -86,11 +88,35 @@ class GameMap:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def render(self, console: Console, camera: Camera) -> None:
+    def screen_to_map(self, x, y):
+        # convert screen coordinates to map coordinates
+        x = x + self.camera_x
+        y = y + self.camera_y
+        return x, y
 
-        for screen_y in range(camera.screen_height):
-            for screen_x in range(camera.screen_width):
-                map_x, map_y = camera.screen_to_map(screen_x, screen_y)
+    def map_to_screen(self, x, y):
+        # convert map coordinates to screen coordinates
+        x = x - self.camera_x
+        y = y - self.camera_y
+        return x, y
+
+    def update(self, console: Console) -> None:
+        # update camera position
+        self.camera_x = self.engine.player.x - console.width // 2
+        self.camera_y = self.engine.player.y - console.height // 2
+
+        self.camera_x = min(self.camera_x, self.width - console.width)
+        self.camera_y = min(self.camera_y, self.height - console.height)
+        self.camera_x = max(0, self.camera_x)
+        self.camera_y = max(0, self.camera_y)
+
+    def render(self, console: Console) -> None:
+
+        self.update(console)
+
+        for screen_y in range(console.height):
+            for screen_x in range(console.width):
+                map_x, map_y = self.screen_to_map(screen_x, screen_y)
 
                 if self.visible[map_x, map_y]:
                     console.print(screen_x, screen_y,
@@ -111,8 +137,8 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
 
             if self.visible[entity.x, entity.y]:
-                screen_x, screen_y = camera.map_to_screen(entity.x, entity.y)
-                if 0 <= screen_x < camera.screen_width and 0 <= screen_y < camera.screen_height:
+                screen_x, screen_y = self.map_to_screen(entity.x, entity.y)
+                if 0 <= screen_x < console.width and 0 <= screen_y < console.height:
                     console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
                     if not entity == self.engine.player:
                         entity.active = True

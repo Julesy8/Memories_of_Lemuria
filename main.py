@@ -6,7 +6,6 @@ import setup_game
 import exceptions
 import input_handlers
 import colour
-from scrolling_map import Camera
 
 
 def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
@@ -19,13 +18,6 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
 def main():
     screen_width = 80
     screen_height = 50
-
-    camera = Camera(
-        camera_x=0,
-        camera_y=0,
-        screen_width=screen_width,
-        screen_height=screen_height,
-    )
 
     tileset = tcod.tileset.load_tilesheet("Md_curses_16x16.png", 16, 16, tcod.tileset.CHARMAP_CP437)
 
@@ -42,7 +34,7 @@ def main():
         try:
             while True:
                 root_console.clear()
-                handler.on_render(console=root_console, camera=camera)
+                handler.on_render(console=root_console)
                 context.present(root_console)
 
                 try:

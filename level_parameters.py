@@ -9,7 +9,7 @@ from components.weapons.magazines import glock_mag_9mm
 # NOTE: map width/height must be larger than screen size!
 level_params = {
     0: array([True,   # messy tunnels (bool)
-              80,    # map width
+              100,    # map width
               50,     # map height
               24,     # MAX_LEAF_SIZE
               15,     # ROOM_MAX_SIZE

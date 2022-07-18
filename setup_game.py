@@ -11,7 +11,6 @@ import traceback
 
 import colour
 from engine import Engine
-from scrolling_map import Camera
 import input_handlers
 from entity import Actor
 from level_generator import MessyBSPTree
@@ -121,7 +120,7 @@ class MainMenu(input_handlers.BaseEventHandler):
     def __init__(self):
         self.option_selected = 0
 
-    def on_render(self, console: tcod.Console, camera: Camera) -> None:
+    def on_render(self, console: tcod.Console) -> None:
         """Render the main menu on a background image."""
 
         path = "newmenu1.xp"  # REXPaint file with one layer.

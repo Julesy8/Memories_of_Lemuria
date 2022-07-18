@@ -7,15 +7,12 @@ from tcod import tileset
 
 from tcod.console import Console
 from tcod.map import compute_fov
-from scrolling_map import Camera
 import colour
 
 import exceptions
 from level_parameters import level_names
 from message_log import MessageLog
 from render_functions import render_names_at_mouse_location, render_part
-
-from components.weapons import glock17
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -63,9 +60,8 @@ class Engine:
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
 
-    def render(self, console: Console, camera: Camera) -> None:
-        camera.update(entity=self.player, map_width=self.game_map.width, map_height=self.game_map.height)
-        self.game_map.render(console, camera)
+    def render(self, console: Console) -> None:
+        self.game_map.render(console)
         console.draw_rect(0, 46, 80, 4, 219)
         self.message_log.render(console=console, x=6, y=46, width=60, height=4)
 
