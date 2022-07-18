@@ -163,7 +163,7 @@ class Magazine(Usable):
 
     def __init__(self,
                  magazine_type: str,  # type of weapon this magazine works with i.e. glock 9mm
-                 compatible_bullet_type: str,  # compatible bullet i.e. 9mm
+                 compatible_bullet_type: list,  # compatible bullet i.e. 9mm
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
                  turns_to_load: int,  # amount of turns it takes to load magazine into gun
@@ -261,6 +261,7 @@ class Magazine(Usable):
 class Gun(Weapon):
     def __init__(self,
                  parts: Parts,
+                 compatible_bullet_type: str,
                  base_meat_damage: float,
                  base_armour_damage: float,
                  base_accuracy: float,
@@ -280,6 +281,7 @@ class Gun(Weapon):
                  ):
 
         self.parts = parts
+        self.compatible_bullet_type = compatible_bullet_type
         self.parts.parent = self
         self.possible_parts = possible_parts  # dict containing possible part options the gun is able to spawn with
 
@@ -440,6 +442,7 @@ class GunMagFed(Gun):
     def __init__(self,
                  parts: Parts,
                  compatible_magazine_type: str,
+                 compatible_bullet_type: str,
                  base_meat_damage: float,
                  base_armour_damage: float,
                  base_accuracy: float,
@@ -482,6 +485,7 @@ class GunMagFed(Gun):
             load_time_modifier=load_time_modifier,
             recoil=recoil,
             close_range_accuracy=close_range_accuracy,
+            compatible_bullet_type=compatible_bullet_type,
         )
 
     def load_gun(self, magazine):
@@ -548,7 +552,10 @@ class GunMagFed(Gun):
     def chamber_round(self):
         if self.loaded_magazine is not None:
             if len(self.loaded_magazine.usable_properties.magazine) > 0:
-                self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+                if self.loaded_magazine.usable_properties.magazine[-1].bullet_type == self.compatible_bullet_type:
+                    self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+                else:
+                    self.engine.message_log.add_message(f"Failed to chamber a new round!", colour.RED)
 
 
 class GunIntegratedMag(Gun, Magazine):
@@ -574,7 +581,6 @@ class GunIntegratedMag(Gun, Magazine):
                  chambered_bullet=None,
                  ):
 
-        self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
         self.magazine = []
 
@@ -598,6 +604,7 @@ class GunIntegratedMag(Gun, Magazine):
             load_time_modifier=load_time_modifier,
             recoil=recoil,
             close_range_accuracy=close_range_accuracy,
+            compatible_bullet_type=compatible_bullet_type
         )
 
     def chamber_round(self):

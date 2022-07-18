@@ -45,7 +45,9 @@ mac1045_upper = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M10/45 Upper',
                                    compatible_parts={'M10/45 Barrel': ['M10/45 Barrel',
-                                                                       'M10/45 Extended Barrel w/ Shroud']},
+                                                                       'M10/45 Extended Barrel w/ Shroud'],
+                                                     'M10 Optics Mount': ['M10 Picatinny Optics Mount',]
+                                                     },
                                    ),
     description='M10/45 upper reciever'
 )
@@ -62,7 +64,6 @@ mac1045_upper_tactical = Item(
                                    is_attachment_point_types=['Picrail Optics Mount',],
                                    compatible_parts={'M10/45 Barrel': ['M10/45 Barrel',
                                                                        'M10/45 Extended Barrel w/ Shroud']},
-                                   additional_required_parts=['Optic', ]
                                    ),
     description='M10/45 side cocking upper reciever featuring a picatinny rail for optics mounting.'
 )
@@ -81,7 +82,7 @@ mac1045_upper_max = Item(
                                    is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount',
                                                               'Picrail Underbarrel'],
                                    compatible_parts={'M10/45 Barrel': ['MAX-10/45 Barrel',]},
-                                   additional_required_parts=['Optic', ]
+                                   additional_required_parts=('Optic', )
                                    ),
     description='MAX-10 side charging extended upper reciever for the M10/45 by Lage Manufacturing. '
                 'Decreases rate of fire and sports picatinny rail attachment points.'
@@ -99,7 +100,9 @@ mac109_upper = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M10/9 Upper',
                                    compatible_parts={'M10/9 Barrel': ['M10/9 Barrel',
-                                                                      'M10/9 Extended Barrel w/ Shroud']},
+                                                                      'M10/9 Extended Barrel w/ Shroud'],
+                                                     'M10 Optics Mount': ['M10 Picatinny Optics Mount',]
+                                                     },
                                    ),
     description='M10/9 upper reciever'
 )
@@ -116,7 +119,6 @@ mac109_upper_tactical = Item(
                                    is_attachment_point_types=['Picrail Optics Mount',],
                                    compatible_parts={'M10/9 Barrel': ['M10/9 Barrel',
                                                                       'M10/9 Extended Barrel w/ Shroud']},
-                                   additional_required_parts=['Optic', ]
                                    ),
     description='M10/9 side cocking upper reciever featuring a picatinny rail for optics mounting.'
 )
@@ -135,7 +137,7 @@ mac109_upper_max = Item(
                                    is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount',
                                                               'Picrail Underbarrel'],
                                    compatible_parts={'M10/9 Barrel': ['MAX-10/9 Barrel', ]},
-                                   additional_required_parts=['Optic', ]
+                                   additional_required_parts=('Optic', )
                                    ),
     description='MAX-10 side charging extended upper reciever for the M10/9 by Lage Manufacturing. '
                 'Decreases rate of fire and sports picatinny rail attachment points.'
@@ -301,7 +303,7 @@ mac109_carbine_barrel = Item(
 Stocks
 """
 
-mac10_full_stock = Item(
+mac1045_full_stock = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
@@ -314,15 +316,15 @@ mac10_full_stock = Item(
                                    recoil=0.88,
                                    close_range_accuracy=0.90,
                                    ),
-    description='A sturdy rifle stock for the M10/45 and M10/9'
+    description='A sturdy rifle stock for the M10'
 )
 
-mac10_folding_stock = Item(
+mac1045_stock = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
-    name="M10 Folding Stock",
+    name="M10 Stock",
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Stock',
@@ -330,7 +332,7 @@ mac10_folding_stock = Item(
                                    recoil=0.93,
                                    close_range_accuracy=0.95,
                                    ),
-    description='A folding buttstock for the M10/45 and M10/9'
+    description='A collapsing wire buttstock for the M10'
 )
 
 """
@@ -351,6 +353,53 @@ mac10_vertical_grip = Item(
                                    close_range_accuracy=1.03,
                                    ),
     description='A vertical grip that clamps onto the barrel of M10 pattern guns'
+)
+
+mac10_optics_mount = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="M10 Picatinny Optics Mount",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='M10 Optics Mount',
+                                   is_attachment_point_types=['Picrail Optics Mount',],
+                                   additional_required_parts=('Optic', )
+                                   ),
+    description='A picatinny rail optics mount for the M10'
+)
+
+mac10_trirail = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="M10 Tri Rail Mount",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Accessory Adapter M10',
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel'],
+                                   incompatibilities=(("M10 Vertical Grip",),)
+                                   ),
+    description='A picatinny tri rail side and underbarrel mount for the M10'
+)
+
+mac10_ar_stock_adapter = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="M10 AR Buffertube Stock Adapter",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Stock Adapter M10',
+                                   compatible_parts={'M10 Stock': []},
+                                   additional_required_parts=('AR Stock',),
+                                   recoil=1.09,
+                                   close_range_accuracy=1.34,
+                                   ),
+    description='A stock adapter for the M10 allowing the use of AR stocks'
 )
 
 mac1045_sionics_suppressor = Item(
@@ -401,8 +450,9 @@ mac1045 = Item(
         enemy_attack_range=8,
         possible_parts={},
         sound_radius=1.0,
-        recoil=1.0,
+        recoil=1.1,
         close_range_accuracy=0.9,
+        compatible_bullet_type='.45 ACP'
     )
 )
 
@@ -434,6 +484,7 @@ mac109 = Item(
         sound_radius=1.0,
         recoil=1.1,
         close_range_accuracy=0.9,
+        compatible_bullet_type='9mm'
     )
 )
 
@@ -447,9 +498,11 @@ mac10dict = {
                     "M10/45 Barrel": 1,
                 },
                 "compatible parts": {
+                    "Stock Adapter M10": 1,
                     "M10 Stock": 1,
-                    "M10 Foregrip": 1,
+                    "M10 Optics Mount": 1,
                     "Muzzle Device": 1,
+                    "Accessory Adapter M10": 1,
                     "Side Mounted Accessory": 1,
                     "Underbarrel Accessory": 1,
                     "Optic": 1
@@ -463,9 +516,11 @@ mac10dict = {
                     "M10/9 Barrel": 1,
                 },
                 "compatible parts": {
+                    "Stock Adapter M10": 1,
                     "M10 Stock": 1,
-                    "M10 Foregrip": 1,
+                    "M10 Optics Mount": 1,
                     "Muzzle Device": 1,
+                    "Accessory Adapter M10": 1,
                     "Side Mounted Accessory": 1,
                     "Underbarrel Accessory": 1,
                     "Optic": 1

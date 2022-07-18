@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Optional, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
@@ -76,6 +77,7 @@ class Entity:  # generic entity
             self.parent = gamemap
             gamemap.entities.add(self)
 
+    @lru_cache(maxsize=20)
     def distance(self, x: int, y: int) -> float:
         """
         Return the distance between the current entity and the given (x, y) coordinate.

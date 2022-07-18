@@ -16,8 +16,24 @@ lower_ar15 = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Lower Reciever',
+                                   compatible_parts={'AR Upper Reciever': ['M16A2 Upper Reciever',
+                                                                           'M16A4 Upper Reciever']},
                                    ),
     description='A standard AR-15 type lower reciever capable of automatic fire'
+)
+
+lower_ar10 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 Lower Reciever",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Lower Reciever',
+                                   compatible_parts={'AR Upper Reciever': ['AR10 Upper Reciever',]},
+                                   ),
+    description='AR-10 reciever designed for rifle calibre AR rifles'
 )
 
 """
@@ -33,7 +49,7 @@ upper_ar_m16a2 = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Upper Reciever',
-                                   additional_required_parts=['AR Front Sight', ],
+                                   additional_required_parts=('AR Front Sight', ),
                                    ),
     description='A standard AR-15 type upper reciever for 5.56x45 or .300 Blackout rifles with integrated '
                 'carrying handle'
@@ -49,7 +65,24 @@ upper_ar_m16a4 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Upper Reciever',
                                    is_attachment_point_types=['Picrail Optics Mount', ],
-                                   additional_required_parts=['Optic', ],
+                                   additional_required_parts=('Optic', ),
+                                   compatible_parts={'AR Optics Mount': []},
+                                   ),
+    description='A standard AR-15 type upper reciever for 5.56x45 or .300 Blackout rifles with a picatinny '
+                'rail optics mount'
+)
+
+upper_ar10 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR10 Upper Reciever",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Upper Reciever',
+                                   is_attachment_point_types=['Picrail Optics Mount', ],
+                                   additional_required_parts=('Optic', ),
                                    compatible_parts={'AR Optics Mount': []},
                                    ),
     description='A standard AR-15 type upper reciever for 5.56x45 or .300 Blackout rifles with a picatinny '
@@ -71,14 +104,14 @@ ar_barrel_standard_556 = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
-                                   compatible_magazine_type='STANAG 5.56x45',
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='5.56x45',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
                                                                       "AR Magpul MOE Handguard",
                                                                       "AR Magpul MOE Carbine Handguard",
-                                                                      "AR Magpul MOE Pistol Handguard",
                                                                       "AR Aero Precision Handguard",
                                                                       "AR Aero Precision Carbine Handguard",
                                                                       "AR Faxon Streamline Handguard",
@@ -100,7 +133,8 @@ ar_barrel_carbine_556 = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
-                                   compatible_magazine_type='STANAG 5.56x45',
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='5.56x45',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
@@ -113,6 +147,10 @@ ar_barrel_carbine_556 = Item(
                                                                       "AR Faxon Streamline Carbine Handguard",
                                                                       "AR Daniel Defense MK18 Handguard",
                                                                       "AR Daniel Defense MK18 Carbine Handguard",
+                                                                      "AR Magpul MOE Pistol Handguard",
+                                                                      "AR Aero Precision Pistol Handguard",
+                                                                      "AR Faxon Streamline Pistol Handguard",
+                                                                      "AR Daniel Defense MK18 Pistol Handguard",
                                                                       ]},
                                    tags=['carbine barrel', ],
                                    equip_time=0.8,
@@ -137,7 +175,8 @@ ar_barrel_standard_556_heavy = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
-                                   compatible_magazine_type='STANAG 5.56x45',
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='5.56x45',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
@@ -165,7 +204,8 @@ ar_barrel_pistol_556 = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
-                                   compatible_magazine_type='STANAG 5.56x45',
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='5.56x45',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'AR Handguard': ["AR Magpul MOE Pistol Handguard",
                                                                       "AR Aero Precision Pistol Handguard",
@@ -198,12 +238,13 @@ ar_barrel_standard_300 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
                                    is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='.300 Blackout',
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
                                                                       "AR Magpul MOE Handguard",
                                                                       "AR Magpul MOE Carbine Handguard",
-                                                                      "AR Magpul MOE Pistol Handguard",
                                                                       "AR Aero Precision Handguard",
                                                                       "AR Aero Precision Carbine Handguard",
                                                                       "AR Faxon Streamline Handguard",
@@ -226,6 +267,8 @@ ar_barrel_carbine_300 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
                                    is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='.300 Blackout',
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
@@ -237,6 +280,10 @@ ar_barrel_carbine_300 = Item(
                                                                       "AR Faxon Streamline Carbine Handguard",
                                                                       "AR Daniel Defense MK18 Handguard",
                                                                       "AR Daniel Defense MK18 Carbine Handguard",
+                                                                      "AR Magpul MOE Pistol Handguard",
+                                                                      "AR Aero Precision Pistol Handguard",
+                                                                      "AR Faxon Streamline Pistol Handguard",
+                                                                      "AR Daniel Defense MK18 Pistol Handguard",
                                                                       ]},
                                    tags=['carbine barrel', ],
                                    equip_time=0.8,
@@ -262,12 +309,18 @@ ar_barrel_standard_300_heavy = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
                                    is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='.300 Blackout',
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
+                                                                      "AR Magpul MOE Handguard",
                                                                       "AR Magpul MOE Carbine Handguard",
+                                                                      "AR Aero Precision Handguard",
                                                                       "AR Aero Precision Carbine Handguard",
+                                                                      "AR Faxon Streamline Handguard",
                                                                       "AR Faxon Streamline Carbine Handguard",
+                                                                      "AR Daniel Defense MK18 Handguard",
                                                                       "AR Daniel Defense MK18 Carbine Handguard",
                                                                       ]},
                                    tags=['full length barrel', ],
@@ -289,6 +342,8 @@ ar_barrel_pistol_300 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Barrel',
                                    is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_magazine_type='STANAG',
+                                   compatible_bullet_type='.300 Blackout',
                                    compatible_parts={'AR Handguard': ["AR Magpul MOE Pistol Handguard",
                                                                       "AR Aero Precision Pistol Handguard",
                                                                       "AR Faxon Streamline Pistol Handguard",
@@ -306,6 +361,140 @@ ar_barrel_pistol_300 = Item(
                                    close_range_accuracy=1.17,
                                    ),
     description='A 10" pistol length AR .300 Blackout barrel'
+)
+
+""".308"""
+
+ar_barrel_standard_308 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR 7.62x51 Standard Barrel",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Barrel',
+                                   compatible_magazine_type='AR10 7.62x51',
+                                   compatible_bullet_type='7.62x51',
+                                   is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_parts={'AR Handguard': ["AR-10 A2 Handguard",
+                                                                      "AR-10 A2 Carbine Handguard",
+                                                                      "AR-10 Wilson Combat Handguard"
+                                                                      "AR-10 Wilson Combat Carbine Handguard",
+                                                                      "AR-10 V Seven Ultra-Light Handguard",
+                                                                      "AR-10 V Seven Ultra-Light Carbine Handguard",
+                                                                      "AR-10 HERA Arms Handguard",
+                                                                      "AR-10 HERA Arms Carbine Handguard",
+                                                                      "AR-10 Brigand Arms Atlas Carbine Handguard",
+                                                                      ]},
+                                   tags=['full length barrel',],
+                                   equip_time=1.1,
+                                   base_meat_damage=0.94,
+                                   base_armour_damage=0.94,
+                                   base_accuracy=0.92,
+                                   sound_radius=1.15,
+                                   recoil=1.1,
+                                   close_range_accuracy=0.95,
+                                   ),
+    description='A 20" standard length AR 5.56x45 barrel'
+)
+
+ar_barrel_carbine_308 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR 7.62x51 Carbine Barrel",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Barrel',
+                                   compatible_magazine_type='AR10 7.62x51',
+                                   compatible_bullet_type='7.62x51',
+                                   is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_parts={'AR Handguard': ["AR-10 A2 Carbine Handguard",
+                                                                      "AR-10 Wilson Combat Carbine Handguard",
+                                                                      "AR-10 V Seven Ultra-Light Carbine Handguard",
+                                                                      "AR-10 HERA Arms Carbine Handguard",
+                                                                      "AR-10 Brigand Arms Atlas Carbine Handguard",
+                                                                      "AR-10 Brigand Arms Atlas Pistol Handguard",
+                                                                      "AR-10 HERA Arms Pistol Handguard",
+                                                                      "AR-10 V Seven Ultra-Light Pistol Handguard",
+                                                                      "AR-10 Wilson Combat Pistol Handguard",
+                                                                      ]},
+                                   tags=['carbine barrel', ],
+                                   base_meat_damage=0.90,
+                                   base_armour_damage=0.90,
+                                   base_accuracy=0.87,
+                                   sound_radius=1.2,
+                                   recoil=1.14,
+                                   close_range_accuracy=1.02,
+                                   ),
+    description='A 16" carbine length AR 5.56x45 barrel'
+)
+
+ar_barrel_standard_308_heavy = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR 7.62x51 Standard Heavy Barrel",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Barrel',
+                                   compatible_magazine_type='AR10 7.62x51',
+                                   compatible_bullet_type='7.62x51',
+                                   is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_parts={'AR Handguard': ["AR-10 A2 Handguard",
+                                                                      "AR-10 A2 Carbine Handguard",
+                                                                      "AR-10 Wilson Combat Handguard"
+                                                                      "AR-10 Wilson Combat Carbine Handguard",
+                                                                      "AR-10 V Seven Ultra-Light Handguard",
+                                                                      "AR-10 V Seven Ultra-Light Carbine Handguard",
+                                                                      "AR-10 HERA Arms Handguard",
+                                                                      "AR-10 HERA Arms Carbine Handguard",
+                                                                      "AR-10 Brigand Arms Atlas Carbine Handguard",
+                                                                      ]},
+                                   tags=['full length barrel', ],
+                                   equip_time=1.13,
+                                   base_meat_damage=0.94,
+                                   base_armour_damage=0.94,
+                                   base_accuracy=0.96,
+                                   sound_radius=1.15,
+                                   recoil=1.06,
+                                   close_range_accuracy=0.92,
+                                   ),
+    description='A 20" standard length AR 5.56x45 heavy barrel'
+)
+
+ar_barrel_pistol_308 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR 7.62x51 Pistol Barrel",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Barrel',
+                                   compatible_magazine_type='AR10 7.62x51',
+                                   compatible_bullet_type='7.62x51',
+                                   is_attachment_point_types=['Barrel Thread 5/8x24', ],
+                                   compatible_parts={'AR Handguard': ["AR-10 Brigand Arms Atlas Pistol Handguard",
+                                                                      "AR-10 HERA Arms Pistol Handguard",
+                                                                      "AR-10 V Seven Ultra-Light Pistol Handguard",
+                                                                      "AR-10 Wilson Combat Pistol Handguard",
+                                                                      ]},
+                                   tags=['pistol barrel', ],
+                                   equip_time=0.8,
+                                   base_meat_damage=0.76,
+                                   base_armour_damage=0.76,
+                                   base_accuracy=0.7,
+                                   range_accuracy_dropoff=0.8,
+                                   enemy_attack_range=0.7,
+                                   sound_radius=1.4,
+                                   recoil=1.25,
+                                   close_range_accuracy=1.14,
+                                   ),
+    description='A 10" pistol length AR 7.62x51 barrel'
 )
 
 """
@@ -540,7 +729,9 @@ ar_handguard_magpul_pistol = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Handguard',
-                                   recoil=0.97,
+                                   base_accuracy=0.95,
+                                   recoil=1.03,
+                                   close_range_accuracy=1.05,
                                    is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    ),
     description='A pistol length polymer handguard for AR rifles by Magpul featuring MLOK accessory mounts'
@@ -595,6 +786,9 @@ ar_handguard_aero_pistol = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.89,
+                                   recoil=1.07,
+                                   close_range_accuracy=1.08,
                                    is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
                                                               'Picrail Top Mount'],
                                    tags=['pistol length covers barrel', ],
@@ -649,6 +843,10 @@ ar_handguard_faxon_pistol = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.85,
+                                   base_accuracy=1.03,
+                                   recoil=1.1,
+                                   close_range_accuracy=1.12,
                                    is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel', 'MLOK Top Mount'],
                                    tags=['pistol length covers barrel', ],
                                    ),
@@ -708,6 +906,266 @@ ar_handguard_mk18_pistol = Item(
                                    tags=['pistol length covers barrel', ],
                                    ),
     description='An M4 style pistol length handguard with picatinny rail mounts by Daniel Defense'
+)
+
+ar10_handguard_a2 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 A2 Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   ),
+    description='A2 style handguard for AR-10 rifles'
+)
+
+ar10_handguard_a2_carbine = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 M16A2 Carbine Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   base_accuracy=0.97,
+                                   recoil=1.04,
+                                   close_range_accuracy=1.05,
+                                   ),
+    description='Carbine length A2 style handguard for AR-10 rifles'
+)
+
+ar10_handguard_wilson = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 Wilson Combat Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.95,
+                                   base_accuracy=1.04,
+                                   recoil=1.03,
+                                   close_range_accuracy=1.03,
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['full length covers barrel', ],
+                                   ),
+    description='A light weight aluminium free floated handguard for AR-10 rifles featuring MLOK accessory mounts'
+)
+
+ar_handguard_wilson_carbine = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 Wilson Combat Carbine Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.92,
+                                   base_accuracy=1.02,
+                                   recoil=1.05,
+                                   close_range_accuracy=1.05,
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['carbine length covers barrel', ],
+                                   ),
+    description='A carbine length light weight aluminium free floated handguard for AR-10 rifles featuring MLOK '
+                'accessory mounts'
+)
+
+ar_handguard_wilson_pistol = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 Wilson Combat Pistol Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['pistol length covers barrel', ],
+                                   ),
+    description='A pistol length light weight aluminium free floated handguard for AR-10 rifles featuring MLOK '
+                'accessory mounts'
+)
+
+ar10_handguard_vseven = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 V Seven Ultra-Light Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.92,
+                                   base_accuracy=1.03,
+                                   recoil=1.05,
+                                   close_range_accuracy=1.05,
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['full length covers barrel', ],
+                                   ),
+    description='A super light weight lithium-aluminium alloy AR-10 handguard with M-LOK attachment points'
+)
+
+ar_handguard_vseven_carbine = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 V Seven Ultra-Light Carbine Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.90,
+                                   recoil=1.05,
+                                   close_range_accuracy=1.06,
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['carbine length covers barrel', ],
+                                   ),
+    description='A super light weight carbine length lithium-aluminium alloy AR-10 '
+                'handguard with M-LOK attachment points'
+)
+
+ar_handguard_vseven_pistol = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 V Seven Ultra-Light Pistol Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   is_attachment_point_types=['MLOK Side Mount', 'MLOK Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['pistol length covers barrel', ],
+                                   ),
+    description='A super light weight pistol length lithium-aluminium alloy AR-10 handguard with M-LOK '
+                'attachment points'
+)
+
+ar10_handguard_hera = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 HERA Arms Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   base_accuracy=0.97,
+                                   recoil=0.96,
+                                   close_range_accuracy=0.96,
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['full length covers barrel', ],
+                                   ),
+    description='A light weight aluminium free floated handguard for AR-10 rifles featuring MLOK accessory mounts'
+)
+
+ar_handguard_hera_carbine = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 HERA Arms Carbine Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.97,
+                                   base_accuracy=0.95,
+                                   recoil=0.98,
+                                   close_range_accuracy=0.99,
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['carbine length covers barrel', ],
+                                   ),
+    description='A carbine length light weight aluminium free floated handguard for AR-10 rifles featuring MLOK '
+                'accessory mounts'
+)
+
+ar_handguard_hera_pistol = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 HERA Arms Pistol Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['pistol length covers barrel', ],
+                                   ),
+    description='A pistol length light weight aluminium free floated handguard for AR-10 rifles featuring MLOK '
+                'accessory mounts'
+)
+
+ar10_handguard_atlas = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 Brigand Arms Atlas Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.87,
+                                   base_accuracy=1.05,
+                                   recoil=1.08,
+                                   close_range_accuracy=1.09,
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['full length covers barrel', ],
+                                   ),
+    description='A carbon-fibre and aluminium AR10 handguard with a wire frame appearance featuring '
+                'picatinny rail attachment points'
+)
+
+ar_handguard_atlas_carbine = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 Brigand Arms Atlas Carbine Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   equip_time=0.87,
+                                   base_accuracy=1.05,
+                                   recoil=1.08,
+                                   close_range_accuracy=1.09,
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['carbine length covers barrel', ],
+                                   ),
+    description='A carbon-fibre and aluminium carbine AR10 handguard with a wire frame appearance featuring picatinny '
+                'rail attachment points'
+)
+
+ar_handguard_atlas_pistol = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AR-10 Brigand Arms Atlas Pistol Handguard",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Handguard',
+                                   is_attachment_point_types=['Picrail Side Mount', 'Picrail Underbarrel',
+                                                              'Picrail Top Mount'],
+                                   tags=['pistol length covers barrel', ],
+                                   ),
+    description='A carbon-fibre and aluminium pistol AR10 handguard with a wire frame appearance featuring picatinny'
+                ' rail attachment points'
 )
 
 """
@@ -852,10 +1310,10 @@ ar_front_sight = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Front Sight',
-                                   incompatibilities=[['full length barrel', 'full length covers barrel'],
-                                                      ['carbine length barrel', 'carbine length covers barrel'],
-                                                      ['pistol length barrel', 'pistol length covers barrel'],
-                                                      ]
+                                   incompatibilities=(('full length barrel', 'full length covers barrel'),
+                                                      ('carbine length barrel', 'carbine length covers barrel'),
+                                                      ('pistol length barrel', 'pistol length covers barrel'),
+                                                      )
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel'
 )
@@ -913,8 +1371,8 @@ carry_handle_optic_mount = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Optics Mount',
                                    is_attachment_point_types=['Picrail Optics Mount', ],
-                                   additional_required_parts=['Optic', ],
-                                   incompatibilities=[['Carry Handle Attachment',]]
+                                   additional_required_parts=('Optic', ),
+                                   incompatibilities=(('Carry Handle Attachment',),)
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel'
 )
@@ -946,5 +1404,6 @@ ar15 = Item(
         sound_radius=1.0,
         recoil=1.2,
         close_range_accuracy=1.2,
+        compatible_bullet_type='5.56x45'
     )
 )

@@ -25,13 +25,13 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
             try:
                 if not entity.player:
 
-                    weapon_name = ''
+                    weapon_name = None
 
                     if hasattr(entity, 'inventory'):
                         if entity.inventory.held is not None:
                             weapon_name = entity.inventory.held.name
 
-                    if weapon_name == '':
+                    if weapon_name is None:
                         names.append(entity.name)
                     else:
                         names.append(f"{entity.name} - {weapon_name}")
@@ -43,7 +43,7 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
             try:
                 if entity.stacking:
                     if entity.stacking.stack_size > 1:
-                        names[-1] += f" ({entity.stacking.stack_size})"
+                        names[-1].join(f"({entity.stacking.stack_size})")
             except AttributeError:
                 pass
 
@@ -90,23 +90,6 @@ def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -
 
     else:
         return
-
-
-def render_bar(
-    console: Console, x: int, y: int, text: str, current_value: int, maximum_value: int, total_width: int
-) -> None:
-    bar_width = int(float(current_value) / maximum_value * total_width)
-
-    console.draw_rect(x=x, y=y, width=total_width, height=1, ch=1, bg=colour.RED)
-
-    if bar_width > 0:
-        console.draw_rect(
-            x=x, y=y, width=bar_width, height=1, ch=1, bg=colour.GREEN
-        )
-
-    console.print(
-        x=x, y=y, string=f"{text}", fg=colour.WHITE
-    )
 
 
 def render_part(

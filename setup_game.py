@@ -32,9 +32,6 @@ from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_c
     mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, mosin_pistol_grip, \
     mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak, mosin_nagant
 
-from components.weapons.mac10 import mac1045_lower, mac1045_upper, mac1045_upper_tactical, mac1045_upper_max, \
-    mac1045_barrel, mac1045_extended_barrel, mac1045_carbine_barrel, mac10_full_stock, mac10_folding_stock, \
-    mac1045_sionics_suppressor, mac109_max_barrel, mac1045_max_barrel, mac10_vertical_grip, mac1045
 
 
 def new_game() -> Engine:
@@ -126,8 +123,6 @@ class MainMenu(input_handlers.BaseEventHandler):
 
     def on_render(self, console: tcod.Console, camera: Camera) -> None:
         """Render the main menu on a background image."""
-
-        console2 = tcod.Console(32, 32, order="F")
 
         path = "newmenu1.xp"  # REXPaint file with one layer.
         # Load a REXPaint file with a single layer.

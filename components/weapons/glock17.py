@@ -349,6 +349,7 @@ glock_17 = Item(
         sound_radius=1.0,
         recoil=1.0,
         close_range_accuracy=1.1,
+        compatible_bullet_type='9mm'
     )
 )
 

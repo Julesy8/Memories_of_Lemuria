@@ -17,7 +17,7 @@ glock_mag_9mm = Item(
     description='9mm Glock magazine - 17 round capacity',
     usable_properties=Magazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type='9mm',
+        compatible_bullet_type=['9mm',],
         mag_capacity=17,
         turns_to_load=1,
         magazine_size='small',
@@ -35,7 +35,7 @@ glock_mag_9mm_33 = Item(
     description='extended 9mm Glock magazine - 33 round capacity',
     usable_properties=Magazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type='9mm',
+        compatible_bullet_type=['9mm',],
         mag_capacity=33,
         turns_to_load=1,
         magazine_size='medium',
@@ -54,7 +54,7 @@ glock_mag_9mm_50 = Item(
     description='9mm Glock drum - 50 round capacity',
     usable_properties=Magazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type='9mm',
+        compatible_bullet_type=['9mm',],
         mag_capacity=50,
         turns_to_load=2,
         magazine_size='large',
@@ -73,7 +73,7 @@ glock_mag_9mm_100 = Item(
     description='9mm Glock Beta Mag - 100 round capacity',
     usable_properties=Magazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type='9mm',
+        compatible_bullet_type=['9mm',],
         mag_capacity=100,
         turns_to_load=3,
         magazine_size='large',
@@ -97,7 +97,7 @@ mac10_mag_45 = Item(
                 'later retrofitted for the M10/45.',
     usable_properties=Magazine(
         magazine_type='M10/45',
-        compatible_bullet_type='45',
+        compatible_bullet_type=['.45 ACP',],
         mag_capacity=30,
         turns_to_load=1,
         magazine_size='medium',
@@ -115,7 +115,7 @@ mac10_mag_45_extended = Item(
     description='M10/45 magazine .45 ACP - 40 round capacity. An original magazine modified for greater capacity',
     usable_properties=Magazine(
         magazine_type='M10/45',
-        compatible_bullet_type='45',
+        compatible_bullet_type=['.45 ACP',],
         mag_capacity=30,
         turns_to_load=1,
         magazine_size='medium',
@@ -133,7 +133,7 @@ mac10_mag_9 = Item(
     description='M10/9 Magazine 9mm - 32 round capacity',
     usable_properties=Magazine(
         magazine_type='M10/9',
-        compatible_bullet_type='9mm',
+        compatible_bullet_type=['9mm',],
         mag_capacity=32,
         turns_to_load=1,
         magazine_size='medium',
@@ -155,7 +155,7 @@ mosin_nagant = Item(
     description='An aftermarket "Archangel" polymer magazine for 7.62x54R Mosin-Nagant rifles designed by ProMag',
     usable_properties=Magazine(
         magazine_type='Mosin-Nagant',
-        compatible_bullet_type='7.62x54R',
+        compatible_bullet_type=['7.62x54R',],
         mag_capacity=10,
         turns_to_load=1,
         magazine_size='large',
@@ -177,7 +177,7 @@ ak762_30rd = Item(
     description='Standard 30 round capacity 7.62x39 AK magazine',
     usable_properties=Magazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type='7.62x39',
+        compatible_bullet_type=['7.62x39',],
         mag_capacity=30,
         turns_to_load=1,
         magazine_size='medium',
@@ -195,7 +195,7 @@ ak762_40rd = Item(
     description='40 round capacity 7.62x39 AK magazine designed for RPK light machine guns',
     usable_properties=Magazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type='7.62x39',
+        compatible_bullet_type=['7.62x39',],
         mag_capacity=40,
         turns_to_load=2,
         magazine_size='medium',
@@ -214,7 +214,7 @@ ak762_60rd = Item(
     description='60 round capacity 7.62x39 AK quad stack magazine',
     usable_properties=Magazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type='7.62x39',
+        compatible_bullet_type=['7.62x39',],
         mag_capacity=60,
         turns_to_load=2,
         magazine_size='medium',
@@ -233,7 +233,7 @@ ak762_75rd = Item(
     description='75 round capacity 7.62x39 AK drum magazine',
     usable_properties=Magazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type='7.62x39',
+        compatible_bullet_type=['7.62x39',],
         mag_capacity=75,
         turns_to_load=3,
         magazine_size='large',
@@ -252,7 +252,7 @@ ak762_100rd = Item(
     description='100 round capacity 7.62x39 AK drum magazine',
     usable_properties=Magazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type='7.62x39',
+        compatible_bullet_type=['7.62x39',],
         mag_capacity=100,
         turns_to_load=4,
         magazine_size='large',
@@ -275,7 +275,7 @@ ak545_30rd = Item(
     description='Standard 30 round capacity 5.45x39 AK magazine',
     usable_properties=Magazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type='5.45x39',
+        compatible_bullet_type=['5.45x39',],
         mag_capacity=30,
         turns_to_load=1,
         magazine_size='medium',
@@ -293,7 +293,7 @@ ak545_45rd = Item(
     description='45 round capacity 5.45x39 AK magazine designed for RPK-74 light machine guns',
     usable_properties=Magazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type='7.62x39',
+        compatible_bullet_type=['5.45x39',],
         mag_capacity=45,
         turns_to_load=2,
         magazine_size='medium',
@@ -312,7 +312,7 @@ ak545_60rd = Item(
     description='60 round capacity 5.45x39 AK quad stack magazine',
     usable_properties=Magazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type='5.45x39',
+        compatible_bullet_type=['5.45x39',],
         mag_capacity=60,
         turns_to_load=2,
         magazine_size='medium',
@@ -331,7 +331,7 @@ ak545_77rd = Item(
     description='77 round capacity 5.45x39 AK drum magazine',
     usable_properties=Magazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type='5.45x39',
+        compatible_bullet_type=['5.45x39',],
         mag_capacity=77,
         turns_to_load=3,
         magazine_size='large',
@@ -350,7 +350,7 @@ ak545_100rd = Item(
     description='95 round capacity 5.45x39 AK drum magazine',
     usable_properties=Magazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type='5.45x39',
+        compatible_bullet_type=['5.45x39',],
         mag_capacity=95,
         turns_to_load=4,
         magazine_size='large',
@@ -373,7 +373,7 @@ ak556_30rd = Item(
     description='Standard 30 round capacity 5.56x45 AK magazine',
     usable_properties=Magazine(
         magazine_type='AK 5.56x45',
-        compatible_bullet_type='5.56x45',
+        compatible_bullet_type=['5.56x45',],
         mag_capacity=30,
         turns_to_load=1,
         magazine_size='medium',
@@ -391,7 +391,7 @@ ak556_50rd = Item(
     description='50 round capacity 5.56x45 AK magazine',
     usable_properties=Magazine(
         magazine_type='AK 5.56x45',
-        compatible_bullet_type='5.56x45',
+        compatible_bullet_type=['5.56x45',],
         mag_capacity=50,
         turns_to_load=2,
         magazine_size='medium',
@@ -410,11 +410,105 @@ ak556_120rd = Item(
     description='120 round capacity 5.56x45 AK drum magazine',
     usable_properties=Magazine(
         magazine_type='AK 5.56x45',
-        compatible_bullet_type='5.56x45',
+        compatible_bullet_type=['5.56x45',],
         mag_capacity=120,
         turns_to_load=5,
         magazine_size='large',
         base_accuracy=0.85,
+    )
+)
+
+"""
+STANAG
+"""
+
+stanag_30rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="STANAG 30 Round Magazine",
+    weight=0.2,
+    stacking=None,
+    description='Standard 30 round capacity STANAG magazine',
+    usable_properties=Magazine(
+        magazine_type='STANAG',
+        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        mag_capacity=30,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
+stanag_40rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="STANAG 40 Round Magazine",
+    weight=0.2,
+    stacking=None,
+    description='40 round capacity STANAG magazine',
+    usable_properties=Magazine(
+        magazine_type='STANAG',
+        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        mag_capacity=40,
+        turns_to_load=1,
+        magazine_size='medium',
+    )
+)
+
+stanag_50rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="STANAG 50 Round Drum Magazine",
+    weight=0.2,
+    stacking=None,
+    description='50 round capacity STANAG drum magazine',
+    usable_properties=Magazine(
+        magazine_type='STANAG',
+        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        mag_capacity=50,
+        turns_to_load=2,
+        magazine_size='large',
+    )
+)
+
+stanag_60rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="STANAG 60 Round Magazine",
+    weight=0.2,
+    stacking=None,
+    description='60 round capacity STANAG quad stack magazine',
+    usable_properties=Magazine(
+        magazine_type='STANAG',
+        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        mag_capacity=60,
+        turns_to_load=2,
+        magazine_size='large',
+    )
+)
+
+stanag_100rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="STANAG Beta C 100 Round Drum Magazine",
+    weight=0.2,
+    stacking=None,
+    description='100 round capacity STANAG Beta C drum magazine',
+    usable_properties=Magazine(
+        magazine_type='STANAG',
+        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        mag_capacity=60,
+        turns_to_load=2,
+        magazine_size='large',
     )
 )
 
