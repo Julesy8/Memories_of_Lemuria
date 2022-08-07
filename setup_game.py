@@ -139,7 +139,7 @@ class MainMenu(input_handlers.BaseEventHandler):
         is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
         console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
 
-        console2.blit(dest=console, dest_x=23, dest_y=6, src_x=0, src_y=0, width=35, height=35)
+        console2.blit(dest=console, dest_x=console.width//2-17, dest_y=console.height//2-17, src_x=0, src_y=0, width=35, height=35)
 
         console.print(
             console.width // 2,
@@ -168,7 +168,7 @@ class MainMenu(input_handlers.BaseEventHandler):
                 bg_blend=tcod.BKGND_ALPHA(64),
             )
 
-        console.print(x=35, y=console.height // 2 - 2 + self.option_selected, string='>', fg=colour.WHITE)
+        console.print(x=console.width // 2 - 5, y=console.height // 2 - 2 + self.option_selected, string='>', fg=colour.WHITE)
 
     def ev_keydown(
         self, event: tcod.event.KeyDown

@@ -1,11 +1,11 @@
-import tcod
-
 import traceback
 
 import setup_game
 import exceptions
 import input_handlers
 import colour
+
+import tcod
 
 
 def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
@@ -15,30 +15,33 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
         print("Game saved.")
 
 
-def main():
-    screen_width = 80
-    screen_height = 50
-
-    tileset = tcod.tileset.load_tilesheet("Md_curses_16x16.png", 16, 16, tcod.tileset.CHARMAP_CP437)
+def main() -> None:
 
     handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
 
-    with tcod.context.new_terminal(
-            screen_width,
-            screen_height,
-            tileset=tileset,
-            title="Deep Underground RogueLike",
-            vsync=True
+    screen_width = 720
+    screen_height = 480
+
+    tileset = tcod.tileset.load_tilesheet("cp437_10x10.png", 16, 16, tcod.tileset.CHARMAP_CP437)
+    with tcod.context.new(
+        width=screen_width,
+        height=screen_height,
+        tileset=tileset,
+        title="Age of Aquarius",
+        renderer=tcod.RENDERER_SDL2,
+        vsync=True,
     ) as context:
-        root_console = tcod.Console(screen_width, screen_height, order="F")
+        console = tcod.Console(*context.recommended_console_size(), order="F")
         try:
             while True:
-                root_console.clear()
-                handler.on_render(console=root_console)
-                context.present(root_console)
+                console.clear()
+                handler.on_render(console=console)
+                context.present(console)
 
                 try:
                     for event in tcod.event.wait():
+                        if event.type == "WINDOWRESIZED":
+                            console = tcod.Console(*context.recommended_console_size(), order="F")
                         context.convert_event(event)
                         handler = handler.handle_events(event)
 

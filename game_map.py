@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Iterable, Iterator, Optional, TYPE_CHECKING
+from collections import defaultdict
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING, NamedTuple, Tuple
 
 import numpy as np  # type: ignore
 from tcod.console import Console
@@ -12,6 +13,58 @@ from entity import Actor, Item
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
+
+
+def _get_view_slice(screen_width: int, world_width: int, anchor: int):
+    """Return 1D (screen_view, world_view) slices.
+
+    Letterboxing is added to fit the views to the screen.
+    Out-of-bounds slices are zero width and will result in zero length arrays when used.
+
+    Args:
+        screen_width: The width of the screen shape.
+        world_width: The width of the world shape.
+        anchor: The world point to place at screen position zero.
+    """
+    # Moving the anchor past the left of the world will push the screen to the right.
+    # This adds the leftmost letterbox to the screen.
+    screen_left = max(0, -anchor)
+    # The anchor moving past the left of the world will slice into the world from the left.
+    # This keeps the world view in sync with the screen and the leftmost letterbox.
+    world_left = max(0, anchor)
+    # The view width is clamped to the smallest possible size between the screen and world.
+    # This adds the rightmost letterbox to the screen.
+    # The screen and world can be out-of-bounds of each other, causing a width of zero.
+    view_width = max(0, min(screen_width - screen_left, world_width - world_left))
+    screen_view = slice(screen_left, screen_left + view_width)
+    world_view = slice(world_left, world_left + view_width)
+    return screen_view, world_view
+
+
+def get_views(screen_shape, world_shape, anchor):
+    """Return (screen_view, world_view) as 2D slices for use with NumPy.
+
+    These views are used to slice their respective arrays.
+    `anchor` should be (i, j) or (x, y) depending on the order of the shapes.
+    Letterboxing is added to the views to make them fit.
+    Out-of-bounds views are zero width.
+
+    Args:
+        screen_shape: The shape of the screen array.
+        world_shape: The shape of the world array.
+        anchor: The world point to place at (0, 0) on the screen.
+
+    Example::
+
+        camera: tuple[int, int]  # (y, x) by default, (x, y) if arrays are order="F".
+        screen: NDArray[Any]
+        world: NDArray[Any]
+        screen_view, world_view = get_views(camera, screen.shape, world.shape)
+        screen[screen_view] = world[world_view]
+    """
+    i_slice = _get_view_slice(screen_shape[0], world_shape[0], anchor[0])
+    j_slice = _get_view_slice(screen_shape[1], world_shape[1], anchor[1])
+    return (i_slice[0], j_slice[0]), (i_slice[1], j_slice[1])
 
 
 class GameMap:
@@ -44,8 +97,7 @@ class GameMap:
 
         self.downstairs_location = (0, 0)
 
-        self.camera_x = 0
-        self.camera_y = 0
+        self.camera_xy = (0, 0)  # Camera center position.
 
     @property
     def gamemap(self) -> GameMap:
@@ -88,47 +140,25 @@ class GameMap:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def screen_to_map(self, x, y):
-        # convert screen coordinates to map coordinates
-        x = x + self.camera_x
-        y = y + self.camera_y
-        return x, y
-
-    def map_to_screen(self, x, y):
-        # convert map coordinates to screen coordinates
-        x = x - self.camera_x
-        y = y - self.camera_y
-        return x, y
-
-    def update(self, console: Console) -> None:
-        # update camera position
-        self.camera_x = self.engine.player.x - console.width // 2
-        self.camera_y = self.engine.player.y - console.height // 2
-
-        self.camera_x = min(self.camera_x, self.width - console.width)
-        self.camera_y = min(self.camera_y, self.height - console.height)
-        self.camera_x = max(0, self.camera_x)
-        self.camera_y = max(0, self.camera_y)
+    def get_left_top_pos(self, screen_shape):
+        """Return the (left, top) position of the camera for a screen of this size."""
+        return self.camera_xy[0] - screen_shape[0] // 2, self.camera_xy[1] - screen_shape[1] // 2
 
     def render(self, console: Console) -> None:
 
-        self.update(console)
+        screen_shape = console.rgb.shape
+        cam_x, cam_y = self.get_left_top_pos(screen_shape)
 
-        for screen_y in range(console.height):
-            for screen_x in range(console.width):
-                map_x, map_y = self.screen_to_map(screen_x, screen_y)
+        # Get the screen and world view slices.
+        screen_view, world_view = get_views(screen_shape, self.tiles.shape, (cam_x, cam_y))
+        self.camera_xy = (self.engine.player.x, self.engine.player.y)
 
-                if self.visible[map_x, map_y]:
-                    console.print(screen_x, screen_y,
-                                  chr(self.tiles[map_x, map_y]["light"]["ch"]),
-                                  tuple(self.tiles[map_x, map_y]["light"]["fg"]),
-                                  tuple(self.tiles[map_x, map_y]["light"]["bg"]))
-
-                elif self.explored[map_x, map_y]:
-                    console.print(screen_x, screen_y,
-                                  chr(self.tiles[map_x, map_y]["dark"]["ch"]),
-                                  tuple(self.tiles[map_x, map_y]["dark"]["fg"]),
-                                  tuple(self.tiles[map_x, map_y]["dark"]["bg"]))
+        # Draw the console based on visible or explored areas.
+        console.tiles_rgb[screen_view] = np.select(
+            (self.visible[world_view], self.explored[world_view]),
+            (self.tiles["light"][world_view], self.tiles["dark"][world_view]),
+            tile_types.SHROUD,
+        )
 
         entities_sorted_for_rendering = sorted(
             self.entities, key=lambda x: x.render_order.value
@@ -137,10 +167,10 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
 
             if self.visible[entity.x, entity.y]:
-                screen_x, screen_y = self.map_to_screen(entity.x, entity.y)
-                if 0 <= screen_x < console.width and 0 <= screen_y < console.height:
-                    console.print(screen_x, screen_y, entity.char, entity.fg_colour, entity.bg_colour)
-                    if not entity == self.engine.player:
+                obj_x, obj_y = entity.x - cam_x, entity.y - cam_y
+                if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
+                    console.print(obj_x, obj_y, entity.char, entity.fg_colour, entity.bg_colour)
+                    if isinstance(entity, Actor) and not entity == self.engine.player:
                         entity.active = True
 
     def generate_level(self) -> None:
