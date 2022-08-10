@@ -1407,3 +1407,29 @@ ar15 = Item(
         compatible_bullet_type='5.56x45'
     )
 )
+
+ardict = {
+    "guns": {
+        "automatic rifles": {
+            "AR Rifle": {
+                "required parts": {
+                    "AR Lower Reciever": 1,
+                    "AR Upper Reciever": 1,
+                    "AR Barrel": 1,
+                    "AR Handguard": 1,
+                    "AR Grip": 1,
+                },
+                "compatible parts": {
+                    "AR Stock": 1,
+                    "AR Front Sight": 1,
+                    "AR Optics Mount": 1,
+                    "Underbarrel Accessory": 1,
+                    "Side Mounted Accessory": 1,
+                    "Muzzle Device": 1,
+                    "Optic": 1
+                },
+                "item": ar15
+            },
+        }
+    },
+}

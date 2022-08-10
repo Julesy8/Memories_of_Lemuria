@@ -1,14 +1,13 @@
 -----
 TO DO
 -start on sewer level
--weapon equip slots on armour
--ability for parts to have multiple part types at once e.g. for combined pistol grip and butt stocks
 -ability to change optics magnification
 -shotgun shells
 -underbarrel grenade launchers
 -add stipper clips
 -change how recoil works - maximumum amount of recoil effect for each calibre
 -ability to rename guns
+-way to view compatible parts
 
 17) more room shapes on level generation
 19) weapon graphics

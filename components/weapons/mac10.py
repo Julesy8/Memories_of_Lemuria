@@ -450,7 +450,7 @@ mac1045 = Item(
         enemy_attack_range=8,
         possible_parts={},
         sound_radius=1.0,
-        recoil=1.1,
+        recoil=1.2,
         close_range_accuracy=0.9,
         compatible_bullet_type='.45 ACP'
     )
@@ -482,7 +482,7 @@ mac109 = Item(
         enemy_attack_range=8,
         possible_parts={},
         sound_radius=1.0,
-        recoil=1.1,
+        recoil=1.2,
         close_range_accuracy=0.9,
         compatible_bullet_type='9mm'
     )

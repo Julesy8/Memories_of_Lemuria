@@ -1464,19 +1464,22 @@ class InspectItemViewer(AskUserEventHandler):
             "magazine type": 'magazine_type',
             "magazine size": 'magazine_size',
             "magazine capacity": 'mag_capacity',
-            "compatible round": 'compatible_bullet_type',
+            "calibre": 'compatible_bullet_type',
             "fits bodypart": 'fits_bodypart',
             "protection": 'protection',
             "large mag slots": 'large_mag_slots',
             "medium mag slots": 'medium_mag_slots',
-            "small mag slots": '.mall_mag_slots',
+            "small mag slots": 'small_mag_slots',
             "round type": 'bullet_type',
             "damage modifier": 'meat_damage',
             "armour damage modifier": 'armour_damage',
             "sound radius modifier": 'sound_modifier',
             "recoil modifier": 'recoil_modifier',
             "healing amount": 'amount',
-            "reload time modifier": 'reload_time_modifier'
+            "reload time modifier": 'reload_time_modifier',
+            "attachment point": 'attachment_point_required',
+            "part type": 'part_type',
+            "fire rate modifier": 'fire_rate_modifier',
         }
 
         for key, value in additonal_info.items():

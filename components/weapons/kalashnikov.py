@@ -102,7 +102,7 @@ handguard_ak74 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
                                    ),
-    description='Polymer hand guard scuh as that of the AK-74 and the AK-100 series'
+    description='Polymer hand guard such as that of the AK-74 and the AK-100 series'
 )
 
 handguard_romanian = Item(
@@ -130,19 +130,6 @@ handguard_microdraco = Item(
     usable_properties=GunComponent(part_type='AK Handguard',
                                    ),
     description="Very short AK hand guard made for the Micro Draco AK pistol"
-)
-
-handguard_aks74U = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name="AKS-74U Handguard",
-    weight=1,
-    stacking=None,
-    usable_properties=GunComponent(part_type='AK Handguard',
-                                   ),
-    description="A shortened AK hand guard designed for the AKS-74U"
 )
 
 handguard_ak100 = Item(
@@ -441,7 +428,7 @@ barrel_ak762 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    ),
-    description="A standard length AK barrel chambered in 7.62x39"
+    description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 7.62x39"
 )
 
 barrel_ak545 = Item(
@@ -464,7 +451,7 @@ barrel_ak545 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]}
                                    ),
-    description="A standard length AK barrel chambered in 5.45x39"
+    description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 5.45x39"
 )
 
 barrel_ak556 = Item(
@@ -487,7 +474,7 @@ barrel_ak556 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    ),
-    description="A standard length AK barrel chambered in 5.56x45"
+    description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 5.56x45 such as that of the AK-101"
 )
 
 barrel_rpk762 = Item(
@@ -509,15 +496,15 @@ barrel_rpk762 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   base_meat_damage=1.1,
-                                   base_armour_damage=1.15,
+                                   base_meat_damage=1.04,
+                                   base_armour_damage=1.04,
                                    base_accuracy=1.1,
-                                   range_accuracy_dropoff=1.2,
-                                   recoil=0.9,
-                                   close_range_accuracy=0.8,
-                                   equip_time=1.2,
+                                   range_accuracy_dropoff=1.06,
+                                   recoil=0.93,
+                                   close_range_accuracy=0.85,
+                                   equip_time=1.15,
                                    ),
-    description="A longer, heavier AK barrel intended for the RPK, chambered in 7.62x39"
+    description="A longer, heavier AK barrel assembly intended for the RPK, chambered in 7.62x39"
 )
 
 barrel_rpk545 = Item(
@@ -539,15 +526,15 @@ barrel_rpk545 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   base_meat_damage=1.1,
-                                   base_armour_damage=1.15,
+                                   base_meat_damage=1.04,
+                                   base_armour_damage=1.04,
                                    base_accuracy=1.1,
-                                   range_accuracy_dropoff=1.2,
-                                   recoil=0.9,
-                                   close_range_accuracy=0.8,
-                                   equip_time=1.2,
+                                   range_accuracy_dropoff=1.06,
+                                   recoil=0.93,
+                                   close_range_accuracy=0.85,
+                                   equip_time=1.15,
                                    ),
-    description="A longer, heavier AK barrel intended for the RPK-74, chambered in 5.45x39"
+    description="A longer, heavier AK barrel assembly intended for the RPK-74, chambered in 5.45x39"
 )
 
 barrel_ak762_short = Item(
@@ -569,16 +556,16 @@ barrel_ak762_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   base_meat_damage=0.9,
-                                   base_armour_damage=0.85,
+                                   base_meat_damage=0.93,
+                                   base_armour_damage=0.93,
                                    base_accuracy=0.9,
                                    range_accuracy_dropoff=0.85,
-                                   recoil=1.1,
-                                   close_range_accuracy=1.2,
+                                   recoil=1.05,
+                                   close_range_accuracy=1.15,
                                    equip_time=0.85,
-                                   fire_rate_modifier=1.25
                                    ),
-    description="A shortened carbine AK barrel chambered in 7.62x39"
+    description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 7.62x39 such as that of "
+                "the AK-104"
 )
 
 barrel_ak545_short = Item(
@@ -600,16 +587,16 @@ barrel_ak545_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   base_meat_damage=0.9,
-                                   base_armour_damage=0.85,
+                                   base_meat_damage=0.92,
+                                   base_armour_damage=0.92,
                                    base_accuracy=0.9,
                                    range_accuracy_dropoff=0.85,
-                                   recoil=1.1,
-                                   close_range_accuracy=1.2,
+                                   recoil=1.05,
+                                   close_range_accuracy=1.15,
                                    equip_time=0.85,
-                                   fire_rate_modifier=1.25
                                    ),
-    description="A shortened carbine AK barrel chambered in 5.45x39"
+    description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.45x39 such as that of "
+                "the AK-105"
 )
 
 barrel_ak556_short = Item(
@@ -631,91 +618,16 @@ barrel_ak556_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   base_meat_damage=0.9,
-                                   base_armour_damage=0.85,
+                                   base_meat_damage=0.92,
+                                   base_armour_damage=0.92,
                                    base_accuracy=0.9,
                                    range_accuracy_dropoff=0.85,
-                                   recoil=1.1,
-                                   close_range_accuracy=1.2,
+                                   recoil=1.05,
+                                   close_range_accuracy=1.15,
                                    equip_time=0.85,
-                                   fire_rate_modifier=1.25
                                    ),
-    description="A shortened carbine AK barrel chambered in 5.56x45"
-)
-
-barrel_ak762_micro = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name="AK Pistol Barrel - 7.62x39",
-    weight=1,
-    stacking=None,
-    usable_properties=GunComponent(part_type='AK Barrel',
-                                   is_attachment_point_types=['Barrel Thread 14x1', ],
-                                   compatible_parts={'AK Handguard': ["Micro Draco AK Handguard", "AKS-74U Handguard",
-                                                                      ]},
-                                   fire_modes={'automatic': 700},
-                                   base_meat_damage=0.85,
-                                   base_armour_damage=0.80,
-                                   base_accuracy=0.8,
-                                   range_accuracy_dropoff=0.75,
-                                   recoil=1.2,
-                                   close_range_accuracy=1.4,
-                                   equip_time=0.75,
-                                   fire_rate_modifier=1.3
-                                   ),
-    description="A pistol length AK barrel chambered in 7.62x39"
-)
-
-barrel_ak545_micro = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name="AK Pistol Barrel - 5.45x39",
-    weight=1,
-    stacking=None,
-    usable_properties=GunComponent(part_type='AK Barrel',
-                                   is_attachment_point_types=['Barrel Thread 24x1.5', ],
-                                   compatible_parts={'AK Handguard': ["Micro Draco AK Handguard", "AKS-74U Handguard",
-                                                                      ]},
-                                   fire_modes={'automatic': 700},
-                                   base_meat_damage=0.85,
-                                   base_armour_damage=0.80,
-                                   base_accuracy=0.8,
-                                   range_accuracy_dropoff=0.75,
-                                   recoil=1.2,
-                                   close_range_accuracy=1.4,
-                                   equip_time=0.75,
-                                   fire_rate_modifier=1.3
-                                   ),
-    description="A pistol length AK barrel chambered in 5.45x39"
-)
-
-barrel_ak556_micro = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name="AK Pistol Barrel - 5.56x45",
-    weight=1,
-    stacking=None,
-    usable_properties=GunComponent(part_type='AK Barrel',
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
-                                   compatible_parts={'AK Handguard': ["Micro Draco AK Handguard", "AKS-74U Handguard",
-                                                                      ]},
-                                   fire_modes={'automatic': 700},
-                                   base_meat_damage=0.85,
-                                   base_armour_damage=0.80,
-                                   base_accuracy=0.8,
-                                   range_accuracy_dropoff=0.75,
-                                   recoil=1.2,
-                                   close_range_accuracy=1.4,
-                                   equip_time=0.75,
-                                   fire_rate_modifier=1.3
-                                   ),
-    description="A pistol length AK barrel chambered in 5.56x45"
+    description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.56x39 such as that of "
+                "the AK-102"
 )
 
 """
@@ -1017,7 +929,7 @@ muzzle_dynacomp = Item(
                                    recoil=0.94,
                                    close_range_accuracy=0.96,
                                    ),
-    description="Compensator and muzzle brake fitting 7.62x39 AK rifles manufactured by Spikes Tactical"
+    description="Compensator and muzzle brake designed for AK rifles manufactured by Spikes Tactical"
 )
 
 """
@@ -1034,6 +946,7 @@ accessory_dustcoverrail = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AK Optics Mount',
                                    is_attachment_point_types=['Picrail Optics Mount',],
+                                   additional_required_parts=('Optic',),
                                    ),
     description="An AK dust cover featuring a picatinny rail for optics mounting"
 )
@@ -1048,8 +961,24 @@ accessory_railsidemount = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AK Optics Mount',
                                    is_attachment_point_types=['Picrail Optics Mount',],
+                                   additional_required_parts=('Optic',),
                                    ),
     description="A side mounted AK picatinny rail for optics mounting"
+)
+
+ak_ar_mag_adapter = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    bg_colour=None,
+    name="AK STANAG Magazine Adapter",
+    weight=1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AK Magazine Adapter',
+                                   compatible_magazine_type='STANAG 5.56x45',
+                                   compatible_parts={'AK Reciever': ['AK 100 series 5.56 Reciever', ]},
+                                   ),
+    description="Magazine adapter for 5.56 AK rifles providing compatibility with STANAG magazines"
 )
 
 ak = Item(
@@ -1078,14 +1007,15 @@ ak = Item(
         enemy_attack_range=15,
         possible_parts={},
         sound_radius=1.0,
-        recoil=1.2,
+        recoil=1.24,
         close_range_accuracy=1.2,
+        compatible_bullet_type='7.62x39'
     )
 )
 
 akmdict = {
     "guns": {
-        "assault rifles": {
+        "automatic rifles": {
             "Kalashnikov Rifle": {
                 "required parts": {
                     "AK Reciever": 1,
@@ -1099,6 +1029,7 @@ akmdict = {
                     "Side Mounted Accessory": 1,
                     "Underbarrel Accessory": 1,
                     "Muzzle Device": 1,
+                    "AK Magazine Adapter": 1,
                     "Optic": 1
                 },
                 "item": ak

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import Iterable, Iterator, Optional, TYPE_CHECKING, NamedTuple, Tuple
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
@@ -13,7 +12,6 @@ from entity import Actor, Item
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
-
 
 def _get_view_slice(screen_width: int, world_width: int, anchor: int):
     """Return 1D (screen_view, world_view) slices.

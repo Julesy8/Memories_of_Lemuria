@@ -76,6 +76,7 @@ class Parts:
                                             recoil=self.parent.recoil,
                                             sound_radius=self.parent.sound_radius,
                                             close_range_accuracy=self.parent.close_range_accuracy,
+                                            compatible_bullet_type=self.parent.compatible_bullet_type
                                             )
 
                     self.parent.parent = item
