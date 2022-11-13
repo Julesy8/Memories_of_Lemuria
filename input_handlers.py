@@ -1452,35 +1452,68 @@ class InspectItemViewer(AskUserEventHandler):
         }
 
         additonal_info = {
-            "damage": 'base_meat_damage',
-            "armour damage": 'base_armour_damage',
-            "accuracy": 'base_accuracy',
-            "equip time": 'equip_time',
-            "short range accuracy": 'close_range_accuracy',
-            "effective range": 'range_accuracy_dropoff',
-            "recoil": 'recoil',
-            "shot sound radius": 'sound_radius',
-            "compatible magazine": 'compatible_magazine_type',
+
+            "attachment point": 'attachment_point_required',
+
+            # healing consumable
+            "healing amount": 'amount',
+
+            # weapon
+            "maximum range": 'maximum_range',
+            "equip turns": 'equip_time',
+
+            # melee weapon
+            "base damage": 'base_meat_damage',
+            "base armour damage": 'base_armour_damage',
+            "accuracy modifier": 'base_accuracy',
+
+            # bullet
+            "round type": 'bullet_type',
+            "bullet mass (grains)": 'mass',
+            "charge mass (grains)": 'charge_mass',
+            "bullet diameter (inches)": 'diameter',
+            "bullet velocity (fps)": 'velocity',
+            "sound modifier": 'sound_modifier',
+            "spread modifier": 'spread_modifier',
+            "ballistic_coefficient": 'ballistic_coefficient',
+            "drag coefficient": 'drag_coefficient',
+            "projectile amount": 'projectile_no',
+
+            # magazine
             "magazine type": 'magazine_type',
             "magazine size": 'magazine_size',
             "magazine capacity": 'mag_capacity',
-            "calibre": 'compatible_bullet_type',
+            "compatible round": 'compatible_bullet_type',
+            "turns to load": 'turns_to_load',
+
+            # gun
+            "felt recoil": 'felt_recoil',
+            "reload time modifier": 'load_time_modifier',
+            "fire rate modifier": 'fire_rate_modifier',
+            "barrel length": 'barrel_length',
+            "zero range": 'zero_range',
+            "sight height over bore": 'sight_height_above_bore',
+            "muzzle break efficiency": 'muzzle_break_efficiency',
+            "shot sound modifier": 'sound_modifier',
+            "bullet velocity modifier": 'velocity_modifier',
+            "sound radius modifier": 'sound_modifier',
+
+            # mag fed
+            "compatible magazine": 'compatible_magazine_type',
+
+            # wearable
             "fits bodypart": 'fits_bodypart',
             "protection": 'protection',
             "large mag slots": 'large_mag_slots',
             "medium mag slots": 'medium_mag_slots',
             "small mag slots": 'small_mag_slots',
-            "round type": 'bullet_type',
-            "damage modifier": 'meat_damage',
-            "armour damage modifier": 'armour_damage',
-            "sound radius modifier": 'sound_modifier',
-            "recoil modifier": 'recoil_modifier',
-            "healing amount": 'amount',
-            "reload time modifier": 'reload_time_modifier',
-            "attachment point": 'attachment_point_required',
+
+            # component part
             "part type": 'part_type',
-            "fire rate modifier": 'fire_rate_modifier',
+            "prevents suppression": 'prevents_suppression',
         }
+
+        # TODO: add gun part info i.e. mount type etc
 
         for key, value in additonal_info.items():
             if hasattr(item.usable_properties, value):

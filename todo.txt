@@ -1,11 +1,25 @@
 -----
 TO DO
+-----
+
+-update to latest python version
+-weapon MoA
+-weapon bullet drop
+-unique guns and gun parts - e.g. super fast fire rate reciever for mac 10
+-action points system
+-range stats displayed using graphing package
+-more exotic magazines should jam every so often
+-change recoil calculation so that it isn't recalculated multiple times for the same bullet
+- 'short burst, medium burst, long burst' for full auto fire
+-armour coverage value
+-darkness level (how far away you can see enemies) depends on level
+-way to show graph of weapon stats with python graphing package
+
 -start on sewer level
 -ability to change optics magnification
 -shotgun shells
 -underbarrel grenade launchers
 -add stipper clips
--change how recoil works - maximumum amount of recoil effect for each calibre
 -ability to rename guns
 -way to view compatible parts
 

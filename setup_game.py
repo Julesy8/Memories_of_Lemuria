@@ -22,15 +22,14 @@ from components.bodyparts import Body, Arm, Leg, Head
 
 from copy import deepcopy
 
-from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17l_barrel, glock_9in_barrel, \
+from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17l_barrel, \
     glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide, glock17_slide_custom, \
-    glock17l_slide_custom, glock17_slide_ported, glock17l_slide_ported, glock_switch, glock_9mm_compensator, \
+    glock17l_slide_custom, glock_switch, glock_9mm_compensator, \
     glock_stock, glock_pic_rail, glock_pistol_brace
 
-from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
-    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, mosin_pistol_grip, \
-    mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak, mosin_nagant
-
+#from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
+#    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, \
+#    mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak, mosin_nagant
 
 
 def new_game() -> Engine:
@@ -40,19 +39,20 @@ def new_game() -> Engine:
     # initialises player entity
     fighter_component = Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
-    Head_part = Head(hp=50, defence=50)
-    Body_part = Body(hp=100, defence=50)
-    R_Arm = Arm(hp=30, defence=50, name='right arm')
-    L_Arm = Arm(hp=30, defence=50, name='left arm')
-    R_Leg = Leg(hp=30, defence=50, name='right leg')
-    L_Leg = Leg(hp=30, defence=50, name='left leg')
+    #TODO: adjust to be correct
+    Head_part = Head(hp=50, defence=50, depth=15, width=15, height=20)
+    Body_part = Body(hp=100, defence=50, depth=20, width=15, height=20)
+    R_Arm = Arm(hp=30, defence=50, name='right arm', depth=15, width=15, height=20)
+    L_Arm = Arm(hp=30, defence=50, name='left arm', depth=15, width=15, height=20)
+    R_Leg = Leg(hp=30, defence=50, name='right leg', depth=15, width=15, height=20)
+    L_Leg = Leg(hp=30, defence=50, name='left leg', depth=15, width=15, height=20)
 
     body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
-    player = Actor(0, 0,
+    player = Actor(0,
+                   0,
                    '@',
                    colour.GREEN,
-                   None,
                    'Player',
                    ai=HostileEnemy,
                    fighter=fighter_component,
@@ -66,14 +66,14 @@ def new_game() -> Engine:
 
     #inventory_items = [mac1045,]
 
-    #inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel, glock_9in_barrel,
-    #                   glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide,
-    #                   glock17_slide_custom, glock17l_slide_custom, glock17_slide_ported, glock17l_slide_ported,
-    #                   glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, glock_pistol_brace]
+    inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel,
+                       glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide,
+                       glock17_slide_custom, glock17l_slide_custom,
+                       glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, glock_pistol_brace]
 
-    inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
-                       mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount,
-                       mosin_pistol_grip, mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak]
+    #inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
+    #                   mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount,
+    #                   mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak]
 
     #inventory_items = [mac1045_lower, mac1045_upper, mac1045_upper_tactical, mac1045_upper_max,mac1045_barrel,
     #                   mac1045_extended_barrel, mac1045_carbine_barrel, mac10_full_stock, mac10_folding_stock,

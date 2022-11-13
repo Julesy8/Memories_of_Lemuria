@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
 
+
 def _get_view_slice(screen_width: int, world_width: int, anchor: int):
     """Return 1D (screen_view, world_view) slices.
 
@@ -144,12 +145,13 @@ class GameMap:
 
     def render(self, console: Console) -> None:
 
+        self.camera_xy = (self.engine.player.x, self.engine.player.y)
+
         screen_shape = console.rgb.shape
         cam_x, cam_y = self.get_left_top_pos(screen_shape)
 
         # Get the screen and world view slices.
         screen_view, world_view = get_views(screen_shape, self.tiles.shape, (cam_x, cam_y))
-        self.camera_xy = (self.engine.player.x, self.engine.player.y)
 
         # Draw the console based on visible or explored areas.
         console.tiles_rgb[screen_view] = np.select(
@@ -167,8 +169,8 @@ class GameMap:
             if self.visible[entity.x, entity.y]:
                 obj_x, obj_y = entity.x - cam_x, entity.y - cam_y
                 if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
-                    console.print(obj_x, obj_y, entity.char, entity.fg_colour, entity.bg_colour)
-                    if isinstance(entity, Actor) and not entity == self.engine.player:
+                    console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
+                    if isinstance(entity, Actor):
                         entity.active = True
 
     def generate_level(self) -> None:

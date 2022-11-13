@@ -4,6 +4,8 @@ from typing import Optional, TYPE_CHECKING
 
 from exceptions import Impossible
 
+from math import sqrt, e, pi, cos, sin
+from random import uniform
 from copy import deepcopy
 from pydantic.utils import deep_update
 
@@ -11,6 +13,7 @@ import actions
 import colour
 import components.inventory
 from components.npc_templates import BaseComponent
+
 if TYPE_CHECKING:
     from components.gunparts import Parts
     from entity import Item, Actor
@@ -18,7 +21,6 @@ if TYPE_CHECKING:
 
 
 class Usable(BaseComponent):
-
     parent: Item
 
     def get_action(self, user: Actor) -> Optional[ActionOrHandler]:
@@ -63,53 +65,20 @@ class HealingConsumable(Usable):
 class Weapon(Usable):
 
     def __init__(self,
-                 base_meat_damage,
-                 base_armour_damage,
                  maximum_range: int,
-                 base_accuracy: float,
                  equip_time: int,
-                 range_accuracy_dropoff: Optional[float],
                  ranged: bool = False,
                  ):
 
-        self.base_meat_damage = base_meat_damage
-        self.base_armour_damage = base_armour_damage
         self.ranged = ranged  # if true, weapon has range (non-melee)
         self.maximum_range = maximum_range  # determines how far away the weapon can deal damage
-        self.base_accuracy = base_accuracy  # decimal value, modifies base_chance_to_hit for a limb
         self.equip_time = equip_time
-        self.range_accuracy_dropoff = range_accuracy_dropoff  # the range up to which the weapon is accurate
 
         if not self.ranged:
             self.maximum_range = 1
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
-
-    def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
-
-        weapon_accuracy_type = attacker.fighter.melee_accuracy
-
-        if self.ranged:
-            weapon_accuracy_type = attacker.fighter.ranged_accuracy
-
-        # successful hit
-        if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy
-                         * weapon_accuracy_type):
-
-            # does damage to given bodypart
-            target.bodyparts[part_index].deal_damage(
-                meat_damage=self.base_meat_damage,
-                armour_damage=self.base_armour_damage,
-                attacker=attacker, item=self.parent)
-
-        # miss
-        else:
-            if attacker.player:
-                return self.engine.message_log.add_message("You miss", colour.YELLOW)
-
-            else:
-                return self.engine.message_log.add_message(f"{attacker.name} misses", colour.LIGHT_BLUE)
 
     def equip(self) -> None:
 
@@ -135,25 +104,75 @@ class Weapon(Usable):
             inventory.items.append(entity)
 
 
+class MeleeWeapon(Weapon):
+
+    def __init__(self,
+                 base_meat_damage,
+                 base_armour_damage,
+                 maximum_range: int,
+                 base_accuracy: float,
+                 equip_time: int,
+                 ):
+
+        self.base_accuracy = base_accuracy
+        self.base_meat_damage = base_meat_damage
+        self.base_armour_damage = base_armour_damage
+
+        super().__init__(
+            maximum_range=maximum_range,
+            ranged=False,
+            equip_time=equip_time
+        )
+
+    def attack_melee(self, target: Actor, attacker: Actor, part_index: int, hitchance: int):
+
+        weapon_accuracy_type = attacker.fighter.melee_accuracy
+
+        # successful hit
+        if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * self.base_accuracy
+                         * weapon_accuracy_type):
+
+            # does damage to given bodypart
+            target.bodyparts[part_index].deal_damage_melee(
+                meat_damage=self.base_meat_damage,
+                armour_damage=self.base_armour_damage,
+                attacker=attacker)
+
+        # miss
+        else:
+            if attacker.player:
+                return self.engine.message_log.add_message("You miss", colour.YELLOW)
+
+            else:
+                return self.engine.message_log.add_message(f"{attacker.name} misses", colour.LIGHT_BLUE)
+
+
 class Bullet(Usable):
 
     def __init__(self,
-                 parts,
                  bullet_type: str,
-                 meat_damage: int,
-                 armour_damage: int,
-                 accuracy_factor: float,
-                 recoil_modifier: float,  # reduces accuracy of followup automatic shots
-                 sound_modifier: float,  # alters amount of noise the gun makes
+                 mass: int,  # bullet mass in grains
+                 charge_mass: float,  # mass of propellant in grains
+                 diameter: float,  # inches
+                 velocity: int,  # feet per second
+                 proj_config: float,  # corresponds to form factor, e.g. JHP, FMJ
+                 drag_coefficient: float,  # drag coeficient in 10% ballistic gel for different projectil types
+                 sound_modifier: float,  # alters amount of noise the gun makes - relative to muzzle energy
+                 spread_modifier: float,  # range penalty per tile to account for spread
+                 ballistic_coefficient: float,
+                 projectile_no: int = 1,
                  ):
-
-        self.parts = parts
         self.bullet_type = bullet_type
-        self.meat_damage = meat_damage
-        self.armour_damage = armour_damage
-        self.accuracy_factor = accuracy_factor
-        self.recoil_modifier = recoil_modifier
+        self.mass = mass
+        self.charge_mass = charge_mass
+        self.diameter = diameter
+        self.velocity = velocity
+        self.proj_config = proj_config
+        self.drag_coefficient = drag_coefficient
         self.sound_modifier = sound_modifier
+        self.ballistic_coefficient = ballistic_coefficient
+        self.projectile_no = projectile_no
+        self.spread_modifier = spread_modifier
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -167,7 +186,6 @@ class Magazine(Usable):
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
                  turns_to_load: int,  # amount of turns it takes to load magazine into gun
-                 base_accuracy: float = 1.0,
                  ):
         self.magazine_type = magazine_type
         self.compatible_bullet_type = compatible_bullet_type
@@ -175,7 +193,6 @@ class Magazine(Usable):
         self.magazine_size = magazine_size
         self.turns_to_load = turns_to_load
         self.magazine = []
-        self.base_accuracy = base_accuracy
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -262,110 +279,181 @@ class Gun(Weapon):
     def __init__(self,
                  parts: Parts,
                  compatible_bullet_type: str,
-                 base_meat_damage: float,
-                 base_armour_damage: float,
-                 base_accuracy: float,
-                 range_accuracy_dropoff: float,
+                 velocity_modifier: float,
                  equip_time: int,
                  fire_modes: dict,  # fire rates in rpm
-                 possible_parts: dict,
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
-                 sound_radius: float,  # radius at which enemies can 'hear' the shot
-                 close_range_accuracy: float,
-                 recoil: float,
+                 sound_modifier: float,
+                 felt_recoil: float,
+                 barrel_length: float,
+                 zero_range: int,  # yards
+                 sight_height_above_bore: float,  # inches
+                 spread_modifier: float = 0.0,  # MoA / 100
+                 muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
-                 chambered_bullet=None,
+                 chambered_bullet: Optional[Item] = None,
                  ):
+
+        # TODO: add new properties to stat sheet
+
+        # > ergonomics = > firearm area in contact with body of operator, < distance between twigger and stock
+        # > accuracy distribution affected by > ergonomics, < optic zoom / precision / sight radius and < weight
 
         self.parts = parts
         self.compatible_bullet_type = compatible_bullet_type
         self.parts.parent = self
-        self.possible_parts = possible_parts  # dict containing possible part options the gun is able to spawn with
-
-        self.recoil = recoil
+        self.felt_recoil = felt_recoil
+        self.velocity_modifier = velocity_modifier
+        self.muzzle_break_efficiency = muzzle_break_efficiency
+        self.zero_range = zero_range
+        self.sight_height_above_bore = sight_height_above_bore
+        self.spread_modifier = spread_modifier  # MoA / 100
+        self.barrel_length = barrel_length  # inches
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
         self.fire_modes = fire_modes
         self.current_fire_mode = current_fire_mode
         self.enemy_attack_range = enemy_attack_range
-        self.sound_radius = sound_radius
+        self.sound_modifier = sound_modifier
         self.fire_rate_modifier = fire_rate_modifier
         self.load_time_modifier = load_time_modifier
-        self.close_range_accuracy = close_range_accuracy
 
         super().__init__(
-            base_meat_damage=base_meat_damage,
-            base_armour_damage=base_armour_damage,
             maximum_range=100,
-            base_accuracy=base_accuracy,
             ranged=True,
-            range_accuracy_dropoff=range_accuracy_dropoff,
             equip_time=equip_time
         )
 
-    def attack(self, distance: int, target: Actor, attacker: Actor, part_index: int, hitchance: int):
+    # TODO: having two types of attacks (melee or ranged) is a bit messy but should be functional for now - at some point find better solution
+    def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
+                      hit_location_y: int):
 
+        # number of rounds fired in a single second
         if self.current_fire_mode == 'automatic' or self.current_fire_mode == 'burst':
             rounds_to_fire = round(self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier)
         else:
             rounds_to_fire = self.fire_modes[self.current_fire_mode]
 
+        rounds_fired = 0
         recoil_penalty = 0
-
-        range_penalty = 0
-
-        magazine_accuracy_factor = 1.0
-
-        if isinstance(self, GunMagFed):
-            if self.loaded_magazine is not None:
-                magazine_accuracy_factor = self.loaded_magazine.usable_properties.base_accuracy
-
-        # long range accuracy penalty
-        if distance > self.range_accuracy_dropoff:
-            range_penalty = distance - self.range_accuracy_dropoff
-
-        # close range accuracy penalty
-        functional_accuracy = self.base_accuracy
-        if distance <= 7:
-            functional_accuracy = self.close_range_accuracy
 
         # fires rounds
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
 
-                # successful hit
-                if hitchance <= (float(target.bodyparts[part_index].base_chance_to_hit) * functional_accuracy *
-                                 magazine_accuracy_factor *
-                                 self.chambered_bullet.usable_properties.accuracy_factor
-                                 * attacker.fighter.ranged_accuracy) - range_penalty - recoil_penalty:
+                muzzle_velocity = self.chambered_bullet.usable_properties.velocity * self.velocity_modifier
 
-                    # does damage to given bodypart
-                    target.bodyparts[part_index].deal_damage(
-                        meat_damage=self.base_meat_damage
-                                    * self.chambered_bullet.usable_properties.meat_damage,
-                        armour_damage=self.base_armour_damage
-                                      * self.chambered_bullet.usable_properties.armour_damage,
-                        attacker=attacker, item=self.parent)
+                # gives projectile spread in MoA
+                spread_diameter = \
+                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier \
+                    * distance
 
-                # miss
-                else:
-                    if attacker.player:
-                        self.engine.message_log.add_message("Your shot misses.", colour.YELLOW)
+                # bullet spread hit location coordinates
+                spread_angle = uniform(0, 1) * 2 * pi
+                radius = (spread_diameter * 0.523) * sqrt(uniform(0, 1))
+                spread_x = radius * cos(spread_angle)
+                spread_y = radius * sin(spread_angle)
 
+                # Pejsa's projectile drop formula
+                dist_yards = distance * 1.09361
+
+                retardation_coefficient = \
+                    self.chambered_bullet.usable_properties.ballistic_coefficient * 246 * muzzle_velocity ** 0.45
+
+                projectile_drop = ((41.68 / muzzle_velocity) / ((1 / dist_yards) -
+                                                                (1 / (retardation_coefficient -
+                                                                      (0.75 + 0.00006 * dist_yards)
+                                                                      * 0.5 * dist_yards)))) ** 2
+
+                drop_at_zero = ((41.68 / muzzle_velocity) / ((1 / self.zero_range) -
+                                                             (1 / (retardation_coefficient -
+                                                                   (0.75 + 0.00006 * self.zero_range)
+                                                                   * 0.5 * self.zero_range)))) ** 2
+
+                # inches
+                projectile_path = (projectile_drop + self.sight_height_above_bore) + \
+                                  (drop_at_zero + self.sight_height_above_bore) * dist_yards / self.zero_range
+
+                if projectile_path > self.zero_range:
+                    projectile_path *= -1
+
+                velocity_at_distance = muzzle_velocity * (1 - 3 * 0.5 * dist_yards / retardation_coefficient) ** (
+                            1 / 0.5)
+
+                for i in range(self.chambered_bullet.usable_properties.projectile_no):
+
+                    # checks if hit
+                    hit_location_x += spread_x
+                    hit_location_y += recoil_penalty + projectile_path + spread_y
+
+                    if not hit_location_x > (target.bodyparts[part_index].width / 2) or hit_location_x < 0 or \
+                            hit_location_y > (target.bodyparts[part_index].height / 2) or hit_location_y < 0:
+                        # does damage to given bodypart
+                        target.bodyparts[part_index].deal_damage_gun(
+                            diameter_bullet=self.chambered_bullet.usable_properties.diameter,
+                            mass_bullet=self.chambered_bullet.usable_properties.mass,
+                            velocity_bullet=velocity_at_distance,
+                            drag_bullet=self.chambered_bullet.usable_properties.drag_coefficient,
+                            config_bullet=self.chambered_bullet.usable_properties.proj_config,
+                            attacker=attacker
+                        )
+
+                    """
+                    # miss
                     else:
-                        self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
+                        if attacker.player:
+                            self.engine.message_log.add_message("Your shot misses.", colour.YELLOW)
+
+                        else:
+                            self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
+                    """
 
                 self.chambered_bullet = None
-
                 self.chamber_round()
 
                 rounds_to_fire -= 1
+                rounds_fired += 1
 
+                # recoil calcualtions
                 if self.chambered_bullet is not None:
-                    recoil_penalty += self.chambered_bullet.usable_properties.recoil_modifier
+
+                    additional_weight = 0
+
+                    if isinstance(self, GunMagFed):
+                        if self.loaded_magazine is not None:
+                            additional_weight = self.loaded_magazine.weight + \
+                                                (len(self.loaded_magazine.usable_properties.magazine)
+                                                 * self.chambered_bullet.weight)
+
+                    elif isinstance(self, GunIntegratedMag):
+                        additional_weight = len(self.magazine) * self.chambered_bullet.weight
+
+                    muzzle_break = 0
+                    if self.muzzle_break_efficiency is not None:
+                        muzzle_break = self.muzzle_break_efficiency
+
+                    time_in_barrel = self.barrel_length / (muzzle_velocity * 0.6)
+
+                    gas_velocity = muzzle_velocity * 1.7
+                    bullet_momentum = self.chambered_bullet.usable_properties.mass * 0.000142857 * muzzle_velocity
+                    gas_momentum = self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * \
+                                   muzzle_velocity / 2
+                    momentum_jet = self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * gas_velocity * \
+                                   ((1 - muzzle_break) ** (1 / sqrt(e)))
+                    momentum_gun = bullet_momentum + gas_momentum + momentum_jet
+                    velocity_gun = (momentum_gun / self.parent.weight + additional_weight)
+
+                    # recoil spread (MoA / 100) based assuming M4 recoil spread is 1 MoA with stock, handguard,
+                    # and pistol grip reducing felt recoil by 70% shooting 55gr bullets.
+                    # arbitrary but almost impossible to calculate actual muzzle rise for all guns and conifgurations
+                    recoil_spread = (velocity_gun / time_in_barrel) * self.felt_recoil * 4.572e-5
+
+                    if rounds_fired <= round(
+                            self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier) / 5:
+                        recoil_penalty += recoil_spread
 
             else:
                 if attacker.player:
@@ -377,8 +465,16 @@ class Gun(Weapon):
 
 
 class Wearable(Usable):
-    def __init__(self, protection: int, fits_bodypart_type: str, small_mag_slots: int, medium_mag_slots: int,
-                 large_mag_slots: int):
+    def __init__(self,
+                 protection: int,  # equivalent to inches of mild steel
+                 fits_bodypart_type: str,
+                 small_mag_slots: int,
+                 medium_mag_slots: int,
+                 large_mag_slots: int,
+                 # large_weapon_slots: int,
+                 # small_weapon_slots: int,
+                 ):
+
         self.protection = protection
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
 
@@ -386,6 +482,12 @@ class Wearable(Usable):
         self.small_mag_slots = small_mag_slots
         self.medium_mag_slots = medium_mag_slots
         self.large_mag_slots = large_mag_slots
+
+        # self.large_weapon_slots = large_weapon_slots
+        # self.small_weapon_slots = small_weapon_slots
+
+        # TODO: add weapon loadout functionality
+        # add screen to be able to see loadout - equiped items and stats
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -443,24 +545,25 @@ class GunMagFed(Gun):
                  parts: Parts,
                  compatible_magazine_type: str,
                  compatible_bullet_type: str,
-                 base_meat_damage: float,
-                 base_armour_damage: float,
-                 base_accuracy: float,
-                 range_accuracy_dropoff: float,
+                 velocity_modifier: float,
                  equip_time: int,
                  fire_modes: dict,
                  current_fire_mode: str,
                  keep_round_chambered: bool,
                  enemy_attack_range: int,
-                 sound_radius: float,
-                 possible_parts: dict,
-                 recoil: float,
-                 close_range_accuracy: float,
+                 sound_modifier: float,
+                 zero_range: int,
+                 sight_height_above_bore: float,
+                 felt_recoil: float,
+                 barrel_length: float,
+                 spread_modifier: float = 0.0,
+                 muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
-                 chambered_bullet=None,
-                 loaded_magazine=None,
+                 chambered_bullet: Optional[Item] = None,
+                 loaded_magazine: Optional[Item] = None,
                  ):
+
         self.compatible_magazine_type = compatible_magazine_type
         self.loaded_magazine = loaded_magazine
 
@@ -469,26 +572,28 @@ class GunMagFed(Gun):
 
         super().__init__(
             parts=parts,
-            base_meat_damage=base_meat_damage,
-            base_armour_damage=base_armour_damage,
-            base_accuracy=base_accuracy,
-            range_accuracy_dropoff=range_accuracy_dropoff,
+            velocity_modifier=velocity_modifier,
             equip_time=equip_time,
             fire_modes=fire_modes,
             current_fire_mode=current_fire_mode,
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
             enemy_attack_range=enemy_attack_range,
-            possible_parts=possible_parts,
-            sound_radius=sound_radius,
+            sound_modifier=sound_modifier,
+            muzzle_break_efficiency=muzzle_break_efficiency,
             fire_rate_modifier=fire_rate_modifier,
             load_time_modifier=load_time_modifier,
-            recoil=recoil,
-            close_range_accuracy=close_range_accuracy,
             compatible_bullet_type=compatible_bullet_type,
+            zero_range=zero_range,
+            spread_modifier=spread_modifier,
+            felt_recoil=felt_recoil,
+            sight_height_above_bore=sight_height_above_bore,
+            barrel_length=barrel_length,
         )
 
-    def load_gun(self, magazine):
+    def load_gun(self, magazine: Item):
+
+        # TODO: unfuck this
 
         entity = self.parent
         inventory = entity.parent
@@ -496,7 +601,7 @@ class GunMagFed(Gun):
             if self.loaded_magazine is not None:
 
                 if not self.keep_round_chambered:
-                    self.loaded_magazine.append(self.chambered_bullet)
+                    self.loaded_magazine.usable_properties.magazine.append(self.chambered_bullet)
                     self.chambered_bullet = None
 
                 if inventory.parent == self.engine.player:
@@ -528,7 +633,7 @@ class GunMagFed(Gun):
             if self.loaded_magazine is not None:
 
                 if not self.keep_round_chambered:
-                    self.loaded_magazine.append(self.chambered_bullet)
+                    self.loaded_magazine.usable_properties.magazine.append(self.chambered_bullet)
                     self.chambered_bullet = None
 
                 inventory.items.append(self.loaded_magazine)
@@ -561,10 +666,7 @@ class GunMagFed(Gun):
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
                  parts: Parts,
-                 base_meat_damage: float,
-                 base_armour_damage: float,
-                 base_accuracy: float,
-                 range_accuracy_dropoff: float,
+                 velocity_modifier: float,
                  equip_time: int,
                  fire_modes: dict,
                  current_fire_mode: str,
@@ -572,39 +674,43 @@ class GunIntegratedMag(Gun, Magazine):
                  mag_capacity: int,
                  keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
                  enemy_attack_range: int,
-                 possible_parts: dict,
-                 sound_radius: float,
-                 recoil: float,
-                 close_range_accuracy: float,
+                 sound_modifier: float,
+                 felt_recoil: float,
+                 zero_range: int,
+                 sight_height_above_bore: float,
+                 barrel_length: float,
+                 spread_modifier: float = 0.0,
+                 muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
-                 chambered_bullet=None,
+                 chambered_bullet: Optional[Item] = None,
                  ):
-
         self.mag_capacity = mag_capacity
+
+        # magazine = list[item]
         self.magazine = []
 
         self.previously_loaded_round = chambered_bullet
 
         super().__init__(
             parts=parts,
-            base_meat_damage=base_meat_damage,
-            base_armour_damage=base_armour_damage,
-            base_accuracy=base_accuracy,
-            range_accuracy_dropoff=range_accuracy_dropoff,
+            velocity_modifier=velocity_modifier,
             equip_time=equip_time,
             fire_modes=fire_modes,
             current_fire_mode=current_fire_mode,
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
             enemy_attack_range=enemy_attack_range,
-            possible_parts=possible_parts,
-            sound_radius=sound_radius,
+            sound_modifier=sound_modifier,
+            muzzle_break_efficiency=muzzle_break_efficiency,
             fire_rate_modifier=fire_rate_modifier,
             load_time_modifier=load_time_modifier,
-            recoil=recoil,
-            close_range_accuracy=close_range_accuracy,
-            compatible_bullet_type=compatible_bullet_type
+            compatible_bullet_type=compatible_bullet_type,
+            zero_range=zero_range,
+            spread_modifier=spread_modifier,
+            felt_recoil=felt_recoil,
+            sight_height_above_bore=sight_height_above_bore,
+            barrel_length=barrel_length,
         )
 
     def chamber_round(self):
@@ -646,7 +752,6 @@ class RecipeUnlock(Usable):
         self.datapack = datapack
 
     def activate(self, action: actions.ItemAction) -> None:
-
         self.engine.crafting_recipes = deep_update(self.engine.crafting_recipes, self.datapack)
         self.engine.message_log.add_message(
             f"Crafting recipes unlocked - {list(self.datapack.keys())[0]}",

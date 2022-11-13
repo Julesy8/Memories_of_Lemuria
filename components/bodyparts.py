@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 from random import randint
-from math import floor
+from math import floor, sqrt, pi
+from numpy import log
 from typing import Optional, TYPE_CHECKING
 from copy import deepcopy
 from random import choices
 
 from components.consumables import RecipeUnlock
 from components.datapacks import datapackdict
-from entity import Actor, Entity, Item
+from entity import Actor, Entity
 from components.enemies.equipment import enemy_equipment
 import colour
 
@@ -17,15 +18,18 @@ if TYPE_CHECKING:
 
 
 class Bodypart:
-
     parent: Actor
 
     def __init__(self,
                  hp: int,
-                 defence: int,
+                 defence: int,  # TODO: different defense types
                  name: str,
-                 base_chance_to_hit: int,
+                 width: int,
+                 height: int,
+                 depth: int,  # tissue depth (cm)
                  part_type: Optional[str],
+                 strength_tissue: int = 1000000,  # tissue tensile strength, newtons per square metre
+                 density_tissue: int = 1040,  # density of tissue, kg/m^3
                  vital: bool = False,
                  ):
 
@@ -33,16 +37,18 @@ class Bodypart:
         self.hp_last_turn = hp
         self._hp = hp
         self._defence = defence
+        self.width = width
+        self.height = height
+        self.depth = depth
         self.vital = vital  # whether when the body part gets destroyed, the entity should die
+        self.strength_tissue = strength_tissue
+        self.density_tissue = density_tissue
         self.equipped = None  # equipped armour item
         self.name = name
 
-        # base modifier of how likely the body part is to be hit when attacked between
-        # 1 and 100. Higher = more likely to hit.
-        self.base_chance_to_hit = base_chance_to_hit
-
         self.part_type = part_type  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
         self.functional = True  # whether or not bodypart is crippled
+        # TODO: replace functional with crippled check
 
     @property
     def engine(self) -> Engine:
@@ -68,7 +74,7 @@ class Bodypart:
             if self.vital:
                 self.die()
 
-        elif self._hp <= self.max_hp * 1/3 and self.functional:
+        elif self._hp <= self.max_hp * 1 / 3 and self.functional:
             self.cripple()
 
             if self.parent.player:
@@ -86,8 +92,7 @@ class Bodypart:
 
         self.parent.ai = None
 
-        entity = Entity(x=0, y=0, char=self.parent.char, fg_colour=colour.WHITE, bg_colour=None,
-                        name=f"{self.parent.name} remains", blocks_movement=False, parent=self.engine.game_map)
+        entity = Entity(x=0, y=0, char=self.parent.char, fg_colour=colour.WHITE, name=f"{self.parent.name} remains", blocks_movement=False, parent=self.engine.game_map)
 
         entity.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
@@ -128,7 +133,9 @@ class Bodypart:
 
         self.engine.game_map.entities.remove(self.parent)
 
-    def deal_damage(self, meat_damage: int, armour_damage: int, attacker: Actor, item: Optional[Item] = None):
+    def deal_damage_melee(self, meat_damage: int, armour_damage: int, attacker: Actor):
+
+        # TODO: cutting damage resistance and blunt damage resistance
 
         fail_colour = colour.LIGHT_BLUE
 
@@ -144,25 +151,60 @@ class Bodypart:
         elif self.defence + armour_protection == 0:
             damage = meat_damage
         else:
-            damage = meat_damage - floor(((armour_protection + self.defence)/armour_damage)) * meat_damage
+            damage = meat_damage - floor(((armour_protection + self.defence) / armour_damage)) * meat_damage
 
-        # attack w/ weapon
-        if item:
-            if damage > 0:
-                self.hp -= damage
+        if damage > 0:
+            self.hp -= damage
 
-            # hit, no damage dealt
-            else:
-                self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
-
-        # unarmed attack
+        # hit, no damage dealt
         else:
-            if damage > 0:
-                self.hp -= damage
+            self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
+
+    def deal_damage_gun(self, diameter_bullet: float, mass_bullet: int, velocity_bullet: int,
+                        drag_bullet: float, config_bullet: float, attacker: Actor):
+
+        diameter_bullet = diameter_bullet * 25.4  # millimitres
+        mass_bullet = mass_bullet * 0.0647989  # grams
+        velocity_bullet = velocity_bullet * 0.3048  # metres per second
+
+        fail_colour = colour.LIGHT_BLUE
+
+        if attacker == self.engine.player:
+            fail_colour = colour.YELLOW
+
+        if self.equipped:
+            armour_protection = self.equipped.usable_properties.protection + self.defence
+            ballistic_limit = sqrt(((diameter_bullet ** 3) / mass_bullet) *
+                                   ((armour_protection / (9.35 * 10 ** -9 * diameter_bullet)) ** 1.25))
+            residual_velocity = 0
+            try:
+                residual_velocity = sqrt((velocity_bullet ** 2) - (ballistic_limit ** 2))
+            except ValueError:
+                pass
+            velocity_bullet = residual_velocity
+
+        if velocity_bullet > 0:
+
+            # uniaxial strain proportionality
+            strain_prop = (diameter_bullet ** (1.0 / 3)) * sqrt(self.strength_tissue / self.density_tissue)
+
+            pen_depth = log(((velocity_bullet / strain_prop) ** 2 + 1)) * \
+                        (mass_bullet / (pi * ((0.5 * (diameter_bullet / 10)) ** 2)
+                                        * (self.density_tissue / 1000) * drag_bullet))
+
+            wound_mass = round(pi * (0.5 * ((diameter_bullet / 10) ** 2)) * pen_depth *
+                               (self.density_tissue / 1000) * config_bullet)
+
+            if wound_mass > 0:
+                self.hp -= wound_mass
 
             # hit, no damage dealt
             else:
                 self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
+
+        # failed to penetrate armour
+        else:
+            self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
 
     def cripple(self) -> None:
         self.functional = False
@@ -204,7 +246,11 @@ class Arm(Bodypart):
                  hp: int,
                  defence: int,
                  name: str,
-                 base_chance_to_hit: int = 90,
+                 width: int,
+                 height: int,
+                 depth: int,
+                 strength_tissue: int = 1000000,
+                 density_tissue: int = 1040,
                  part_type: Optional[str] = 'Arms',
                  ):
 
@@ -212,8 +258,12 @@ class Arm(Bodypart):
             hp=hp,
             defence=defence,
             name=name,
-            base_chance_to_hit=base_chance_to_hit,
-            part_type=part_type
+            depth=depth,
+            strength_tissue=strength_tissue,
+            density_tissue=density_tissue,
+            part_type=part_type,
+            width=width,
+            height=height
         )
 
     def cripple(self) -> None:
@@ -238,7 +288,11 @@ class Leg(Bodypart):
                  hp: int,
                  defence: int,
                  name: str,
-                 base_chance_to_hit: int = 90,
+                 width: int,
+                 height: int,
+                 depth: int,
+                 strength_tissue: int = 1000000,
+                 density_tissue: int = 1040,
                  part_type: Optional[str] = 'Legs',
                  ):
 
@@ -246,8 +300,12 @@ class Leg(Bodypart):
             hp=hp,
             defence=defence,
             name=name,
-            base_chance_to_hit=base_chance_to_hit,
-            part_type=part_type
+            depth=depth,
+            strength_tissue=strength_tissue,
+            density_tissue=density_tissue,
+            part_type=part_type,
+            width=width,
+            height=height
         )
 
     def cripple(self) -> None:
@@ -277,26 +335,31 @@ class Head(Bodypart):
     def __init__(self,
                  hp: int,
                  defence: int,
-                 base_chance_to_hit: int = 80,
+                 width: int,
+                 height: int,
+                 depth: int,
+                 strength_tissue: int = 1000000,
+                 density_tissue: int = 1040,
                  name: str = 'head',
                  part_type: Optional[str] = 'Head',
                  ):
-
         super().__init__(
             hp=hp,
             defence=defence,
             name=name,
-            base_chance_to_hit=base_chance_to_hit,
+            depth=depth,
+            strength_tissue=strength_tissue,
+            density_tissue=density_tissue,
             part_type=part_type,
-            vital=True
+            vital=True,
+            width=width,
+            height=height
         )
 
     def cripple(self) -> None:
-
         # crippling the head 'knocks out' the entity for a random amount of turns
 
         if not self.parent == self.engine.player:
-
             self.functional = False
 
             turns_inactive = randint(3, 6)
@@ -308,16 +371,23 @@ class Body(Bodypart):
     def __init__(self,
                  hp: int,
                  defence: int,
-                 base_chance_to_hit: int = 100,
-                 name: str = 'body',
+                 width: int,
+                 height: int,
+                 depth: int,
+                 strength_tissue: int = 1000000,
+                 density_tissue: int = 1040,
+                 name: str = 'torso',
                  part_type: Optional[str] = 'Body',
                  ):
-
         super().__init__(
             hp=hp,
             defence=defence,
             name=name,
-            base_chance_to_hit=base_chance_to_hit,
+            depth=depth,
+            strength_tissue=strength_tissue,
+            density_tissue=density_tissue,
             part_type=part_type,
-            vital=True
+            vital=True,
+            width=width,
+            height=height
         )

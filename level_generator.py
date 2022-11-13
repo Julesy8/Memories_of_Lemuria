@@ -16,7 +16,7 @@ from entity import Entity
 import colour
 from render_order import RenderOrder
 
-stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_GRAY, bg_colour=None, name='Stairs',
+stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_GRAY, name='Stairs',
                        render_order=RenderOrder.ITEM)
 
 

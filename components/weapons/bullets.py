@@ -1,648 +1,1090 @@
 import colour
 from entity import Item, Stacking
-from components.consumables import Bullet, ComponentPart
-from components.gunparts import Parts
-from components.commonitems import brass, lead
+from components.consumables import Bullet
 
-propellant = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='Smokeless Powder',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='Smokeless Powder',
-    usable_properties=ComponentPart(part_type="propellant", disassemblable=False)
-)
+# ammunition specifications from Alliant powder catalogue 2020
+
+# drag coefficients by projectile type
+cd_wadcutter = 0.8333
+cd_jhp = 0.441511
+cd_fmj_round_nose = 0.573576
+cd_cruciform_flat_nose = 0.597175
+cd_truncated_cone = 0.551937
+cd_sem_wadcutter = 0.551937
+cd_60_degree_conical = 0.5
+cd_round_ball = 0.414214
+
+cd_spitzer = 0.24
+
+# Cf = Cd / 0.83333
+
+# projectile configuration factor
+cf_wadcutter = 1
+cf_jhp = 0.819152
+cf_fmj_round_nose = 0.688292
+cf_cruciform_flat_nose = 0.71661
+cf_truncated_cone = 0.662324
+cf_sem_wadcutter = 0.662324
+cf_60_degree_conical = 0.6
+cf_round_ball = 0.497056
+
+cf_spitzer = 0.28
+
 
 """
 9MM
 """
 
-round_9mm = Item(
+# powder - sport pistol
+
+# FMJ
+round_9mm_115_fmj = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='9mm Round',
-    weight=0.0,
+    name='9x19mm - 115gr FMJ',
+    weight=0.006,
     stacking=Stacking(stack_size=10),
-    description='A standard pressure 9mm round',
+    description='9x19mm 115gr full metal jacket round point ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='9mm',
-        meat_damage=20,
-        armour_damage=14,
-        accuracy_factor=1.0,
-        recoil_modifier=3,
-        sound_modifier=8,
+        mass=115,
+        charge_mass=4.8,
+        diameter=0.355,
+        velocity=1151,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        sound_modifier=23.54,
+        ballistic_coefficient=0.155
     )
 )
 
-round_9mm_plusp = Item(
+round_9mm_124_fmj = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='9mm Round +P',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='Overpressure 9mm round designed to deliver additional velocity',
+    name='9x19mm - 124gr FMJ',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='9x19mm 124gr full metal jacket round point ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='9mm',
-        meat_damage=24,
-        armour_damage=15,
-        accuracy_factor=1.0,
-        recoil_modifier=3.3,
-        sound_modifier=9,
+        mass=124,
+        charge_mass=4.5,
+        diameter=0.355,
+        velocity=1089,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        sound_modifier=24.02,
+        ballistic_coefficient=0.192
     )
 )
 
-round_9mm_subsonic = Item(
+round_9mm_147_fp = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='9mm Round Subsonic',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='Subsonic 9mm ammunition designed to provide better suppressed functionality',
+    name='9x19mm - 147gr FP',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='9x19mm 147gr jacketed flat point ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='9mm',
-        meat_damage=18,
-        armour_damage=13,
-        accuracy_factor=1.0,
-        recoil_modifier=2.7,
-        sound_modifier=6,
+        mass=147,
+        charge_mass=3.5,
+        diameter=0.355,
+        velocity=890,
+        proj_config=cf_cruciform_flat_nose,
+        drag_coefficient=cd_cruciform_flat_nose,
+        spread_modifier=0.0,
+        sound_modifier=23.27,
+        ballistic_coefficient=0.2
     )
 )
 
-brass_9mm = Item(
+# FMJ +P
+round_9mm_115_fmj_pp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='9mm Casing',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='9mm bullet casing',
-    usable_properties=ComponentPart(part_type="brass_9mm", material={brass: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 115gr FMJ +P',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 9x19mm 115gr full metal jacket round point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=115,
+        charge_mass=5.1,
+        diameter=0.355,
+        velocity=1200,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        sound_modifier=24.54,
+        ballistic_coefficient=0.155
+    )
 )
 
-bullet_9mm_fmj = Item(
+round_9mm_124_fmj_pp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='9mm FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='9mm full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_9mm", suffix='FMJ', material={lead: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 124gr FMJ +P',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 9x19mm 124gr full metal jacket round point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=124,
+        charge_mass=4.8,
+        diameter=0.355,
+        velocity=1140,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        sound_modifier=25.14,
+        ballistic_coefficient=0.22
+    )
 )
 
-bullet_9mm_jhp = Item(
+round_9mm_147_fp_pp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='9mm JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='9mm jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_9mm", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 147gr FP +P',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 9x19mm 147gr jacketed flat point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=147,
+        charge_mass=3.7,
+        diameter=0.355,
+        velocity=956,
+        proj_config=cf_cruciform_flat_nose,
+        drag_coefficient=cd_cruciform_flat_nose,
+        spread_modifier=0.0,
+        sound_modifier=24.99,
+        ballistic_coefficient=0.2
+    )
 )
 
-bullet_9mm_ap = Item(
+#HP
+
+round_9mm_115_jhp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='9mm AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='9mm armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_9mm", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 115gr JHP',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='9x19mm 115gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=115,
+        charge_mass=4.7,
+        diameter=0.355,
+        velocity=1147,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=23.46,
+        ballistic_coefficient=0.13
+    )
 )
+
+round_9mm_124_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 124gr JHP',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='9x19mm 124gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=124,
+        charge_mass=4.4,
+        diameter=0.355,
+        velocity=1087,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=23.97,
+        ballistic_coefficient=0.17
+    )
+)
+
+round_9mm_147_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 147gr JHP',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='9x19mm 147gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=147,
+        charge_mass=3.6,
+        diameter=0.355,
+        velocity=894,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=23.37,
+        ballistic_coefficient=0.197
+    )
+)
+
+#HP +P
+
+round_9mm_115_jhp_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 115gr JHP +P',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 9x19mm 115gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=115,
+        charge_mass=5.1,
+        diameter=0.355,
+        velocity=1208,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=24.71,
+        ballistic_coefficient=0.13
+    )
+)
+
+round_9mm_124_jhp_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 124gr JHP +P',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 9x19mm 124gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=124,
+        charge_mass=4.7,
+        diameter=0.355,
+        velocity=1140,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=25.14,
+        ballistic_coefficient=0.17
+    )
+)
+
+round_9mm_147_jhp_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='9x19mm - 147gr JHP +P',
+    weight=0.006,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 9x19mm 147gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=147,
+        charge_mass=3.8,
+        diameter=0.355,
+        velocity=934,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=24.42,
+        ballistic_coefficient=0.197
+    )
+)
+
 
 """
 45
 """
 
-round_45 = Item(
+# swc
+
+round_45_185_swc = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='45 ACP Round',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='A standard pressure 45 ACP round',
+    name='45 ACP - 185gr Jacketed SWC',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='45 Automatic 185gr copper jacketed semi wad cutter ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='.45 ACP',
-        meat_damage=22,
-        armour_damage=13,
-        accuracy_factor=1.0,
-        recoil_modifier=4,
-        sound_modifier=9,
+        mass=185,
+        charge_mass=5.9,
+        diameter=0.452,
+        velocity=1038,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.0,
+        sound_modifier=34.15,
+        ballistic_coefficient=0.09
     )
 )
 
-round_45_plusp = Item(
+round_45_200_swc = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='45 ACP Round +P',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='Overpressure 45 ACP round designed to deliver additional velocity',
+    name='45 ACP - 200gr Jacketed SWC',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='45 Automatic 200gr copper jacketed semi wad cutter ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='.45 ACP',
-        meat_damage=26,
-        armour_damage=14,
-        accuracy_factor=1.0,
-        recoil_modifier=4.4,
-        sound_modifier=9.9,
+        mass=200,
+        charge_mass=5.2,
+        diameter=0.452,
+        velocity=956,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.0,
+        sound_modifier=34.0,
+        ballistic_coefficient=0.07
     )
 )
 
-round_45_subsonic = Item(
+# JHP
+
+round_45_185_jhp = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='45 ACP Round Subsonic',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='Subsonic 45 ACP ammunition designed to provide better suppressed functionality',
+    name='45 ACP - 185gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='45 Automatic 185gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='.45 ACP',
-        meat_damage=20,
-        armour_damage=11,
-        accuracy_factor=1.0,
-        recoil_modifier=3.4,
-        sound_modifier=7,
+        mass=185,
+        charge_mass=6.7,
+        diameter=0.452,
+        velocity=1071,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=35.24,
+        ballistic_coefficient=0.1
     )
 )
 
-brass_45 = Item(
+round_45_200_jhp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='45 ACP Casing',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='45 ACP bullet casing',
-    usable_properties=ComponentPart(part_type="brass_45", material={brass: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 200gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='45 Automatic 200gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='.45 ACP',
+        mass=200,
+        charge_mass=6.2,
+        diameter=0.452,
+        velocity=980,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=34.86,
+        ballistic_coefficient=0.15
+    )
 )
 
-bullet_45_fmj = Item(
+round_45_230_jhp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='45 ACP FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='45 ACP full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_45", suffix='FMJ', material={lead: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 230gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='45 Automatic 230gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='.45 ACP',
+        mass=230,
+        charge_mass=5.3,
+        diameter=0.452,
+        velocity=867,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=35.46,
+        ballistic_coefficient=0.205
+    )
 )
 
-bullet_45_jhp = Item(
+# FMJ
+
+round_45_200_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='45 ACP JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='45 ACP jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_45", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 200gr FMJ',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='45 Automatic 200gr full metal jacket round point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=200,
+        charge_mass=6.4,
+        diameter=0.355,
+        velocity=986,
+        proj_config=0.688292,
+        drag_coefficient=0.573576,
+        spread_modifier=0.0,
+        sound_modifier=35.07,
+        ballistic_coefficient=0.15
+    )
 )
 
-bullet_45_ap = Item(
+round_45_230_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='45 ACP AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='45 ACP armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_45", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 230gr FMJ',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='45 Automatic 230gr full metal jacket round point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=230,
+        charge_mass=5.9,
+        diameter=0.355,
+        velocity=914,
+        proj_config=0.688292,
+        drag_coefficient=0.573576,
+        spread_modifier=0.0,
+        sound_modifier=37.39,
+        ballistic_coefficient=0.205
+    )
 )
 
+# swc +P
+
+round_45_185_swc_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 185gr Jacketed SWC +P',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 45 Automatic 185gr copper jacketed semi wad cutter ammunition',
+    usable_properties=Bullet(
+        bullet_type='.45 ACP',
+        mass=185,
+        charge_mass=6.2,
+        diameter=0.452,
+        velocity=1025,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.0,
+        sound_modifier=33.72,
+        ballistic_coefficient=0.09
+    )
+)
+
+round_45_200_swc_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 200gr Jacketed SWC +P',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description=' Overpressure45 Automatic 200gr copper jacketed semi wad cutter ammunition',
+    usable_properties=Bullet(
+        bullet_type='.45 ACP',
+        mass=200,
+        charge_mass=5.4,
+        diameter=0.452,
+        velocity=983,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.0,
+        sound_modifier=34.96,
+        ballistic_coefficient=0.07
+    )
+)
+
+
+# JHP +P
+
+round_45_185_jhp_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 185gr JHP +P',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 45 Automatic 185gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='.45 ACP',
+        mass=185,
+        charge_mass=7.0,
+        diameter=0.452,
+        velocity=1111,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=36.55,
+        ballistic_coefficient=0.1
+    )
+)
+
+round_45_230_jhp_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 230gr JHP +P',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 45 Automatic 230gr full metal jacket hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='.45 ACP',
+        mass=230,
+        charge_mass=5.6,
+        diameter=0.452,
+        velocity=910,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=37.22,
+        ballistic_coefficient=0.205
+    )
+)
+
+# FMJ +P
+
+round_45_200_fmj_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 200gr FMJ  +P',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 45 Automatic 200gr full metal jacket round point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=200,
+        charge_mass=6.7,
+        diameter=0.355,
+        velocity=1035,
+        proj_config=0.688292,
+        drag_coefficient=0.573576,
+        spread_modifier=0.0,
+        sound_modifier=36.81,
+        ballistic_coefficient=0.15
+    )
+)
+
+round_45_230_fmj_pp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='45 ACP - 230gr FMJ  +P',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='Overpressure 45 Automatic 230gr full metal jacket round point ammunition',
+    usable_properties=Bullet(
+        bullet_type='9mm',
+        mass=230,
+        charge_mass=6.2,
+        diameter=0.355,
+        velocity=958,
+        proj_config=0.688292,
+        drag_coefficient=0.573576,
+        spread_modifier=0.0,
+        sound_modifier=39.19,
+        ballistic_coefficient=0.205
+    )
+)
 
 """
 7.62 x 39
 """
+# 16 inch barrel length
+# powder - N130 or closest
 
-round_762 = Item(
+#FMJ
+
+round_76239_123_fmj = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='7.62x39 Round',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='A 7.62x39 round',
+    name='7.62x39mm - 123gr FMJ',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='7.62x39mm 123gr full metal jacket ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='7.62x39',
-        meat_damage=30,
-        armour_damage=25,
-        accuracy_factor=1.0,
-        recoil_modifier=6,
-        sound_modifier=15,
+        mass=123,
+        charge_mass=27.3,
+        diameter=0.311,
+        velocity=2361,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=51.65,
+        ballistic_coefficient=0.282
     )
 )
 
-brass_762 = Item(
+round_76239_150_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x39 Casing',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x39 bullet casing',
-    usable_properties=ComponentPart(part_type="7.62x39 Brass", material={brass: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x39mm - 150gr FMJ',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='7.62x39mm 150gr full metal jacket ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x39',
+        mass=150,
+        charge_mass=24.4,
+        diameter=0.311,
+        velocity=2185,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=58.29,
+        ballistic_coefficient=0.341
+    )
 )
 
-bullet_762_fmj = Item(
+# SST (21 in barrel)
+
+round_76239_123_sst = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x39 FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x39 full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="7.62x39 Bullet", suffix='FMJ', material={lead: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x39mm - 123gr SST',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='7.62x39mm 123gr copper jacketed "super shock tip" polymer tipped ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x39',
+        mass=123,
+        charge_mass=27.3,
+        diameter=0.311,
+        velocity=2445,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=53.48,
+        ballistic_coefficient=0.295
+    )
 )
 
-bullet_762_jhp = Item(
+# soft point (21 in barrel)
+
+round_76239_150_sp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x39 JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x39 jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="7.62x39 Bullet", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x39mm - 150gr SP',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='7.62x39mm 150gr copper jacketed soft point ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x39',
+        mass=150,
+        charge_mass=23.6,
+        diameter=0.311,
+        velocity=2109,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=56.26,
+        ballistic_coefficient=0.341
+    )
 )
-
-bullet_762_ap = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x39 AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x39 armour piercing bullet',
-    usable_properties=ComponentPart(part_type="7.62x39 Bullet", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
-)
-
 
 """
 5.56 
 """
+# 14 inch barrel length
+# powder - XMR-2015
 
-round_556 = Item(
+round_556_55_sp = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='5.56x45 Round',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='A 5.56x45 round',
+    name='5.56 NATO - 55gr SP',
+    weight=0.012,
+    stacking=Stacking(stack_size=10),
+    description='5.56x45mm NATO 55gr jacketed soft point ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
-        bullet_type='556',
-        meat_damage=25,
-        armour_damage=20,
-        accuracy_factor=1.0,
-        recoil_modifier=5,
-        sound_modifier=13,
+        bullet_type='5.56x45',
+        mass=55,
+        charge_mass=21.7,
+        diameter=0.224,
+        velocity=3067,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=30.0,
+        ballistic_coefficient=0.204
     )
 )
 
-brass_556 = Item(
+round_556_60_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.56x45 Casing',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.56x45 bullet casing',
-    usable_properties=ComponentPart(part_type="brass_556", material={brass: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='5.56 NATO - 60gr V-Max',
+    weight=0.012,
+    stacking=Stacking(stack_size=10),
+    description='5.56x45mm NATO 60gr jacketed VMAX ammunition',
+    usable_properties=Bullet(
+        bullet_type='5.56x45',
+        mass=60,
+        charge_mass=24.5,
+        diameter=0.224,
+        velocity=3217,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=34.33,
+        ballistic_coefficient=0.323
+    )
 )
 
-bullet_556_fmj = Item(
+round_556_75_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.56x45 FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.56x45 full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_556", suffix='FMJ', material={lead: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='5.56 NATO - 75gr A-Max',
+    weight=0.012,
+    stacking=Stacking(stack_size=10),
+    description='5.56x45mm NATO 75gr jacketed A-MAX polymer tipped ammunition',
+    usable_properties=Bullet(
+        bullet_type='5.56x45',
+        mass=75,
+        charge_mass=22.6,
+        diameter=0.224,
+        velocity=2798,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=37.32,
+        ballistic_coefficient=0.435
+    )
 )
 
-bullet_556_jhp = Item(
+round_556_69_jhp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.56x45 JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.56x45 jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_556", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='5.56 NATO - 69gr HPBT',
+    weight=0.012,
+    stacking=Stacking(stack_size=10),
+    description='5.56x45mm NATO 69gr copper jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='5.56x45',
+        mass=69,
+        charge_mass=24.0,
+        diameter=0.224,
+        velocity=2936,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=36.03,
+        ballistic_coefficient=0.301
+    )
 )
 
-bullet_556_ap = Item(
+round_556_80_jhp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.56x45 AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.56x45 armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_556", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='5.56 NATO - 80gr HPBT',
+    weight=0.012,
+    stacking=Stacking(stack_size=10),
+    description='5.56x45mm NATO 80gr copper jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='5.56x45',
+        mass=80,
+        charge_mass=22.2,
+        diameter=0.224,
+        velocity=2742,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=39.01,
+        ballistic_coefficient=0.461
+    )
 )
+
 
 """
 300 blackout
 """
 
-round_300blk = Item(
+# barrel - 16 inch
+# powder - accurate 1680
+
+round_300aac_150_jhp = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='.300 BLK Round',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='A .300 BLK round',
+    name='.300 Blackout - 150gr HPBT',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='.300 AAC Blackout 150 gr copper jacketed hollow point boat tail ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
         bullet_type='.300 Blackout',
-        meat_damage=28,
-        armour_damage=17,
-        accuracy_factor=1.0,
-        recoil_modifier=5.5,
-        sound_modifier=14,
+        mass=150,
+        charge_mass=21.6,
+        diameter=0.308,
+        velocity=2086,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=55.65,
+        ballistic_coefficient=0.397
     )
 )
 
-brass_300blk = Item(
+round_300aac_150_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='.300 BLK Casing',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='.300 BLK bullet casing',
-    usable_properties=ComponentPart(part_type="brass_300blk", material={brass: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='.300 Blackout - 150gr FMJ',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='.300 AAC Blackout 150 gr full metal jacket ammunition',
+    usable_properties=Bullet(
+        bullet_type='.300 Blackout',
+        mass=150,
+        charge_mass=21.7,
+        diameter=0.308,
+        velocity=2057,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=54.87,
+        ballistic_coefficient=0.397
+    )
 )
 
-bullet_300blk_fmj = Item(
+round_300aac_210_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='.300 BLK FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='.300 BLK full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_300blk", suffix='FMJ', material={lead: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='.300 Blackout - 210gr FMJ',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='.300 AAC Blackout 210 gr full metal jacket ammunition',
+    usable_properties=Bullet(
+        bullet_type='.300 Blackout',
+        mass=210,
+        charge_mass=16,
+        diameter=0.308,
+        velocity=1582,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=59.08,
+        ballistic_coefficient=0.65
+    )
 )
 
-bullet_300blk_jhp = Item(
+round_300aac_210_jhp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='.300 BLK JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='.300 BLK jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_300blk", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='.300 Blackout - 210gr HPBT',
+    weight=0.016,
+    stacking=Stacking(stack_size=10),
+    description='.300 AAC Blackout 210 gr copper jacketed hollow point boat tail ammunition',
+    usable_properties=Bullet(
+        bullet_type='.300 Blackout',
+        mass=210,
+        charge_mass=12,
+        diameter=0.308,
+        velocity=1263,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=47.17,
+        ballistic_coefficient=0.65
+    )
 )
-
-bullet_300blk_ap = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='.300 BLK AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='.300 BLK armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_300blk", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
-)
-
 
 """
 5.45
 """
 
-round_545 = Item(
+# barrel length - 26 inches
+
+round_545_56_fmj = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='5.45x39 Round',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='A 5.45x39 round',
+    name='5.45x39 - 56gr FMJ',
+    weight=0.01,
+    stacking=Stacking(stack_size=10),
+    description='5.45x39 56 gr full metal jacket ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
-        bullet_type='545',
-        meat_damage=24,
-        armour_damage=23,
-        accuracy_factor=1.0,
-        recoil_modifier=4.7,
-        sound_modifier=14,
+        bullet_type='5.45x39',
+        mass=56,
+        charge_mass=19.5,
+        diameter=0.22,
+        velocity=2980,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=29.68,
+        ballistic_coefficient=0.209
     )
 )
 
-brass_545 = Item(
+round_545_63_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.45x39 Casing',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.45x39 bullet casing',
-    usable_properties=ComponentPart(part_type="brass_545", material={brass: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='5.45x39 - 63gr FMJ',
+    weight=0.01,
+    stacking=Stacking(stack_size=10),
+    description='5.45x39 63 gr full metal jacket ammunition',
+    usable_properties=Bullet(
+        bullet_type='5.45x39',
+        mass=63,
+        charge_mass=19.3,
+        diameter=0.22,
+        velocity=2798,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=31.35,
+        ballistic_coefficient=0.235
+    )
 )
 
-bullet_545_fmj = Item(
+round_545_60_jhp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.45x39 FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.45x39 full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_545", suffix='FMJ', material={lead: 1})
-)
-
-bullet_545_jhp = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.45x39 JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.45x39 jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_545", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
-)
-
-bullet_545_ap = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='5.45x39 AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='5.45x39 armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_545", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='5.45x39 - 60gr JHP',
+    weight=0.01,
+    stacking=Stacking(stack_size=10),
+    description='5.45x39 60 gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='5.45x39',
+        mass=60,
+        charge_mass=18.5,
+        diameter=0.22,
+        velocity=2787,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=29.74,
+        ballistic_coefficient=0.240
+    )
 )
 
 """
 7.62x51 
 """
 
-round_308 = Item(
+round_308_130_jhp = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
-    name='7.62x51 Round',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='A 7.62x51 round',
+    name='7.62x51 - 130gr JHP',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description='7.62x51 130 gr jacketed hollow point ammunition',
     usable_properties=Bullet(
-        parts=Parts(),
-        bullet_type='308',
-        meat_damage=35,
-        armour_damage=20,
-        accuracy_factor=1.0,
-        recoil_modifier=8,
-        sound_modifier=18,
+        bullet_type='7.62x51',
+        mass=130,
+        charge_mass=47.6,
+        diameter=0.308,
+        velocity=3182,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=73.57,
+        ballistic_coefficient=0.263
     )
 )
 
-brass_308 = Item(
+round_308_150_fmj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x51 Casing',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 bullet casing',
-    usable_properties=ComponentPart(part_type="brass_308", material={brass: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x51 - 150gr FMJ',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description='7.62x51 150 gr full metal jacket ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x51',
+        mass=150,
+        charge_mass=44.5,
+        diameter=0.308,
+        velocity=2929,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=78.14,
+        ballistic_coefficient=0.38
+    )
 )
 
-bullet_308_fmj = Item(
+round_308_165_sp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x51 FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_308", suffix='FMJ', material={lead: 1})
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x51 - 165gr FMJ',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description='7.62x51 130 gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x51',
+        mass=150,
+        charge_mass=42.1,
+        diameter=0.308,
+        velocity=2751,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=73.39,
+        ballistic_coefficient=0.404
+    )
 )
 
-bullet_308_jhp = Item(
+round_308_180_tsx = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x51 JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_308", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
-)
-
-bullet_308_ap = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x51 AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_308", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x51 - 180gr TSX',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description='7.62x51 180 gr all-copper ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x51',
+        mass=180,
+        charge_mass=40.5,
+        diameter=0.308,
+        velocity=2572,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=82.34,
+        ballistic_coefficient=0.484
+    )
 )
 
 
@@ -650,149 +1092,137 @@ bullet_308_ap = Item(
 7.62x54R
 """
 
-round_76254R = Item(
+# 'original' ammunition, 210gr projectile travelling 2200fps, muzzle energy 2257
+round_54r_174_jrn = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x54R - 174gr Jacketed RN',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description='7.62x54R 174 gr jacketed round nose ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x54R',
+        mass=174,
+        charge_mass=45.5,
+        diameter=0.3105,
+        velocity=2496,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        sound_modifier=77.24,
+        ballistic_coefficient=0.262
+    )
+)
+
+round_54r_180_jsp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x54R - 180gr Jacketed SP',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description='7.62x54R 150 gr jacketed soft point ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x54R',
+        mass=180,
+        charge_mass=45.5,
+        diameter=0.3105,
+        velocity=2488,
+        proj_config=cd_jhp,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=79.65,
+        ballistic_coefficient=0.411
+    )
+)
+
+round_54r_200_fmj = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x54R - 200gr Jacketed RN',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description='7.62x54R 200 gr full metal jacket ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x54R',
+        mass=200,
+        charge_mass=32.5,
+        diameter=0.3105,
+        velocity=2108,
+        proj_config=cf_spitzer,
+        drag_coefficient=cd_spitzer,
+        spread_modifier=0.0,
+        sound_modifier=74.98,
+        ballistic_coefficient=0.344
+    )
+)
+
+"""
+12 guage
+"""
+"""
+# 54gr projectile travelling 1200fps, muzzle energy 1,547
+round_buckshot_12 = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
-    name='7.62x54R Round',
+    name='12 Guage Buckshot',
     weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='A 7.62x54R round',
+    stacking=Stacking(stack_size=10),
+    description='12 guage buckshot round',
     usable_properties=Bullet(
         parts=Parts(),
-        bullet_type='76254',
-        meat_damage=36,
-        armour_damage=21,
-        accuracy_factor=1.0,
-        recoil_modifier=8,
-        sound_modifier=18,
+        bullet_type='9mm',
+        meat_damage=9,
+        armour_damage=5,
+        accuracy_factor=0.9,
+        recoil_modifier=12,
+        sound_modifier=20,
+        projectile_no=9,
+        range_modifier=0.082,
     )
 )
 
-brass_76254R = Item(
+# 437.5gr projectile travelling 1560fps, muzzle energy 2363
+round_slug_12 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.YELLOW,
+    fg_colour=colour.LIGHT_GRAY,
     bg_colour=None,
-    name='7.62x54R Casing',
+    name='12 Guage Buckshot',
     weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 bullet casing',
-    usable_properties=ComponentPart(part_type="brass_76254", material={brass: 1})
+    stacking=Stacking(stack_size=10),
+    description='12 guage buckshot round',
+    usable_properties=Bullet(
+        parts=Parts(),
+        bullet_type='9mm',
+        meat_damage=100,
+        armour_damage=28,
+        accuracy_factor=0.95,
+        recoil_modifier=18.4,
+        sound_modifier=24,
+        range_modifier=0.24,
+    )
 )
-
-bullet_76254R_fmj = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x54R FMJ',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 full metal jacket bullet',
-    usable_properties=ComponentPart(part_type="bullet_76254", suffix='FMJ', material={lead: 1})
-)
-
-bullet_76254R_jhp = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x54R JHP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 jacketed hollow point bullet',
-    usable_properties=ComponentPart(part_type="bullet_76254", suffix='JHP', material={lead: 1},
-                                    meat_damage=1.2,
-                                    armour_damage=0.8,
-                                    )
-)
-
-bullet_76254R_ap = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.YELLOW,
-    bg_colour=None,
-    name='7.62x54R AP',
-    weight=0.0,
-    stacking=Stacking(stack_size=1),
-    description='7.62x51 armour piercing bullet',
-    usable_properties=ComponentPart(part_type="bullet_76254", suffix='AP', material={lead: 1},
-                                    meat_damage=0.9,
-                                    armour_damage=1.3,
-                                    )
-)
-
+"""
 bullet_dict = {
-    "9mm": ([round_9mm, 1], [round_9mm, 1])
+    "9mm": ([round_9mm_115_fmj, 1], [round_9mm_124_fmj, 1])
 }
 
-bullet_crafting_dict = {
-    "9mm": {
-        "9mm Round": {
-            "required parts": {
-                "brass_9mm": 1,
-                "bullet_9mm": 1,
-                "propellant": 2,
-                },
-            "compatible parts": {},
-            "parts names": ["Casing", "Bullet", "Propellant"],
-            "item": round_9mm
-        },
-        "9mm Round +P": {
-            "required parts": {
-                "brass_9mm": 1,
-                "bullet_9mm": 1,
-                "propellant": 3,
-            },
-            "compatible parts": {},
-            "parts names": ["Casing", "Bullet", "Propellant"],
-            "item": round_9mm_plusp
-        },
-        "9mm Round Subsonic": {
-            "required parts": {
-                "brass_9mm": 1,
-                "bullet_9mm": 1,
-                "propellant": 1,
-            },
-            "compatible parts": {},
-            "parts names": ["Casing", "Bullet", "Propellant"],
-            "item": round_9mm_plusp
-        },
-        "9mm FMJ Bullet": {
-            "required parts": {
-                "lead": 1,
-            },
-            "compatible parts": {},
-            "parts names": ["Material"],
-            "item": bullet_9mm_fmj
-        },
-        "9mm JHP Bullet": {
-            "required parts": {
-                "lead": 1,
-            },
-            "compatible parts": {},
-            "parts names": ["Material"],
-            "item": bullet_9mm_jhp
-        },
-        "9mm AP Bullet": {
-            "required parts": {
-                "lead": 1,
-            },
-            "compatible parts": {},
-            "parts names": ["Material"],
-            "item": bullet_9mm_ap
-        },
-        "9mm Brass": {
-            "required parts": {
-                "brass": 1,
-            },
-            "compatible parts": {},
-            "parts names": ["Material"],
-            "item": brass_9mm
-        },
-    }
-}
+bullet_list = (round_9mm_115_fmj, round_9mm_124_fmj, round_9mm_147_fp, round_9mm_115_fmj_pp,
+               round_9mm_124_fmj_pp, round_9mm_147_fp_pp, round_9mm_115_jhp, round_9mm_124_jhp,
+               round_9mm_147_jhp, round_9mm_115_jhp_pp, round_9mm_124_jhp_pp, round_9mm_147_jhp_pp, round_45_185_swc,
+               round_45_200_swc, round_45_185_jhp, round_45_200_jhp, round_45_230_jhp, round_45_200_fmj,
+               round_45_230_fmj, round_45_185_swc_pp, round_45_200_swc_pp, round_45_185_jhp_pp, round_45_230_jhp_pp,
+               round_45_200_fmj_pp, round_45_230_fmj_pp, round_76239_123_fmj, round_76239_150_fmj,
+               round_76239_123_sst, round_76239_150_sp, round_556_55_sp, round_556_60_fmj,
+               round_556_75_fmj, round_556_69_jhp, round_556_80_jhp, round_300aac_150_jhp, round_300aac_150_fmj,
+               round_300aac_210_fmj, round_300aac_210_jhp, round_545_56_fmj, round_545_63_fmj, round_545_60_jhp,
+               round_308_130_jhp, round_308_150_fmj, round_308_165_sp, round_308_180_tsx, round_54r_174_jrn,
+               round_54r_180_jsp, round_54r_200_fmj
+               )
 
 

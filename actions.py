@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional, Tuple, TYPE_CHECKING
 from random import randint
 from copy import deepcopy
+import numpy.random
 
 import colour
 import exceptions
@@ -78,7 +79,7 @@ class ActionWithDirection(Action):
 
 
 class AttackAction(Action):
-
+    # TODO: implement different attack styles - ie precise, quick, frenzied
     def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart]):
         super().__init__(entity)
 
@@ -86,7 +87,6 @@ class AttackAction(Action):
         self.targeted_bodypart = targeted_bodypart
         self.distance = distance
         self.attack_colour = colour.LIGHT_RED
-        self.hitchance = randint(0, 100)
 
         if self.targeted_bodypart:
             self.part_index = self.targeted_actor.bodyparts.index(self.targeted_bodypart)
@@ -114,17 +114,20 @@ class AttackAction(Action):
 class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
     def attack(self) -> None:
+
         self.perform()
+
+        part_area = self.targeted_actor.bodyparts[self.part_index].width * \
+                    self.targeted_actor.bodyparts[self.part_index].height
+        hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
 
         if self.distance > 1:
             raise exceptions.Impossible("Enemy out of range")
 
         else:
             # hit
-            if self.hitchance <= float(self.targeted_actor.bodyparts[self.part_index].base_chance_to_hit) * \
-                    self.entity.fighter.melee_accuracy:
-
-                self.targeted_actor.bodyparts[self.part_index].deal_damage(
+            if randint(0, 100) < hit_chance:
+                self.targeted_actor.bodyparts[self.part_index].deal_damage_melee(
                     meat_damage=self.entity.fighter.unarmed_meat_damage,
                     armour_damage=self.entity.fighter.unarmed_armour_damage,
                     attacker=self.entity)
@@ -147,16 +150,22 @@ class WeaponAttackAction(AttackAction):
     def attack(self) -> None:
         self.perform()
 
-        if hasattr(self.item.usable_properties, 'sound_radius'):
+        # firearm attack
+        if hasattr(self.item.usable_properties, 'sound_modifier'):
             # weapon sounds alert enemies in vicinity
+
+            # TODO: make 0.1 a constant specific to attack style or state
+            standard_deviation = 0.1 * self.distance
+            hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
+            hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
 
             chambered_bullet = getattr(self.item.usable_properties, 'chambered_bullet')
             bullet_sound_modifier = 1.0
 
             if chambered_bullet is not None:
-                bullet_sound_modifier = chambered_bullet.usable_properties.sound_modifier
+                bullet_sound_modifier = chambered_bullet.sound_modifier
 
-            sound_radius = self.item.usable_properties.sound_radius * bullet_sound_modifier
+            sound_radius = self.item.usable_properties.sound_modifier * bullet_sound_modifier
             for x in self.engine.game_map.entities:
                 if x != self.entity and hasattr(x, 'ai'):
                     if hasattr(x.ai, 'path'):
@@ -169,8 +178,18 @@ class WeaponAttackAction(AttackAction):
                             if len(path) <= sound_radius:
                                 setattr(x.ai, 'path', path)
 
-        self.item.usable_properties.attack(distance=self.distance, target=self.targeted_actor, attacker=self.entity,
-                                           part_index=self.part_index, hitchance=self.hitchance)
+            self.item.usable_properties.attack_ranged(target=self.targeted_actor, attacker=self.entity,
+                                                      part_index=self.part_index, hit_location_x=hit_location_x,
+                                                      hit_location_y=hit_location_y)
+
+        # melee
+        else:
+            part_area = self.targeted_actor.bodyparts[self.part_index].width * \
+                        self.targeted_actor.bodyparts[self.part_index].height
+            hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
+
+            self.item.usable_properties.attack_melee(target=self.targeted_actor, attacker=self.entity,
+                                                     part_index=self.part_index, hit_chance=hit_chance)
 
 
 class MovementAction(ActionWithDirection):

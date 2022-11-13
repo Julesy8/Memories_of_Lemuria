@@ -31,9 +31,6 @@ class Engine:
         self.crafting_recipes = {
             "guns": {},
             "gun parts": {},
-            "ammunition": {},
-            "magazines": {},
-            "armour": {},
         }
 
     def save_as(self, filename: str) -> None:
@@ -62,7 +59,7 @@ class Engine:
 
     def render(self, console: Console) -> None:
         self.game_map.render(console)
-        console.draw_rect(0, console.height-4, console.width, 4, 219, bg=(0,0,0))
+        console.draw_rect(0, console.height-4, console.width, 4, 219, bg=(0, 0, 0))
         self.message_log.render(console=console, x=6, y=console.height-4, width=60, height=4)
 
         # head
@@ -98,14 +95,7 @@ class Engine:
 
             # for magazine fed gun
             if hasattr(self.player.inventory.held.usable_properties, "loaded_magazine"):
-                chamber = 0
-                if self.player.inventory.held.usable_properties.chambered_bullet is not None:
-                    chamber = 1
-                magazine = self.player.inventory.held.usable_properties.loaded_magazine
-                if self.player.inventory.held.usable_properties.loaded_magazine is not None:
-                    console.print(x=66, y=console.height-3, string=f"{len(magazine.magazine) + chamber}/{magazine.mag_capacity}",
-                                  fg=colour.WHITE, bg_blend=1)
-                else:
+                if self.player.inventory.held.usable_properties.loaded_magazine is None:
                     console.print(x=66, y=console.height-3, string="No Mag", fg=colour.WHITE, bg_blend=1)
 
             # for gun with integrated magazine

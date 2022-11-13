@@ -23,8 +23,7 @@ class Entity:  # generic entity
                  x: int,
                  y: int,
                  char: str,
-                 fg_colour,
-                 bg_colour,
+                 fg_colour: tuple[int, int, int],
                  name: str,
                  blocks_movement=False,
                  parent: Optional[GameMap] = None,
@@ -34,7 +33,6 @@ class Entity:  # generic entity
         self.y = y
         self.char = char
         self.fg_colour = fg_colour
-        self.bg_colour = bg_colour
         self.name = name
         self.render_order = render_order
         self.blocks_movement = blocks_movement
@@ -91,19 +89,17 @@ class Actor(Entity):
             x: int,
             y: int,
             char: str,
-            fg_colour,
-            bg_colour,
+            fg_colour: tuple[int, int, int],
             name: str,
             ai,
             fighter,
-            bodyparts,  # list of bodyparts belonging to the entity
+            bodyparts: tuple,  # list of bodyparts belonging to the entity
             inventory: Inventory,
             can_spawn_armed: bool,  # whether entity can spawn with a weapon
             attack_interval=0,
             attacks_per_turn=1,
             move_interval=0,
             moves_per_turn=1,
-            active_radius=10,
             bleeds=True,
             fears_death=True,
             drops_items=False,
@@ -115,7 +111,6 @@ class Actor(Entity):
             y=y,
             char=char,
             fg_colour=fg_colour,
-            bg_colour=bg_colour,
             name=name,
             blocks_movement=True,
             render_order=RenderOrder.ACTOR,
@@ -129,7 +124,6 @@ class Actor(Entity):
         self.player = player
         self.leaves_corpse = leaves_corpse
         self.bodyparts = copy.deepcopy(bodyparts)
-        self.active_radius = active_radius
         self.inventory = inventory
         self.inventory.parent = self
         for bodypart in self.bodyparts:
@@ -184,8 +178,7 @@ class Item(Entity):
         x: int = 0,
         y: int = 0,
         char: str = "?",
-        fg_colour,
-        bg_colour,
+        fg_colour: tuple[int, int, int],
         name: str = "<Unnamed>",
         weight: float,
         stacking: Optional[Stacking],
@@ -207,7 +200,6 @@ class Item(Entity):
             y=y,
             char=char,
             fg_colour=fg_colour,
-            bg_colour=bg_colour,
             name=name,
             blocks_movement=False,
             render_order=RenderOrder.ITEM,
