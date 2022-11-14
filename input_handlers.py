@@ -1475,7 +1475,7 @@ class InspectItemViewer(AskUserEventHandler):
             "bullet velocity (fps)": 'velocity',
             "sound modifier": 'sound_modifier',
             "spread modifier": 'spread_modifier',
-            "ballistic_coefficient": 'ballistic_coefficient',
+            "ballistic coefficient": 'ballistic_coefficient',
             "drag coefficient": 'drag_coefficient',
             "projectile amount": 'projectile_no',
 
@@ -1511,13 +1511,34 @@ class InspectItemViewer(AskUserEventHandler):
             # component part
             "part type": 'part_type',
             "prevents suppression": 'prevents_suppression',
+
+            # gun component
+            "compatible parts": 'compatible_parts',
+            "has attachment points": 'is_attachment_point_types',
+            "requires additional parts": 'additional_required_parts',
+            "requires attachment point": 'attachment_point_required',
         }
 
-        # TODO: add gun part info i.e. mount type etc
+        # TODO: make sure works for gun components
 
         for key, value in additonal_info.items():
             if hasattr(item.usable_properties, value):
                 item_info[key] = getattr(item.usable_properties, value)
+
+                if isinstance(value, dict):
+                    for key_2, value_2 in value:
+                        item_info[key] = f"{key_2:}"
+                        for string in value_2:
+                            item_info[key] += f" {string}"
+                            if not string == value_2[-1]:
+                                item_info[key] += ', '
+
+                elif type(value) in (list, tuple):
+                    item_info[key] = ''
+                    for x in value:
+                        item_info[key] += f"{x}"
+                        if not x == value[-1]:
+                            item_info[key] += ', '
 
         if isinstance(item.usable_properties, Gun):
             fire_modes = {"fire modes": ''}

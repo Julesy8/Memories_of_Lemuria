@@ -53,7 +53,7 @@ class HostileEnemy(BaseAI):
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        self.entity.turn_counter += 1
+        self.entity.turn_counter += 1  # TODO: this should be part of AI class rather than actor
         move_turns = self.entity.moves_per_turn
         attack_turns = self.entity.attacks_per_turn
 

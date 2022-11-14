@@ -202,7 +202,7 @@ class MovementAction(ActionWithDirection):
 
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             # Destination is blocked by a tile.
-            raise exceptions.Impossible("Silent")
+            raise exceptions.Impossible("Silent")  # TODO: figure out better way to handle exceptions
 
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             # Destination is blocked by an entity.

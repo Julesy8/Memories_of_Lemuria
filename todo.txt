@@ -2,9 +2,7 @@
 TO DO
 -----
 
--update to latest python version
--weapon MoA
--weapon bullet drop
+-when building gun, highlight incompatible parts in red rather than excluding from list
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10
 -action points system
 -range stats displayed using graphing package
@@ -13,7 +11,6 @@ TO DO
 - 'short burst, medium burst, long burst' for full auto fire
 -armour coverage value
 -darkness level (how far away you can see enemies) depends on level
--way to show graph of weapon stats with python graphing package
 
 -start on sewer level
 -ability to change optics magnification
