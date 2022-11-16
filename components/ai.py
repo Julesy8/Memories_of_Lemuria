@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import numpy as np  # type: ignore
 import tcod
 from math import ceil
-from random import randint
 
 from components.consumables import Gun, GunMagFed, GunIntegratedMag, Weapon
-from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction
+from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction, AttackAction
 from entity import Actor
 
 
 class BaseAI(Action):
+
+    def __init__(self, entity: Actor):
+        self.queued_attack: Optional[AttackAction] = None
+        super().__init__(entity)
+
     def perform(self) -> None:
         raise NotImplementedError()
 
@@ -73,16 +77,12 @@ class HostileEnemy(BaseAI):
         attack_range = 1
         has_weapon = False
 
-        attack_ap_cost = fighter.unarmed_ap_cost * fighter.attack_ap_modifier
-
         # check held weapon type
         if held_item is not None:
             if isinstance(held_item.usable_properties, Weapon):
                 has_weapon = True
                 if hasattr(held_item.usable_properties, 'enemy_attack_range'):
                     attack_range = held_item.usable_properties.enemy_attack_range
-                attack_ap_cost = held_item.usable_properties.base_ap_cost * fighter.attack_ap_modifier
-
 
             # if entity flees death and a vital bodypart is under 1/4 health and they have not fled death before,
         # sets entity to be fleeing
@@ -95,12 +95,40 @@ class HostileEnemy(BaseAI):
         #                self.entity.has_fled_death = True
         #                break
 
+        # checks if the queued attack can still be performed
+        if self.queued_attack is not None:
+            if self.engine.game_map.visible[target.x, target.y]:
+
+                # if no longer inactive, tries to perform action
+                if self.entity.turns_attack_inactive <= 0:
+
+                    # attack with a weapon
+                    if isinstance(self.queued_attack, WeaponAttackAction):
+                        if self.queued_attack.item == self.entity.inventory.held:
+                            self.queued_attack.attack()
+                            self.queued_attack = None
+
+                        # no longer holding weapon, cancels queued attack
+                        else:
+                            self.queued_attack = None
+
+                    # unarmed attack
+                    else:
+                        self.queued_attack.attack()
+                        self.queued_attack = None
+
+            # entity no longer visible, cancels queued attack
+            else:
+                self.queued_attack = None
+
         while fighter.ap > 0:
+            # skips turn if both attack and move actions inactive for this turn
+            if self.entity.turns_attack_inactive > 0 and self.entity.turns_move_inactive > 0:
+                break
 
             # perform attack action
-            if attack_ap_cost <= fighter.ap and self.entity.turns_attack_inactive <= 0 \
-                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y] \
-                    and distance <= attack_range:
+            if fighter.ap > 0 and self.entity.turns_attack_inactive <= 0 and distance <= attack_range \
+                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]:
 
                 if attack_range == 1:
 
@@ -127,7 +155,6 @@ class HostileEnemy(BaseAI):
                                     load_gun(magazine=held_item.usable_properties.previously_loaded_magazine)
 
                                 # entity attack inactive for given reload period
-                                # TODO IMMINENTLY UNFUCCK
                                 self.entity.turns_attack_inactive = \
                                     held_item.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load
 

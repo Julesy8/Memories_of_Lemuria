@@ -337,7 +337,8 @@ class Gun(Weapon):
 
         # number of rounds fired in a single second
         if self.current_fire_mode == 'automatic' or self.current_fire_mode == 'burst':
-            rounds_to_fire = round(self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier)
+            rounds_to_fire = round(self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier
+                                   * attacker.fighter.automatic_fire_duration)
         else:
             rounds_to_fire = self.fire_modes[self.current_fire_mode]
 

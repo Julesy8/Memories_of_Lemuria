@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 from typing import Optional, Tuple, TYPE_CHECKING
+from math import trunc
 from random import randint
 from copy import deepcopy
 import numpy.random
@@ -81,11 +82,13 @@ class ActionWithDirection(Action):
 
 class AttackAction(Action):
     # TODO : implement different attack styles - ie precise, quick, frenzied
-    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart]):
+    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart],
+                 queued: Optional[bool] = False):
         super().__init__(entity)
 
         self.targeted_actor = targeted_actor
         self.targeted_bodypart = targeted_bodypart
+        self.queued = queued
         self.distance = distance
         self.attack_colour = colour.LIGHT_RED
 
@@ -119,20 +122,26 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
         self.perform()
 
         fighter = self.entity.fighter
+        ap_cost = (fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
 
         # check if adeqaute AP
-        if fighter.ap >= (fighter.unarmed_ap_cost * fighter.attack_ap_modifier):
+        if fighter.ap >= ap_cost or self.queued:
 
             # subtracts AP cost
-            fighter.ap -= (fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
+            if not self.queued:
+                fighter.ap -= ap_cost
 
             # chance to hit calculation
             part_area = self.targeted_actor.bodyparts[self.part_index].width * \
                         self.targeted_actor.bodyparts[self.part_index].height
             hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
 
+            dx = self.targeted_actor.x - self.entity.x
+            dy = self.targeted_actor.y - self.entity.y
+            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
             # hit
-            if randint(0, 100) < hit_chance:
+            if randint(0, 100) < hit_chance and distance <= 1:
                 self.targeted_actor.bodyparts[self.part_index].deal_damage_melee(
                     meat_damage=self.entity.fighter.unarmed_meat_damage,
                     armour_damage=self.entity.fighter.unarmed_armour_damage,
@@ -146,9 +155,38 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                 else:
                     return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
-        # insufficient AP
-        elif self.entity.player:
-            self.engine.message_log.add_message("Cannot perform action: insufficient AP", colour.RED)
+        # insufficient AP for action - queues action for later turn
+        elif self.entity.ai.queued_attack is None:
+            fighter.ap -= ap_cost
+
+            # attacker is player
+            if self.entity.player:
+                turns_to_skip = trunc((fighter.ap - ap_cost * -1) /
+                                      (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
+                attack_viable = True
+                for i in range(turns_to_skip):
+                    self.engine.handle_enemy_turns()
+                    # check if action can still be performed
+                    if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y]:
+                        continue
+                    else:
+                        attack_viable = False
+                        self.engine.message_log.add_message("Your attack was interrupted", colour.RED)
+                        break
+
+                if attack_viable:
+                    self.queued = True
+                    self.attack()
+
+            # attacker is AI
+            else:
+                self.queued = True
+                self.entity.ai.queued_attack = self
+                self.entity.turns_move_inactive = trunc((fighter.ap - ap_cost) /
+                                                        (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
+
+                self.entity.turns_attack_inactive = trunc((fighter.ap - ap_cost) /
+                                                          (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
 
 
 class WeaponAttackAction(AttackAction):
@@ -162,10 +200,12 @@ class WeaponAttackAction(AttackAction):
 
         # subtracts AP cost
         fighter = self.entity.fighter
+        ap_cost = (self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier)
 
-        if fighter.ap >= (self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier):
+        if fighter.ap >= ap_cost or self.queued:
 
-            fighter.ap -= (self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier)
+            if not self.queued:
+                fighter.ap -= ap_cost
 
             # firearm attack
             if hasattr(self.item.usable_properties, 'sound_modifier'):
@@ -201,16 +241,58 @@ class WeaponAttackAction(AttackAction):
 
             # melee
             else:
-                part_area = self.targeted_actor.bodyparts[self.part_index].width * \
-                            self.targeted_actor.bodyparts[self.part_index].height
-                hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
 
-                self.item.usable_properties.attack_melee(target=self.targeted_actor, attacker=self.entity,
-                                                         part_index=self.part_index, hit_chance=hit_chance)
+                dx = self.targeted_actor.x - self.entity.x
+                dy = self.targeted_actor.y - self.entity.y
+                distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-        # insufficient AP for action
-        elif self.entity.player:
-            self.engine.message_log.add_message("Cannot perform action: insufficient AP", colour.RED)
+                if distance <= 1:
+
+                    part_area = self.targeted_actor.bodyparts[self.part_index].width * \
+                                self.targeted_actor.bodyparts[self.part_index].height
+                    hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
+
+                    self.item.usable_properties.attack_melee(target=self.targeted_actor, attacker=self.entity,
+                                                             part_index=self.part_index, hit_chance=hit_chance)
+
+        # insufficient AP for action - queues action for later turn
+        elif self.entity.ai.queued_attack is None:
+            fighter.ap -= ap_cost
+
+            # attacker is player
+            if self.entity.player:
+                turns_to_skip = trunc((fighter.ap - ap_cost * -1) /
+                                      (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
+                attack_viable = True
+                for i in range(turns_to_skip):
+                    self.engine.handle_enemy_turns()
+                    # check if action can still be performed
+                    if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] and \
+                            self.item == self.entity.inventory.held:
+                        continue
+                    else:
+                        attack_viable = False
+                        self.engine.message_log.add_message("Your attack was interrupted", colour.RED)
+                        break
+
+                if attack_viable:
+
+                    dx = self.targeted_actor.x - self.entity.x
+                    dy = self.targeted_actor.y - self.entity.y
+                    distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
+                    self.queued = True
+                    self.distance = distance
+                    self.attack()
+
+            # attacker is AI
+            else:
+                self.queued = True
+                self.entity.ai.queued_attack = self
+                self.entity.turns_move_inactive = trunc((fighter.ap - ap_cost) /
+                                                        (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
+                self.entity.turns_attack_inactive = trunc((fighter.ap - ap_cost) /
+                                                          (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
 
 
 class MovementAction(ActionWithDirection):
