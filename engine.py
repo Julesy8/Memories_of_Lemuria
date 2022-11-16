@@ -40,10 +40,14 @@ class Engine:
             f.write(save_data)
 
     def handle_enemy_turns(self) -> None:
+
+        self.player.fighter.ap += (self.player.fighter.ap_per_turn * self.player.fighter.ap_per_turn_modifier)
+
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
                 try:
-                    entity.ai.perform()
+                    if entity.active:
+                        entity.ai.perform()
                 except exceptions.Impossible:
                     pass  # Ignore impossible action exceptions from AI.
 
@@ -89,6 +93,8 @@ class Engine:
 
         console.print(x=66, y=console.height-4, string=f"{level_names[self.current_level]} {self.current_floor + 1}",
                       fg=colour.WHITE, bg_blend=1)
+
+        # TODO: add AP display
 
         # displays current ammo
         if self.player.inventory.held is not None:

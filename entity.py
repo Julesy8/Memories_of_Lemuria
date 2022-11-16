@@ -96,10 +96,6 @@ class Actor(Entity):
             bodyparts: tuple,  # list of bodyparts belonging to the entity
             inventory: Inventory,
             can_spawn_armed: bool,  # whether entity can spawn with a weapon
-            attack_interval=0,
-            attacks_per_turn=1,
-            move_interval=0,
-            moves_per_turn=1,
             bleeds=True,
             fears_death=True,
             drops_items=False,
@@ -131,38 +127,16 @@ class Actor(Entity):
         self.can_spawn_armed = can_spawn_armed
         self.drops_items = drops_items
 
-        # original values before changes occur i.e. crippled limbs
-        self.attack_interval_original = attack_interval
-        self.attacks_per_turn_original = attacks_per_turn
-        self.move_interval_original = move_interval
-        self.moves_per_turn_original = moves_per_turn
-
-        self.attack_interval = attack_interval  # how many turns the entity waits before attacking
-        self.attacks_per_turn = attacks_per_turn  # when the entity attacks, how many times?
-        self.move_interval = move_interval  # how many turns the entity waits before moving
-        self.moves_per_turn = moves_per_turn  # when the entity moves, how many times?
-
         # disables attacks and movement for a certain amount of turns
         self.turns_attack_inactive = 0
         self.turns_move_inactive = 0
-
-        self.turn_counter = 0
-        self.last_move_turn = 0
-        self.last_attack_turn = 0
 
         self.fears_death = fears_death
         self.fleeing_turns = 0
         self.has_fled_death = False
 
-        if self.player:
+        if self.player:  # TODO better way of implementing this - implement player actor subclass
             self.crafting_recipes = ['pistols',
-                                     '9mm',
-                                     '9mm FMJ Bullet',
-                                     '9mm JHP Bullet',
-                                     '9mm AP Bullet',
-                                     '9mm Brass',
-                                     '9mm Round +P',
-                                     '9mm Round Subsonic',
                                      ]
 
     @property

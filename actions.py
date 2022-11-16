@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import Optional, Tuple, TYPE_CHECKING
 from random import randint
 from copy import deepcopy
@@ -79,7 +80,7 @@ class ActionWithDirection(Action):
 
 
 class AttackAction(Action):
-    # TODO: implement different attack styles - ie precise, quick, frenzied
+    # TODO : implement different attack styles - ie precise, quick, frenzied
     def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart]):
         super().__init__(entity)
 
@@ -117,14 +118,19 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
         self.perform()
 
-        part_area = self.targeted_actor.bodyparts[self.part_index].width * \
-                    self.targeted_actor.bodyparts[self.part_index].height
-        hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
+        fighter = self.entity.fighter
 
-        if self.distance > 1:
-            raise exceptions.Impossible("Enemy out of range")
+        # check if adeqaute AP
+        if fighter.ap >= (fighter.unarmed_ap_cost * fighter.attack_ap_modifier):
 
-        else:
+            # subtracts AP cost
+            fighter.ap -= (fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
+
+            # chance to hit calculation
+            part_area = self.targeted_actor.bodyparts[self.part_index].width * \
+                        self.targeted_actor.bodyparts[self.part_index].height
+            hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
+
             # hit
             if randint(0, 100) < hit_chance:
                 self.targeted_actor.bodyparts[self.part_index].deal_damage_melee(
@@ -140,6 +146,10 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                 else:
                     return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
+        # insufficient AP
+        elif self.entity.player:
+            self.engine.message_log.add_message("Cannot perform action: insufficient AP", colour.RED)
+
 
 class WeaponAttackAction(AttackAction):
     def __init__(self, distance: int, item: Optional[Item], entity: Actor, targeted_actor: Actor,
@@ -150,65 +160,95 @@ class WeaponAttackAction(AttackAction):
     def attack(self) -> None:
         self.perform()
 
-        # firearm attack
-        if hasattr(self.item.usable_properties, 'sound_modifier'):
-            # weapon sounds alert enemies in vicinity
+        # subtracts AP cost
+        fighter = self.entity.fighter
 
-            # TODO: make 0.1 a constant specific to attack style or state
-            standard_deviation = 0.1 * self.distance
-            hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
-            hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
+        if fighter.ap >= (self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier):
 
-            chambered_bullet = getattr(self.item.usable_properties, 'chambered_bullet')
-            bullet_sound_modifier = 1.0
+            fighter.ap -= (self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier)
 
-            if chambered_bullet is not None:
-                bullet_sound_modifier = chambered_bullet.sound_modifier
+            # firearm attack
+            if hasattr(self.item.usable_properties, 'sound_modifier'):
+                # weapon sounds alert enemies in vicinity
 
-            sound_radius = self.item.usable_properties.sound_modifier * bullet_sound_modifier
-            for x in self.engine.game_map.entities:
-                if x != self.entity and hasattr(x, 'ai'):
-                    if hasattr(x.ai, 'path'):
-                        dx = x.x - self.entity.x
-                        dy = x.y - self.entity.y
-                        distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+                # TODO : make 0.1 a constant specific to attack style or state
+                standard_deviation = 0.1 * self.distance
+                hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
+                hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
 
-                        if distance <= sound_radius:
-                            path = x.ai.get_path_to(self.entity.x, self.entity.y)
-                            if len(path) <= sound_radius:
-                                setattr(x.ai, 'path', path)
+                chambered_bullet = getattr(self.item.usable_properties, 'chambered_bullet')
+                bullet_sound_modifier = 1.0
 
-            self.item.usable_properties.attack_ranged(target=self.targeted_actor, attacker=self.entity,
-                                                      part_index=self.part_index, hit_location_x=hit_location_x,
-                                                      hit_location_y=hit_location_y)
+                if chambered_bullet is not None:
+                    bullet_sound_modifier = chambered_bullet.sound_modifier
 
-        # melee
-        else:
-            part_area = self.targeted_actor.bodyparts[self.part_index].width * \
-                        self.targeted_actor.bodyparts[self.part_index].height
-            hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
+                sound_radius = self.item.usable_properties.sound_modifier * bullet_sound_modifier
+                for x in self.engine.game_map.entities:
+                    if x != self.entity and hasattr(x, 'ai'):
+                        if hasattr(x.ai, 'path'):
+                            dx = x.x - self.entity.x
+                            dy = x.y - self.entity.y
+                            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-            self.item.usable_properties.attack_melee(target=self.targeted_actor, attacker=self.entity,
-                                                     part_index=self.part_index, hit_chance=hit_chance)
+                            if distance <= sound_radius:
+                                path = x.ai.get_path_to(self.entity.x, self.entity.y)
+                                if len(path) <= sound_radius:
+                                    setattr(x.ai, 'path', path)
+
+                self.item.usable_properties.attack_ranged(target=self.targeted_actor, attacker=self.entity,
+                                                          part_index=self.part_index, hit_location_x=hit_location_x,
+                                                          hit_location_y=hit_location_y)
+
+            # melee
+            else:
+                part_area = self.targeted_actor.bodyparts[self.part_index].width * \
+                            self.targeted_actor.bodyparts[self.part_index].height
+                hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
+
+                self.item.usable_properties.attack_melee(target=self.targeted_actor, attacker=self.entity,
+                                                         part_index=self.part_index, hit_chance=hit_chance)
+
+        # insufficient AP for action
+        elif self.entity.player:
+            self.engine.message_log.add_message("Cannot perform action: insufficient AP", colour.RED)
 
 
 class MovementAction(ActionWithDirection):
     def perform(self) -> None:
-        dest_x, dest_y = self.dest_xy
 
-        if not self.engine.game_map.in_bounds(dest_x, dest_y):
-            # Destination is out of bounds.
-            raise exceptions.Impossible("Silent")
+        fighter = self.entity.fighter
 
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-            # Destination is blocked by a tile.
-            raise exceptions.Impossible("Silent")  # TODO: figure out better way to handle exceptions
+        if fighter.ap >= fighter.move_ap_cost:
 
-        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            # Destination is blocked by an entity.
-            raise exceptions.Impossible("Silent")
+            dest_x, dest_y = self.dest_xy
 
-        self.entity.move(self.dx, self.dy)
+            if not self.engine.game_map.in_bounds(dest_x, dest_y):
+                # Destination is out of bounds.
+                raise exceptions.Impossible("Silent")
+
+            if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+                # Destination is blocked by a tile.
+                raise exceptions.Impossible("Silent")  # TODO : figure out better way to handle exceptions
+
+            if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+                # Destination is blocked by an entity.
+                raise exceptions.Impossible("Silent")
+
+            # if chance for move action to fail
+            if fighter.move_success_chance != 1.0:
+                if random.uniform(0, 1) < fighter.move_success_chance:
+                    self.entity.move(self.dx, self.dy)
+                elif self.entity.player:
+                    self.engine.message_log.add_message("You try to move but you stumble", colour.RED)
+
+            else:
+                self.entity.move(self.dx, self.dy)
+
+            fighter.ap -= fighter.move_ap_cost
+
+        else:
+            self.engine.handle_enemy_turns()
+            self.perform()
 
 
 class BumpAction(ActionWithDirection):
@@ -227,13 +267,7 @@ class BumpAction(ActionWithDirection):
                                            targeted_bodypart=self.target_actor.bodyparts[0]).attack()
 
         else:
-            if self.entity.turn_counter >= self.entity.last_move_turn + self.entity.move_interval:
-                self.entity.turn_counter += 1
-                self.entity.last_move_turn = self.entity.turn_counter
-                return MovementAction(self.entity, self.dx, self.dy).perform()
-            else:
-                self.entity.turn_counter += 1
-                return WaitAction(self.entity).perform()
+            return MovementAction(self.entity, self.dx, self.dy).perform()
 
 
 class AddToInventory(Action):

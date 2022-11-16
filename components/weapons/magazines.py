@@ -18,8 +18,8 @@ glock_mag_9mm = Item(
         magazine_type='Glock 9mm',
         compatible_bullet_type=['9mm',],
         mag_capacity=17,
-        turns_to_load=1,
         magazine_size='small',
+        turns_to_load=1,
     )
 )
 
@@ -35,8 +35,8 @@ glock_mag_9mm_33 = Item(
         magazine_type='Glock 9mm',
         compatible_bullet_type=['9mm',],
         mag_capacity=33,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -52,8 +52,8 @@ glock_mag_9mm_50 = Item(
         magazine_type='Glock 9mm',
         compatible_bullet_type=['9mm',],
         mag_capacity=50,
-        turns_to_load=2,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -69,8 +69,8 @@ glock_mag_9mm_100 = Item(
         magazine_type='Glock 9mm',
         compatible_bullet_type=['9mm',],
         mag_capacity=100,
-        turns_to_load=3,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -91,8 +91,8 @@ mac10_mag_45 = Item(
         magazine_type='M10/45',
         compatible_bullet_type=['.45 ACP',],
         mag_capacity=30,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -108,8 +108,8 @@ mac10_mag_45_extended = Item(
         magazine_type='M10/45',
         compatible_bullet_type=['.45 ACP',],
         mag_capacity=30,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -125,8 +125,8 @@ mac10_mag_9 = Item(
         magazine_type='M10/9',
         compatible_bullet_type=['9mm',],
         mag_capacity=32,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -146,8 +146,8 @@ mosin_nagant = Item(
         magazine_type='Mosin-Nagant',
         compatible_bullet_type=['7.62x54R',],
         mag_capacity=10,
-        turns_to_load=1,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -167,8 +167,8 @@ ak762_30rd = Item(
         magazine_type='AK 7.62x39',
         compatible_bullet_type=['7.62x39',],
         mag_capacity=30,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -184,8 +184,8 @@ ak762_40rd = Item(
         magazine_type='AK 7.62x39',
         compatible_bullet_type=['7.62x39',],
         mag_capacity=40,
-        turns_to_load=2,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -201,8 +201,8 @@ ak762_60rd = Item(
         magazine_type='AK 7.62x39',
         compatible_bullet_type=['7.62x39',],
         mag_capacity=60,
-        turns_to_load=2,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -218,8 +218,8 @@ ak762_75rd = Item(
         magazine_type='AK 7.62x39',
         compatible_bullet_type=['7.62x39',],
         mag_capacity=75,
-        turns_to_load=3,  #TODO make turns to load per round
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -235,8 +235,8 @@ ak762_100rd = Item(
         magazine_type='AK 7.62x39',
         compatible_bullet_type=['7.62x39',],
         mag_capacity=100,
-        turns_to_load=4,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -256,8 +256,8 @@ ak545_30rd = Item(
         magazine_type='AK 5.45x39',
         compatible_bullet_type=['5.45x39',],
         mag_capacity=30,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -273,8 +273,8 @@ ak545_45rd = Item(
         magazine_type='AK 7.62x39',
         compatible_bullet_type=['5.45x39',],
         mag_capacity=45,
-        turns_to_load=2,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -290,8 +290,8 @@ ak545_60rd = Item(
         magazine_type='AK 5.45x39',
         compatible_bullet_type=['5.45x39',],
         mag_capacity=60,
-        turns_to_load=2,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -307,8 +307,8 @@ ak545_100rd = Item(
         magazine_type='AK 5.45x39',
         compatible_bullet_type=['5.45x39',],
         mag_capacity=95,
-        turns_to_load=4,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -328,8 +328,8 @@ ak556_30rd = Item(
         magazine_type='AK 5.56x45',
         compatible_bullet_type=['5.56x45',],
         mag_capacity=30,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -349,8 +349,8 @@ stanag_30rd = Item(
         magazine_type='STANAG',
         compatible_bullet_type=['5.56x45', '.300 Blackout'],
         mag_capacity=30,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -366,8 +366,8 @@ stanag_40rd = Item(
         magazine_type='STANAG',
         compatible_bullet_type=['5.56x45', '.300 Blackout'],
         mag_capacity=40,
-        turns_to_load=1,
         magazine_size='medium',
+        turns_to_load=1,
     )
 )
 
@@ -383,8 +383,8 @@ stanag_50rd = Item(
         magazine_type='STANAG',
         compatible_bullet_type=['5.56x45', '.300 Blackout'],
         mag_capacity=50,
-        turns_to_load=2,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -400,8 +400,8 @@ stanag_60rd = Item(
         magazine_type='STANAG',
         compatible_bullet_type=['5.56x45', '.300 Blackout'],
         mag_capacity=60,
-        turns_to_load=2,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 
@@ -417,8 +417,8 @@ stanag_100rd = Item(
         magazine_type='STANAG',
         compatible_bullet_type=['5.56x45', '.300 Blackout'],
         mag_capacity=60,
-        turns_to_load=2,
         magazine_size='large',
+        turns_to_load=1,
     )
 )
 

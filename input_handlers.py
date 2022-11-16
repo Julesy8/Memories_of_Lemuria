@@ -833,6 +833,9 @@ class ChangeTargetActor(AskUserEventHandler):
 
         self.console = console
 
+        screen_shape = console.rgb.shape
+        cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
+
         player = self.engine.player
         target_visible = False
         closest_distance = 40
@@ -859,13 +862,18 @@ class ChangeTargetActor(AskUserEventHandler):
                 return MainGameEventHandler(self.engine)
 
         if player.target_actor:
-            self.distance_target = floor(player.distance(player.target_actor.x, player.target_actor.y))
+            self.distance_target = player.distance(player.target_actor.x, player.target_actor.y)  # TODO - check if needs to be 'floor'
             self.target_index = self.targets.index(player.target_actor)
-            console.print(x=player.target_actor.x, y=player.target_actor.y, string="X", fg=colour.YELLOW, bg=(0, 0, 0))
-            console.draw_rect(x=0, y=45, width=80, height=1, ch=0, fg=(0, 0, 0), bg=(0, 0, 0))
-            console.print(x=1, y=45, string=f"Targeting: {player.target_actor.name} - {self.selected_bodypart.name}",
-                          fg=colour.WHITE)
 
+            target_x, target_y = player.target_actor.x - cam_x, player.target_actor.y - cam_y
+            if 0 <= target_x < console.width and 0 <= target_y < console.height:
+                console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('X'), colour.YELLOW
+            console.print(x=1, y=console.height-5, string=f"Targeting: {player.target_actor.name} - "
+                                                          f"{self.selected_bodypart.name}", fg=colour.WHITE, bg_blend=1)
+            console.print(x=1, y=console.height-6, string=f"AP: {player.fighter.ap}/{player.fighter.max_ap}",
+                          fg=colour.WHITE, bg_blend=1)
+            # TODO: make 'attack mode screen' where event log is when in this mode
+            # including 'press ESC to exit targeting'
             for bodypart in player.target_actor.bodyparts:
                 if bodypart.functional:
                     self.bodypartlist.append(bodypart)
@@ -885,6 +893,8 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.selected_bodypart = player.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index = 0
+            except TypeError:
+                return MainGameEventHandler(self.engine)
 
             self.bodypartlist = []
             for bodypart in player.target_actor.bodyparts:
@@ -910,9 +920,9 @@ class ChangeTargetActor(AskUserEventHandler):
                 actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
                                            targeted_actor=player.target_actor,
                                            targeted_bodypart=self.selected_bodypart).attack()
-                self.engine.handle_enemy_turns()
+                #self.engine.handle_enemy_turns()
                 self.engine.render(console=self.console)
-                return MainGameEventHandler(self.engine)
+                #return MainGameEventHandler(self.engine)
 
             else:
                 return MainGameEventHandler(self.engine)
@@ -1487,6 +1497,7 @@ class InspectItemViewer(AskUserEventHandler):
             "turns to load": 'turns_to_load',
 
             # gun
+            "AP cost to use": 'base_ap_cost',
             "felt recoil": 'felt_recoil',
             "reload time modifier": 'load_time_modifier',
             "fire rate modifier": 'fire_rate_modifier',

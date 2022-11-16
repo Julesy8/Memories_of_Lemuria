@@ -9,7 +9,7 @@ from random import choices
 
 from components.consumables import RecipeUnlock
 from components.datapacks import datapackdict
-from entity import Actor, Entity
+from entity import Actor, Entity, Item
 from components.enemies.equipment import enemy_equipment
 import colour
 
@@ -74,7 +74,7 @@ class Bodypart:
             if self.vital:
                 self.die()
 
-        elif self._hp <= self.max_hp * 1 / 3 and self.functional:
+        elif self._hp <= self.max_hp * (1 / 4) and self.functional:
             self.cripple()
 
             if self.parent.player:
@@ -92,7 +92,8 @@ class Bodypart:
 
         self.parent.ai = None
 
-        entity = Entity(x=0, y=0, char=self.parent.char, fg_colour=colour.WHITE, name=f"{self.parent.name} remains", blocks_movement=False, parent=self.engine.game_map)
+        entity = Entity(x=0, y=0, char=self.parent.char, fg_colour=colour.WHITE, name=f"{self.parent.name} remains",
+                        blocks_movement=False, parent=self.engine.game_map)
 
         entity.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
@@ -230,15 +231,13 @@ class Bodypart:
         for bodypart in self.parent.bodyparts:
             bodypart.functional = True
 
-        # restores original attack and movement stats
-        self.parent.attack_interval = self.parent.attack_interval_original
-        self.parent.attacks_per_turn = self.parent.attacks_per_turn_original
-        self.parent.move_interval = self.parent.move_interval_original
-        self.parent.moves_per_turn = self.parent.moves_per_turn_original
-
-        # restores original entity base accuracy stats
+        # restores original stats
         self.parent.fighter.ranged_accuracy = self.parent.fighter.ranged_accuracy_original
         self.parent.fighter.melee_accuracy = self.parent.fighter.melee_accuracy_original
+        self.parent.fighter.attack_ap_modifier = 1.0
+        self.parent.fighter.move_success_chance = self.parent.fighter.move_success_original
+        self.parent.fighter.move_ap_cost = self.parent.fighter.move_ap_original
+        self.parent.fighter.self.ap_per_turn_modifier = 1.0
 
 
 class Arm(Bodypart):
@@ -270,7 +269,7 @@ class Arm(Bodypart):
 
         self.functional = False
 
-        if self.parent.inventory.held is not None:
+        if isinstance(self.parent.inventory.held, Item):
 
             self.parent.inventory.held.place(self.parent.x, self.parent.y, self.engine.game_map)
             self.parent.inventory.held = None
@@ -279,8 +278,9 @@ class Arm(Bodypart):
                 self.engine.message_log.add_message(f"The {self.parent.inventory.held.name} slips from your grasp",
                                                     colour.RED)
 
-        self.parent.fighter.ranged_accuracy = self.parent.fighter.ranged_accuracy * 0.8
-        self.parent.fighter.ranged_accuracy = self.parent.fighter.ranged_accuracy * 0.8
+        self.parent.fighter.ranged_accuracy *= 1.2
+        self.parent.fighter.melee_accuracy *= 0.8
+        self.parent.fighter.attack_ap_modifier *= 1.3
 
 
 class Leg(Bodypart):
@@ -321,14 +321,14 @@ class Leg(Bodypart):
 
         if functional_legs > 0:
 
-            if self.parent.moves_per_turn > 1:
-                self.parent.moves_per_turn = 1
+            if self.parent.fighter.move_ap_cost < self.parent.fighter.max_ap:
+                self.parent.fighter.move_ap_cost = self.parent.fighter.max_ap
 
             else:
-                self.parent.move_interval = self.parent.move_interval_original + 1
+                self.parent.fighter.move_success_chance *= 0.7
 
         else:
-            self.parent.move_interval = 2 * self.parent.move_interval
+            self.parent.fighter.move_success_chance *= 0.5
 
 
 class Head(Bodypart):
@@ -365,6 +365,7 @@ class Head(Bodypart):
             turns_inactive = randint(3, 6)
             self.parent.turns_move_inactive = turns_inactive
             self.parent.turns_attack_inactive = turns_inactive
+            self.parent.fighter.self.ap_per_turn_modifier = 0.7
 
 
 class Body(Bodypart):

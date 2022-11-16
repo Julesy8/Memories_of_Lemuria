@@ -67,12 +67,14 @@ class Weapon(Usable):
     def __init__(self,
                  maximum_range: int,
                  equip_time: int,
+                 base_ap_cost: int = 100,
                  ranged: bool = False,
                  ):
 
         self.ranged = ranged  # if true, weapon has range (non-melee)
         self.maximum_range = maximum_range  # determines how far away the weapon can deal damage
         self.equip_time = equip_time
+        self.base_ap_cost = base_ap_cost
 
         if not self.ranged:
             self.maximum_range = 1
@@ -107,16 +109,18 @@ class Weapon(Usable):
 class MeleeWeapon(Weapon):
 
     def __init__(self,
-                 base_meat_damage,
-                 base_armour_damage,
+                 base_meat_damage: int,
+                 base_armour_damage: int,
                  maximum_range: int,
                  base_accuracy: float,
                  equip_time: int,
+                 base_ap_cost: int = 100,
                  ):
 
         self.base_accuracy = base_accuracy
         self.base_meat_damage = base_meat_damage
         self.base_armour_damage = base_armour_damage
+        self.base_ap_cost = base_ap_cost
 
         super().__init__(
             maximum_range=maximum_range,
@@ -233,9 +237,9 @@ class Magazine(Usable):
                 if len(self.magazine) == \
                         self.mag_capacity:
                     break
-
+            # 1 turn = 1 second, 1 second per round
             if self.engine.player == inventory.parent:
-                for i in range(round(load_amount / 5)):
+                for i in range(round(load_amount)):
                     self.engine.handle_enemy_turns()
 
             if isinstance(self, GunIntegratedMag):
@@ -290,14 +294,13 @@ class Gun(Weapon):
                  barrel_length: float,
                  zero_range: int,  # yards
                  sight_height_above_bore: float,  # inches
+                 base_ap_cost: int = 100,
                  spread_modifier: float = 0.0,  # MoA / 100
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,
                  ):
-
-        # TODO: add new properties to stat sheet
 
         # > ergonomics = > firearm area in contact with body of operator, < distance between twigger and stock
         # > accuracy distribution affected by > ergonomics, < optic zoom / precision / sight radius and < weight
@@ -324,7 +327,8 @@ class Gun(Weapon):
         super().__init__(
             maximum_range=100,
             ranged=True,
-            equip_time=equip_time
+            equip_time=equip_time,
+            base_ap_cost=base_ap_cost,
         )
 
     # TODO: having two types of attacks (melee or ranged) is a bit messy but should be functional for now - at some point find better solution
@@ -348,8 +352,8 @@ class Gun(Weapon):
 
                 # gives projectile spread in MoA
                 spread_diameter = \
-                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier \
-                    * distance
+                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * distance\
+                    * attacker.fighter.ranged_accuracy
 
                 # bullet spread hit location coordinates
                 spread_angle = uniform(0, 1) * 2 * pi
@@ -439,8 +443,8 @@ class Gun(Weapon):
 
                     gas_velocity = muzzle_velocity * 1.7
                     bullet_momentum = self.chambered_bullet.usable_properties.mass * 0.000142857 * muzzle_velocity
-                    gas_momentum = self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * \
-                                   muzzle_velocity / 2
+                    gas_momentum = self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * muzzle_velocity \
+                                   / 2
                     momentum_jet = self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * gas_velocity * \
                                    ((1 - muzzle_break) ** (1 / sqrt(e)))
                     momentum_gun = bullet_momentum + gas_momentum + momentum_jet
@@ -556,6 +560,7 @@ class GunMagFed(Gun):
                  sight_height_above_bore: float,
                  felt_recoil: float,
                  barrel_length: float,
+                 base_ap_cost: int = 100,
                  spread_modifier: float = 0.0,
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
@@ -589,6 +594,7 @@ class GunMagFed(Gun):
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
             barrel_length=barrel_length,
+            base_ap_cost=base_ap_cost,
         )
 
     def load_gun(self, magazine: Item):
@@ -679,6 +685,7 @@ class GunIntegratedMag(Gun, Magazine):
                  zero_range: int,
                  sight_height_above_bore: float,
                  barrel_length: float,
+                 base_ap_cost: int = 100,
                  spread_modifier: float = 0.0,
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
@@ -711,6 +718,7 @@ class GunIntegratedMag(Gun, Magazine):
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
             barrel_length=barrel_length,
+            base_ap_cost=base_ap_cost,
         )
 
     def chamber_round(self):

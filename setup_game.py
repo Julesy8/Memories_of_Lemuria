@@ -16,7 +16,7 @@ from entity import Actor
 from level_generator import MessyBSPTree
 from level_parameters import level_params
 from components.inventory import Inventory
-from components.ai import HostileEnemy
+from components.ai import BaseAI
 from components.npc_templates import Fighter
 from components.bodyparts import Body, Arm, Leg, Head
 
@@ -54,7 +54,7 @@ def new_game() -> Engine:
                    '@',
                    colour.GREEN,
                    'Player',
-                   ai=HostileEnemy,
+                   ai=BaseAI,
                    fighter=fighter_component,
                    bodyparts=body_parts,
                    player=True,
