@@ -920,9 +920,7 @@ class ChangeTargetActor(AskUserEventHandler):
                 actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
                                            targeted_actor=player.target_actor,
                                            targeted_bodypart=self.selected_bodypart).attack()
-                #self.engine.handle_enemy_turns()
                 self.engine.render(console=self.console)
-                #return MainGameEventHandler(self.engine)
 
             else:
                 return MainGameEventHandler(self.engine)
@@ -1384,62 +1382,6 @@ class CraftGun(CraftItem):
                             prevent_suppression=self.prevent_suppression,
                             attachment_points=self.attachment_points
                             )
-
-
-# TODO: this menu is broke
-class CraftAmountEventHander(TypeAmountEventHandler):
-
-    def __init__(self, item, engine: Engine, itemdict: dict, item_name: str, part_dict: dict,
-                 prerequisite_parts: list,
-                 incompatible_parts: list,
-                 ):
-        self.item_dict = itemdict
-        self.part_dict = part_dict
-        self.item_name = item_name
-        self.prerequisite_parts = prerequisite_parts
-        self.incompatible_parts = incompatible_parts
-        super().__init__(engine=engine, item=item, prompt_string="Amount to craft: ")
-
-    def on_option_selected(self) -> Optional[ActionOrHandler]:
-        craftable = True
-
-        full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
-                          **self.item_dict[self.item_name]['required parts']}
-
-        for key, value in self.part_dict.items():
-            if value is not None:
-                if value in self.engine.player.inventory.items:
-
-                    # if crafting component in inventory is stacking, removes appropriate amount of item from
-                    # inventory
-                    if value.stacking:
-                        if value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] \
-                                * int(self.buffer) > 0:
-                            value.stacking.stack_size -= full_part_dict[value.usable_properties.part_type] \
-                                                         * int(self.buffer)
-                        elif value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] \
-                                * int(self.buffer) == 0:
-                            self.engine.player.inventory.items.remove(value)
-                        else:
-                            craftable = False
-
-                    if hasattr(self.item.usable_properties, 'parts'):
-                        setattr(self.item.usable_properties.parts, key, value)
-
-        if craftable:
-            self.item.stacking.stack_size = int(self.buffer)
-            self.item.usable_properties.parts.update_partlist()
-            self.item.parent = self.engine.player.inventory
-
-            for i in range(5):
-                self.engine.handle_enemy_turns()
-
-            self.engine.player.inventory.add_to_inventory(item=self.item, item_container=None, amount=1)
-            return MainGameEventHandler(engine=self.engine)
-
-        else:
-            self.engine.message_log.add_message("Insufficient materials", colour.RED)
-            return MainGameEventHandler(engine=self.engine)
 
 
 class InspectItemViewer(AskUserEventHandler):

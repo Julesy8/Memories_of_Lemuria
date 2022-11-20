@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 from typing import Optional, Tuple, TYPE_CHECKING
-from math import trunc
+from math import trunc, ceil
 from random import randint
 from copy import deepcopy
 import numpy.random
@@ -154,10 +154,10 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
         elif self.entity.ai.queued_attack is None:
             fighter.ap -= ap_cost
 
+            turns_to_skip = ceil((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+
             # attacker is player
             if self.entity.player:
-                turns_to_skip = trunc((fighter.ap * -1) /
-                                      (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
                 attack_viable = True
                 for i in range(turns_to_skip):
                     self.engine.handle_enemy_turns()
@@ -185,8 +185,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                 self.entity.ai.queued_attack = self
 
                 # how many turns entity has to wait until attack
-                self.entity.ai.turns_until_attack = -1 * trunc(fighter.ap /
-                                                               (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+                self.entity.ai.turns_until_attack = turns_to_skip
 
 
 class WeaponAttackAction(AttackAction):
@@ -257,10 +256,11 @@ class WeaponAttackAction(AttackAction):
         elif self.entity.ai.queued_attack is None:
             fighter.ap -= ap_cost
 
+            turns_to_skip = ceil ((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+
             # attacker is player
             if self.entity.player:
-                turns_to_skip = trunc((fighter.ap - ap_cost * -1) /
-                                      (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
+
                 attack_viable = True
                 for i in range(turns_to_skip):
                     self.engine.handle_enemy_turns()
@@ -288,8 +288,7 @@ class WeaponAttackAction(AttackAction):
                 self.entity.ai.queued_attack = self
 
                 # how many turns entity has to wait until attack
-                self.entity.ai.turns_until_attack = trunc((fighter.ap - ap_cost * -1) /
-                                                          (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
+                self.entity.ai.turns_until_attack = turns_to_skip
 
 
 class MovementAction(ActionWithDirection):
@@ -326,7 +325,10 @@ class MovementAction(ActionWithDirection):
             fighter.ap -= fighter.move_ap_cost
 
         else:
-            self.engine.handle_enemy_turns()
+            fighter.ap -= fighter.move_ap_cost
+            turns_to_wait = ceil((fighter.ap * -1)/(fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+            for i in range(turns_to_wait):
+                self.engine.handle_enemy_turns()
             self.perform()
 
 

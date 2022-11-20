@@ -84,7 +84,6 @@ class Parts:
                                             zero_range=self.parent.zero_range
                                             )
 
-                    # TODO: figure out if this does anything or redundant
                     self.parent.parent = item
                     item.usable_properties = self.parent
 

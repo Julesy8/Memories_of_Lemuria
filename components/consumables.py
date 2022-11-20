@@ -600,8 +600,6 @@ class GunMagFed(Gun):
 
     def load_gun(self, magazine: Item):
 
-        # TODO: unfuck this
-
         entity = self.parent
         inventory = entity.parent
         if isinstance(inventory, components.inventory.Inventory):
