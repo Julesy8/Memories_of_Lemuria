@@ -22,7 +22,7 @@ class Bodypart:
 
     def __init__(self,
                  hp: int,
-                 defence: int,  # TODO: different defense types
+                 defence: int,
                  name: str,
                  width: int,
                  height: int,
@@ -48,7 +48,6 @@ class Bodypart:
 
         self.part_type = part_type  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
         self.functional = True  # whether or not bodypart is crippled
-        # TODO: replace functional with crippled check
 
     @property
     def engine(self) -> Engine:

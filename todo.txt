@@ -2,14 +2,12 @@
 TO DO
 -----
 
--fix guns
 -premade guns for enemies
 -when building gun, highlight incompatible parts in red rather than excluding from list
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion
 -range stats displayed using graphing package
 -more exotic magazines should jam every so often
 -change recoil calculation so that it isn't recalculated multiple times for the same bullet
--armour coverage value
 -darkness level (how far away you can see enemies) depends on level
 
 -start on sewer level

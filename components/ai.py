@@ -4,18 +4,18 @@ from typing import List, Tuple, Optional
 
 import numpy as np  # type: ignore
 import tcod
-from math import ceil
 
-from components.consumables import Gun, GunMagFed, GunIntegratedMag, Weapon, MeleeWeapon
-from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction, AttackAction
+from components.consumables import Gun, Weapon, MeleeWeapon
+from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction, AttackAction, \
+    ReloadAction
 from entity import Actor
 
 
 class BaseAI(Action):
 
     def __init__(self, entity: Actor):
-        self.queued_attack: Optional[AttackAction] = None
-        self.turns_until_attack: int = 0
+        self.queued_action: Optional[Action] = None
+        self.turns_until_action: int = 0
         super().__init__(entity)
 
     def perform(self) -> None:
@@ -96,55 +96,7 @@ class HostileEnemy(BaseAI):
         #                self.entity.has_fled_death = True
         #                break
 
-        # checks if the queued attack can still be performed
-        if self.queued_attack is not None:  # and self.entity.turns_attack_inactive == 0
-
-            # target still visible
-            if self.engine.game_map.visible[target.x, target.y]:
-
-                attack_viable = True
-
-                # updates distance
-                self.queued_attack.distance = distance
-
-                # attack with a weapon
-                if isinstance(self.queued_attack, WeaponAttackAction):
-                    # check if still holding weapon
-                    if not self.queued_attack.item == self.entity.inventory.held:
-                        attack_viable = False
-
-                    # if melee weapon checks if in range
-                    if isinstance(self.entity.inventory.held.usable_properties, MeleeWeapon):
-                        if not distance == 1:
-                            attack_viable = False
-
-                # unarmed attack
-                else:
-                    # checks if in range for unarmed attack
-                    if not distance == 1:
-                        attack_viable = False
-
-                # attack still viable
-                if attack_viable:
-
-                    self.turns_until_attack -= 1
-
-                    # no more wait turns
-                    if self.turns_until_attack == 0:
-                        self.queued_attack.attack()
-                        self.queued_attack = None
-
-                # attack not viable, cancels queued attack
-                else:
-                    self.queued_attack = None
-                    # gives back the AP that would have been used for the remaining segment of the attack
-                    self.entity.fighter.ap += (self.turns_until_attack * self.entity.fighter.ap_per_turn)
-                    self.turns_until_attack = 0
-
-            # entity no longer visible, cancels queued attack
-            else:
-                self.queued_attack = None
-                self.turns_until_attack = 0
+        self.execute_queued_action(distance, target)
 
         while fighter.ap > 0:
             # skips turn if both attack and move actions inactive for this turn
@@ -174,29 +126,7 @@ class HostileEnemy(BaseAI):
                         # reload weapon
                         if held_item.usable_properties.chambered_bullet is None:
 
-                            # reload mag fed gun
-                            if isinstance(held_item.usable_properties, GunMagFed):
-                                held_item.usable_properties. \
-                                    load_gun(magazine=held_item.usable_properties.previously_loaded_magazine)
-
-                                # entity attack inactive for given reload period
-                                self.entity.turns_attack_inactive = \
-                                    held_item.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load
-
-                                self.entity.fleeing_turns = \
-                                    held_item.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load
-
-                            # reload integrated mag gun
-                            if isinstance(held_item.usable_properties, GunIntegratedMag):
-                                held_item.usable_properties.load_magazine(ammo=held_item.usable_properties.
-                                                                          previously_loaded_round,
-                                                                          load_amount=held_item.
-                                                                          usable_properties.mag_capacity)
-
-                                # entity attack inactive for given reload period
-                                self.entity.turns_attack_inactive += ceil(held_item.usable_properties.mag_capacity)
-
-                                self.entity.fleeing_turns += ceil(held_item.usable_properties.mag_capacity)
+                            self.queued_action = ReloadAction(entity=self.entity, gun=held_item)
 
                         # round in chamber, attacks
                         else:
@@ -238,3 +168,73 @@ class HostileEnemy(BaseAI):
                 break
 
         return WaitAction(self.entity).perform()
+
+    def execute_queued_action(self, distance, target):
+        # checks if the queued action can still be performed
+        if self.queued_action is not None:  # and self.entity.turns_attack_inactive == 0
+
+            held_item = self.entity.inventory.held
+            action_viable = True
+
+            # for attack actions
+            if isinstance(self.queued_action, AttackAction):
+
+                # target still visible
+                if self.engine.game_map.visible[target.x, target.y]:
+
+                    # updates distance
+                    self.queued_action.distance = distance
+
+                    # attack with a weapon
+                    if isinstance(self.queued_action, WeaponAttackAction):
+                        # check if still holding weapon
+                        if not self.queued_action.item == held_item:
+                            action_viable = False
+
+                        # if melee weapon checks if in range
+                        if isinstance(held_item.usable_properties, MeleeWeapon):
+                            if not distance == 1:
+                                action_viable = False
+
+                    # unarmed attack
+                    else:
+                        # checks if in range for unarmed attack
+                        if not distance == 1:
+                            action_viable = False
+
+                    # attack still viable
+                    if action_viable:
+
+                        self.turns_until_action -= 1
+
+                        # no more wait turns
+                        if self.turns_until_action == 0:
+                            self.queued_action.attack()
+                            self.queued_action = None
+
+                    # attack not viable, cancels queued attack
+                    else:
+                        self.queued_action = None
+                        # gives back the AP that would have been used for the remaining segment of the attack
+                        self.entity.fighter.ap += (self.turns_until_action * self.entity.fighter.ap_per_turn)
+                        self.turns_until_action = 0
+
+                # entity no longer visible, cancels queued attack
+                else:
+                    self.queued_action = None
+                    self.turns_until_action = 0
+
+            # reload action
+            if isinstance(self.queued_action, ReloadAction):
+
+                # check if gun still held
+                if not self.queued_action.gun == held_item:
+                    action_viable = False
+
+                if action_viable:
+                    self.turns_until_action -= 1
+
+                    # no more wait turns
+                    if self.turns_until_action == 0:
+                        self.queued_action.perform()
+                        self.queued_action = None

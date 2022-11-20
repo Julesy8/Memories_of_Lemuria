@@ -239,7 +239,7 @@ class Magazine(Usable):
                     break
             # 1 turn = 1 second, 1 second per round
             if self.engine.player == inventory.parent:
-                for i in range(round(load_amount)):
+                for i in range(round(load_amount * inventory.parent.fighter.attack_ap_modifier)):
                     self.engine.handle_enemy_turns()
 
             if isinstance(self, GunIntegratedMag):
@@ -620,13 +620,14 @@ class GunMagFed(Gun):
             if inventory.parent == self.engine.player:
                 inventory.items.remove(magazine)
 
+                # takes appropriate amount of turns to load magazine into gun
+                for i in range(round(magazine.usable_properties.turns_to_load * self.load_time_modifier) *
+                               inventory.parent.fighter.attack_ap_modifier):
+                    self.engine.handle_enemy_turns()
+
             if len(self.loaded_magazine.usable_properties.magazine) > 0:
                 if self.chambered_bullet is None:
                     self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
-
-            # takes appropriate amount of turns to load magazine into gun
-            for i in range(round(magazine.usable_properties.turns_to_load * self.load_time_modifier)):
-                self.engine.handle_enemy_turns()
 
     def unload_gun(self):
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 from typing import Optional, Tuple, TYPE_CHECKING
-from math import trunc, ceil
+from math import ceil
 from random import randint
 from copy import deepcopy
 import numpy.random
@@ -151,7 +151,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                     return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
         # insufficient AP for action - queues action for later turn
-        elif self.entity.ai.queued_attack is None:
+        elif self.entity.ai.queued_action is None:
             fighter.ap -= ap_cost
 
             turns_to_skip = ceil((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
@@ -182,14 +182,14 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             # attacker is AI
             else:
                 self.queued = True
-                self.entity.ai.queued_attack = self
+                self.entity.ai.queued_action = self
 
                 # how many turns entity has to wait until attack
-                self.entity.ai.turns_until_attack = turns_to_skip
+                self.entity.ai.turns_until_action = turns_to_skip
 
 
 class WeaponAttackAction(AttackAction):
-    def __init__(self, distance: int, item: Optional[Item], entity: Actor, targeted_actor: Actor,
+    def __init__(self, distance: int, item: Item, entity: Actor, targeted_actor: Actor,
                  targeted_bodypart: Optional[Bodypart]):
         super().__init__(distance, entity, targeted_actor, targeted_bodypart)
         self.item = item
@@ -253,10 +253,10 @@ class WeaponAttackAction(AttackAction):
                                                              part_index=self.part_index, hit_chance=hit_chance)
 
         # insufficient AP for action - queues action for later turn
-        elif self.entity.ai.queued_attack is None:
+        elif self.entity.ai.queued_action is None:
             fighter.ap -= ap_cost
 
-            turns_to_skip = ceil ((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+            turns_to_skip = ceil((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
 
             # attacker is player
             if self.entity.player:
@@ -285,10 +285,38 @@ class WeaponAttackAction(AttackAction):
             # attacker is AI
             else:
                 self.queued = True
-                self.entity.ai.queued_attack = self
+                self.entity.ai.queued_action = self
 
                 # how many turns entity has to wait until attack
-                self.entity.ai.turns_until_attack = turns_to_skip
+                self.entity.ai.turns_until_action = turns_to_skip
+
+
+class ReloadAction(Action):
+
+    def __init__(self, entity: Actor, gun: Item):
+        super().__init__(entity)
+        self.gun = gun
+
+    def perform(self) -> None:
+
+        # gun mag fed
+        if hasattr(self.gun.usable_properties, 'loaded_magazine'):
+            self.gun.usable_properties.load_gun(magazine=self.gun.usable_properties.previously_loaded_magazine)
+
+            self.entity.ai.turns_until_action = \
+                (self.gun.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load *
+                 self.entity.fighter.attack_ap_modifier)
+
+        # gun internal mag
+        else:
+            self.gun.usable_properties.load_magazine(ammo=self.gun.usable_properties.previously_loaded_round,
+                                                     load_amount=self.gun.usable_properties.mag_capacity)
+
+            # TODO: enemy reloads when capacity under half and player not visible
+
+            # entity attack inactive and fleeing for given reload period
+            self.entity.ai.turns_until_action = round(self.gun.usable_properties.mag_capacity *
+                                                      self.entity.fighter.attack_ap_modifier)
 
 
 class MovementAction(ActionWithDirection):
@@ -326,7 +354,7 @@ class MovementAction(ActionWithDirection):
 
         else:
             fighter.ap -= fighter.move_ap_cost
-            turns_to_wait = ceil((fighter.ap * -1)/(fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+            turns_to_wait = ceil((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
             for i in range(turns_to_wait):
                 self.engine.handle_enemy_turns()
             self.perform()
