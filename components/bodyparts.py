@@ -83,6 +83,12 @@ class Bodypart:
                 self.engine.message_log.add_message(f"The {self.parent.name}'s {self.name} is crippled!",
                                                     fg=colour.GREEN)
 
+            # causes AI to flee
+            if self.vital:
+                if self.parent.fears_death and not self.parent.has_fled_death:
+                    self.parent.fleeing_turns = 8
+                    self.parent.has_fled_death = True
+
     @defence.setter
     def defence(self, value):
         self._defence = value

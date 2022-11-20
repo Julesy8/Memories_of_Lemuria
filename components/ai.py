@@ -85,17 +85,6 @@ class HostileEnemy(BaseAI):
                 if hasattr(held_item.usable_properties, 'enemy_attack_range'):
                     attack_range = held_item.usable_properties.enemy_attack_range
 
-            # if entity flees death and a vital bodypart is under 1/4 health and they have not fled death before,
-        # sets entity to be fleeing
-        # TODO: change so that only gets activated under these conditions, no need to check each turn
-        # if self.entity.fears_death:
-        #    if not self.entity.has_fled_death:
-        #        for bodypart in self.entity.bodyparts:
-        #            if bodypart.vital and bodypart.hp < bodypart.max_hp / 4:
-        #                self.entity.fleeing_turns = 8
-        #                self.entity.has_fled_death = True
-        #                break
-
         self.execute_queued_action(distance, target)
 
         while fighter.ap > 0:
@@ -138,6 +127,8 @@ class HostileEnemy(BaseAI):
 
                 # entity fleeing from target
                 if self.entity.fleeing_turns > 0:
+
+                    print('yes')
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                     distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
                                                             self.entity.gamemap.height), order="F")
@@ -152,8 +143,10 @@ class HostileEnemy(BaseAI):
                                                       cardinal=True, diagonal=True)[1:].tolist()
                     self.entity.fleeing_turns -= 1
 
-                # move towards the target
-                self.path = self.get_path_to(target.x, target.y)
+                # entity not fleeing
+                else:
+                    # move towards the target
+                    self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
                     dest_x, dest_y = self.path.pop(0)
