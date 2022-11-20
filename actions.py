@@ -81,7 +81,6 @@ class ActionWithDirection(Action):
 
 
 class AttackAction(Action):
-    # TODO : implement different attack styles - ie precise, quick, frenzied
     def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart],
                  queued: Optional[bool] = False):
         super().__init__(entity)
@@ -136,12 +135,8 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                         self.targeted_actor.bodyparts[self.part_index].height
             hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
 
-            dx = self.targeted_actor.x - self.entity.x
-            dy = self.targeted_actor.y - self.entity.y
-            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-
             # hit
-            if randint(0, 100) < hit_chance and distance <= 1:
+            if randint(0, 100) < hit_chance:
                 self.targeted_actor.bodyparts[self.part_index].deal_damage_melee(
                     meat_damage=self.entity.fighter.unarmed_meat_damage,
                     armour_damage=self.entity.fighter.unarmed_armour_damage,
@@ -161,13 +156,19 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
             # attacker is player
             if self.entity.player:
-                turns_to_skip = trunc((fighter.ap - ap_cost * -1) /
+                turns_to_skip = trunc((fighter.ap * -1) /
                                       (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
                 attack_viable = True
                 for i in range(turns_to_skip):
                     self.engine.handle_enemy_turns()
+
+                    dx = self.targeted_actor.x - self.entity.x
+                    dy = self.targeted_actor.y - self.entity.y
+                    distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
                     # check if action can still be performed
-                    if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y]:
+                    if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] \
+                            and distance == 1:
                         continue
                     else:
                         attack_viable = False
@@ -182,11 +183,10 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             else:
                 self.queued = True
                 self.entity.ai.queued_attack = self
-                self.entity.turns_move_inactive = trunc((fighter.ap - ap_cost) /
-                                                        (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
 
-                self.entity.turns_attack_inactive = trunc((fighter.ap - ap_cost) /
-                                                          (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
+                # how many turns entity has to wait until attack
+                self.entity.ai.turns_until_attack = -1 * trunc(fighter.ap /
+                                                               (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
 
 
 class WeaponAttackAction(AttackAction):
@@ -209,9 +209,7 @@ class WeaponAttackAction(AttackAction):
 
             # firearm attack
             if hasattr(self.item.usable_properties, 'sound_modifier'):
-                # weapon sounds alert enemies in vicinity
 
-                # TODO : make 0.1 a constant specific to attack style or state
                 standard_deviation = 0.1 * self.distance
                 hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
                 hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
@@ -222,6 +220,7 @@ class WeaponAttackAction(AttackAction):
                 if chambered_bullet is not None:
                     bullet_sound_modifier = chambered_bullet.sound_modifier
 
+                # weapon sounds alert enemies in vicinity
                 sound_radius = self.item.usable_properties.sound_modifier * bullet_sound_modifier
                 for x in self.engine.game_map.entities:
                     if x != self.entity and hasattr(x, 'ai'):
@@ -246,8 +245,7 @@ class WeaponAttackAction(AttackAction):
                 dy = self.targeted_actor.y - self.entity.y
                 distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-                if distance <= 1:
-
+                if distance == 1:
                     part_area = self.targeted_actor.bodyparts[self.part_index].width * \
                                 self.targeted_actor.bodyparts[self.part_index].height
                     hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
@@ -276,7 +274,6 @@ class WeaponAttackAction(AttackAction):
                         break
 
                 if attack_viable:
-
                     dx = self.targeted_actor.x - self.entity.x
                     dy = self.targeted_actor.y - self.entity.y
                     distance = max(abs(dx), abs(dy))  # Chebyshev distance.
@@ -289,9 +286,9 @@ class WeaponAttackAction(AttackAction):
             else:
                 self.queued = True
                 self.entity.ai.queued_attack = self
-                self.entity.turns_move_inactive = trunc((fighter.ap - ap_cost) /
-                                                        (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
-                self.entity.turns_attack_inactive = trunc((fighter.ap - ap_cost) /
+
+                # how many turns entity has to wait until attack
+                self.entity.ai.turns_until_attack = trunc((fighter.ap - ap_cost * -1) /
                                                           (fighter.ap_per_turn / fighter.ap_per_turn_modifier))
 
 

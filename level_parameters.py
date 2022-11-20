@@ -14,8 +14,8 @@ level_params = {
               24,     # MAX_LEAF_SIZE
               15,     # ROOM_MAX_SIZE
               9,      # ROOM_MIN_SIZE
-              2,      # Max monsters per room
-              5,      # Max items per room
+              1,      # Max monsters per room
+              1,      # Max items per room
               ])
 }
 
