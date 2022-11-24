@@ -28,7 +28,7 @@ class Fighter(BaseComponent):
     def __init__(self,
                  unarmed_meat_damage,
                  unarmed_armour_damage,
-                 unarmed_ap_cost: int = 400,
+                 unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
                  ap: int = 100,  # TODO - AP cost for attack scales with distance
                  ap_per_turn: int = 100,

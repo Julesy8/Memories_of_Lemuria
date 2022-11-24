@@ -75,7 +75,6 @@ class Entity:  # generic entity
             self.parent = gamemap
             gamemap.entities.add(self)
 
-    @lru_cache(maxsize=20)
     def distance(self, x: int, y: int) -> float:
         """
         Return the distance between the current entity and the given (x, y) coordinate.
@@ -95,12 +94,10 @@ class Actor(Entity):
             fighter,
             bodyparts: tuple,  # list of bodyparts belonging to the entity
             inventory: Inventory,
-            can_spawn_armed: bool,  # whether entity can spawn with a weapon
             bleeds=True,
             fears_death=True,
             drops_items=False,
             player: bool = False,
-            leaves_corpse: bool = True
     ):
         super().__init__(
             x=x,
@@ -118,13 +115,11 @@ class Actor(Entity):
         self.fighter.parent = self
         self.target_actor = None
         self.player = player
-        self.leaves_corpse = leaves_corpse
         self.bodyparts = copy.deepcopy(bodyparts)
         self.inventory = inventory
         self.inventory.parent = self
         for bodypart in self.bodyparts:
             bodypart.parent = self
-        self.can_spawn_armed = can_spawn_armed
         self.drops_items = drops_items
 
         # disables attacks and movement for a certain amount of turns
@@ -134,10 +129,6 @@ class Actor(Entity):
         self.fears_death = fears_death
         self.fleeing_turns = 0
         self.has_fled_death = False
-
-        if self.player:  # TODO better way of implementing this - implement player actor subclass
-            self.crafting_recipes = ['pistols',
-                                     ]
 
     @property
     def is_alive(self) -> bool:

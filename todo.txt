@@ -1,7 +1,6 @@
 -----
 TO DO
 -----
-
 -premade guns for enemies
 -when building gun, highlight incompatible parts in red rather than excluding from list
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion

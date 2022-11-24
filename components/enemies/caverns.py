@@ -24,12 +24,11 @@ giant_snake = Actor(
     char='s',
     fg_colour=colour.JADE,
     name='Giant Snake',
-    fighter=placeholder_fighter(),  # TODO: change unarmed damage system
+    fighter=placeholder_fighter(),
     ai=HostileEnemy,
     bodyparts=(Body(hp=45, defence=0, depth=15, width=120, height=15),
                Head(hp=10, defence=0, depth=15, width=15, height=15)),
     inventory=Inventory(capacity=0),
-    can_spawn_armed=False,
     fears_death=False,
 )
 
@@ -42,7 +41,6 @@ large_rat = Actor(
     ai=HostileEnemy,
     bodyparts=(Body(hp=10, defence=0, depth=10, width=15, height=35),),
     inventory=Inventory(capacity=0),
-    can_spawn_armed=False,
     fears_death=False,
     drops_items=True,
 )

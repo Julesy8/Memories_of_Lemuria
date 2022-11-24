@@ -266,14 +266,6 @@ suppressor_surefire_9mm = Item(
     description='A slim titanium suppressor by surefire for M13.5x1 LH barrel threading'
 )
 
-glock_parts_dict = {
-    "glock17_frame": ((glock17_frame, 1), (glock17_frame, 1)),
-    "glock17_slide": ((glock17_slide, 1), (glock17_slide, 1)),
-    "glock17_barrel": ((glock17_barrel, 1), (glock17l_barrel, 1)),
-    "glock_stock": ((None, 1), (glock_stock, 1)),
-}
-
-# TODO: add better system for gun building for enemies
 glock_17 = Item(
     x=0, y=0,
     char="r",

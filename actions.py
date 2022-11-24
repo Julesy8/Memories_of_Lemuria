@@ -50,6 +50,8 @@ class TakeStairsAction(Action):
         """
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
             self.engine.game_map.generate_level()
+            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
+            self.engine.update_floor_str()
         else:
             raise exceptions.Impossible("There is no way down from here")
 
@@ -118,10 +120,14 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
     def attack(self) -> None:
 
+        # cant attack if outside range
+        if self.distance > 1:
+            return
+
         self.perform()
 
         fighter = self.entity.fighter
-        ap_cost = (fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
+        ap_cost = round(fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
 
         # check if adeqaute AP
         if fighter.ap >= ap_cost or self.queued:
@@ -149,6 +155,10 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
                 else:
                     return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
+
+            if self.entity.player:
+                if fighter.ap <= 0:
+                    self.engine.handle_enemy_turns()
 
         # insufficient AP for action - queues action for later turn
         elif self.entity.ai.queued_action is None:
@@ -199,7 +209,7 @@ class WeaponAttackAction(AttackAction):
 
         # subtracts AP cost
         fighter = self.entity.fighter
-        ap_cost = (self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier)
+        ap_cost = round(self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier)
 
         if fighter.ap >= ap_cost or self.queued:
 
@@ -334,7 +344,7 @@ class MovementAction(ActionWithDirection):
 
             if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
                 # Destination is blocked by a tile.
-                raise exceptions.Impossible("Silent")  # TODO : figure out better way to handle exceptions
+                raise exceptions.Impossible("Silent")
 
             if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
                 # Destination is blocked by an entity.
@@ -349,15 +359,18 @@ class MovementAction(ActionWithDirection):
 
             else:
                 self.entity.move(self.dx, self.dy)
-
+                if self.entity.player:
+                    self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
             fighter.ap -= fighter.move_ap_cost
 
         else:
-            fighter.ap -= fighter.move_ap_cost
-            turns_to_wait = ceil((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
-            for i in range(turns_to_wait):
-                self.engine.handle_enemy_turns()
-            self.perform()
+            if self.entity.player:
+                fighter.ap -= fighter.move_ap_cost
+                turns_to_wait = ceil(abs(fighter.ap / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))) + 1
+                for i in range(turns_to_wait):
+                    self.engine.handle_enemy_turns()
+
+                self.perform()
 
 
 class BumpAction(ActionWithDirection):

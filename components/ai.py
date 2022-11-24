@@ -66,7 +66,7 @@ class HostileEnemy(BaseAI):
         fighter = self.entity.fighter
 
         # AP regeneration
-        fighter.ap += (fighter.ap_per_turn * fighter.ap_per_turn_modifier)
+        fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
 
         if self.entity.turns_attack_inactive >= 1:
             self.entity.turns_attack_inactive -= 1
@@ -209,7 +209,7 @@ class HostileEnemy(BaseAI):
                     else:
                         self.queued_action = None
                         # gives back the AP that would have been used for the remaining segment of the attack
-                        self.entity.fighter.ap += (self.turns_until_action * self.entity.fighter.ap_per_turn)
+                        self.entity.fighter.ap += round(self.turns_until_action * self.entity.fighter.ap_per_turn)
                         self.turns_until_action = 0
 
                 # entity no longer visible, cancels queued attack

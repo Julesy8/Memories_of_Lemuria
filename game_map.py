@@ -145,8 +145,6 @@ class GameMap:
 
     def render(self, console: Console) -> None:
 
-        self.camera_xy = (self.engine.player.x, self.engine.player.y)
-
         screen_shape = console.rgb.shape
         cam_x, cam_y = self.get_left_top_pos(screen_shape)
 
@@ -172,6 +170,13 @@ class GameMap:
                     console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
                     if isinstance(entity, Actor):
                         entity.active = True
+
+    def move_camera(self, x: int, y: int) -> None:
+
+        # moves the camera if within bounds of the map
+        camera_xy_updated = (self.camera_xy[0] + x, self.camera_xy[1] + y)
+        if 0 <= camera_xy_updated[0] < self.width and 0 <= camera_xy_updated[1] < self.height:
+            self.camera_xy = camera_xy_updated
 
     def generate_level(self) -> None:
         from level_generator import MessyBSPTree

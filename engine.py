@@ -33,6 +33,11 @@ class Engine:
             "gun parts": {},
         }
 
+        self.floor_str = f"{level_names[self.current_level]} {self.current_floor + 1}"
+
+    def update_floor_str(self) -> None:
+        self.floor_str = f"{level_names[self.current_level]} {self.current_floor + 1}"
+
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""
         save_data = lzma.compress(pickle.dumps(self))
@@ -41,7 +46,7 @@ class Engine:
 
     def handle_enemy_turns(self) -> None:
 
-        self.player.fighter.ap += (self.player.fighter.ap_per_turn * self.player.fighter.ap_per_turn_modifier)
+        self.player.fighter.ap += round(self.player.fighter.ap_per_turn * self.player.fighter.ap_per_turn_modifier)
 
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
@@ -63,38 +68,45 @@ class Engine:
 
     def render(self, console: Console) -> None:
         self.game_map.render(console)
-        console.draw_rect(0, console.height-4, console.width, 4, 219, bg=(0, 0, 0))
-        self.message_log.render(console=console, x=6, y=console.height-4, width=60, height=4)
+        console.draw_rect(0, console.height - 4, console.width, 4, 219, bg=(0, 0, 0))
+
+        # render message log
+        self.message_log.render(console=console, x=6, y=console.height - 4,
+                                width=console.width - 16, height=4)
 
         # head
-        render_part(console=console, x=2, y=console.height-4, character="O", current_value=self.player.bodyparts[0].hp,
+        render_part(console=console, x=2, y=console.height - 4, character="O",
+                    current_value=self.player.bodyparts[0].hp,
                     maximum_value=self.player.bodyparts[0].max_hp)
         # body upper
-        render_part(console=console, x=2, y=console.height-3, character="┼", current_value=self.player.bodyparts[1].hp,
+        render_part(console=console, x=2, y=console.height - 3, character="┼",
+                    current_value=self.player.bodyparts[1].hp,
                     maximum_value=self.player.bodyparts[1].max_hp)
         # right arm
-        render_part(console=console, x=1, y=console.height-3, character="─", current_value=self.player.bodyparts[2].hp,
+        render_part(console=console, x=1, y=console.height - 3, character="─",
+                    current_value=self.player.bodyparts[2].hp,
                     maximum_value=self.player.bodyparts[2].max_hp)
         # left arm
-        render_part(console=console, x=3, y=console.height-3, character="─", current_value=self.player.bodyparts[3].hp,
+        render_part(console=console, x=3, y=console.height - 3, character="─",
+                    current_value=self.player.bodyparts[3].hp,
                     maximum_value=self.player.bodyparts[3].max_hp)
         # body lower
-        render_part(console=console, x=2, y=console.height-2, character="│", current_value=self.player.bodyparts[1].hp,
+        render_part(console=console, x=2, y=console.height - 2, character="│",
+                    current_value=self.player.bodyparts[1].hp,
                     maximum_value=self.player.bodyparts[1].max_hp)
         # right leg
-        render_part(console=console, x=1, y=console.height-1, character="/", current_value=self.player.bodyparts[4].hp,
+        render_part(console=console, x=1, y=console.height - 1, character="/",
+                    current_value=self.player.bodyparts[4].hp,
                     maximum_value=self.player.bodyparts[4].max_hp)
         # right leg
-        render_part(console=console, x=3, y=console.height-1, character=chr(tileset.CHARMAP_CP437[92]),
+        render_part(console=console, x=3, y=console.height - 1, character=chr(tileset.CHARMAP_CP437[92]),
                     current_value=self.player.bodyparts[5].hp, maximum_value=self.player.bodyparts[5].max_hp)
 
-        console.print(x=0, y=console.height-4, string='R', fg=colour.WHITE)  # indicates right and left
-        console.print(x=4, y=console.height-4, string='L', fg=colour.WHITE)
+        console.print(x=0, y=console.height - 4, string='R', fg=colour.WHITE)  # indicates right and left
+        console.print(x=4, y=console.height - 4, string='L', fg=colour.WHITE)
 
-        console.print(x=66, y=console.height-4, string=f"{level_names[self.current_level]} {self.current_floor + 1}",
-                      fg=colour.WHITE, bg_blend=1)
-
-        # TODO: add AP display
+        console.print(x=console.width - len(self.floor_str), y=0,
+                      string=f"{level_names[self.current_level]} {self.current_floor + 1}", fg=colour.WHITE, bg_blend=1)
 
         # displays current ammo
         if self.player.inventory.held is not None:
@@ -102,7 +114,7 @@ class Engine:
             # for magazine fed gun
             if hasattr(self.player.inventory.held.usable_properties, "loaded_magazine"):
                 if self.player.inventory.held.usable_properties.loaded_magazine is None:
-                    console.print(x=66, y=console.height-3, string="No Mag", fg=colour.WHITE, bg_blend=1)
+                    console.print(x=66, y=console.height - 3, string="No Mag", fg=colour.WHITE, bg_blend=1)
 
             # for gun with integrated magazine
             elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):
@@ -110,7 +122,7 @@ class Engine:
                 if self.player.inventory.held.usable_properties.chambered_bullet is not None:
                     chamber = 1
                 gun = self.player.inventory.held.usable_properties
-                console.print(x=66, y=console.height-3, string=f"{len(gun.magazine) + chamber}/{gun.mag_capacity}",
+                console.print(x=66, y=console.height - 3, string=f"{len(gun.magazine) + chamber}/{gun.mag_capacity}",
                               fg=colour.WHITE, bg_blend=1)
 
-        render_names_at_mouse_location(console=console, x=1, y=console.height-5, engine=self)
+        render_names_at_mouse_location(console=console, x=1, y=console.height - 5, engine=self)

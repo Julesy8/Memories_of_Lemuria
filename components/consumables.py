@@ -331,7 +331,6 @@ class Gun(Weapon):
             base_ap_cost=base_ap_cost,
         )
 
-    # TODO: having two types of attacks (melee or ranged) is a bit messy but should be functional for now - at some point find better solution
     def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
                       hit_location_y: int):
 
@@ -345,6 +344,9 @@ class Gun(Weapon):
         rounds_fired = 0
         recoil_penalty = 0
 
+        spread_angle = uniform(0, 1) * 2 * pi
+        dist_yards = distance * 1.09361
+
         # fires rounds
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
@@ -353,17 +355,15 @@ class Gun(Weapon):
 
                 # gives projectile spread in MoA
                 spread_diameter = \
-                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * distance\
+                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * distance \
                     * attacker.fighter.ranged_accuracy
 
                 # bullet spread hit location coordinates
-                spread_angle = uniform(0, 1) * 2 * pi
                 radius = (spread_diameter * 0.523) * sqrt(uniform(0, 1))
                 spread_x = radius * cos(spread_angle)
                 spread_y = radius * sin(spread_angle)
 
                 # Pejsa's projectile drop formula
-                dist_yards = distance * 1.09361
 
                 retardation_coefficient = \
                     self.chambered_bullet.usable_properties.ballistic_coefficient * 246 * muzzle_velocity ** 0.45
@@ -379,14 +379,11 @@ class Gun(Weapon):
                                                                    * 0.5 * self.zero_range)))) ** 2
 
                 # inches
-                projectile_path = (projectile_drop + self.sight_height_above_bore) + \
-                                  (drop_at_zero + self.sight_height_above_bore) * dist_yards / self.zero_range
-
-                if projectile_path > self.zero_range:
-                    projectile_path *= -1
+                projectile_path = abs((projectile_drop + self.sight_height_above_bore) +
+                                      (drop_at_zero + self.sight_height_above_bore) * dist_yards / self.zero_range)
 
                 velocity_at_distance = muzzle_velocity * (1 - 3 * 0.5 * dist_yards / retardation_coefficient) ** (
-                            1 / 0.5)
+                        1 / 0.5)
 
                 for i in range(self.chambered_bullet.usable_properties.projectile_no):
 
@@ -406,7 +403,6 @@ class Gun(Weapon):
                             attacker=attacker
                         )
 
-                    """
                     # miss
                     else:
                         if attacker.player:
@@ -414,7 +410,6 @@ class Gun(Weapon):
 
                         else:
                             self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
-                    """
 
                 self.chambered_bullet = None
                 self.chamber_round()

@@ -59,7 +59,6 @@ def new_game() -> Engine:
                    bodyparts=body_parts,
                    player=True,
                    inventory=Inventory(capacity=15),
-                   can_spawn_armed=False,
                    )
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)
@@ -95,6 +94,8 @@ def new_game() -> Engine:
                                    engine,
                                    current_level,
                                    ).generateLevel()
+
+    engine.game_map.camera_xy = (engine.player.x, engine.player.y)
 
     engine.update_fov()
 

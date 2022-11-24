@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 from copy import deepcopy
-from typing import Optional, TYPE_CHECKING, Union
-from math import ceil, floor
+from typing import Optional, TYPE_CHECKING, Union, Tuple
+from math import ceil
 import textwrap
 
 import tcod.event
@@ -821,12 +821,51 @@ class ChangeTargetActor(AskUserEventHandler):
         self.target_index = None
         self.distance_target = None
         self.selected_bodypart = None
-        self.bodypart_index = 0
-        self.bodypartlist = []
+        self.bodypart_index: int = 0
+        self.bodypartlist: list = []
+
+        # string and colour associated with the condition of the selected body part
+        self.part_cond_str: str = "Unharmed"
+        self.part_cond_colour: tuple[int, int, int] = colour.GREEN
 
         self.console = None
 
         self.item = self.engine.player.inventory.held
+
+        self.get_targets()
+
+    def get_targets(self) -> None:
+
+        player = self.engine.player
+        target_visible = False
+        closest_distance = 1000
+        closest_actor = None
+
+        for actor in set(self.engine.game_map.actors) - {player}:
+            if self.engine.game_map.visible[actor.x, actor.y]:
+                self.targets.append(actor)
+
+                # checks if previous target is still visible
+                if player.target_actor == actor:
+                    target_visible = True
+
+                # checks for closest actor incase previous target not visible
+                distance = player.distance(actor.x, actor.y)
+
+                if distance < closest_distance:
+                    closest_actor = actor
+
+        # sets target actor to closest actor
+        if not target_visible:
+            player.target_actor = closest_actor
+
+        if player.target_actor is not None:
+            # centres camera on target
+            self.engine.game_map.camera_xy = (player.target_actor.x, player.target_actor.y)
+
+            # selects bodypart
+            self.selected_bodypart = player.target_actor.bodyparts[0]
+            self.update_part_str_colour()
 
     def on_render(self, console: tcod.Console):
         super().on_render(console)  # Draw the main state as the background.
@@ -837,46 +876,36 @@ class ChangeTargetActor(AskUserEventHandler):
         cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
 
         player = self.engine.player
-        target_visible = False
-        closest_distance = 40
-        closest_actor = None
 
-        for actor in self.engine.game_map.actors:
-            if actor is not player and self.engine.game_map.visible[actor.x, actor.y]:
-                self.targets.append(actor)
-                distance = player.distance(actor.x, actor.y)
+        console.print(x=1, y=1, string="ATTACK MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
 
-                if player.target_actor == actor:
-                    target_visible = True
-
-                elif distance < closest_distance:
-                    closest_actor = actor
-
-        if not target_visible:
-            player.target_actor = closest_actor
-
-        if not self.selected_bodypart:
-            try:
-                self.selected_bodypart = player.target_actor.bodyparts[0]
-            except AttributeError:
-                return MainGameEventHandler(self.engine)
-
-        if player.target_actor:
-            self.distance_target = player.distance(player.target_actor.x, player.target_actor.y)  # TODO - check if needs to be 'floor'
+        if player.target_actor is not None:
+            self.distance_target = player.distance(player.target_actor.x, player.target_actor.y)
             self.target_index = self.targets.index(player.target_actor)
 
             target_x, target_y = player.target_actor.x - cam_x, player.target_actor.y - cam_y
+
             if 0 <= target_x < console.width and 0 <= target_y < console.height:
                 console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('X'), colour.YELLOW
-            console.print(x=1, y=console.height-5, string=f"Targeting: {player.target_actor.name} - "
-                                                          f"{self.selected_bodypart.name}", fg=colour.WHITE, bg_blend=1)
-            console.print(x=1, y=console.height-6, string=f"AP: {player.fighter.ap}/{player.fighter.max_ap}",
-                          fg=colour.WHITE, bg_blend=1)
-            # TODO: make 'attack mode screen' where event log is when in this mode
-            # including 'press ESC to exit targeting'
+
+            target_str = f"Targeting: {player.target_actor.name} - {self.selected_bodypart.name}".upper()
+            ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
+
+            console.print(x=1, y=console.height-8, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
+
+            console.print(x=1, y=console.height-7, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
+
+            console.print(x=1, y=console.height-6, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
+
+            console.print(x=17, y=console.height-6, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
+                          bg=(0, 0, 0))
+
             for bodypart in player.target_actor.bodyparts:
                 if bodypart.functional:
                     self.bodypartlist.append(bodypart)
+
+        else:
+            console.print(x=1, y=2, string="NO TARGET", fg=colour.LIGHT_RED, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
@@ -888,11 +917,14 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.selected_bodypart = player.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index += 1
+                # centres camera on target
+                self.engine.game_map.camera_xy = (player.target_actor.x, player.target_actor.y)
             except IndexError:
                 player.target_actor = self.targets[0]
                 self.selected_bodypart = player.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index = 0
+                self.engine.game_map.camera_xy = (player.target_actor.x, player.target_actor.y)
             except TypeError:
                 return MainGameEventHandler(self.engine)
 
@@ -900,6 +932,7 @@ class ChangeTargetActor(AskUserEventHandler):
             for bodypart in player.target_actor.bodyparts:
                 if bodypart.functional:
                     self.bodypartlist.append(bodypart)
+            self.update_part_str_colour()
 
         elif key == tcod.event.K_TAB:  # change limb targetted
             try:
@@ -913,20 +946,73 @@ class ChangeTargetActor(AskUserEventHandler):
                 except IndexError:
                     return MainGameEventHandler(self.engine)
 
+            self.update_part_str_colour()
+
         elif key == tcod.event.K_RETURN:  # atttack selected target
 
-            if player.target_actor and self.item is not None:
+            if player.target_actor:
 
-                actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
-                                           targeted_actor=player.target_actor,
-                                           targeted_bodypart=self.selected_bodypart).attack()
+                # attack with weapon
+                if self.item is not None:
+                    actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
+                                               targeted_actor=player.target_actor,
+                                               targeted_bodypart=self.selected_bodypart).attack()
+                # unarmed attack
+                else:
+                    actions.UnarmedAttackAction(distance=self.distance_target, entity=player,
+                                                targeted_actor=player.target_actor,
+                                                targeted_bodypart=self.selected_bodypart).attack()
+
+                self.get_targets()
                 self.engine.render(console=self.console)
 
             else:
                 return MainGameEventHandler(self.engine)
 
+        elif key in WAIT_KEYS:
+            self.engine.handle_enemy_turns()
+
+        elif key in MOVE_KEYS:
+            dx, dy = MOVE_KEYS[key]
+            self.engine.game_map.move_camera(dx, dy)
+
         elif key == tcod.event.K_ESCAPE:
+            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
             return MainGameEventHandler(self.engine)
+
+    def update_part_str_colour(self) -> None:
+
+        string: str = "UNHARMED"
+        str_colour: tuple[int, int, int] = colour.GREEN
+
+        current_value = getattr(self.selected_bodypart, "hp")
+        maximum_value = getattr(self.selected_bodypart, "max_hp")
+
+        if maximum_value == current_value:
+            pass
+
+        elif maximum_value * 0.75 <= current_value <= maximum_value:
+            string = "MINOR DAMAGE"
+            str_colour = colour.YELLOW
+
+        elif maximum_value * 0.5 <= current_value <= maximum_value * 0.75:
+            string = "DAMAGED"
+            str_colour = colour.ORANGE
+
+        elif maximum_value * 0.15 <= current_value <= maximum_value * 0.50:
+            string = "CRITICAL DAMAGE"
+            str_colour = colour.LIGHT_RED
+
+        elif 0 < current_value <= maximum_value * 0.15:
+            string = "MANGLED"
+            str_colour = colour.RED
+
+        elif current_value == 0:
+            string = "DESTROYED"
+            str_colour = colour.DARK_GRAY
+
+        self.part_cond_str = string
+        self.part_cond_colour = str_colour
 
 
 class QuitEventHandler(AskUserEventHandler):

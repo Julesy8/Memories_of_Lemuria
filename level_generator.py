@@ -213,7 +213,8 @@ class MessyBSPTree:
                 enemy = copy.deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
                                               k=1)[0])
                 enemy.place(x, y, self.dungeon)
-
+                # TODO - new system for spawning armed enemies
+                """
                 if enemy.can_spawn_armed:
 
                     weapon_pop = []
@@ -308,6 +309,7 @@ class MessyBSPTree:
                                 ammo.stacking.stack_size = weapon.usable_properties.mag_capacity
 
                                 weapon.usable_properties.load_magazine(ammo=ammo, load_amount=ammo.stacking.stack_size)
+                        """
 
         for i in range(number_of_items):
             x = randint(room.x1 + 1, room.x2 - 1)
