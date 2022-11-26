@@ -979,7 +979,10 @@ ar15 = Item(
         sound_modifier=1.0,
         barrel_length=20,
         zero_range=25,
-        sight_height_above_bore=1.2
+        sight_height_above_bore=1.2,
+        target_acquisition_ap=15,
+        firing_ap_cost=15,
+        ap_distance_cost_modifier=15
     )
 )
 

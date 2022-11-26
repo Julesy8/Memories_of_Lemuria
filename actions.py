@@ -99,6 +99,8 @@ class AttackAction(Action):
         else:  # if no bodypart selected (should only be when entity is not player), sets value later
             self.part_index = None
 
+        entity.previous_target_actor = targeted_actor
+
     def perform(self) -> None:
         target = self.targeted_actor
         if not target:
@@ -158,13 +160,13 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
             if self.entity.player:
                 if fighter.ap <= 0:
-                    self.engine.handle_enemy_turns()
+                    return
 
         # insufficient AP for action - queues action for later turn
         elif self.entity.ai.queued_action is None:
             fighter.ap -= ap_cost
 
-            turns_to_skip = ceil((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+            turns_to_skip = ceil(abs(fighter.ap / (fighter.ap_per_turn * fighter.ap_per_turn_modifier)))
 
             # attacker is player
             if self.entity.player:
@@ -207,9 +209,31 @@ class WeaponAttackAction(AttackAction):
     def attack(self) -> None:
         self.perform()
 
-        # subtracts AP cost
         fighter = self.entity.fighter
-        ap_cost = round(self.item.usable_properties.base_ap_cost * fighter.attack_ap_modifier)
+
+        # calculates AP cost
+
+        weapon_type = type(self.item.usable_properties).__name__
+
+        ap_cost = 0
+
+        if weapon_type == 'Gun':
+
+            # adds cost of firing (pulling trigger)
+            ap_cost += self.item.usable_properties.firing_ap_cost
+
+            # ap cost for the given distance to the target
+            ap_cost += self.item.usable_properties.ap_distance_cost_modifier * self.distance
+
+            # if previous actor is different from the current target, adds cost of acquiring new target
+            if self.entity.previous_target_actor == self.entity.target_actor:
+                ap_cost += self.item.usable_properties.target_acquisition_ap
+
+        # melee weapon
+        else:
+            ap_cost += self.item.usable_properties.base_ap_cost
+
+        ap_cost *= fighter.attack_ap_modifier
 
         if fighter.ap >= ap_cost or self.queued:
 
@@ -217,31 +241,12 @@ class WeaponAttackAction(AttackAction):
                 fighter.ap -= ap_cost
 
             # firearm attack
-            if hasattr(self.item.usable_properties, 'sound_modifier'):
+            if weapon_type == 'Gun':
 
+                # calculate hit location on body
                 standard_deviation = 0.1 * self.distance
                 hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
                 hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
-
-                chambered_bullet = getattr(self.item.usable_properties, 'chambered_bullet')
-                bullet_sound_modifier = 1.0
-
-                if chambered_bullet is not None:
-                    bullet_sound_modifier = chambered_bullet.sound_modifier
-
-                # weapon sounds alert enemies in vicinity
-                sound_radius = self.item.usable_properties.sound_modifier * bullet_sound_modifier
-                for x in self.engine.game_map.entities:
-                    if x != self.entity and hasattr(x, 'ai'):
-                        if hasattr(x.ai, 'path'):
-                            dx = x.x - self.entity.x
-                            dy = x.y - self.entity.y
-                            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-
-                            if distance <= sound_radius:
-                                path = x.ai.get_path_to(self.entity.x, self.entity.y)
-                                if len(path) <= sound_radius:
-                                    setattr(x.ai, 'path', path)
 
                 self.item.usable_properties.attack_ranged(target=self.targeted_actor, attacker=self.entity,
                                                           part_index=self.part_index, hit_location_x=hit_location_x,
@@ -266,7 +271,7 @@ class WeaponAttackAction(AttackAction):
         elif self.entity.ai.queued_action is None:
             fighter.ap -= ap_cost
 
-            turns_to_skip = ceil((fighter.ap * -1) / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))
+            turns_to_skip = ceil(abs(fighter.ap / (fighter.ap_per_turn * fighter.ap_per_turn_modifier)))
 
             # attacker is player
             if self.entity.player:
@@ -306,6 +311,9 @@ class ReloadAction(Action):
     def __init__(self, entity: Actor, gun: Item):
         super().__init__(entity)
         self.gun = gun
+
+        # resets previous target actor since need to reacquire target after reloading
+        entity.previous_target_actor = None
 
     def perform(self) -> None:
 
@@ -454,6 +462,8 @@ class PickupAction(AddToInventory):
     def __init__(self, entity: Actor, item: Item, amount: int):
         super().__init__(entity, item, amount)
 
+        entity.previous_target_actor = None
+
     def remove_from_container(self):
         self.engine.game_map.entities.remove(self.item)
 
@@ -464,6 +474,8 @@ class DropAction(Action):
         super().__init__(entity)
         self.item = item
         self.drop_amount = drop_amount
+
+        entity.previous_target_actor = None
 
     def perform(self) -> None:
         if self.item.stacking:

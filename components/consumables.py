@@ -27,6 +27,7 @@ class Usable(BaseComponent):
         """Try to return the action for this item."""
         return actions.ItemAction(user, self.parent)
 
+    # TODO - this is essentially deprecated
     def activate(self, action: actions.ItemAction) -> None:
         """Invoke this items ability.
 
@@ -65,19 +66,14 @@ class HealingConsumable(Usable):
 class Weapon(Usable):
 
     def __init__(self,
-                 maximum_range: int,
                  equip_time: int,
                  base_ap_cost: int = 100,
                  ranged: bool = False,
                  ):
 
         self.ranged = ranged  # if true, weapon has range (non-melee)
-        self.maximum_range = maximum_range  # determines how far away the weapon can deal damage
         self.equip_time = equip_time
         self.base_ap_cost = base_ap_cost
-
-        if not self.ranged:
-            self.maximum_range = 1
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
@@ -111,7 +107,6 @@ class MeleeWeapon(Weapon):
     def __init__(self,
                  base_meat_damage: int,
                  base_armour_damage: int,
-                 maximum_range: int,
                  base_accuracy: float,
                  equip_time: int,
                  base_ap_cost: int = 100,
@@ -123,7 +118,6 @@ class MeleeWeapon(Weapon):
         self.base_ap_cost = base_ap_cost
 
         super().__init__(
-            maximum_range=maximum_range,
             ranged=False,
             equip_time=equip_time
         )
@@ -294,16 +288,15 @@ class Gun(Weapon):
                  barrel_length: float,
                  zero_range: int,  # yards
                  sight_height_above_bore: float,  # inches
-                 base_ap_cost: int = 100,
+                 target_acquisition_ap: int,  # ap cost for acquiring new target
+                 firing_ap_cost: int,  # additional AP cost for firing
+                 ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
                  spread_modifier: float = 0.0,  # MoA / 100
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,
                  ):
-
-        # > ergonomics = > firearm area in contact with body of operator, < distance between twigger and stock
-        # > accuracy distribution affected by > ergonomics, < optic zoom / precision / sight radius and < weight
 
         self.parts = parts
         self.compatible_bullet_type = compatible_bullet_type
@@ -323,23 +316,32 @@ class Gun(Weapon):
         self.sound_modifier = sound_modifier
         self.fire_rate_modifier = fire_rate_modifier
         self.load_time_modifier = load_time_modifier
+        self.target_acquisition_ap = target_acquisition_ap
+        self.firing_ap_cost = firing_ap_cost
+        self.ap_distance_cost_modifier = ap_distance_cost_modifier
+
+        self.momentum_gun = 0
+        self.time_in_barrel = 0
 
         super().__init__(
-            maximum_range=100,
             ranged=True,
             equip_time=equip_time,
-            base_ap_cost=base_ap_cost,
         )
 
     def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
-                      hit_location_y: int):
+                      hit_location_y: int) -> None:
+
+        self.momentum_gun = 0
+        self.time_in_barrel = 0
+
+        recoil_spread_list = []
 
         # number of rounds fired in a single second
-        if self.current_fire_mode == 'automatic' or self.current_fire_mode == 'burst':
-            rounds_to_fire = round(self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier
+        if self.fire_modes[self.current_fire_mode]['automatic']:
+            rounds_to_fire = round(self.fire_modes[self.current_fire_mode]['fire rate'] / 60 * self.fire_rate_modifier
                                    * attacker.fighter.automatic_fire_duration)
         else:
-            rounds_to_fire = self.fire_modes[self.current_fire_mode]
+            rounds_to_fire = self.fire_modes[self.current_fire_mode]['fire rate']
 
         rounds_fired = 0
         recoil_penalty = 0
@@ -347,9 +349,20 @@ class Gun(Weapon):
         spread_angle = uniform(0, 1) * 2 * pi
         dist_yards = distance * 1.09361
 
+        # list of the shot sound radius of each shot fired
+        sound_radius_list: list[float] = [0, ]
+
+        # previous round fired, recorded for purposes of recoil calculations
+        previous_round_fired = None
+
         # fires rounds
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
+
+                # if the sound radius of the fired round is not already in the list, appends it to the list for
+                sound_radius = self.sound_modifier * self.chambered_bullet.usable_properties.sound_modifier
+                if sound_radius not in sound_radius_list:
+                    sound_radius_list.append(sound_radius)
 
                 muzzle_velocity = self.chambered_bullet.usable_properties.velocity * self.velocity_modifier
 
@@ -417,11 +430,11 @@ class Gun(Weapon):
                 rounds_to_fire -= 1
                 rounds_fired += 1
 
-                # recoil calcualtions
                 if self.chambered_bullet is not None:
 
                     additional_weight = 0
 
+                    # adds weight of the magazine and loaded bullets to total weight for recoil calculations
                     if isinstance(self, GunMagFed):
                         if self.loaded_magazine is not None:
                             additional_weight = self.loaded_magazine.weight + \
@@ -431,34 +444,69 @@ class Gun(Weapon):
                     elif isinstance(self, GunIntegratedMag):
                         additional_weight = len(self.magazine) * self.chambered_bullet.weight
 
-                    muzzle_break = 0
-                    if self.muzzle_break_efficiency is not None:
-                        muzzle_break = self.muzzle_break_efficiency
+                    # prevents recalculating recoil multiple times if the same bullet
+                    # is chambered as was previously fired
+                    if previous_round_fired is None or previous_round_fired == self.chambered_bullet:
 
-                    time_in_barrel = self.barrel_length / (muzzle_velocity * 0.6)
+                        # calculates recoil amount
+                        muzzle_break = 0
+                        if self.muzzle_break_efficiency is not None:
+                            muzzle_break = self.muzzle_break_efficiency
 
-                    gas_velocity = muzzle_velocity * 1.7
-                    bullet_momentum = self.chambered_bullet.usable_properties.mass * 0.000142857 * muzzle_velocity
-                    gas_momentum = self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * muzzle_velocity \
-                                   / 2
-                    momentum_jet = self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * gas_velocity * \
-                                   ((1 - muzzle_break) ** (1 / sqrt(e)))
-                    momentum_gun = bullet_momentum + gas_momentum + momentum_jet
-                    velocity_gun = (momentum_gun / self.parent.weight + additional_weight)
+                        self.time_in_barrel = self.barrel_length / (muzzle_velocity * 0.6)
+
+                        gas_velocity = muzzle_velocity * 1.7
+                        bullet_momentum = self.chambered_bullet.usable_properties.mass * 0.000142857 * muzzle_velocity
+                        gas_momentum = \
+                            self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * muzzle_velocity / 2
+                        momentum_jet = \
+                            self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * gas_velocity * \
+                            ((1 - muzzle_break) ** (1 / sqrt(e)))
+                        self.momentum_gun = bullet_momentum + gas_momentum + momentum_jet
+
+                    # TODO - potentailly better equation found in ADA561571 equation 7 - 8
+                    velocity_gun = (self.momentum_gun / self.parent.weight + additional_weight)
 
                     # recoil spread (MoA / 100) based assuming M4 recoil spread is 1 MoA with stock, handguard,
                     # and pistol grip reducing felt recoil by 70% shooting 55gr bullets.
                     # arbitrary but almost impossible to calculate actual muzzle rise for all guns and conifgurations
-                    recoil_spread = (velocity_gun / time_in_barrel) * self.felt_recoil * 4.572e-5
+                    recoil_spread = (velocity_gun / self.time_in_barrel) * self.felt_recoil * 4.572e-5
 
-                    if rounds_fired <= round(
-                            self.fire_modes[self.current_fire_mode] / 60 * self.fire_rate_modifier) / 5:
-                        recoil_penalty += recoil_spread
+                    recoil_spread_list.append(recoil_spread)
+
+                    rounds_per_quarter_sec = \
+                        (self.fire_modes[self.current_fire_mode]['fire rate'] / 60 * self.fire_rate_modifier) * 0.25
+
+                    if rounds_fired > rounds_per_quarter_sec:
+                        rounds = recoil_spread_list[-rounds_per_quarter_sec:]
+                        recoil_penalty = sum(rounds)
+                    else:
+                        recoil_penalty = sum(recoil_spread_list)
 
             else:
+                self.shot_sound_activation(sound_radius_list=sound_radius_list, attacker=attacker)
                 if attacker.player:
                     self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
                 break
+
+        self.shot_sound_activation(sound_radius_list=sound_radius_list, attacker=attacker)
+
+    def shot_sound_activation(self, sound_radius_list: list[float], attacker: Actor) -> None:
+        # shot sound alert enemies in the vacinity of where the shot was fired from
+        # only needs to be computed once for the 'loudest' shot fired
+
+        max_sound_radius = max(sound_radius_list)
+
+        for x in set(self.engine.game_map.actors) - {attacker}:
+            dx = x.x - attacker.x
+            dy = x.y - attacker.y
+            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
+            if distance <= max_sound_radius:
+                path = x.ai.get_path_to(attacker.x, attacker.y)
+                if len(path) <= max_sound_radius:
+                    setattr(x.ai, 'path', path)
+                    x.active = True
 
     def chamber_round(self):
         return NotImplementedError
@@ -556,7 +604,9 @@ class GunMagFed(Gun):
                  sight_height_above_bore: float,
                  felt_recoil: float,
                  barrel_length: float,
-                 base_ap_cost: int = 100,
+                 target_acquisition_ap: int,
+                 firing_ap_cost: int,
+                 ap_distance_cost_modifier: float,
                  spread_modifier: float = 0.0,
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
@@ -590,7 +640,9 @@ class GunMagFed(Gun):
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
             barrel_length=barrel_length,
-            base_ap_cost=base_ap_cost,
+            target_acquisition_ap=target_acquisition_ap,
+            firing_ap_cost=firing_ap_cost,
+            ap_distance_cost_modifier=ap_distance_cost_modifier
         )
 
     def load_gun(self, magazine: Item):
@@ -680,7 +732,9 @@ class GunIntegratedMag(Gun, Magazine):
                  zero_range: int,
                  sight_height_above_bore: float,
                  barrel_length: float,
-                 base_ap_cost: int = 100,
+                 target_acquisition_ap: int,
+                 firing_ap_cost: int,
+                 ap_distance_cost_modifier: float,
                  spread_modifier: float = 0.0,
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
@@ -713,7 +767,9 @@ class GunIntegratedMag(Gun, Magazine):
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
             barrel_length=barrel_length,
-            base_ap_cost=base_ap_cost,
+            target_acquisition_ap=target_acquisition_ap,
+            firing_ap_cost=firing_ap_cost,
+            ap_distance_cost_modifier=ap_distance_cost_modifier
         )
 
     def chamber_round(self):

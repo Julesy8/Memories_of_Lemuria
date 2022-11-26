@@ -291,6 +291,9 @@ glock_17 = Item(
         sight_height_above_bore=0.2,
         sound_modifier=1.0,
         zero_range=25,
+        target_acquisition_ap=15,
+        firing_ap_cost=15,
+        ap_distance_cost_modifier=15
     )
 )
 

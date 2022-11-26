@@ -114,6 +114,7 @@ class Actor(Entity):
         self.fighter = fighter
         self.fighter.parent = self
         self.target_actor = None
+        self.previous_target_actor = None
         self.player = player
         self.bodyparts = copy.deepcopy(bodyparts)
         self.inventory = inventory

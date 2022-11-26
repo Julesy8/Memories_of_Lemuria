@@ -58,7 +58,8 @@ class HostileEnemy(BaseAI):
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        target = self.engine.player
+        self.entity.target_actor = self.engine.player
+        target = self.entity.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
@@ -86,6 +87,12 @@ class HostileEnemy(BaseAI):
                     attack_range = held_item.usable_properties.enemy_attack_range
 
         self.execute_queued_action(distance, target)
+
+        # checks if previous target actor is still visible, if not resets to None
+        if self.entity.previous_target_actor is not None:
+            if not self.engine.game_map.visible[self.entity.previous_target_actor.x,
+                                                self.entity.previous_target_actor.y]:
+                self.entity.previous_target_actor = None
 
         while fighter.ap > 0:
             # skips turn if both attack and move actions inactive for this turn
@@ -128,7 +135,6 @@ class HostileEnemy(BaseAI):
                 # entity fleeing from target
                 if self.entity.fleeing_turns > 0:
 
-                    print('yes')
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                     distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
                                                             self.entity.gamemap.height), order="F")
@@ -143,9 +149,8 @@ class HostileEnemy(BaseAI):
                                                       cardinal=True, diagonal=True)[1:].tolist()
                     self.entity.fleeing_turns -= 1
 
-                # entity not fleeing
-                else:
-                    # move towards the target
+                # entity not fleeing and can see target, sets path to them
+                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fleeing_turns == 0:
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:

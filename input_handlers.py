@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from copy import deepcopy
-from typing import Optional, TYPE_CHECKING, Union, Tuple
+from typing import Optional, TYPE_CHECKING, Union
 from math import ceil
 import textwrap
 
@@ -10,8 +10,7 @@ import tcod.event
 
 from entity import Item
 import actions
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, ComponentPart, GunComponent, \
-    Wearable
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent, Wearable
 from actions import (
     Action,
     BumpAction,
@@ -128,6 +127,13 @@ class EventHandler(BaseEventHandler):
             if not self.engine.player.is_alive:
                 # The player was killed sometime during or after the action.
                 return GameOverEventHandler(self.engine)
+
+            # checks if previous target actor is still visible, if not resets to None
+            if self.engine.player.previous_target_actor is not None:
+                if not self.engine.game_map.visible[self.engine.player.previous_target_actor.x,
+                                                    self.engine.player.previous_target_actor.y]:
+                    self.engine.player.previous_target_actor = None
+
             return MainGameEventHandler(self.engine)  # Return to the main handler.
         return self
 
@@ -136,6 +142,7 @@ class EventHandler(BaseEventHandler):
 
         Returns True if the action will advance a turn.
         """
+
         if action is None:
             return False
 
@@ -146,6 +153,7 @@ class EventHandler(BaseEventHandler):
                 self.engine.message_log.add_message(exc.args[0], colour.RED)
             return False  # Skip enemy turn on exceptions.
 
+        # TODO - ensure correct amount of enemy turns is being handled - put print statement in handle_enemy_turns to figure out
         self.engine.handle_enemy_turns()
 
         self.engine.update_fov()
@@ -374,10 +382,10 @@ class UserOptionsEventHandler(AskUserEventHandler):
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
                 return self
-            return self.on_option_selected(selected_option)
+            return self.ev_on_option_selected(selected_option)
         return super().ev_keydown(event)
 
-    def on_option_selected(self, option):
+    def ev_on_option_selected(self, option):
         return NotImplementedError
 
 
@@ -479,10 +487,10 @@ class UserOptionsWithPages(AskUserEventHandler):
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
                 return None
-            return self.on_option_selected(selected_item)
+            return self.ev_on_option_selected(selected_item)
         return super().ev_keydown(event)
 
-    def on_option_selected(self, option):
+    def ev_on_option_selected(self, option):
         return NotImplementedError
 
 
@@ -530,20 +538,20 @@ class TypeAmountEventHandler(AskUserEventHandler):
                             if self.buffer == '' or int(self.buffer) < 1:
                                 self.buffer = f'{self.item.stacking.stack_size}'
 
-                            return self.on_option_selected()
+                            return self.ev_on_option_selected()
 
                     except AttributeError:
                         self.buffer = f'{self.item.stacking.stack_size}'
 
             else:
                 self.buffer = '1'
-                return self.on_option_selected()
+                return self.ev_on_option_selected()
 
         else:
             self.buffer = '1'
-            return self.on_option_selected()
+            return self.ev_on_option_selected()
 
-    def on_option_selected(self):
+    def ev_on_option_selected(self):
         return NotImplementedError
 
 
@@ -555,7 +563,7 @@ class InventoryEventHandler(UserOptionsWithPages):
 
         super().__init__(engine=engine, options=engine.player.inventory.items, page=0, title=title)
 
-    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         options = ['Drop', 'Inspect']
@@ -578,7 +586,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         self.item = item
         super().__init__(engine=engine, options=options, title=item.name)
 
-    def on_option_selected(self, option) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, option) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         if option == 'Use':
             try:
@@ -595,7 +603,6 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'Equip':
             try:
                 self.item.usable_properties.equip()
-                self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
 
             except AttributeError:
@@ -632,7 +639,7 @@ class AmountToScrap(TypeAmountEventHandler):
     def __init__(self, engine: Engine, item: Item):
         super().__init__(engine=engine, item=item, prompt_string="amount to scrap (leave blank for all):")
 
-    def on_option_selected(self) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
 
         stack_size = 1
         successful = True
@@ -662,7 +669,6 @@ class AmountToScrap(TypeAmountEventHandler):
             if self.item.stacking:
                 self.item.stacking.stack_size = stack_size
 
-            self.engine.handle_enemy_turns()
             return MainGameEventHandler(self.engine)
 
         else:
@@ -760,11 +766,8 @@ class DropItemEventHandler(TypeAmountEventHandler):
     def __init__(self, item, engine: Engine):
         super().__init__(engine=engine, item=item, prompt_string="amount to drop (leave blank for all):")
 
-    def on_option_selected(self) -> Optional[ActionOrHandler]:
-        actions.DropAction(entity=self.engine.player, item=self.item, drop_amount=int(self.buffer)).perform()
-
-        self.engine.handle_enemy_turns()
-        return MainGameEventHandler(self.engine)
+    def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
+        return actions.DropAction(entity=self.engine.player, item=self.item, drop_amount=int(self.buffer))
 
 
 class PickUpEventHandler(UserOptionsWithPages):
@@ -781,18 +784,14 @@ class PickUpEventHandler(UserOptionsWithPages):
 
         super().__init__(engine=engine, page=0, options=items_at_location, title="Pick Up Items")
 
-    def on_option_selected(self, item):
+    def ev_on_option_selected(self, item):
         if item.stacking:
             if item.stacking.stack_size > 1:
                 return AmountToPickUpMenu(item=item, engine=self.engine)
             else:
-                PickupAction(entity=self.engine.player, item=item, amount=1).perform()
-                self.engine.handle_enemy_turns()
-                return MainGameEventHandler(engine=self.engine)
+                return PickupAction(entity=self.engine.player, item=item, amount=1)
         else:
-            PickupAction(entity=self.engine.player, item=item, amount=1).perform()
-            self.engine.handle_enemy_turns()
-            return MainGameEventHandler(engine=self.engine)
+            return PickupAction(entity=self.engine.player, item=item, amount=1)
 
 
 class AmountToPickUpMenu(TypeAmountEventHandler):
@@ -800,11 +799,10 @@ class AmountToPickUpMenu(TypeAmountEventHandler):
     def __init__(self, item, engine: Engine):
         super().__init__(engine=engine, item=item, prompt_string="amount to pick up (leave blank for all):")
 
-    def on_option_selected(self) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
 
         try:
-            actions.PickupAction(entity=self.engine.player, item=self.item, amount=int(self.buffer)).perform()
-            self.engine.handle_enemy_turns()
+            return actions.PickupAction(entity=self.engine.player, item=self.item, amount=int(self.buffer))
 
         except AttributeError:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -819,7 +817,6 @@ class ChangeTargetActor(AskUserEventHandler):
         self.engine = engine
         self.targets = []
         self.target_index = None
-        self.distance_target = None
         self.selected_bodypart = None
         self.bodypart_index: int = 0
         self.bodypartlist: list = []
@@ -840,6 +837,8 @@ class ChangeTargetActor(AskUserEventHandler):
         target_visible = False
         closest_distance = 1000
         closest_actor = None
+
+        self.targets = []
 
         for actor in set(self.engine.game_map.actors) - {player}:
             if self.engine.game_map.visible[actor.x, actor.y]:
@@ -865,6 +864,12 @@ class ChangeTargetActor(AskUserEventHandler):
 
             # selects bodypart
             self.selected_bodypart = player.target_actor.bodyparts[0]
+
+            self.update_bodypart_list()
+
+            # sets targets index in target list
+            self.target_index = self.targets.index(player.target_actor)
+
             self.update_part_str_colour()
 
     def on_render(self, console: tcod.Console):
@@ -880,8 +885,6 @@ class ChangeTargetActor(AskUserEventHandler):
         console.print(x=1, y=1, string="ATTACK MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
 
         if player.target_actor is not None:
-            self.distance_target = player.distance(player.target_actor.x, player.target_actor.y)
-            self.target_index = self.targets.index(player.target_actor)
 
             target_x, target_y = player.target_actor.x - cam_x, player.target_actor.y - cam_y
 
@@ -900,10 +903,6 @@ class ChangeTargetActor(AskUserEventHandler):
             console.print(x=17, y=console.height-6, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
                           bg=(0, 0, 0))
 
-            for bodypart in player.target_actor.bodyparts:
-                if bodypart.functional:
-                    self.bodypartlist.append(bodypart)
-
         else:
             console.print(x=1, y=2, string="NO TARGET", fg=colour.LIGHT_RED, bg=(0, 0, 0))
 
@@ -912,6 +911,7 @@ class ChangeTargetActor(AskUserEventHandler):
         key = event.sym
 
         if key == tcod.event.K_SPACE:  # change target
+
             try:
                 player.target_actor = self.targets[self.target_index + 1]
                 self.selected_bodypart = player.target_actor.bodyparts[0]
@@ -928,10 +928,10 @@ class ChangeTargetActor(AskUserEventHandler):
             except TypeError:
                 return MainGameEventHandler(self.engine)
 
-            self.bodypartlist = []
-            for bodypart in player.target_actor.bodyparts:
-                if bodypart.functional:
-                    self.bodypartlist.append(bodypart)
+            self.target_index = self.targets.index(player.target_actor)
+
+            # updates list of target bodyparts
+            self.update_bodypart_list()
             self.update_part_str_colour()
 
         elif key == tcod.event.K_TAB:  # change limb targetted
@@ -952,14 +952,18 @@ class ChangeTargetActor(AskUserEventHandler):
 
             if player.target_actor:
 
+                distance_target = round(player.distance(player.target_actor.x, player.target_actor.y))
+
                 # attack with weapon
                 if self.item is not None:
-                    actions.WeaponAttackAction(distance=self.distance_target, item=self.item, entity=player,
+
+                    actions.WeaponAttackAction(distance=distance_target, item=self.item, entity=player,
                                                targeted_actor=player.target_actor,
                                                targeted_bodypart=self.selected_bodypart).attack()
+
                 # unarmed attack
                 else:
-                    actions.UnarmedAttackAction(distance=self.distance_target, entity=player,
+                    actions.UnarmedAttackAction(distance=distance_target, entity=player,
                                                 targeted_actor=player.target_actor,
                                                 targeted_bodypart=self.selected_bodypart).attack()
 
@@ -979,6 +983,12 @@ class ChangeTargetActor(AskUserEventHandler):
         elif key == tcod.event.K_ESCAPE:
             self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
             return MainGameEventHandler(self.engine)
+
+    def update_bodypart_list(self) -> None:
+        # updates bodypart list
+        self.bodypartlist = []
+        for bodypart in self.engine.player.target_actor.bodyparts:
+            self.bodypartlist.append(bodypart)
 
     def update_part_str_colour(self) -> None:
 
@@ -1063,7 +1073,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
 
         super().__init__(engine=engine, options=options, title=title)
 
-    def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         player = self.engine.player
 
@@ -1071,16 +1081,13 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine)
 
         elif option == 'unload bullets':
-            self.engine.handle_enemy_turns()
             self.magazine.usable_properties.unload_magazine()
 
         elif option == 'add to loadout':
             player.inventory.add_to_magazines(magazine=self.magazine)
-            self.engine.handle_enemy_turns()
 
         elif option == 'remove from loadout':
             player.inventory.remove_from_magazines(magazine=self.magazine)
-            self.engine.handle_enemy_turns()
 
         return MainGameEventHandler(engine=self.engine)
 
@@ -1106,7 +1113,7 @@ class GunOptionsHandler(UserOptionsEventHandler):
 
         super().__init__(engine=engine, options=options, title=title)
 
-    def on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         if option == 'load magazine':
@@ -1124,7 +1131,6 @@ class GunOptionsHandler(UserOptionsEventHandler):
         elif option in self.firemodes:
             self.gun.usable_properties.current_fire_mode = option
 
-        self.engine.handle_enemy_turns()
         return MainGameEventHandler(engine=self.engine)
 
 
@@ -1146,7 +1152,7 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
         super().__init__(engine=engine, options=mag_list, page=0, title=title)
 
-    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         self.gun.usable_properties.load_gun(item)
@@ -1170,7 +1176,7 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
 
         super().__init__(engine=engine, page=0, title=title, options=ammo_list)
 
-    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         return SelectNumberOfBulletsToLoadHandler(engine=self.engine, magazine=self.magazine, ammo=item)
 
@@ -1182,7 +1188,7 @@ class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
         self.ammo = ammo
         super().__init__(engine=engine, item=ammo, prompt_string="amount to load (leave blank for maximum):")
 
-    def on_option_selected(self):
+    def ev_on_option_selected(self):
         self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
         return MainGameEventHandler(self.engine)
 
@@ -1204,7 +1210,7 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
         super().__init__(engine=engine, options=loadout_items, page=0, title=title)
 
-    def on_option_selected(self, option):
+    def ev_on_option_selected(self, option):
         return MagazineOptionsHandler(engine=self.engine, magazine=option)
 
 
@@ -1214,7 +1220,7 @@ class SelectItemToCraft(UserOptionsWithPages):
         super().__init__(engine=engine, options=list(item_dict.keys()), page=0, title=title)
         self.item_dict = item_dict
 
-    def on_option_selected(self, option):
+    def ev_on_option_selected(self, option):
 
         # dictionary has parts list, can proceed with creating item
         if 'required parts' in list(self.item_dict[option].keys()):
@@ -1405,7 +1411,7 @@ class CraftGun(CraftItem):
         if option.usable_properties.prevents_suppression:
             self.prevent_suppression = True
 
-    def on_option_selected(self, option):
+    def ev_on_option_selected(self, option):
 
         if not option == 'none':
             # sets part in part dict to be the selected part
@@ -1646,7 +1652,7 @@ class ShowParts(UserOptionsWithPages):
 
         super().__init__(engine=engine, options=item.usable_properties.parts.part_list, page=0, title=title)
 
-    def on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         return InspectItemViewer(item=item, engine=self.engine)

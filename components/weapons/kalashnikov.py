@@ -886,6 +886,9 @@ ak = Item(
         compatible_bullet_type='7.62x39',
         velocity_modifier=1.0,
         felt_recoil=1.0,
+        target_acquisition_ap=15,
+        firing_ap_cost=15,
+        ap_distance_cost_modifier=15
     )
 )
 
