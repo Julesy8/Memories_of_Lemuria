@@ -11,7 +11,7 @@ glock17_frame = Item(
     weight=0.155,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Frame',
-                                   is_attachment_point_types=['Picrail Underbarrel',],
+                                   is_attachment_point_types=['Picrail Underbarrel - Short', ],
                                    ),
     description='Standard Glock frame compatible with Glock 17, 17L and 34 slides and barrels'
 )
@@ -28,8 +28,10 @@ glock17_barrel = Item(
     weight=0.11,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
-                                   is_attachment_point_types=['Barrel Thread M13.5x1 LH',],
-                                   compatible_parts={'Glock 17 Slide': ['Glock 17 Slide', 'Glock 17 Custom Slide']},
+                                   is_attachment_point_types=['Barrel Thread M13.5x1 LH', ],
+                                   compatible_parts={'Glock 17 Slide': ['Glock 17 Slide', "Glock 17 Slide w/ Optics Cut",
+                                                                        'Glock 17 Custom Slide']},
+                                   barrel_length=0.37,
                                    ),
     description='Standard Glock 17 barrel'
 )
@@ -42,38 +44,39 @@ glock17l_barrel = Item(
     weight=0.11,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
-                                   velocity_modifier=1.05,
+                                   velocity_modifier=1.035,
                                    is_attachment_point_types=['Barrel Thread M13.5x1 LH', ],
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Slide', 'Glock 17L Custom Slide',
-                                                                        'Glock 17 Slide', 'Glock 17 Custom Slide']},
+                                                                        'Glock 17 Slide', 'Glock 17 Custom Slide',
+                                                                        "Glock 17 Slide w/ Optics Cut",
+                                                                        "Glock 17L Slide w/ Optics Cut"]},
+                                   barrel_length=0.5,
+                                   target_acquisition_ap=1.05,
+                                   equip_time=1.05,
                                    ),
     description='Glock 17L barrel. Longer than the standard Glock 17 barrel'
 )
 
-"""
 glock_9in_barrel = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    bg_colour=None,
     name="9 inch Glock 9mm Barrel",
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
+                                   velocity_modifier=1.08,
                                    is_attachment_point_types=['Barrel Thread M13.5x1 LH', ],
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Slide', 'Glock 17L Custom Slide',
-                                                                        'Glock 17 Slide', 'Glock 17 Custom Slide']},
-                                   base_meat_damage=1.1,
-                                   base_armour_damage=1.1,
-                                   range_accuracy_dropoff=1.1,
-                                   recoil=0.90,
-                                   close_range_accuracy=0.8,
-                                   base_accuracy=1.08,
-                                   sound_radius=0.9,
+                                                                        'Glock 17 Slide', 'Glock 17 Custom Slide',
+                                                                        "Glock 17 Slide w/ Optics Cut",
+                                                                        "Glock 17L Slide w/ Optics Cut"]},
+                                   barrel_length=0.75,
+                                   target_acquisition_ap=1.11,
+                                   equip_time=1.11,
                                    ),
     description='Extra long 9 inch Glock 9mm barrel'
 )
-"""
 
 """
 BARRELS - PORTED
@@ -90,6 +93,7 @@ glock17_barrel_ported = Item(
                                    compatible_parts={'Glock 17 Slide': ['Glock 17 Custom Slide']},
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.7,
+                                   barrel_length=0.37,
                                    ),
     description='Glock 17 barrel with milled cutouts to reduce muzzle climb'
 )
@@ -102,14 +106,17 @@ glock17l_barrel_ported = Item(
     weight=0.1,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
+                                   velocity_modifier=1.035,
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Custom Slide', 'Glock 17 Slide',
                                                                         'Glock 17 Custom Slide']},
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.7,
+                                   barrel_length=0.5,
+                                   target_acquisition_ap=1.05,
+                                   equip_time=1.05
                                    ),
     description='Glock 17L barrel with milled cutouts to reduce muzzle climb'
 )
-
 
 """
 SLIDES
@@ -123,7 +130,6 @@ glock17_slide = Item(
     weight=0.357,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
-                                   is_attachment_point_types=['Dovetail Optics Mount', ],
                                    ),
     description='Glock 17 slide'
 )
@@ -136,10 +142,35 @@ glock17l_slide = Item(
     weight=0.374,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
-                                   is_attachment_point_types=['Dovetail Optics Mount', ],
-                                   accuracy_distribution=1.1,
                                    ),
     description='Glock 17L slide. Longer than the standard Glock 17 slide'
+)
+
+glock17_slide_optic = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Glock 17 Slide w/ Optics Cut",
+    weight=0.357,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Glock 17 Slide',
+                                   is_attachment_point_types=['Pistol Optics Mount', ],
+                                   ),
+    description='Glock 17 slide, machined to allow the mounting of optics such as RMRs'
+)
+
+glock17l_slide_optic = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Glock 17L Slide w/ Optics Cut",
+    weight=0.374,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Glock 17 Slide',
+                                   is_attachment_point_types=['Pistol Optics Mount', ],
+                                   ),
+    description='Glock 17L slide, machined to allow the mounting of optics such as RMRs. Longer than the standard '
+                'Glock 17 slide'
 )
 
 glock17_slide_custom = Item(
@@ -150,9 +181,11 @@ glock17_slide_custom = Item(
     weight=0.17,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
-                                   is_attachment_point_types=['Dovetail Optics Mount', ],
+                                   is_attachment_point_types=['Pistol Optics Mount', ],
+                                   target_acquisition_ap=0.95,
                                    ),
-    description='Custom milled Glock 17 slide, reducing weight and vastly improving aesthetics'
+    description='Custom milled Glock 17 slide, reducing weight and vastly improving aesthetics. '
+                'Machined to allow the mounting of optics such as RMRs'
 )
 
 glock17l_slide_custom = Item(
@@ -163,10 +196,11 @@ glock17l_slide_custom = Item(
     weight=0.17,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
-                                   is_attachment_point_types=['Dovetail Optics Mount', ],
-                                   accuracy_distribution=1.1,
+                                   is_attachment_point_types=['Pistol Optics Mount', ],
+                                   target_acquisition_ap=0.95,
                                    ),
-    description='Custom milled Glock 17L slide, reducing weight and vastly improving aesthetics'
+    description='Custom milled Glock 17L slide, reducing weight and vastly improving aesthetics. '
+                'Machined to allow the mounting of optics such as RMRs'
 )
 
 """
@@ -182,7 +216,7 @@ glock_switch = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Glock Base Plate',
                                    prefix='Automatic',
-                                   fire_modes={'automatic': 1200}, ),
+                                   fire_modes={'automatic': {'fire rate': 1200, 'automatic': True}}, ),
     description='Modifed Glock cover plate enabling automatic fire'
 )
 
@@ -196,7 +230,8 @@ glock_9mm_compensator = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread M13.5x1 LH',),
                                    muzzle_break_efficiency=0.26,
-                                   velocity_modifier=1.04,
+                                   target_acquisition_ap=1.03,
+                                   sound_radius=1.1,
                                    ),
     description='A large compensator for Glock 9mm pistols'
 )
@@ -207,12 +242,14 @@ glock_stock = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="Glock Cobra Stock",
-    weight=0.02,
+    weight=0.328,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock Stock',
                                    felt_recoil=0.79,
-                                   accuracy_distribution=1.1,
-                                   equip_time=2.0,
+                                   equip_time=1.2,
+                                   ap_distance_cost_modifier=0.71,
+                                   spread_modifier=0.9,
+                                   target_acquisition_ap=0.76,
                                    ),
     description='A folding stock for Glock pistols'
 )
@@ -223,15 +260,15 @@ glock_pic_rail = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="Glock Picatinny Sight Mount",
-    weight=0.004,
+    weight=0.056,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock Optics Mount',
-                                   is_attachment_point_types=['Picrail Optics Mount', ],
-                                   additional_required_parts=['Optic', ]
+                                   is_attachment_point_types=['Picrail Optics Mount - Short', ],
+                                   additional_required_parts=['Optic', ],
+                                   receiver_height_above_bore=0.49,
                                    ),
     description='An aftermarket picatinny rail sight mount for Glock handguns'
 )
-
 
 glock_pistol_brace = Item(
     x=0, y=0,
@@ -242,8 +279,10 @@ glock_pistol_brace = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Glock Stock',
                                    felt_recoil=0.83,
-                                   accuracy_distribution=1.06,
-                                   equip_time=1.4,
+                                   equip_time=1.14,
+                                   ap_distance_cost_modifier=0.76,
+                                   spread_modifier=0.94,
+                                   target_acquisition_ap=0.71,
                                    ),
     description='Collapsing pistol brace for Glock handguns designed by Flux Defense'
 )
@@ -259,7 +298,8 @@ suppressor_surefire_9mm = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread M13.5x1 LH',),
                                    muzzle_break_efficiency=0.4,
-                                   velocity_modifier=1.06,
+                                   target_acquisition_ap=1.04,
+                                   fire_rate_modifier=1.1,
                                    is_suppressor=True,
                                    sound_radius=0.3,
                                    ),
@@ -279,21 +319,23 @@ glock_17 = Item(
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
-        equip_time=1,
-        fire_modes={'single shot': 1},
+        ap_to_equip=75,
+        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
+                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
         current_fire_mode='single shot',
         parts=Parts(),
         velocity_modifier=1.0,
-        enemy_attack_range=16,
         compatible_bullet_type='9mm',
-        felt_recoil=1.0,
-        barrel_length=7,
-        sight_height_above_bore=0.2,
+        felt_recoil=1.1,
+        barrel_length=0,
+        receiver_height_above_bore=0.46,
+        sight_height_above_bore=0.08,
         sound_modifier=1.0,
         zero_range=25,
-        target_acquisition_ap=15,
-        firing_ap_cost=15,
-        ap_distance_cost_modifier=15
+        target_acquisition_ap=30,
+        firing_ap_cost=20,
+        ap_distance_cost_modifier=1.0,
+        spread_modifier=0.055,
     )
 )
 

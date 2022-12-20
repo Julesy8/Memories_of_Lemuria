@@ -73,6 +73,13 @@ handguard_akm = Item(
     weight=0.144,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.82,
+                                       ap_distance_cost_modifier=0.91,
+                                       spread_modifier=0.9,
+                                       target_acquisition_ap=0.8,
+                                   ),
                                    ),
     description='A wooden AKM-style hand guard'
 )
@@ -85,8 +92,13 @@ handguard_amd65 = Item(
     weight=0.284,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   felt_recoil=0.98,
-                                   accuracy_distribution=1.05,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.79,
+                                       ap_distance_cost_modifier=0.95,
+                                       spread_modifier=0.93,
+                                       target_acquisition_ap=0.87,
+                                   ),
                                    ),
     description='AMD-65 steel AK hand guard with vertical grip'
 )
@@ -99,6 +111,13 @@ handguard_ak74 = Item(
     weight=0.273,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.86,
+                                       ap_distance_cost_modifier=0.9,
+                                       spread_modifier=0.89,
+                                       target_acquisition_ap=0.78,
+                                   ),
                                    ),
     description='Polymer hand guard such as that of the AK-74 and the AK-100 series'
 )
@@ -111,8 +130,13 @@ handguard_romanian = Item(
     weight=0.23,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   felt_recoil=0.97,
-                                   accuracy_distribution=1.03,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.81,
+                                       ap_distance_cost_modifier=0.93,
+                                       spread_modifier=0.92,
+                                       target_acquisition_ap=0.89,
+                                   ),
                                    ),
     description="A wooden hand guard featuring the signature romanian-style verticle grip"
 )
@@ -140,7 +164,14 @@ handguard_ak100 = Item(
     weight=0.27,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   is_attachment_point_types=['Picrail Underbarrel', ],
+                                   is_attachment_point_types=['Picrail Underbarrel - Long', ],
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.86,
+                                       ap_distance_cost_modifier=0.9,
+                                       spread_modifier=0.9,
+                                       target_acquisition_ap=0.79,
+                                   ),
                                    ),
     description="A polymer AK hand guard featuring picatinny rails on the underside"
 )
@@ -153,10 +184,16 @@ handguard_B10M = Item(
     weight=0.27,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   is_attachment_point_types=['Picrail Underbarrel',
-                                                              'Picrail Optics Mount',
-                                                              'Picrail Side Mount'],
-                                   accuracy_distribution=0.96,
+                                   is_attachment_point_types=['Picrail Underbarrel - Long',
+                                                              'Picrail Top Mount - Long',
+                                                              'Picrail Side Mount - Long'],
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.82,
+                                       ap_distance_cost_modifier=0.93,
+                                       spread_modifier=0.92,
+                                       target_acquisition_ap=0.78,
+                                   ),
                                    ),
     description='An aftermarket AK hand guard by Zenitco, featuring picatinny rails on all sides'
 )
@@ -169,15 +206,21 @@ handguard_leader = Item(
     weight=0.385,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   is_attachment_point_types=['MLOK Underbarrel',
-                                                              'MLOK Optics Mount',
-                                                              'MLOK Side Mount'],
+                                   is_attachment_point_types=['MLOK Underbarrel - Long',
+                                                              'MLOK Top Mount - Long',  # todo - ability to mount optics without conflicting
+                                                              'MLOK Side Mount - Long'],
                                    compatible_parts={'AK Barrel': ["AK Barrel - 7.62x39",
                                                                    "AK Barrel - 5.45x39",
                                                                    "AK Barrel - 5.56x45",
                                                                    "RPK Barrel - 7.62x39",
                                                                    "RPK-74 Barrel - 5.45x39",]},
-                                   accuracy_distribution=1.04,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.87,
+                                       ap_distance_cost_modifier=0.88,
+                                       spread_modifier=0.87,
+                                       target_acquisition_ap=0.78,
+                                   ),
                                    ),
     description='An aftermarket light weight long AK hand guard by Zenitco with MLOK rail attachment points'
 )
@@ -190,8 +233,14 @@ handguard_magpul = Item(
     weight=0.415,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   is_attachment_point_types=['MLOK Underbarrel',],
-                                   accuracy_distribution=1.07,
+                                   is_attachment_point_types=['MLOK Underbarrel - Long',],
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.83,
+                                       ap_distance_cost_modifier=0.9,
+                                       spread_modifier=0.9,
+                                       target_acquisition_ap=0.8,
+                                   ),
                                    ),
     description='An aftermarket light weight polymer hand guard by Magpul with attachment points on its underside'
 )
@@ -208,9 +257,11 @@ stock_akm = Item(
     weight=0.364,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.7,
-                                   accuracy_distribution=1.08,
-                                   ideal_range=15,
+                                   felt_recoil=0.53,
+                                   ap_distance_cost_modifier=0.72,
+                                   spread_modifier=0.89,
+                                   equip_time=1.2,
+                                   target_acquisition_ap=0.75,
                                    ),
     description='A wooden AKM-style stock'
 )
@@ -223,9 +274,11 @@ stock_rpk = Item(
     weight=0.88,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.56,
-                                   accuracy_distribution=0.8,
-                                   ideal_range=12,
+                                   felt_recoil=0.49,
+                                   ap_distance_cost_modifier=0.75,
+                                   spread_modifier=0.81,
+                                   equip_time=1.3,
+                                   target_acquisition_ap=0.81,
                                    ),
     description='An RPK style stock fitting AK type rifles'
 )
@@ -238,9 +291,11 @@ stock_ak74 = Item(
     weight=0.273,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.7,
-                                   accuracy_distribution=1.08,
-                                   ideal_range=15,
+                                   felt_recoil=0.55,
+                                   ap_distance_cost_modifier=0.71,
+                                   spread_modifier=0.86,
+                                   equip_time=1.16,
+                                   target_acquisition_ap=0.75,
                                    ),
     description='A polymer AK-74 style stock'
 )
@@ -253,8 +308,11 @@ stock_ak100 = Item(
     weight=0.273,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.73,
-                                   ideal_range=15,
+                                   felt_recoil=0.56,
+                                   ap_distance_cost_modifier=0.71,
+                                   spread_modifier=0.88,
+                                   equip_time=1.1,
+                                   target_acquisition_ap=0.73,
                                    ),
     description='A polymer folding stock made for the 100 series of AK rifles'
 )
@@ -267,9 +325,11 @@ stock_ak_underfolder = Item(
     weight=0.564,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.8,
-                                   accuracy_distribution=0.94,
-                                   ideal_range=10,
+                                   felt_recoil=0.78,
+                                   ap_distance_cost_modifier=0.76,
+                                   spread_modifier=0.92,
+                                   equip_time=1.09,
+                                   target_acquisition_ap=0.69,
                                    ),
     description='A metal underfolding stock for AK type rifles such as the AKM-S'
 )
@@ -282,9 +342,11 @@ stock_ak_triangle = Item(
     weight=0.45,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.68,
-                                   accuracy_distribution=0.98,
-                                   ideal_range=12,
+                                   felt_recoil=0.78,
+                                   ap_distance_cost_modifier=0.75,
+                                   spread_modifier=0.9,
+                                   equip_time=1.1,
+                                   target_acquisition_ap=0.71,
                                    ),
     description='An almuninium ZPAP style side folding stock for AK type rifles'
 )
@@ -297,9 +359,11 @@ stock_ak12 = Item(
     weight=0.272,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.6,
-                                   accuracy_distribution=1.13,
-                                   ideal_range=15,
+                                   felt_recoil=0.61,
+                                   ap_distance_cost_modifier=0.77,
+                                   spread_modifier=0.9,
+                                   equip_time=1.15,
+                                   target_acquisition_ap=0.7,
                                    ),
     description='A telescoping and folding polymer stock designed for the 2016 iteration of the AK-12'
 )
@@ -312,9 +376,11 @@ stock_amd65 = Item(
     weight=0.38,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.82,
-                                   accuracy_distribution=0.9,
-                                   ideal_range=12,
+                                   felt_recoil=0.78,
+                                   ap_distance_cost_modifier=0.76,
+                                   spread_modifier=0.92,
+                                   equip_time=1.02,
+                                   target_acquisition_ap=0.69,
                                    ),
     description='A wire sidefolding stock for the AMD-65'
 )
@@ -327,9 +393,11 @@ stock_pt1 = Item(
     weight=0.48,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.64,
-                                   accuracy_distribution=1.2,
-                                   ideal_range=10,
+                                   equip_time=1.19,
+                                   felt_recoil=0.69,
+                                   ap_distance_cost_modifier=0.71,
+                                   spread_modifier=0.84,
+                                   target_acquisition_ap=0.76,
                                    ),
     description='An aftermarket telescopic sidefolding stock for AK rifles manufactured by Zenitco'
 )
@@ -342,9 +410,11 @@ stock_moe = Item(
     weight=0.354,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.64,
-                                   accuracy_distribution=1.12,
-                                   ideal_range=15,
+                                   equip_time=1.2,
+                                   felt_recoil=0.56,
+                                   ap_distance_cost_modifier=0.71,
+                                   spread_modifier=0.84,
+                                   target_acquisition_ap=0.73,
                                    ),
     description='An aftermarket polymer fixed stock for AK rifles manufactured by Magpul'
 )
@@ -357,9 +427,11 @@ stock_zhukov = Item(
     weight=0.421,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   felt_recoil=0.62,
-                                   accuracy_distribution=1.08,
-                                   ideal_range=15,
+                                   equip_time=1.14,
+                                   felt_recoil=0.59,
+                                   ap_distance_cost_modifier=0.68,
+                                   spread_modifier=0.85,
+                                   target_acquisition_ap=0.71,
                                    ),
     description='An aftermarket polymer folding stock for AK rifles manufactured by Magpul'
 )
@@ -386,6 +458,10 @@ barrel_ak762 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   sound_radius=1.1,
+                                   barrel_length=1.36,
+                                   target_acquisition_ap=0.96,
+                                   equip_time=0.9,
                                    ),
     description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 7.62x39"
 )
@@ -409,6 +485,10 @@ barrel_ak545 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    velocity_modifier=1.082,
+                                   sound_radius=1.1,
+                                   barrel_length=1.36,
+                                   target_acquisition_ap=0.96,
+                                   equip_time=0.9,
                                    ),
     description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 5.45x39"
 )
@@ -432,6 +512,10 @@ barrel_ak556 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    velocity_modifier=1.082,
+                                   sound_radius=1.1,
+                                   barrel_length=1.36,
+                                   target_acquisition_ap=0.96,
+                                   equip_time=0.9,
                                    ),
     description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 5.56x45 such as that of the AK-101"
 )
@@ -454,9 +538,11 @@ barrel_rpk762 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   ideal_range=1.3,
-                                   accuracy_distribution=0.84,
                                    velocity_modifier=1.066,
+                                   sound_radius=0.9,
+                                   barrel_length=1.93,
+                                   target_acquisition_ap=1.04,
+                                   equip_time=1.13,
                                    ),
     description="A longer (23.2 inch), heavier AK barrel assembly intended for the RPK, chambered in 7.62x39"
 )
@@ -479,9 +565,11 @@ barrel_rpk545 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   ideal_range=1.3,
-                                   accuracy_distribution=0.84,
                                    velocity_modifier=1.056,
+                                   sound_radius=0.9,
+                                   barrel_length=1.93,
+                                   target_acquisition_ap=1.04,
+                                   equip_time=1.13,
                                    ),
     description="A longer (23.2 inch), heavier AK barrel assembly intended for the RPK-74, chambered in 5.45x39"
 )
@@ -504,9 +592,11 @@ barrel_ak762_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   ideal_range=0.8,
-                                   accuracy_distribution=1.3,
                                    velocity_modifier=0.91,
+                                   sound_radius=1.2,
+                                   barrel_length=1.03,
+                                   target_acquisition_ap=0.95,
+                                   equip_time=0.79,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 7.62x39 such as that of "
                 "the AK-104"
@@ -530,9 +620,11 @@ barrel_ak545_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   ideal_range=0.8,
-                                   accuracy_distribution=1.3,
                                    velocity_modifier=0.81,
+                                   sound_radius=1.2,
+                                   barrel_length=1.03,
+                                   target_acquisition_ap=0.95,
+                                   equip_time=0.79,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.45x39 such as that of "
                 "the AK-105"
@@ -556,9 +648,11 @@ barrel_ak556_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   ideal_range=0.8,
-                                   accuracy_distribution=1.3,
                                    velocity_modifier=0.95,
+                                   sound_radius=1.2,
+                                   barrel_length=1.03,
+                                   target_acquisition_ap=0.95,
+                                   equip_time=0.79,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.56x39 such as that of "
                 "the AK-102"
@@ -576,6 +670,8 @@ grip_akm = Item(
     weight=0.08,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
+                                   felt_recoil=0.91,
+                                   target_acquisition_ap=0.95,
                                    ),
     description="AK pistol grip"
 )
@@ -588,7 +684,8 @@ grip_ak12 = Item(
     weight=0.05,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.03,
+                                   felt_recoil=0.91,
+                                   spread_modifier=0.95,
                                    ),
     description="AK-12 2016 model pistol grip"
 )
@@ -602,7 +699,10 @@ grip_sniper = Item(
     weight=0.15,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.06,
+                                   felt_recoil=0.9,
+                                   target_acquisition_ap=1.06,
+                                   spread_modifier=0.94,
+                                   ap_distance_cost_modifier=0.93,
                                    ),
     description="Ergonomic AK pistol grip featuring a palm shelf manufactured by Custom Arms"
 )
@@ -615,7 +715,8 @@ grip_moe = Item(
     weight=0.08,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.02,
+                                   felt_recoil=0.9,
+                                   target_acquisition_ap=0.95,
                                    ),
     description="Polymer AK grip manufactured by Magpul"
 )
@@ -628,7 +729,9 @@ grip_rk3 = Item(
     weight=0.225,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.04,
+                                   target_acquisition_ap=0.98,
+                                   felt_recoil=0.92,
+                                   spread_modifier=0.96,
                                    ),
     description="Polymer AK grip manufactured by Zenitco"
 )
@@ -641,7 +744,9 @@ grip_tapco = Item(
     weight=0.13,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.05,
+                                   target_acquisition_ap=1.03,
+                                   felt_recoil=0.88,
+                                   spread_modifier=0.97,
                                    ),
     description="Polymer AK grip modelled after the SAW pistol grip manufactured by Tapco"
 )
@@ -654,7 +759,8 @@ grip_skeletonised = Item(
     weight=0.038,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.02
+                                   target_acquisition_ap=0.92,
+                                   felt_recoil=0.93,
                                    ),
     description="Aluminium skeletonised AK grip manufactured by NDZ"
 )
@@ -667,7 +773,8 @@ grip_hogue = Item(
     weight=0.08,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.05,
+                                   felt_recoil=0.88,
+                                   target_acquisition_ap=0.98,
                                    ),
     description="A large rubberised AK grip manufactured by Hogue"
 )
@@ -680,7 +787,10 @@ grip_fab = Item(
     weight=0.12,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
-                                   accuracy_distribution=1.06,
+                                   felt_recoil=0.94,
+                                   target_acquisition_ap=0.97,
+                                   spread_modifier=0.96,
+                                   ap_distance_cost_modifier=0.98,
                                    ),
     description="A rubberised AK grip by FAB Defense"
 )
@@ -699,8 +809,9 @@ muzzle_ak74 = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 24x1.5',),
                                    muzzle_break_efficiency=0.38,
-                                   accuracy_distribution=0.97,
-                                   velocity_modifier=1.05,
+                                   target_acquisition_ap=1.02,
+                                   spread_modifier=1.02,
+                                   sound_radius=1.1,
                                    ),
     description="A compensator/muzzle brake designed for the AK-74 fitting 5.45x39 AK rifles"
 )
@@ -715,8 +826,9 @@ muzzle_dtk = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 24x1.5',),
                                    muzzle_break_efficiency=0.2,
-                                   accuracy_distribution=0.95,
-                                   velocity_modifier=1.08,
+                                   target_acquisition_ap=1.04,
+                                   spread_modifier=1.03,
+                                   sound_radius=1.2,
                                    ),
     description="A muzzle brake/compensator fitting 5.45x49 AK rifles by Zenitco"
 )
@@ -731,6 +843,7 @@ muzzle_akm = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 14x1',),
                                    muzzle_break_efficiency=0.7,
+                                   sound_radius=1.05,
                                    ),
     description="A muzzle brake/compensator made for the AKM fitting 7.62x39 AK rifles"
 )
@@ -745,8 +858,9 @@ muzzle_akml = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 14x1',),
                                    muzzle_break_efficiency=0.66,
-                                   accuracy_distribution=0.98,
-                                   velocity_modifier=1.1,
+                                   target_acquisition_ap=1.02,
+                                   spread_modifier=1.01,
+                                   sound_radius=1.09,
                                    ),
     description="Flash hider and muzzle brake for 7.62x39 AK rifles"
 )
@@ -755,14 +869,15 @@ muzzle_lantac = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    name="AK Drakon Compensator",
+    name="AK Dragon Compensator",
     weight=0.09,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 14x1',),
                                    muzzle_break_efficiency=0.16,
-                                   accuracy_distribution=0.9,
-                                   velocity_modifier=1.06,
+                                   target_acquisition_ap=1.05,
+                                   spread_modifier=1.05,
+                                   sound_radius=1.14,
                                    ),
     description="Compensator and muzzle brake fitting 7.62x39 AK rifles manufactured by Lantac"
 )
@@ -777,8 +892,8 @@ muzzle_pbs4 = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 24x1.5',),
                                    muzzle_break_efficiency=0.3,
-                                   accuracy_distribution=0.85,
-                                   velocity_modifier=1.1,
+                                   target_acquisition_ap=1.07,
+                                   fire_rate_modifier=1.12,
                                    is_suppressor=True,
                                    sound_radius=0.25,
                                    ),
@@ -795,9 +910,10 @@ muzzle_pbs1 = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 14x1',),
                                    muzzle_break_efficiency=0.36,
-                                   accuracy_distribution=0.92,
-                                   velocity_modifier=1.07,
+                                   target_acquisition_ap=1.05,
+                                   fire_rate_modifier=1.09,
                                    sound_radius=0.3,
+                                   is_suppressor=True,
                                    ),
     description="Sound suppressor designed for 7.62x39 AK types rifles"
 )
@@ -812,8 +928,9 @@ muzzle_dynacomp = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 14x1',),
                                    muzzle_break_efficiency=0.25,
-                                   accuracy_distribution=0.96,
-                                   velocity_modifier=1.05,
+                                   target_acquisition_ap=1.06,
+                                   spread_modifier=1.07,
+                                   sound_radius=1.25,
                                    ),
     description="Compensator and muzzle brake designed for AK rifles manufactured by Spikes Tactical"
 )
@@ -830,8 +947,9 @@ accessory_dustcoverrail = Item(
     weight=0.01,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Optics Mount',
-                                   is_attachment_point_types=['Picrail Optics Mount',],
+                                   is_attachment_point_types=['Picrail Optics Mount - Long',],
                                    additional_required_parts=('Optic',),
+                                   receiver_height_above_bore=0.1,
                                    ),
     description="An AK dust cover featuring a picatinny rail for optics mounting"
 )
@@ -844,8 +962,9 @@ accessory_railsidemount = Item(
     weight=0.175,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Optics Mount',
-                                   is_attachment_point_types=['Picrail Optics Mount',],
+                                   is_attachment_point_types=['Picrail Optics Mount - Short',],
                                    additional_required_parts=('Optic',),
+                                   receiver_height_above_bore=0.1,
                                    ),
     description="A side mounted AK picatinny rail for optics mounting"
 )
@@ -878,17 +997,24 @@ ak = Item(
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
-        equip_time=2,
-        fire_modes={'single shot': 1, 'rapid fire (semi-auto)': 3, 'automatic': 600},
+        ap_to_equip=80,
+        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
+                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False},
+                    'automatic': {'fire rate': 600, 'automatic': True}},
         current_fire_mode='single shot',
         parts=Parts(),
-        enemy_attack_range=20,
         compatible_bullet_type='7.62x39',
         velocity_modifier=1.0,
         felt_recoil=1.0,
-        target_acquisition_ap=15,
+        target_acquisition_ap=50,
         firing_ap_cost=15,
-        ap_distance_cost_modifier=15
+        ap_distance_cost_modifier=1.0,
+        sound_modifier=1.0,
+        barrel_length=1.36,
+        zero_range=25,
+        receiver_height_above_bore=1.5,
+        sight_height_above_bore=0.31,
+        spread_modifier=0.052
     )
 )
 

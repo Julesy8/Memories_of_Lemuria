@@ -131,7 +131,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
         fighter = self.entity.fighter
         ap_cost = round(fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
 
-        # check if adeqaute AP
+        # check if adequate AP
         if fighter.ap >= ap_cost or self.queued:
 
             # subtracts AP cost
@@ -211,23 +211,59 @@ class WeaponAttackAction(AttackAction):
 
         fighter = self.entity.fighter
 
-        # calculates AP cost
-
         weapon_type = type(self.item.usable_properties).__name__
 
         ap_cost = 0
 
-        if weapon_type == 'Gun':
+        # AP cost calculations
+        if weapon_type == 'GunMagFed' or weapon_type == 'GunIntegratedMag':
+
+            gun = self.item.usable_properties
+
+            target_acquisition_ap = gun.target_acquisition_ap
+            ap_distance_cost_modifier = gun.ap_distance_cost_modifier
+
+            # alters attributes according to magazine properties
+            if weapon_type == 'GunMagFed':
+                if hasattr(self.item.usable_properties, 'loaded_magazine'):
+                    target_acquisition_ap *= getattr(self.item.usable_properties.loaded_magazine,
+                                                     'target_acquisition_ap_mod')
+                    ap_distance_cost_modifier *= getattr(self.item.usable_properties.loaded_magazine,
+                                                         'ap_distance_cost_mod')
 
             # adds cost of firing (pulling trigger)
-            ap_cost += self.item.usable_properties.firing_ap_cost
+            ap_cost += gun.firing_ap_cost
 
             # ap cost for the given distance to the target
-            ap_cost += self.item.usable_properties.ap_distance_cost_modifier * self.distance
+            ap_cost += ap_distance_cost_modifier * self.distance
 
             # if previous actor is different from the current target, adds cost of acquiring new target
             if self.entity.previous_target_actor == self.entity.target_actor:
-                ap_cost += self.item.usable_properties.target_acquisition_ap
+                ap_cost += target_acquisition_ap
+
+            # AP cost for the duration of fully automatic fire
+            if gun.fire_modes[gun.current_fire_mode]['automatic']:
+                rounds_to_fire = round(gun.fire_modes[gun.current_fire_mode]['fire rate'] / 60
+                                       * gun.fire_rate_modifier * fighter.automatic_fire_duration)
+
+                rounds_in_mag = 0
+
+                # determines rounds remaining in magazine
+                if weapon_type == 'GunMagFed':
+                    rounds_in_mag = len(gun.loaded_magazine.magazine)
+                elif weapon_type == 'GunIntegratedMag':
+                    rounds_in_mag = len(gun.magazine)
+
+                # if less rounds in magazine than rounds fired in the given duration of automatic fire, AP cost of
+                # firing adjusted to amount of time it takes to fire remaining rounds in magazine
+                if rounds_to_fire > rounds_in_mag:
+                    # time (and therefore AP) it takes to fire the given amount of rounds
+                    time_to_fire = fighter.automatic_fire_duration
+                else:
+                    time_to_fire = rounds_in_mag / round((gun.fire_modes[gun.current_fire_mode]['fire rate']
+                                                          / 60 * gun.fire_rate_modifier))
+
+                ap_cost += round(time_to_fire * 100)
 
         # melee weapon
         else:
@@ -241,7 +277,7 @@ class WeaponAttackAction(AttackAction):
                 fighter.ap -= ap_cost
 
             # firearm attack
-            if weapon_type == 'Gun':
+            if weapon_type == 'GunMagFed' or weapon_type == 'GunIntegratedMag':
 
                 # calculate hit location on body
                 standard_deviation = 0.1 * self.distance
@@ -306,6 +342,7 @@ class WeaponAttackAction(AttackAction):
                 self.entity.ai.turns_until_action = turns_to_skip
 
 
+# reloads guns for non-player AI
 class ReloadAction(Action):
 
     def __init__(self, entity: Actor, gun: Item):
@@ -317,24 +354,34 @@ class ReloadAction(Action):
 
     def perform(self) -> None:
 
-        # gun mag fed
+        # gun mag fedR
         if hasattr(self.gun.usable_properties, 'loaded_magazine'):
             self.gun.usable_properties.load_gun(magazine=self.gun.usable_properties.previously_loaded_magazine)
 
+            reload_ap = self.gun.usable_properties.previously_loaded_magazine.usable_properties.ap_to_load * \
+                        self.entity.fighter.action_ap_modifier * self.gun.usable_properties.load_time_modifier
+
+            if reload_ap >= 100:
+                self.entity.ai.turns_until_action = round(reload_ap / 100)
+                self.entity.fighter.ap -= reload_ap % 100
+            else:
+                self.entity.fighter.ap -= reload_ap
+
             self.entity.ai.turns_until_action = \
-                (self.gun.usable_properties.previously_loaded_magazine.usable_properties.turns_to_load *
-                 self.entity.fighter.attack_ap_modifier)
+                (self.gun.usable_properties.previously_loaded_magazine.usable_properties.ap_to_load *
+                 self.entity.fighter.action_ap_modifier)
 
         # gun internal mag
         else:
             self.gun.usable_properties.load_magazine(ammo=self.gun.usable_properties.previously_loaded_round,
                                                      load_amount=self.gun.usable_properties.mag_capacity)
 
-            # TODO: enemy reloads when capacity under half and player not visible
+            ammo = self.gun.usable_properties.previously_loaded_round
 
             # entity attack inactive and fleeing for given reload period
             self.entity.ai.turns_until_action = round(self.gun.usable_properties.mag_capacity *
-                                                      self.entity.fighter.attack_ap_modifier)
+                                                      self.entity.fighter.action_ap_modifier *
+                                                      ammo.usable_properties.load_time_modifier)
 
 
 class MovementAction(ActionWithDirection):

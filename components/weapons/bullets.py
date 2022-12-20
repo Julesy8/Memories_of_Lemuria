@@ -503,7 +503,7 @@ round_45_200_swc_pp = Item(
     name='45 ACP - 200gr Jacketed SWC +P',
     weight=0.015,
     stacking=Stacking(stack_size=10),
-    description=' Overpressure45 Automatic 200gr copper jacketed semi wad cutter ammunition',
+    description='Overpressure 45 Automatic 200gr copper jacketed semi wad cutter ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
         mass=200,

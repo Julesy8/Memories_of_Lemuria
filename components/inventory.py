@@ -18,6 +18,9 @@ class Inventory(BaseComponent):
         self.items: List[Item] = []
         self.held = None
 
+        self.primary_weapon = None
+        self.secondary_weapon = None
+
         self.small_mag_capacity = 3
         self.medium_mag_capacity = 3
         self.large_mag_capacity = 3

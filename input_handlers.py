@@ -153,7 +153,6 @@ class EventHandler(BaseEventHandler):
                 self.engine.message_log.add_message(exc.args[0], colour.RED)
             return False  # Skip enemy turn on exceptions.
 
-        # TODO - ensure correct amount of enemy turns is being handled - put print statement in handle_enemy_turns to figure out
         self.engine.handle_enemy_turns()
 
         self.engine.update_fov()
@@ -210,6 +209,8 @@ class MainGameEventHandler(EventHandler):
             return InventoryEventHandler(self.engine)
         elif key == tcod.event.K_e:
             return EquipmentEventHandler(self.engine)
+        elif key == tcod.event.K_s:
+            return AttackStyleMenu(self.engine)
         # No valid key was pressed
         return action
 
@@ -1235,7 +1236,6 @@ class SelectItemToCraft(UserOptionsWithPages):
             for part in parts:
                 part_dict[part] = None
 
-            # TODO: extend for other item types
             if isinstance(self.item_dict[option]["item"].usable_properties, Gun):
                 return CraftGun(engine=self.engine, item_to_craft=option, current_part_index=0,
                                 item_dict=self.item_dict,
@@ -1504,7 +1504,7 @@ class InspectItemViewer(AskUserEventHandler):
 
             # weapon
             "maximum range": 'maximum_range',
-            "equip turns": 'equip_time',
+            "equip turns": 'ap_to_equip',
 
             # melee weapon
             "base damage": 'base_meat_damage',
@@ -1528,20 +1528,23 @@ class InspectItemViewer(AskUserEventHandler):
             "magazine size": 'magazine_size',
             "magazine capacity": 'mag_capacity',
             "compatible round": 'compatible_bullet_type',
-            "turns to load": 'turns_to_load',
+            "turns to load": 'ap_to_load',
 
             # gun
-            "AP cost to use": 'base_ap_cost',
             "felt recoil": 'felt_recoil',
             "reload time modifier": 'load_time_modifier',
             "fire rate modifier": 'fire_rate_modifier',
             "barrel length": 'barrel_length',
             "zero range": 'zero_range',
             "sight height over bore": 'sight_height_above_bore',
+            "receiver height above bore": 'receiver_height_above_bore',
+            "AP cost distance modifier": 'ap_distance_cost_modifier',
+            "target acquisition AP cost": 'target_acquisition_ap',
+            "AP cost to fire": 'firing_ap_cost',
             "muzzle break efficiency": 'muzzle_break_efficiency',
             "shot sound modifier": 'sound_modifier',
             "bullet velocity modifier": 'velocity_modifier',
-            "sound radius modifier": 'sound_modifier',
+            "bullet spread": 'spread_modifier',
 
             # mag fed
             "compatible magazine": 'compatible_magazine_type',
@@ -1563,8 +1566,6 @@ class InspectItemViewer(AskUserEventHandler):
             "requires additional parts": 'additional_required_parts',
             "requires attachment point": 'attachment_point_required',
         }
-
-        # TODO: make sure works for gun components
 
         for key, value in additonal_info.items():
             if hasattr(item.usable_properties, value):
@@ -1656,3 +1657,28 @@ class ShowParts(UserOptionsWithPages):
         """Called when the user selects a valid item."""
 
         return InspectItemViewer(item=item, engine=self.engine)
+
+
+class AttackStyleMenu(UserOptionsEventHandler):
+
+    def __init__(self, engine: Engine):
+
+        title = "Change Attack Style"
+        options = ['Precise', 'Measured', 'Close Quarters']
+
+        super().__init__(engine=engine, options=options, title=title)
+
+    def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+        player = self.engine.player
+
+        if option == 'Precise':
+            player.fighter.attack_style_precision()
+
+        elif option == 'Measured':
+            player.fighter.attack_style_measured()
+
+        elif option == 'Close Quarters':
+            player.fighter.attack_style_cqc()
+
+        return MainGameEventHandler(engine=self.engine)

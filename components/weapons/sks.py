@@ -15,8 +15,18 @@ stock_sks = Item(
     weight=0.70,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   felt_recoil=0.76,
-                                   ),
+                                   felt_recoil=0.5,
+                                   ap_distance_cost_modifier=0.73,
+                                   spread_modifier=0.88,
+                                   target_acquisition_ap=0.83,
+                                   equip_time=1.25,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.87,
+                                       ap_distance_cost_modifier=0.88,
+                                       spread_modifier=0.89,
+                                       target_acquisition_ap=0.82,
+                                   )),
     description='Wood SKS rifle stock'
 )
 
@@ -29,10 +39,22 @@ stock_sks_tapco = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
                                    compatible_magazine_type='AK 7.62x39',
-                                   is_attachment_point_types=['Picrail Underbarrel', 'Picrail Optics Mount'],
+                                   is_attachment_point_types=['Picrail Underbarrel - Long',
+                                                              'Picrail Optics Mount - Long'],
+                                   receiver_height_above_bore=0.079,
                                    additional_required_parts=('AR Stock',),
-                                   accuracy_distribution=0.90,
-                                   ),
+                                   felt_recoil=0.46,
+                                   ap_distance_cost_modifier=0.75,
+                                   spread_modifier=0.85,
+                                   target_acquisition_ap=0.87,
+                                   equip_time=1.3,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.83,
+                                       ap_distance_cost_modifier=0.9,
+                                       spread_modifier=0.9,
+                                       target_acquisition_ap=0.77,
+                                   )),
     description='A polymer rifle stock for the SKS by TAPCO, including a AR-15 stock adapter'
 )
 
@@ -45,9 +67,18 @@ stock_sks_dragunov = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
                                    compatible_magazine_type='AK 7.62x39',
-                                   accuracy_distribution=0.95,
-                                   felt_recoil=0.7,
-                                   ),
+                                   felt_recoil=0.48,
+                                   ap_distance_cost_modifier=0.69,
+                                   spread_modifier=0.83,
+                                   target_acquisition_ap=0.9,
+                                   equip_time=1.3,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.85,
+                                       ap_distance_cost_modifier=0.89,
+                                       spread_modifier=0.88,
+                                       target_acquisition_ap=0.79,
+                                   )),
     description='A polymer Dragunov rifle style stock for the SKS'
 )
 
@@ -60,10 +91,23 @@ stock_sks_fab = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
                                    compatible_magazine_type='AK 7.62x39',
-                                   is_attachment_point_types=['Picrail Underbarrel', 'Picrail Optics Mount'],
+                                   is_attachment_point_types=['Picrail Underbarrel - Short',
+                                                              'Picrail Optics Mount - Long',
+                                                              'Picrail Side Mount - Short'],
                                    additional_required_parts=('AR Stock',),
-                                   accuracy_distribution=0.86,
-                                   ),
+                                   receiver_height_above_bore=0.079,
+                                   felt_recoil=0.52,
+                                   ap_distance_cost_modifier=0.72,
+                                   spread_modifier=0.81,
+                                   target_acquisition_ap=0.84,
+                                   equip_time=1.25,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.84,
+                                       ap_distance_cost_modifier=0.92,
+                                       spread_modifier=0.87,
+                                       target_acquisition_ap=0.78,
+                                   )),
     description='A light weight tactical polymer stock for the SKS, including a folding AR-15 stock adapter'
 )
 
@@ -76,12 +120,20 @@ stock_sks_sabertooth = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
                                    compatible_magazine_type='AK 7.62x39',
-                                   is_attachment_point_types=['Picrail Underbarrel', 'Picrail Optics Mount',
-                                                              'Picrail Side Mount'],
+                                   is_attachment_point_types=['Picrail Underbarrel - Long',
+                                                              'Picrail Optics Mount - Long',
+                                                              'Picrail Side Mount - Long'],
                                    additional_required_parts=('AR Stock', 'AR Grip'),
-                                   accuracy_distribution=0.90,
-                                   ),
-    description='A polymer assualt rifle style stock for the SKS, including a AR-15 stock adapter'
+                                   receiver_height_above_bore=0.079,
+                                   equip_time=1.1,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.88,
+                                       ap_distance_cost_modifier=0.92,
+                                       spread_modifier=0.88,
+                                       target_acquisition_ap=0.78,
+                                   )),
+    description='A polymer assault rifle style stock for the SKS, including a AR-15 stock adapter'
 )
 
 stock_sks_bullpup = Item(
@@ -93,12 +145,24 @@ stock_sks_bullpup = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
                                    compatible_magazine_type='AK 7.62x39',
-                                   is_attachment_point_types=['Picrail Underbarrel', 'Picrail Optics Mount',
-                                                              'Picrail Side Mount'],
+                                   is_attachment_point_types=['Picrail Underbarrel - Long',
+                                                              'Picrail Optics Mount - Long',
+                                                              'Picrail Side Mount - Long'],
                                    additional_required_parts=('AR Stock', 'AR Grip', 'Optic'),
-                                   accuracy_distribution=1.12,
-                                   ),
-    description='A polymer assualt rifle style stock for the SKS, including a AR-15 stock adapter'
+                                   receiver_height_above_bore=0.079,
+                                   felt_recoil=0.51,
+                                   ap_distance_cost_modifier=0.71,
+                                   spread_modifier=0.79,
+                                   target_acquisition_ap=0.81,
+                                   equip_time=1.05,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.85,
+                                       ap_distance_cost_modifier=0.9,
+                                       spread_modifier=0.9,
+                                       target_acquisition_ap=0.8,
+                                   )),
+    description='A polymer assault rifle style stock for the SKS, including a AR-15 stock adapter'
 )
 
 """
@@ -109,27 +173,60 @@ barrel_sks = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    name="SKS Reciever & Barrel",
+    name="SKS Receiver & Barrel",
     weight=3.15,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Barrel',
                                    is_attachment_point_types=['Barrel Thread 14x1', ],
+                                   equip_time=1.1,
+                                   velocity_modifier=1.024,
                                    ),
-    description="A standard length SKS barrel"
+    description="An SKS receiver with a standard length SKS barrel"
 )
 
 barrel_sks_shortened = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    name="SKS Reciever & Barrel - Shortened",
+    name="SKS Receiver & Barrel - Shortened",
     weight=2.9,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Barrel',
                                    is_attachment_point_types=['Barrel Thread 14x1', ],
-                                   accuracy_distribution=0.87,
+                                   equip_time=0.9,
                                    ),
-    description="A cut down 17.5 inch SKS barrel"
+    description="An SKS receiver with a cut down 17.5 inch SKS barrel "
+)
+
+barrel_sks_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS Receiver & Barrel (Full-Auto Conversion)",
+    weight=3.15,
+    stacking=None,
+    usable_properties=GunComponent(part_type='SKS Barrel',
+                                   is_attachment_point_types=['Barrel Thread 14x1', ],
+                                   fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
+                                   equip_time=1.1,
+                                   velocity_modifier=1.024,
+                                   ),
+    description="An SKS receiver with a standard length SKS barrel converted to be capable of fully automatic fire"
+)
+
+barrel_sks_shortened_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS Receiver & Barrel - Shortened (Full-Auto Conversion)",
+    weight=2.9,
+    stacking=None,
+    usable_properties=GunComponent(part_type='SKS Barrel',
+                                   is_attachment_point_types=['Barrel Thread 14x1', ],
+                                   fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
+                                   equip_time=0.9,
+                                   ),
+    description="An SKS receiver with a cut down 17.5 inch SKS barrel converted to be capable of fully automatic fire"
 )
 
 """
@@ -145,22 +242,8 @@ sks_ak_mag_adapter = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Magazine Adapter',
                                    compatible_magazine_type='STANAG 5.56x45',
-                                   compatible_parts={'AK Reciever': ['AK 100 series 5.56 Reciever', ]},
                                    ),
     description="Magazine adapter SKS rifles providing compatibility with 7.62x39 AK style magazines"
-)
-
-sks_full_auto_conversion = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    name="SKS Full Auto Conversion",
-    weight=0.001,
-    stacking=None,
-    usable_properties=GunComponent(part_type='SKS Automatic Conversion',
-                                   fire_modes={'automatic': 750, },
-                                   ),
-    description="Converts the SKS select fire, allowing fully automatic fire"
 )
 
 sks_optics_mount = Item(
@@ -171,10 +254,11 @@ sks_optics_mount = Item(
     weight=0.16,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Optics Mount',
-                                   is_attachment_point_types=['Picrail Optics Mount',],
+                                   is_attachment_point_types=['Picrail Optics Mount - Long', ],
                                    additional_required_parts=('Optic',),
+                                   receiver_height_above_bore=0.5,
                                    ),
-    description="Picatinny rail optics mount for the SKS by Matador arms mounting to the reciever"
+    description="Picatinny rail optics mount for the SKS by Matador arms mounting to the receiver"
 )
 
 sks = Item(
@@ -184,23 +268,29 @@ sks = Item(
     name="SKS",
     weight=1,
     stacking=None,
-    description='A soviet gas operated semi-automatic rifle featuring an integrated magazing introduced shortly '
+    description='A soviet gas operated semi-automatic rifle featuring an integrated magazine introduced shortly '
                 'after WW2',
     usable_properties=GunIntegratedMag(
         chambered_bullet=None,
         keep_round_chambered=True,
-        equip_time=2,
-        fire_modes={'single shot': 1, 'rapid fire (semi-auto)': 3},
+        ap_to_equip=75,
+        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
+                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}},
         current_fire_mode='single shot',
         parts=Parts(),
-        enemy_attack_range=25,
         compatible_bullet_type='7.62x39',
         mag_capacity=10,
         velocity_modifier=1.0,
         felt_recoil=1.0,
-        target_acquisition_ap=15,
-        firing_ap_cost=15,
-        ap_distance_cost_modifier=15
+        target_acquisition_ap=50,
+        firing_ap_cost=20,
+        ap_distance_cost_modifier=1.0,
+        sound_modifier=1.0,
+        barrel_length=1.36,
+        zero_range=25,
+        receiver_height_above_bore=0.9,
+        sight_height_above_bore=0.23,
+        spread_modifier=0.05
     )
 )
 
@@ -209,13 +299,12 @@ sksdict = {
         "automatic rifles": {
             "SKS Rifle": {
                 "required parts": {
-                    "SKS Reciever": 1,
+                    "SKS Receiver": 1,
                     "SKS Barrel": 1,
                     "SKS Stock": 1,
                 },
                 "compatible parts": {
                     "SKS Magazine Adapter": 1,
-                    "SKS Automatic Conversion": 1,
                     "SKS Optics Mount": 1,
                     "Underbarrel Accessory": 1,
                     "Side Mounted Accessory": 1,

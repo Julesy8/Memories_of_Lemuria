@@ -15,9 +15,19 @@ mosin_stock = Item(
     weight=2.78,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
-                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]},
-                                   felt_recoil=0.82,
-                                   ),
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel", ]},
+                                   felt_recoil=0.42,
+                                   ap_distance_cost_modifier=0.7,
+                                   spread_modifier=0.9,
+                                   target_acquisition_ap=0.91,
+                                   equip_time=1.4,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.88,
+                                       ap_distance_cost_modifier=0.91,
+                                       spread_modifier=0.93,
+                                       target_acquisition_ap=0.82,
+                                   )),
     description='Standard M91/30 stock'
 )
 
@@ -26,13 +36,23 @@ mosin_stock_montecarlo = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="Mosin-Nagant ATI Monte Carlo Stock",
-    weight=2.78,
+    weight=2.27,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
-                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]},
-                                   felt_recoil=0.71,
-                                   ),
-    description='Standard M91/30 stock'
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel", ]},
+                                   felt_recoil=0.47,
+                                   ap_distance_cost_modifier=0.66,
+                                   spread_modifier=0.86,
+                                   target_acquisition_ap=0.78,
+                                   equip_time=1.2,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.82,
+                                       ap_distance_cost_modifier=0.89,
+                                       spread_modifier=0.87,
+                                       target_acquisition_ap=0.83,
+                                   )),
+    description='A modern polymer monte-carlo style stock for the Mosin-Nagant M91/30'
 )
 
 mosin_archangel_stock = Item(
@@ -44,9 +64,20 @@ mosin_archangel_stock = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
                                    prefix="Archangel",
-                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",]},
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel", ]},
                                    compatible_magazine_type='Mosin-Nagant',
-                                   felt_recoil=0.64,
+                                   felt_recoil=0.51,
+                                   ap_distance_cost_modifier=0.62,
+                                   spread_modifier=0.89,
+                                   target_acquisition_ap=0.75,
+                                   equip_time=1.3,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.86,
+                                       ap_distance_cost_modifier=0.93,
+                                       spread_modifier=0.9,
+                                       target_acquisition_ap=0.81,
+                                   )
                                    ),
     description='Tactical polymer Archangel replacement stock for the M91/30 Mosin-Nagant designed by ProMag'
 )
@@ -60,10 +91,19 @@ mosin_carbine_stock = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
                                    compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel",
-                                                                             "Mosin-Nagant Carbine Barrel",]},
-                                   felt_recoil=0.82,
-                                   accuracy_distribution=1.13,
-                                   ),
+                                                                             "Mosin-Nagant Carbine Barrel", ]},
+                                   felt_recoil=0.45,
+                                   ap_distance_cost_modifier=0.72,
+                                   spread_modifier=0.92,
+                                   target_acquisition_ap=0.76,
+                                   equip_time=1.2,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.89,
+                                       ap_distance_cost_modifier=0.86,
+                                       spread_modifier=0.9,
+                                       target_acquisition_ap=0.79,
+                                   )),
     description='A shortened carbine stock for the Mosin-Nagant'
 )
 
@@ -75,8 +115,18 @@ mosin_obrez_stock = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
-                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant Obrez Barrel",]}
-                                   ),
+                                   compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant Obrez Barrel", ]},
+                                   felt_recoil=0.85,
+                                   ap_distance_cost_modifier=0.93,
+                                   spread_modifier=0.9,
+                                   target_acquisition_ap=71,
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.83,
+                                       ap_distance_cost_modifier=0.93,
+                                       spread_modifier=0.95,
+                                       target_acquisition_ap=0.74,
+                                   )),
     description='A stockless pistol length housing for the Mosin-Nagant, perfect for concealment'
 )
 
@@ -93,11 +143,13 @@ mosin_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    velocity_modifier=1.14,
-                                   is_attachment_point_types=['Mosin-Nagant Barrel',],
+                                   is_attachment_point_types=['Mosin-Nagant Barrel', ],
+                                   sound_radius=0.8,
+                                   barrel_length=2.42,
+                                   target_acquisition_ap=1.3,
                                    ),
     description='Standard 29 inch M91/30 barrel assembly'
 )
-
 
 mosin_carbine_barrel = Item(
     x=0, y=0,
@@ -108,9 +160,11 @@ mosin_carbine_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    suffix="Carbine",
-                                   ideal_range=0.78,
                                    velocity_modifier=1.05,
-                                   is_attachment_point_types=['Mosin-Nagant Barrel',],
+                                   is_attachment_point_types=['Mosin-Nagant Barrel', ],
+                                   sound_radius=0.9,
+                                   barrel_length=1.68,
+                                   target_acquisition_ap=1.15,
                                    ),
     description='A shortened 20.2 inch carbine length barrel assembly for the Mosin-Nagant'
 )
@@ -124,10 +178,11 @@ mosin_obrez_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    suffix="Obrez",
-                                   ideal_range=0.025,
                                    velocity_modifier=0.79,
-                                   accuracy_distribution=0.21,
-                                   is_attachment_point_types=['Mosin-Nagant Barrel',],
+                                   is_attachment_point_types=['Mosin-Nagant Barrel', ],
+                                   sound_radius=1.3,
+                                   barrel_length=0.5,
+                                   target_acquisition_ap=0.96,
                                    ),
     description='A pistol length barrel assembly for the Mosin-Nagant'
 )
@@ -141,26 +196,15 @@ mosin_pic_scope_mount = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="Mosin-Nagant Triple Picatinny Rail Mount",
-    weight=0.2,
+    weight=0.26,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Accessory Mount',
-                                   is_attachment_point_types=['Picrail Optics Mount', 'Picrail Side Mount'],
-                                   additional_required_parts=['Optic',]
+                                   is_attachment_point_types=['Picrail Optics Mount - Long',
+                                                              'Picrail Side Mount - Short'],
+                                   additional_required_parts=['Optic', ],
+                                   receiver_height_above_bore=0.56,
                                    ),
     description='A three sided picatinny rail for mounting optics and other accessories to Mosin-Nagant rifles'
-)
-
-mosin_magazine_conversion = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    name="Mosin-Nagant Magazine Conversion",
-    weight=0.03,
-    stacking=None,
-    usable_properties=GunComponent(part_type='Mosin-Nagant Magazine Conversion',
-                                   suffix="Magazine Conversion",
-                                   ),
-    description='Converts the mosin nagant to take after market magazines'
 )
 
 mosin_suppressor = Item(
@@ -174,6 +218,8 @@ mosin_suppressor = Item(
                                    suffix="Suppressed",
                                    muzzle_break_efficiency=0.5,
                                    sound_radius=0.7,
+                                   fire_rate_modifier=1.1,
+                                   target_acquisition_ap=1.07,
                                    attachment_point_required=('Mosin-Nagant Barrel',),
                                    is_suppressor=True
                                    ),
@@ -189,6 +235,7 @@ mosin_muzzlebreak = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    muzzle_break_efficiency=0.3,
+                                   target_acquisition_ap=1.04,
                                    attachment_point_required=('Mosin-Nagant Barrel',)
                                    ),
     description='Muzzle break for 7.62x54R Mosin-Nagant rifles by Texas Precision'
@@ -206,18 +253,23 @@ mosin_nagant = Item(
     usable_properties=GunIntegratedMag(
         chambered_bullet=None,
         keep_round_chambered=True,
-        equip_time=2,
-        fire_modes={'single shot': 1},
+        ap_to_equip=75,
+        fire_modes={'single shot': {'fire rate': 1, 'automatic': False}, },
         current_fire_mode='single shot',
         parts=Parts(),
-        enemy_attack_range=25,
         compatible_bullet_type='7.62x54R',
         mag_capacity=5,
         velocity_modifier=1.0,
         felt_recoil=1.0,
-        target_acquisition_ap=15,
-        firing_ap_cost=15,
-        ap_distance_cost_modifier=15
+        target_acquisition_ap=50,
+        firing_ap_cost=25,
+        ap_distance_cost_modifier=1.0,
+        sound_modifier=1.0,
+        barrel_length=1.36,
+        zero_range=100,
+        receiver_height_above_bore=0.71,
+        sight_height_above_bore=0.5,
+        spread_modifier=0.05
     )
 )
 
@@ -232,7 +284,6 @@ mosindict = {
                 "compatible parts": {
                     "Mosin-Nagant Accessory Mount": 1,
                     "Mosin-Nagant Grip": 1,
-                    "Mosin-Nagant Magazine Conversion": 1,
                     "Muzzle Device": 1,
                     "Optic": 1,
                     "Side Mounted Accessory": 1,

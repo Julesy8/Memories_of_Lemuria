@@ -25,3 +25,71 @@ TO DO
 -save guns to look at in main menu
 -grave yard
 -in the dungeon you find enemies using your looted equipment from previous runs
+
+1.5 seconds average to draw, aim, shoot - pistol
+can pull trigger 4 times per second
+
+pistol base line - Glock 17
+rifle base line - M4
+
+equip (pistol - from holster) - 75
+equip (rifle - from sling) - 100
+acquire target (pistol) - 50
+acquire target (rifle) - 30
+shoot (pistol and rifle) -
+
+recoil reduction
+    stock - 45%
+    handguard - 15%
+    pistol grip - 10%
+
+ap distance cost modifier
+    stock - 0.7
+    hand guard - 0.9
+    pistol grip -
+
+spread reduction
+    stock - 0.86
+    handguard - 0.9
+    pistol grip -
+
+target acquisition ap
+    stock - 0.75
+    handguard - 0.8
+    pistol grip -
+
+Barrel
+barrel_length =
+velocity_modifier =
+target_acquisition_ap=
+equip_time =
+
+
+Handguard / Forward Grip
+spread_modifier =
+felt_recoil =
+target_acquisition_ap =
+ap_distance_cost_modifier =
+
+Sights
+zero_range =
+spread_modifier =
+target_acquisition_ap =
+sight_height_above_bore =
+ap_distance_cost_modifier =
+
+pistol grip
+spread_modifier =
+felt_recoil =
+target_acquisition_ap =
+ap_distance_cost_modifier =
+
+Stock
+felt_recoil =
+ap_distance_cost_modifier =
+spread_modifier =
+target_acquisition_ap =
+
+Pistol Grip
+Compensator
+Suppressor

@@ -141,8 +141,6 @@ class Bodypart:
 
     def deal_damage_melee(self, meat_damage: int, armour_damage: int, attacker: Actor):
 
-        # TODO: cutting damage resistance and blunt damage resistance
-
         fail_colour = colour.LIGHT_BLUE
 
         if attacker == self.engine.player:
@@ -239,7 +237,7 @@ class Bodypart:
         # restores original stats
         self.parent.fighter.ranged_accuracy = self.parent.fighter.ranged_accuracy_original
         self.parent.fighter.melee_accuracy = self.parent.fighter.melee_accuracy_original
-        self.parent.fighter.attack_ap_modifier = 1.0
+        self.parent.fighter.action_ap_modifier = 1.0
         self.parent.fighter.move_success_chance = self.parent.fighter.move_success_original
         self.parent.fighter.move_ap_cost = self.parent.fighter.move_ap_original
         self.parent.fighter.self.ap_per_turn_modifier = 1.0
@@ -285,7 +283,7 @@ class Arm(Bodypart):
 
         self.parent.fighter.ranged_accuracy *= 1.2
         self.parent.fighter.melee_accuracy *= 0.8
-        self.parent.fighter.attack_ap_modifier *= 1.3
+        self.parent.fighter.action_ap_modifier *= 1.3
 
 
 class Leg(Bodypart):

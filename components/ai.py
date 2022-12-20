@@ -83,8 +83,8 @@ class HostileEnemy(BaseAI):
         if held_item is not None:
             if isinstance(held_item.usable_properties, Weapon):
                 has_weapon = True
-                if hasattr(held_item.usable_properties, 'enemy_attack_range'):
-                    attack_range = held_item.usable_properties.enemy_attack_range
+                if isinstance(held_item.usable_properties, Gun):
+                    attack_range = held_item.usable_properties.zero_range
 
         self.execute_queued_action(distance, target)
 
@@ -128,6 +128,27 @@ class HostileEnemy(BaseAI):
                         else:
                             WeaponAttackAction(distance=distance, item=held_item, entity=self.entity,
                                                targeted_actor=target, targeted_bodypart=None).attack()
+
+            # reload if magazine below half capacity and player not visible, reloads
+            elif not self.engine.game_map.visible[self.entity.x, self.entity.y] and isinstance(
+                    held_item.usable_properties, Gun):
+
+                mag_capacity = 0
+                mag_round_count = 0
+
+                # integrated magazine gun
+                if hasattr(held_item.usable_properties, 'magazine'):
+                    mag_capacity = getattr(held_item.usable_properties, 'mag_capacity')
+                    mag_round_count = len(getattr(held_item.usable_properties, 'magazine'))
+
+                # magazine fed gun
+                elif hasattr(held_item.usable_properties, 'loaded_magazine'):
+                    loaded_magazine = getattr(held_item.usable_properties, 'loaded_magazine')
+                    mag_capacity = getattr(loaded_magazine, 'mag_capacity')
+                    mag_round_count = len(getattr(loaded_magazine, 'magazine'))
+
+                if mag_capacity < mag_round_count / 2:
+                    self.queued_action = ReloadAction(entity=self.entity, gun=held_item)
 
             # any kind of movement action occurring
             elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:

@@ -27,7 +27,6 @@ class Usable(BaseComponent):
         """Try to return the action for this item."""
         return actions.ItemAction(user, self.parent)
 
-    # TODO - this is essentially deprecated
     def activate(self, action: actions.ItemAction) -> None:
         """Invoke this items ability.
 
@@ -66,13 +65,13 @@ class HealingConsumable(Usable):
 class Weapon(Usable):
 
     def __init__(self,
-                 equip_time: int,
+                 ap_to_equip: int,
                  base_ap_cost: int = 100,
                  ranged: bool = False,
                  ):
 
         self.ranged = ranged  # if true, weapon has range (non-melee)
-        self.equip_time = equip_time
+        self.ap_to_equip = ap_to_equip
         self.base_ap_cost = base_ap_cost
 
     def activate(self, action: actions.ItemAction):
@@ -83,11 +82,20 @@ class Weapon(Usable):
         entity = self.parent
         inventory = entity.parent
 
+        equip_time = self.ap_to_equip * inventory.parent.fighter.action_ap_modifier
+
+        if hasattr(self, 'loaded_magazine'):
+            equip_time *= self.loaded_magazine.usable_properties.equip_ap_mod
+
         if isinstance(inventory, components.inventory.Inventory):
 
             if inventory.parent == self.engine.player:
-                for i in range(self.equip_time):
-                    self.engine.handle_enemy_turns()
+                if self.ap_to_equip >= 100:
+                    for i in range(round(self.ap_to_equip / 100)):
+                        self.engine.handle_enemy_turns()
+                    inventory.parent.fighter.ap -= self.ap_to_equip % 100
+                else:
+                    inventory.parent.fighter.ap -= self.ap_to_equip
 
             inventory.items.remove(entity)
             inventory.held = entity
@@ -108,7 +116,7 @@ class MeleeWeapon(Weapon):
                  base_meat_damage: int,
                  base_armour_damage: int,
                  base_accuracy: float,
-                 equip_time: int,
+                 ap_to_equip: int,
                  base_ap_cost: int = 100,
                  ):
 
@@ -119,7 +127,7 @@ class MeleeWeapon(Weapon):
 
         super().__init__(
             ranged=False,
-            equip_time=equip_time
+            ap_to_equip=ap_to_equip
         )
 
     def attack_melee(self, target: Actor, attacker: Actor, part_index: int, hitchance: int):
@@ -158,6 +166,7 @@ class Bullet(Usable):
                  sound_modifier: float,  # alters amount of noise the gun makes - relative to muzzle energy
                  spread_modifier: float,  # range penalty per tile to account for spread
                  ballistic_coefficient: float,
+                 load_time_modifier: float = 2,
                  projectile_no: int = 1,
                  ):
         self.bullet_type = bullet_type
@@ -169,6 +178,7 @@ class Bullet(Usable):
         self.drag_coefficient = drag_coefficient
         self.sound_modifier = sound_modifier
         self.ballistic_coefficient = ballistic_coefficient
+        self.load_time_modifier = load_time_modifier
         self.projectile_no = projectile_no
         self.spread_modifier = spread_modifier
 
@@ -183,19 +193,27 @@ class Magazine(Usable):
                  compatible_bullet_type: list,  # compatible bullet i.e. 9mm
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
-                 turns_to_load: int,  # amount of turns it takes to load magazine into gun
+                 ap_to_load: int,  # ap it takes to load magazine into gun
+                 target_acquisition_ap_mod: float = 1.0,
+                 ap_distance_cost_mod: float = 1.0,
+                 spread_mod: float = 1.0,
+                 equip_ap_mod: float = 1.0,
                  ):
         self.magazine_type = magazine_type
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
         self.magazine_size = magazine_size
-        self.turns_to_load = turns_to_load
+        self.ap_to_load = ap_to_load
+        self.target_acquisition_ap_mod = target_acquisition_ap_mod
+        self.ap_distance_cost_mod = ap_distance_cost_mod
+        self.spread_mod = spread_mod
+        self.equip_ap_mod = equip_ap_mod
         self.magazine = []
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
 
-    def load_magazine(self, ammo, load_amount) -> None:
+    def load_magazine(self, ammo: Item, load_amount: int) -> None:
         # loads bullets into magazine
 
         entity = self.parent
@@ -231,9 +249,11 @@ class Magazine(Usable):
                 if len(self.magazine) == \
                         self.mag_capacity:
                     break
-            # 1 turn = 1 second, 1 second per round
+
+            # 1 turn = 1 second
             if self.engine.player == inventory.parent:
-                for i in range(round(load_amount * inventory.parent.fighter.attack_ap_modifier)):
+                for i in range(round(load_amount * inventory.parent.fighter.action_ap_modifier *
+                                     ammo.usable_properties.load_time_modifier)):
                     self.engine.handle_enemy_turns()
 
             if isinstance(self, GunIntegratedMag):
@@ -278,25 +298,38 @@ class Gun(Weapon):
                  parts: Parts,
                  compatible_bullet_type: str,
                  velocity_modifier: float,
-                 equip_time: int,
+                 ap_to_equip: int,
                  fire_modes: dict,  # fire rates in rpm
                  current_fire_mode: str,
                  keep_round_chambered: bool,
-                 enemy_attack_range: int,  # range at which AI enemies will try to attack when using this weapon
                  sound_modifier: float,
-                 felt_recoil: float,
-                 barrel_length: float,
+                 felt_recoil: float,  # 1.0 = regular M4
+                 barrel_length: float,  # feet
                  zero_range: int,  # yards
                  sight_height_above_bore: float,  # inches
+                 receiver_height_above_bore: float,  # inches
                  target_acquisition_ap: int,  # ap cost for acquiring new target
-                 firing_ap_cost: int,  # additional AP cost for firing
                  ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
-                 spread_modifier: float = 0.0,  # MoA / 100
+                 spread_modifier: float,  # MoA / 100 - for M16A2 2-3 MoA, so 0.03
+                 firing_ap_cost: int = 25,  # additional AP cost for firing
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,
                  ):
+
+        """
+        velocity_modifier - increased w/ barrel length
+        ap_to_equip - increased w/ weight, barrel length
+        sound_modifier - decreased by suppressor
+        felt_recoil - decreased w/ increased ergonomics and muzzle devices
+        zero_range - set by optic,
+        target_acquisition_ap - increased w/ barrel length and optic zoom, decreased w/ increased ergonomics and
+        decreased weight
+        firing_ap_cost - depends on type of trigger
+        ap_distance_cost_modifier - decreased w/ increased optic zoom, decreased weight, ergonomics
+        load_time_modifier - decreased w/ increased ergonomics
+        """
 
         self.parts = parts
         self.compatible_bullet_type = compatible_bullet_type
@@ -305,14 +338,14 @@ class Gun(Weapon):
         self.velocity_modifier = velocity_modifier
         self.muzzle_break_efficiency = muzzle_break_efficiency
         self.zero_range = zero_range
+        self.receiver_height_above_bore = receiver_height_above_bore
         self.sight_height_above_bore = sight_height_above_bore
         self.spread_modifier = spread_modifier  # MoA / 100
-        self.barrel_length = barrel_length  # inches
+        self.barrel_length = barrel_length
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
         self.fire_modes = fire_modes
         self.current_fire_mode = current_fire_mode
-        self.enemy_attack_range = enemy_attack_range
         self.sound_modifier = sound_modifier
         self.fire_rate_modifier = fire_rate_modifier
         self.load_time_modifier = load_time_modifier
@@ -325,7 +358,7 @@ class Gun(Weapon):
 
         super().__init__(
             ranged=True,
-            equip_time=equip_time,
+            ap_to_equip=ap_to_equip,
         )
 
     def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
@@ -355,6 +388,8 @@ class Gun(Weapon):
         # previous round fired, recorded for purposes of recoil calculations
         previous_round_fired = None
 
+        sight_height_above_bore_total = self.sight_height_above_bore + self.receiver_height_above_bore
+
         # fires rounds
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
@@ -366,10 +401,15 @@ class Gun(Weapon):
 
                 muzzle_velocity = self.chambered_bullet.usable_properties.velocity * self.velocity_modifier
 
+                # alters spread depending on magazine
+                mag_spread_mod = 1.0
+                if hasattr(self, 'loaded_magazine'):
+                    mag_spread_mod = self.loaded_magazine.usable_properties.spread_mod
+
                 # gives projectile spread in MoA
                 spread_diameter = \
-                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * distance \
-                    * attacker.fighter.ranged_accuracy
+                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * mag_spread_mod * \
+                    distance * attacker.fighter.ranged_accuracy
 
                 # bullet spread hit location coordinates
                 radius = (spread_diameter * 0.523) * sqrt(uniform(0, 1))
@@ -392,8 +432,8 @@ class Gun(Weapon):
                                                                    * 0.5 * self.zero_range)))) ** 2
 
                 # inches
-                projectile_path = abs((projectile_drop + self.sight_height_above_bore) +
-                                      (drop_at_zero + self.sight_height_above_bore) * dist_yards / self.zero_range)
+                projectile_path = abs((projectile_drop + sight_height_above_bore_total) +
+                                      (drop_at_zero + sight_height_above_bore_total) * dist_yards / self.zero_range)
 
                 velocity_at_distance = muzzle_velocity * (1 - 3 * 0.5 * dist_yards / retardation_coefficient) ** (
                         1 / 0.5)
@@ -519,8 +559,6 @@ class Wearable(Usable):
                  small_mag_slots: int,
                  medium_mag_slots: int,
                  large_mag_slots: int,
-                 # large_weapon_slots: int,
-                 # small_weapon_slots: int,
                  ):
 
         self.protection = protection
@@ -535,6 +573,7 @@ class Wearable(Usable):
         # self.small_weapon_slots = small_weapon_slots
 
         # TODO: add weapon loadout functionality
+        # TODO: different defense and attack types
         # add screen to be able to see loadout - equiped items and stats
 
     def activate(self, action: actions.ItemAction):
@@ -594,20 +633,20 @@ class GunMagFed(Gun):
                  compatible_magazine_type: str,
                  compatible_bullet_type: str,
                  velocity_modifier: float,
-                 equip_time: int,
+                 ap_to_equip: int,
                  fire_modes: dict,
                  current_fire_mode: str,
                  keep_round_chambered: bool,
-                 enemy_attack_range: int,
                  sound_modifier: float,
                  zero_range: int,
                  sight_height_above_bore: float,
+                 receiver_height_above_bore: float,
                  felt_recoil: float,
                  barrel_length: float,
                  target_acquisition_ap: int,
-                 firing_ap_cost: int,
                  ap_distance_cost_modifier: float,
-                 spread_modifier: float = 0.0,
+                 spread_modifier: float,  # MoA / 100
+                 firing_ap_cost: int = 25,  # additional AP cost for firing
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
@@ -624,12 +663,11 @@ class GunMagFed(Gun):
         super().__init__(
             parts=parts,
             velocity_modifier=velocity_modifier,
-            equip_time=equip_time,
+            ap_to_equip=ap_to_equip,
             fire_modes=fire_modes,
             current_fire_mode=current_fire_mode,
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
-            enemy_attack_range=enemy_attack_range,
             sound_modifier=sound_modifier,
             muzzle_break_efficiency=muzzle_break_efficiency,
             fire_rate_modifier=fire_rate_modifier,
@@ -642,7 +680,8 @@ class GunMagFed(Gun):
             barrel_length=barrel_length,
             target_acquisition_ap=target_acquisition_ap,
             firing_ap_cost=firing_ap_cost,
-            ap_distance_cost_modifier=ap_distance_cost_modifier
+            ap_distance_cost_modifier=ap_distance_cost_modifier,
+            receiver_height_above_bore=receiver_height_above_bore
         )
 
     def load_gun(self, magazine: Item):
@@ -667,10 +706,16 @@ class GunMagFed(Gun):
             if inventory.parent == self.engine.player:
                 inventory.items.remove(magazine)
 
-                # takes appropriate amount of turns to load magazine into gun
-                for i in range(round(magazine.usable_properties.turns_to_load * self.load_time_modifier) *
-                               inventory.parent.fighter.attack_ap_modifier):
-                    self.engine.handle_enemy_turns()
+                reload_ap = \
+                    magazine.usable_properties.turns_to_load * \
+                    self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
+
+                if reload_ap >= 100:
+                    for i in range(round(reload_ap / 100)):
+                        self.engine.handle_enemy_turns()
+                    inventory.parent.fighter.ap -= reload_ap % 100
+                else:
+                    inventory.parent.fighter.ap -= reload_ap
 
             if len(self.loaded_magazine.usable_properties.magazine) > 0:
                 if self.chambered_bullet is None:
@@ -720,22 +765,22 @@ class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
                  parts: Parts,
                  velocity_modifier: float,
-                 equip_time: int,
+                 ap_to_equip: int,
                  fire_modes: dict,
                  current_fire_mode: str,
                  compatible_bullet_type: str,
                  mag_capacity: int,
                  keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
-                 enemy_attack_range: int,
                  sound_modifier: float,
                  felt_recoil: float,
                  zero_range: int,
                  sight_height_above_bore: float,
+                 receiver_height_above_bore: float,
                  barrel_length: float,
                  target_acquisition_ap: int,
-                 firing_ap_cost: int,
                  ap_distance_cost_modifier: float,
-                 spread_modifier: float = 0.0,
+                 spread_modifier: float,  # MoA / 100
+                 firing_ap_cost: int = 25,  # additional AP cost for firing
                  muzzle_break_efficiency: Optional[float] = None,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
@@ -751,12 +796,11 @@ class GunIntegratedMag(Gun, Magazine):
         super().__init__(
             parts=parts,
             velocity_modifier=velocity_modifier,
-            equip_time=equip_time,
+            ap_to_equip=ap_to_equip,
             fire_modes=fire_modes,
             current_fire_mode=current_fire_mode,
             keep_round_chambered=keep_round_chambered,
             chambered_bullet=chambered_bullet,
-            enemy_attack_range=enemy_attack_range,
             sound_modifier=sound_modifier,
             muzzle_break_efficiency=muzzle_break_efficiency,
             fire_rate_modifier=fire_rate_modifier,
@@ -769,7 +813,8 @@ class GunIntegratedMag(Gun, Magazine):
             barrel_length=barrel_length,
             target_acquisition_ap=target_acquisition_ap,
             firing_ap_cost=firing_ap_cost,
-            ap_distance_cost_modifier=ap_distance_cost_modifier
+            ap_distance_cost_modifier=ap_distance_cost_modifier,
+            receiver_height_above_bore=receiver_height_above_bore,
         )
 
     def chamber_round(self):
