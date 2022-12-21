@@ -77,7 +77,66 @@ class Weapon(Usable):
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
 
+    # equip to held
     def equip(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            self.consume_equip_ap()
+            inventory.held = entity
+
+    def equip_to_primary(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            self.consume_equip_ap()
+            inventory.items.remove(entity)
+
+            if inventory.primary_weapon is not None:
+                inventory.add_to_inventory(item=inventory.primary_weapon, item_container=None, amount=1)
+
+            inventory.primary_weapon = entity
+
+    def equip_to_secondary(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            self.consume_equip_ap()
+            inventory.items.remove(entity)
+
+            if inventory.secondary_weapon is not None:
+                inventory.add_to_inventory(item=inventory.secondary_weapon, item_container=None, amount=1)
+
+            inventory.primary_weapon = entity
+
+    def unequip(self) -> None:
+
+        entity = self.parent
+        inventory = entity.parent
+
+        self.consume_equip_ap()
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if inventory.held == self:
+                inventory.held = None
+            if inventory.primary_weapon == self:
+                inventory.primary_weapon = None
+            elif inventory.secondary_weapon == self:
+                inventory.secondary_weapon = None
+
+            inventory.items.append(entity)
+
+    def consume_equip_ap(self) -> None:
 
         entity = self.parent
         inventory = entity.parent
@@ -85,29 +144,16 @@ class Weapon(Usable):
         equip_time = self.ap_to_equip * inventory.parent.fighter.action_ap_modifier
 
         if hasattr(self, 'loaded_magazine'):
-            equip_time *= self.loaded_magazine.usable_properties.equip_ap_mod
+            if self.loaded_magazine is not None:
+                equip_time *= self.loaded_magazine.usable_properties.equip_ap_mod
 
-        if isinstance(inventory, components.inventory.Inventory):
-
-            if inventory.parent == self.engine.player:
-                if self.ap_to_equip >= 100:
-                    for i in range(round(self.ap_to_equip / 100)):
-                        self.engine.handle_enemy_turns()
-                    inventory.parent.fighter.ap -= self.ap_to_equip % 100
-                else:
-                    inventory.parent.fighter.ap -= self.ap_to_equip
-
-            inventory.items.remove(entity)
-            inventory.held = entity
-
-    def unequip(self) -> None:
-
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-            inventory.held = None
-            inventory.items.append(entity)
+        if inventory.parent == self.engine.player:
+            if self.ap_to_equip >= 100:
+                for i in range(round(self.ap_to_equip / 100)):
+                    self.engine.handle_enemy_turns()
+                inventory.parent.fighter.ap -= self.ap_to_equip % 100
+            else:
+                inventory.parent.fighter.ap -= self.ap_to_equip
 
 
 class MeleeWeapon(Weapon):

@@ -10,7 +10,7 @@ import tcod.event
 
 from entity import Item
 import actions
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent, Wearable
+from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent, Wearable, Weapon
 from actions import (
     Action,
     BumpAction,
@@ -430,8 +430,8 @@ class UserOptionsWithPages(AskUserEventHandler):
                 if len(item.name) + stack_size > longest_name_len:
                     longest_name_len = len(item.name) + stack_size
             else:
-                if len(item) > longest_name_len:
-                    longest_name_len = len(item)
+                if len(item.name) > longest_name_len:
+                    longest_name_len = len(item.name)
 
         if longest_name_len:
             if longest_name_len > width:
@@ -576,7 +576,7 @@ class InventoryEventHandler(UserOptionsWithPages):
             options.append('Equip')
 
         if isinstance(item.usable_properties, Gun):
-            options += ['Equip', 'Disassemble']
+            options += ['Equip to Primary', 'Equip to Secondary', 'Disassemble']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
@@ -604,6 +604,22 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'Equip':
             try:
                 self.item.usable_properties.equip()
+                return MainGameEventHandler(self.engine)
+
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+
+        elif option == 'Equip to Primary':
+            try:
+                self.item.usable_properties.equip_to_primary()
+                return MainGameEventHandler(self.engine)
+
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+
+        elif option == 'Equip to Secondary':
+            try:
+                self.item.usable_properties.equip_to_secondary()
                 return MainGameEventHandler(self.engine)
 
             except AttributeError:
@@ -1201,7 +1217,12 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
         loadout_items = []
 
-        inventory = self.engine.player.inventory
+        if engine.player.inventory.primary_weapon is not None:
+            loadout_items.append(engine.player.inventory.primary_weapon)
+        if engine.player.inventory.secondary_weapon is not None:
+            loadout_items.append(engine.player.inventory.secondary_weapon)
+
+        inventory = engine.player.inventory
 
         items = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
 
@@ -1211,8 +1232,14 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
         super().__init__(engine=engine, options=loadout_items, page=0, title=title)
 
-    def ev_on_option_selected(self, option):
-        return MagazineOptionsHandler(engine=self.engine, magazine=option)
+    def ev_on_option_selected(self, item: Item):
+
+        if isinstance(item.usable_properties, Magazine):
+            return MagazineOptionsHandler(engine=self.engine, magazine=item)
+
+        elif isinstance(item.usable_properties, Weapon):
+            options = ['Equip', 'Unequip', 'Use', 'Inspect']
+            return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
 
 class SelectItemToCraft(UserOptionsWithPages):

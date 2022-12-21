@@ -22,6 +22,8 @@ from components.bodyparts import Body, Arm, Leg, Head
 
 from copy import deepcopy
 
+from components.weapons.glock17 import glock_17
+
 #from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17l_barrel, \
 #    glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide, glock17_slide_custom, \
 #    glock17l_slide_custom, glock_switch, glock_9mm_compensator, \
@@ -66,6 +68,8 @@ def new_game() -> Engine:
     inventory_items = []
 
     #inventory_items = [mac1045,]
+
+    inventory_items = [glock_17]
 
     #inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel,
     #                   glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide,
