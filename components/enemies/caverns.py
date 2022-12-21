@@ -30,6 +30,8 @@ giant_snake = Actor(
                Head(hp=10, defence=0, depth=15, width=15, height=15)),
     inventory=Inventory(capacity=0),
     fears_death=False,
+    item_drops={},
+    weapons={},
 )
 
 large_rat = Actor(
@@ -42,5 +44,6 @@ large_rat = Actor(
     bodyparts=(Body(hp=10, defence=0, depth=10, width=15, height=35),),
     inventory=Inventory(capacity=0),
     fears_death=False,
-    drops_items=True,
+    item_drops={},
+    weapons={},
 )

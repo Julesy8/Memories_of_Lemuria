@@ -447,7 +447,6 @@ class BumpAction(ActionWithDirection):
             return MovementAction(self.entity, self.dx, self.dy).perform()
 
 
-# TODO - update with inventory method implementation
 class AddToInventory(Action):
 
     def __init__(self, entity: Actor, item: Item, amount: int):

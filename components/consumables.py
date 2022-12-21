@@ -615,10 +615,6 @@ class Wearable(Usable):
         self.medium_mag_slots = medium_mag_slots
         self.large_mag_slots = large_mag_slots
 
-        # self.large_weapon_slots = large_weapon_slots
-        # self.small_weapon_slots = small_weapon_slots
-
-        # TODO: add weapon loadout functionality
         # TODO: different defense and attack types
         # add screen to be able to see loadout - equiped items and stats
 

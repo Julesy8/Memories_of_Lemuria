@@ -93,10 +93,11 @@ class Actor(Entity):
             ai,
             fighter,
             bodyparts: tuple,  # list of bodyparts belonging to the entity
+            item_drops: dict,
+            weapons: dict,
             inventory: Inventory,
             bleeds=True,
             fears_death=True,
-            drops_items=False,
             player: bool = False,
     ):
         super().__init__(
@@ -121,8 +122,8 @@ class Actor(Entity):
         self.inventory.parent = self
         for bodypart in self.bodyparts:
             bodypart.parent = self
-        self.drops_items = drops_items
-
+        self.item_drops = item_drops
+        self.weapons = weapons
         # disables attacks and movement for a certain amount of turns
         self.turns_attack_inactive = 0
         self.turns_move_inactive = 0

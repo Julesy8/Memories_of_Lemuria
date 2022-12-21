@@ -10,7 +10,6 @@ from random import choices
 from components.consumables import RecipeUnlock
 from components.datapacks import datapackdict
 from entity import Actor, Entity, Item
-from components.enemies.equipment import enemy_equipment
 import colour
 
 if TYPE_CHECKING:
@@ -102,17 +101,14 @@ class Bodypart:
 
         entity.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
-        item_pop = []
-        item_weight = []
-
         # puts items in enemy inventory
-        if self.parent.drops_items:
-            for item in enemy_equipment[self.parent.name]["dropped items"]:
-                item_pop.append(item[0])
-                item_weight.append(item[1])
+        if len(self.parent.item_drops.keys()) > 0:
+
+            drops = list(self.parent.item_drops.keys())
+            drop_weight = list(self.parent.item_drops.values())
 
             # places random item in inventory
-            item_drop = deepcopy(choices(population=item_pop, weights=item_weight, k=1)[0])
+            item_drop = deepcopy(choices(population=drops, weights=drop_weight, k=1)[0])
 
             # gives PDA datapack properties
             if item_drop.name == 'PDA':
