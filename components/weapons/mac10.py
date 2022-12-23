@@ -726,7 +726,7 @@ mac1045_sionics_suppressor = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    is_suppressor=True,
-                                   muzzle_break_efficiency=0.2,
+                                   muzzle_break_efficiency=0.35,
                                    velocity_modifier=1.14,
                                    attachment_point_required=('Barrel Thread 7/8x9',),
                                    grip_properties=GunComponent(
@@ -751,7 +751,7 @@ mac109_sionics_suppressor = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    is_suppressor=True,
-                                   muzzle_break_efficiency=0.2,
+                                   muzzle_break_efficiency=0.35,
                                    velocity_modifier=1.14,
                                    attachment_point_required=('Barrel Thread 3/4x10',),
                                    grip_properties=GunComponent(

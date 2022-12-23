@@ -4,6 +4,7 @@ import colour
 
 # TODO - ability to adjust zero range
 # TODO - add new parts
+# TODO - better consider muzzle break balancing
 
 """
 OPTICS
@@ -265,7 +266,7 @@ suppressor_obsidian_9 = Item(
     weight=0.36,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.32,
+                                   muzzle_break_efficiency=0.30,
                                    target_acquisition_ap=1.12,
                                    fire_rate_modifier=1.08,
                                    sound_radius=0.25,
@@ -283,7 +284,7 @@ suppressor_saker_762 = Item(
     weight=0.663,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.29,
+                                   muzzle_break_efficiency=0.31,
                                    target_acquisition_ap=1.16,
                                    fire_rate_modifier=1.12,
                                    sound_radius=0.27,

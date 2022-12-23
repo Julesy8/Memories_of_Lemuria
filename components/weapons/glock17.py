@@ -92,7 +92,7 @@ glock17_barrel_ported = Item(
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
                                    compatible_parts={'Glock 17 Slide': ['Glock 17 Custom Slide']},
                                    prevents_suppression=True,
-                                   muzzle_break_efficiency=0.7,
+                                   muzzle_break_efficiency=0.4,
                                    barrel_length=0.37,
                                    ),
     description='Glock 17 barrel with milled cutouts to reduce muzzle climb'
@@ -110,7 +110,7 @@ glock17l_barrel_ported = Item(
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Custom Slide', 'Glock 17 Slide',
                                                                         'Glock 17 Custom Slide']},
                                    prevents_suppression=True,
-                                   muzzle_break_efficiency=0.7,
+                                   muzzle_break_efficiency=0.4,
                                    barrel_length=0.5,
                                    target_acquisition_ap=1.05,
                                    equip_time=1.05
@@ -297,7 +297,7 @@ suppressor_surefire_9mm = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread M13.5x1 LH',),
-                                   muzzle_break_efficiency=0.4,
+                                   muzzle_break_efficiency=0.3,
                                    target_acquisition_ap=1.04,
                                    fire_rate_modifier=1.1,
                                    is_suppressor=True,
@@ -313,7 +313,7 @@ glock_17 = Item(
     name="Glock 17",
     weight=0.62,
     stacking=None,
-    description='The classic Glock 9mm handgun, famous for its simplicity and reliability',
+    description='The classic Glock 9mm handgun, famous for its simplicity and reliability ',
     usable_properties=GunMagFed(
         compatible_magazine_type='Glock 9mm',
         chambered_bullet=None,

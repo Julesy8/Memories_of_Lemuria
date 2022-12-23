@@ -14,7 +14,7 @@ class Parts:
         self.update_partlist()
 
         self.non_multiplicative_properties = ["barrel_length", "zero_range", "sight_height_above_bore",
-                                              "receiver_height_above_bore"]
+                                              "receiver_height_above_bore", "muzzle_break_efficiency"]
 
         self.additive_properties = ["receiver_height_above_bore"]
 

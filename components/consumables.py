@@ -358,7 +358,7 @@ class Gun(Weapon):
                  ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
                  spread_modifier: float,  # MoA / 100 - for M16A2 2-3 MoA, so 0.03
                  firing_ap_cost: int = 25,  # additional AP cost for firing
-                 muzzle_break_efficiency: Optional[float] = None,
+                 muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,
@@ -689,7 +689,7 @@ class GunMagFed(Gun):
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
                  firing_ap_cost: int = 25,  # additional AP cost for firing
-                 muzzle_break_efficiency: Optional[float] = None,
+                 muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,
@@ -823,7 +823,7 @@ class GunIntegratedMag(Gun, Magazine):
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
                  firing_ap_cost: int = 25,  # additional AP cost for firing
-                 muzzle_break_efficiency: Optional[float] = None,
+                 muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,

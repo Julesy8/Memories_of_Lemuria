@@ -131,7 +131,7 @@ class EventHandler(BaseEventHandler):
             # checks if previous target actor is still visible, if not resets to None
             if self.engine.player.previous_target_actor is not None:
                 if not self.engine.game_map.visible[self.engine.player.previous_target_actor.x,
-                                                    self.engine.player.previous_target_actor.y]:
+                self.engine.player.previous_target_actor.y]:
                     self.engine.player.previous_target_actor = None
 
             return MainGameEventHandler(self.engine)  # Return to the main handler.
@@ -911,13 +911,13 @@ class ChangeTargetActor(AskUserEventHandler):
             target_str = f"Targeting: {player.target_actor.name} - {self.selected_bodypart.name}".upper()
             ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
 
-            console.print(x=1, y=console.height-8, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=1, y=console.height - 8, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
 
-            console.print(x=1, y=console.height-7, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=1, y=console.height - 7, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
 
-            console.print(x=1, y=console.height-6, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=1, y=console.height - 6, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
 
-            console.print(x=17, y=console.height-6, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
+            console.print(x=17, y=console.height - 6, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
                           bg=(0, 0, 0))
 
         else:
@@ -1505,7 +1505,7 @@ class CraftGun(CraftItem):
 
 class InspectItemViewer(AskUserEventHandler):
 
-    def __init__(self, engine, item):
+    def __init__(self, engine: Engine, item: Item):
         super().__init__(engine=engine)
 
         self.item = item
@@ -1514,133 +1514,167 @@ class InspectItemViewer(AskUserEventHandler):
 
         self.inspect_parts_option = False
 
+        self.max_list_length = 25
+        self.scroll_position = 0
+
         if hasattr(item.usable_properties, 'parts'):
             self.inspect_parts_option = True
 
-        item_info = {
-            "description": item.description,
-            "weight": item.weight,
-        }
-
-        additonal_info = {
-
-            "attachment point": 'attachment_point_required',
+        self.item_info = {
+            "-- Description --": ('description', item.description),
+            "-- Weight --": ('weight', item.weight),
 
             # healing consumable
-            "healing amount": 'amount',
+            "-- Healing Amount --": ('amount', getattr(self.item.usable_properties, 'amount', 1)),
 
             # weapon
-            "maximum range": 'maximum_range',
-            "equip turns": 'ap_to_equip',
+            "-- AP to Equip --": ('ap_to_equip', getattr(self.item.usable_properties, 'ap_to_equip', 1)),
 
             # melee weapon
-            "base damage": 'base_meat_damage',
-            "base armour damage": 'base_armour_damage',
-            "accuracy modifier": 'base_accuracy',
+            "-- Damage --": ('base_meat_damage', getattr(self.item.usable_properties, 'base_meat_damage', 1)),
+            "-- Armour Damage --": ('base_armour_damage',
+                                    getattr(self.item.usable_properties, 'base_armour_damage', 1)),
+            "-- Accuracy Modifier --": ('base_accuracy', getattr(self.item.usable_properties, 'base_accuracy', 1)),
 
             # bullet
-            "round type": 'bullet_type',
-            "bullet mass (grains)": 'mass',
-            "charge mass (grains)": 'charge_mass',
-            "bullet diameter (inches)": 'diameter',
-            "bullet velocity (fps)": 'velocity',
-            "sound modifier": 'sound_modifier',
-            "spread modifier": 'spread_modifier',
-            "ballistic coefficient": 'ballistic_coefficient',
-            "drag coefficient": 'drag_coefficient',
-            "projectile amount": 'projectile_no',
+            "-- Round Type --": ('bullet_type', getattr(self.item.usable_properties, 'bullet_type', 1)),
+            "-- Bullet Mass (Grains) --": ('mass', getattr(self.item.usable_properties, 'mass', 1)),
+            "-- Charge Mass (Grains) --": ('charge_mass', getattr(self.item.usable_properties, 'charge_mass', 1)),
+            "-- Bullet Diameter (Inch) --": ('diameter', getattr(self.item.usable_properties, 'diameter', 1)),
+            "-- Bullet Velocity (Feet/Sec) --": ('velocity', getattr(self.item.usable_properties, 'velocity', 1)),
+            "-- Shot Sound Modifier --": ('sound_modifier',
+                                          getattr(self.item.usable_properties, 'sound_modifier', 1)),
+            "-- Bullet Spread Modifier --": ('spread_modifier',
+                                             getattr(self.item.usable_properties, 'spread_modifier', 1)),
+            "-- Ballistic Coefficient --": ('ballistic_coefficient',
+                                            getattr(self.item.usable_properties, 'ballistic_coefficient', 1)),
+            "-- Drag Coefficient --": ('drag_coefficient', getattr(self.item.usable_properties, 'drag_coefficient',
+                                                                   1)),
+            "-- Projectile Amount --": ('projectile_no', getattr(self.item.usable_properties, 'projectile_no', 1)),
 
             # magazine
-            "magazine type": 'magazine_type',
-            "magazine size": 'magazine_size',
-            "magazine capacity": 'mag_capacity',
-            "compatible round": 'compatible_bullet_type',
-            "turns to load": 'ap_to_load',
+            "-- Magazine Type --": ('magazine_type', getattr(self.item.usable_properties, 'magazine_type', 1)),
+            "-- Magazine Size --": ('magazine_size', getattr(self.item.usable_properties, 'magazine_size', 1)),
+            "-- Magazine Capacity --": ('mag_capacity', getattr(self.item.usable_properties, 'mag_capacity', 1)),
+            "-- Compatible Round --": ('compatible_bullet_type',
+                                       getattr(self.item.usable_properties, 'compatible_bullet_type', 1)),
+            "-- AP to Load --": ('ap_to_load', getattr(self.item.usable_properties, 'ap_to_load', 1)),
 
             # gun
-            "felt recoil": 'felt_recoil',
-            "reload time modifier": 'load_time_modifier',
-            "fire rate modifier": 'fire_rate_modifier',
-            "barrel length": 'barrel_length',
-            "zero range": 'zero_range',
-            "sight height over bore": 'sight_height_above_bore',
-            "receiver height above bore": 'receiver_height_above_bore',
-            "AP cost distance modifier": 'ap_distance_cost_modifier',
-            "target acquisition AP cost": 'target_acquisition_ap',
-            "AP cost to fire": 'firing_ap_cost',
-            "muzzle break efficiency": 'muzzle_break_efficiency',
-            "shot sound modifier": 'sound_modifier',
-            "bullet velocity modifier": 'velocity_modifier',
-            "bullet spread": 'spread_modifier',
+            "-- Felt Recoil Modifier --": ('felt_recoil', getattr(self.item.usable_properties, 'felt_recoil', 1)),
+            "-- Reload AP Modifier --": ('load_time_modifier',
+                                         getattr(self.item.usable_properties, 'load_time_modifier', 1)),
+            "-- Fire Rate Modifier --": ('fire_rate_modifier',
+                                         getattr(self.item.usable_properties, 'fire_rate_modifier', 1)),
+            "-- Barrel Length (Inch) --": ('barrel_length',
+                                           getattr(self.item.usable_properties, 'barrel_length', 1) * 12),
+            "-- Zero Range (Yard) --": ('zero_range', getattr(self.item.usable_properties, 'zero_range', 1)),
+            "-- Sight Height Over Bore (Inch) --": ('sight_height_above_bore',
+                                                    getattr(self.item.usable_properties, 'sight_height_above_bore',
+                                                            1)),
+            "-- Sight Mount / Over Bore (Inch) --": ('receiver_height_above_bore',
+                                                     getattr(self.item.usable_properties,
+                                                             'receiver_height_above_bore', 1)),
+            "-- AP Cost Distance Modifier --": ('ap_distance_cost_modifier',
+                                                getattr(self.item.usable_properties, 'ap_distance_cost_modifier', 1)),
+            "-- AP Cost Target Acquisition --": ('target_acquisition_ap',
+                                                 getattr(self.item.usable_properties, 'target_acquisition_ap', 1)),
+            "-- AP Cost to Fire --": ('firing_ap_cost', getattr(self.item.usable_properties, 'firing_ap_cost', 1)),
+            "-- Muzzle Break Efficiency % --": ('muzzle_break_efficiency',
+                                                (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
+                                                         1)) * 100),
+            "-- Bullet Velocity Modifier --": ('velocity_modifier',
+                                               getattr(self.item.usable_properties, 'velocity_modifier', 1)),
 
             # mag fed
-            "compatible magazine": 'compatible_magazine_type',
+            "-- Compatible Magazine Type --": ('compatible_magazine_type',
+                                               getattr(self.item.usable_properties, 'compatible_magazine_type', 1)),
 
             # wearable
-            "fits bodypart": 'fits_bodypart',
-            "protection": 'protection',
-            "large mag slots": 'large_mag_slots',
-            "medium mag slots": 'medium_mag_slots',
-            "small mag slots": 'small_mag_slots',
+            "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
+            "-- Protection --": ('protection', getattr(self.item.usable_properties, 'protection', 1)),
+            "-- Large Magazine Slots --": ('large_mag_slots',
+                                           getattr(self.item.usable_properties, 'large_mag_slots', 1)),
+            "-- Medium Magazine Slots --": ('medium_mag_slots',
+                                            getattr(self.item.usable_properties, 'medium_mag_slots', 1)),
+            "-- Small Magazine Slots --": ('small_mag_slots',
+                                           getattr(self.item.usable_properties, 'small_mag_slots', 1)),
 
             # component part
-            "part type": 'part_type',
-            "prevents suppression": 'prevents_suppression',
+            "-- Part Type --": ('part_type', getattr(self.item.usable_properties, 'part_type', 1)),
+            "-- Prevents Suppression --": ('prevents_suppression',
+                                           getattr(self.item.usable_properties, 'prevents_suppression', 1)),
 
             # gun component
-            "compatible parts": 'compatible_parts',
-            "has attachment points": 'is_attachment_point_types',
-            "requires additional parts": 'additional_required_parts',
-            "requires attachment point": 'attachment_point_required',
+            "-- Compatible Parts --": ('compatible_parts',
+                                       getattr(self.item.usable_properties, 'compatible_parts', 1)),
+            "-- Has Attachment Points --": ('is_attachment_point_types',
+                                            getattr(self.item.usable_properties, 'is_attachment_point_types', 1)),
+            "-- Additional Parts Required --": ('additional_required_parts',
+                                                getattr(self.item.usable_properties, 'additional_required_parts', 1)),
+            "-- Compatible Attachment Points --": ('attachment_point_required',
+                                                   getattr(self.item.usable_properties, 'attachment_point_required',
+                                                           1)),
         }
 
-        for key, value in additonal_info.items():
-            if hasattr(item.usable_properties, value):
-                item_info[key] = getattr(item.usable_properties, value)
+        item_properties = dir(self.item) + dir(self.item.usable_properties)
 
-                if isinstance(value, dict):
-                    for key_2, value_2 in value:
-                        item_info[key] = f"{key_2:}"
+        keys_to_delete = []
+
+        for key, value in self.item_info.items():
+            if not self.item_info[key][0] in item_properties:
+                keys_to_delete.append(key)
+
+            else:
+                if isinstance(value[1], dict):
+                    for key_2, value_2 in value[1]:
+                        self.item_info[key] = f"{key_2:}"
                         for string in value_2:
-                            item_info[key] += f" {string}"
+                            self.item_info[key] += f" {string}"
                             if not string == value_2[-1]:
-                                item_info[key] += ', '
+                                self.item_info[key] += ', '
 
-                elif type(value) in (list, tuple):
-                    item_info[key] = ''
-                    for x in value:
-                        item_info[key] += f"{x}"
-                        if not x == value[-1]:
-                            item_info[key] += ', '
+                elif type(value[1]) in (list, tuple):
+                    self.item_info[key] = ''
+                    for x in value[1]:
+                        self.item_info[key] += f"{x}"
+                        if not x == value[1][-1]:
+                            self.item_info[key] += ', '
 
         if isinstance(item.usable_properties, Gun):
-            fire_modes = {"fire modes": ''}
+            fire_modes_str = ''
+
             for key, value in item.usable_properties.fire_modes.items():
                 if key == "single shot":
-                    fire_modes["fire modes"] += 'single shot, '
+                    fire_modes_str += 'single shot, '
                 elif key == "rapid fire (semi-auto)":
                     pass
                 else:
-                    fire_modes["fire modes"] += f"{key} - {value}RPM, "
+                    fire_modes_str += f"{key} - {value}RPM, "
 
-            item_info.update(fire_modes)
+            fire_modes = {" -- Fire Modes -- ": ('', fire_modes_str)}
+            self.item_info.update(fire_modes)
 
-        self.item_info = item_info
+        for key in keys_to_delete:
+            del self.item_info[key]
+
+        self.menu_length = len(self.item_info.keys())
+        self.menu_length_remaining = self.menu_length
+
+        for value in self.item_info.values():
+            if len(str(value)) > 36:
+                self.menu_length += ceil((len(str(value))) / 36)
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)  # Draw the main state as the background.
 
-        height = len(self.item_info) * 2 + 2
-
-        for key, value in self.item_info.items():
-            if len(str(value)) > 36:
-                height += ceil((len(str(value))) / 36)
+        height = min(self.menu_length, self.max_list_length) + 2
 
         console.draw_frame(
             x=1,
             y=1,
             width=40,
-            height=height,
+            height=height + 1,
             title=self.TITLE,
             clear=True,
             fg=colour.WHITE,
@@ -1649,17 +1683,29 @@ class InspectItemViewer(AskUserEventHandler):
 
         y = 2
 
-        for key, value in self.item_info.items():
+        for key, value in \
+                list(self.item_info.items())[self.scroll_position:self.scroll_position + self.max_list_length]:
             wrapper = textwrap.TextWrapper(width=36)
-            word_list = wrapper.wrap(text=str(value))
-            console.print(x=2, y=y, string=f"{key}", fg=colour.LIGHT_GREEN)
+            word_list = wrapper.wrap(text=str(value[1]))
+            console.print(x=2, y=y, string=key.center(38), fg=colour.LIGHT_GREEN)
             y += 1
             for string in word_list:
                 console.print(x=2, y=y, string=string)
                 y += 1
 
+            if y > 2 + self.max_list_length:
+                break
+
         if self.inspect_parts_option:
-            console.print(x=2, y=y + 1, string=f"(i) show parts")
+            console.print(x=2, y=height + 2, string="(i) show parts", bg=(0, 0, 0))
+
+        console.print(x=2, y=height + 3, string="use arrow keys to scroll", bg=(0, 0, 0))
+
+        if not self.scroll_position == 0:
+            console.print(x=1, y=2, string="▲")
+
+        if self.scroll_position < self.menu_length_remaining - self.scroll_position:
+            console.print(x=1, y=height, string="▼")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
 
@@ -1668,6 +1714,34 @@ class InspectItemViewer(AskUserEventHandler):
         if key == tcod.event.K_i:
             if self.inspect_parts_option:
                 return ShowParts(engine=self.engine, item=self.item)
+
+        elif key == tcod.event.K_UP:
+
+            menu_length = \
+                len(list(self.item_info.keys())[self.scroll_position:self.scroll_position + self.max_list_length])
+
+            for value in self.item_info.values():
+                if len(str(value)) > 36:
+                    menu_length += ceil((len(str(value))) / 36)
+
+            self.menu_length_remaining = menu_length
+
+            if self.scroll_position > 0:
+                self.scroll_position -= 1
+
+        elif key == tcod.event.K_DOWN:
+
+            menu_length = \
+                len(list(self.item_info.keys())[self.scroll_position:self.scroll_position + self.max_list_length])
+
+            for value in self.item_info.values():
+                if len(str(value)) > 36:
+                    menu_length += ceil((len(str(value))) / 36)
+
+            self.menu_length_remaining = menu_length
+
+            if self.scroll_position < menu_length - self.scroll_position:
+                self.scroll_position += 1
 
         elif key == tcod.event.K_ESCAPE:
             return MainGameEventHandler(self.engine)
