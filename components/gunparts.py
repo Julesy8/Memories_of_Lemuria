@@ -11,15 +11,17 @@ class Parts:
 
     def __init__(self):
         self.part_list = []
-        self.update_partlist()
+        self.attachment_dict = {}
+        self.update_partlist(attachment_dict={})
 
         self.non_multiplicative_properties = ["barrel_length", "zero_range", "sight_height_above_bore",
                                               "receiver_height_above_bore", "muzzle_break_efficiency"]
 
         self.additive_properties = ["receiver_height_above_bore"]
 
-    def update_partlist(self):
+    def update_partlist(self, attachment_dict: dict):
         all_attributes = self.__dict__.values()
+        self.attachment_dict = attachment_dict
 
         for attribute in all_attributes:
             if isinstance(attribute, Item):
@@ -102,6 +104,7 @@ class Parts:
                     self.parent.parent = item
                     item.usable_properties = self.parent
 
+            # updates the item weight to be the total weight of all parts added so far
             item.weight = total_weight
 
             # adds prefixes and suffixes
@@ -112,9 +115,19 @@ class Parts:
 
             # true if part is secondary gripping surface e.g. vertical grip or handguard
             if hasattr(part.usable_properties, 'grip_properties'):
-                grip_properties = part.usable_properties.grip_properties.__dict__
-            else:
-                self.set_property(part_properties=part.usable_properties.__dict__)
+                grip_properties = part.usable_properties.grip_properties
+
+            # if current part is an optic, iterates through part list to find the part to which the optic is
+            # currently attached. If found, updates the gun properties with that of the optic mount.
+            if part.usable_properties.part_type == 'Optic':
+                for x in self.part_list:
+                    if hasattr(x.usable_properties, 'is_attachment_point_types'):
+                        if part in self.attachment_dict[x.name].values():
+                            if hasattr(x.usable_properties, 'optic_mount_properties'):
+                                self.set_property(part_properties=x.usable_properties.optic_mount_properties)
+
+            # updates gun properties with that of the current part
+            self.set_property(part_properties=part.usable_properties.__dict__)
 
         # gives item suitable prefixes and suffixes
         if not prefixes == '':
@@ -164,6 +177,12 @@ class Parts:
         if isinstance(inventory, Inventory):
             if gun_item in inventory.items:
                 for part in self.part_list:
+
+                    # resets all attachment points on parts to None
+                    if hasattr(part.usable_properties, 'is_attachment_point_types'):
+                        for attachment_points in part.usable_properties.is_attachment_point_types.keys():
+                            part.usable_properties.is_attachment_point_types[attachment_points] = None
+
                     inventory.items.append(part)
 
                 if isinstance(gun_item.usable_properties, GunMagFed):

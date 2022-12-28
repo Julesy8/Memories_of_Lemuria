@@ -29,8 +29,9 @@ glock17_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
                                    is_attachment_point_types=['Barrel Thread M13.5x1 LH', ],
-                                   compatible_parts={'Glock 17 Slide': ['Glock 17 Slide', "Glock 17 Slide w/ Optics Cut",
-                                                                        'Glock 17 Custom Slide']},
+                                   compatible_parts={
+                                       'Glock 17 Slide': ['Glock 17 Slide', "Glock 17 Slide w/ Optics Cut",
+                                                          'Glock 17 Custom Slide']},
                                    barrel_length=0.37,
                                    ),
     description='Standard Glock 17 barrel'
@@ -130,6 +131,7 @@ glock17_slide = Item(
     weight=0.357,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
+                                   is_optic=True,
                                    ),
     description='Glock 17 slide'
 )
@@ -142,6 +144,7 @@ glock17l_slide = Item(
     weight=0.374,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
+                                   is_optic=True,
                                    ),
     description='Glock 17L slide. Longer than the standard Glock 17 slide'
 )
@@ -155,8 +158,48 @@ glock17_slide_optic = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
                                    is_attachment_point_types=['Pistol Optics Mount', ],
+                                   is_optic=True,
                                    ),
     description='Glock 17 slide, machined to allow the mounting of optics such as RMRs'
+)
+
+holosun503 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Holosun HS503R Red Dot Sight",
+    weight=0.106,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   zero_range=25,
+                                   target_acquisition_ap=0.9,
+                                   ap_distance_cost_modifier=0.83,
+                                   ap_to_equip=1.04,
+                                   spread_modifier=0.76,
+                                   attachment_point_required=('Picrail Optics Mount - Long',
+                                                              'Picrail Optics Mount - Short'),
+                                   is_optic=True,
+                                   ),
+    description='A small unmagnified red dot optical sight by holosun designed for rifles and carbines'
+)
+
+holosun503_pistol = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Holosun HS503R Red Dot Sight - Pistol",
+    weight=0.106,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   zero_range=25,
+                                   target_acquisition_ap=0.9,
+                                   ap_distance_cost_modifier=0.83,
+                                   ap_to_equip=1.04,
+                                   spread_modifier=0.76,
+                                   attachment_point_required=('Pistol Optics Mount', ),
+                                   is_optic=True,
+                                   ),
+    description='A small unmagnified red dot optical sight by holosun designed for rifles and carbines'
 )
 
 glock17l_slide_optic = Item(
@@ -168,6 +211,7 @@ glock17l_slide_optic = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Slide',
                                    is_attachment_point_types=['Pistol Optics Mount', ],
+                                   is_optic=True,
                                    ),
     description='Glock 17L slide, machined to allow the mounting of optics such as RMRs. Longer than the standard '
                 'Glock 17 slide'
@@ -183,6 +227,7 @@ glock17_slide_custom = Item(
     usable_properties=GunComponent(part_type='Glock 17 Slide',
                                    is_attachment_point_types=['Pistol Optics Mount', ],
                                    target_acquisition_ap=0.95,
+                                   is_optic=True,
                                    ),
     description='Custom milled Glock 17 slide, reducing weight and vastly improving aesthetics. '
                 'Machined to allow the mounting of optics such as RMRs'
@@ -198,6 +243,7 @@ glock17l_slide_custom = Item(
     usable_properties=GunComponent(part_type='Glock 17 Slide',
                                    is_attachment_point_types=['Pistol Optics Mount', ],
                                    target_acquisition_ap=0.95,
+                                   is_optic=True,
                                    ),
     description='Custom milled Glock 17L slide, reducing weight and vastly improving aesthetics. '
                 'Machined to allow the mounting of optics such as RMRs'
@@ -265,7 +311,7 @@ glock_pic_rail = Item(
     usable_properties=GunComponent(part_type='Glock Optics Mount',
                                    is_attachment_point_types=['Picrail Optics Mount - Short', ],
                                    additional_required_parts=['Optic', ],
-                                   receiver_height_above_bore=0.49,
+                                   optic_mount_properties={'receiver_height_above_bore': 0.49},
                                    ),
     description='An aftermarket picatinny rail sight mount for Glock handguns'
 )
@@ -354,8 +400,8 @@ glock17dict = {
                     "Glock Base Plate": 1,
                     "Side Mounted Accessory": 1,
                     "Underbarrel Accessory": 1,
+                    "Optic": 1,
                     "Muzzle Device": 1,
-                    "Optic": 1
                 },
                 "item": glock_17
             },

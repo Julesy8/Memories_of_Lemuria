@@ -881,10 +881,12 @@ class GunComponent(ComponentPart):
                  part_type: str,
                  prevents_suppression=False,
                  is_suppressor=False,
+                 is_optic=False,  # TODO - update parts with property
                  **kwargs,
                  ):
         self.prevents_suppression = prevents_suppression
         self.is_suppressor = is_suppressor
+        self.is_optic = is_optic
         self.__dict__.update(kwargs)
 
         super().__init__(

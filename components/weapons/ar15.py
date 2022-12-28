@@ -1351,6 +1351,8 @@ ar_carry_handle = Item(
     usable_properties=GunComponent(part_type='Optics',
                                    tags=['Carry Handle Attachment', ],
                                    additional_required_parts=('AR Front Sight', ),
+                                   # keys: mount type, values: accessory type
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    receiver_height_above_bore=1.4
                                    ),
     description='Carry handle rear sight intended for AR-15 type rifles')
@@ -1407,7 +1409,7 @@ ardict = {
         "automatic rifles": {
             "AR Rifle": {
                 "required parts": {
-                    "AR Lower Receiver": 1,  # TODO - amount system probably unnecessary
+                    "AR Lower Receiver": 1,
                     "AR Upper Receiver": 1,
                     "AR Buffer": 1,
                     "AR Barrel": 1,

@@ -24,10 +24,12 @@ from copy import deepcopy
 
 from components.weapons.glock17 import glock_17
 
-#from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17l_barrel, \
-#    glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide, glock17_slide_custom, \
-#    glock17l_slide_custom, glock_switch, glock_9mm_compensator, \
-#    glock_stock, glock_pic_rail, glock_pistol_brace
+from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide, glock17_slide_optic, \
+    glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm, holosun503, holosun503_pistol
+
+# for crafting testing
+from pydantic.utils import deep_update
+from components.weapons.glock17 import glock17dict
 
 #from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
 #    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, \
@@ -67,11 +69,16 @@ def new_game() -> Engine:
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)
 
-    inventory_items = []
-
     #inventory_items = [mac1045,]
 
-    inventory_items = [glock_17]
+    #inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide, glock17_slide_optic,
+    #                   glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm]
+
+    inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide_optic,
+                       glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm,
+                       holosun503, holosun503_pistol]
+
+    engine.crafting_recipes = deep_update(engine.crafting_recipes, glock17dict)
 
     #inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel,
     #                   glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide,

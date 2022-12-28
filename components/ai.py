@@ -130,25 +130,26 @@ class HostileEnemy(BaseAI):
                                                targeted_actor=target, targeted_bodypart=None).attack()
 
             # reload if magazine below half capacity and player not visible, reloads
-            elif not self.engine.game_map.visible[self.entity.x, self.entity.y] and isinstance(
-                    held_item.usable_properties, Gun):
+            elif not self.engine.game_map.visible[self.entity.x, self.entity.y] and has_weapon:
 
-                mag_capacity = 0
-                mag_round_count = 0
+                if isinstance(held_item.usable_properties, Gun):
 
-                # integrated magazine gun
-                if hasattr(held_item.usable_properties, 'magazine'):
-                    mag_capacity = getattr(held_item.usable_properties, 'mag_capacity')
-                    mag_round_count = len(getattr(held_item.usable_properties, 'magazine'))
+                    mag_capacity = 0
+                    mag_round_count = 0
 
-                # magazine fed gun
-                elif hasattr(held_item.usable_properties, 'loaded_magazine'):
-                    loaded_magazine = getattr(held_item.usable_properties, 'loaded_magazine')
-                    mag_capacity = getattr(loaded_magazine, 'mag_capacity')
-                    mag_round_count = len(getattr(loaded_magazine, 'magazine'))
+                    # integrated magazine gun
+                    if hasattr(held_item.usable_properties, 'magazine'):
+                        mag_capacity = getattr(held_item.usable_properties, 'mag_capacity')
+                        mag_round_count = len(getattr(held_item.usable_properties, 'magazine'))
 
-                if mag_capacity < mag_round_count / 2:
-                    self.queued_action = ReloadAction(entity=self.entity, gun=held_item)
+                    # magazine fed gun
+                    elif hasattr(held_item.usable_properties, 'loaded_magazine'):
+                        loaded_magazine = getattr(held_item.usable_properties, 'loaded_magazine')
+                        mag_capacity = getattr(loaded_magazine, 'mag_capacity')
+                        mag_round_count = len(getattr(loaded_magazine, 'magazine'))
+
+                    if mag_capacity < mag_round_count / 2:
+                        self.queued_action = ReloadAction(entity=self.entity, gun=held_item)
 
             # any kind of movement action occurring
             elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:

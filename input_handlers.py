@@ -422,6 +422,7 @@ class UserOptionsWithPages(AskUserEventHandler):
 
         for item in self.options[index_range:index_range + self.max_list_length]:
 
+            # item is of the Item class
             if isinstance(item, Item):
                 stack_size = 0
 
@@ -429,9 +430,11 @@ class UserOptionsWithPages(AskUserEventHandler):
                     stack_size = 3 + item.stacking.stack_size
                 if len(item.name) + stack_size > longest_name_len:
                     longest_name_len = len(item.name) + stack_size
+
+            # item is a string
             else:
-                if len(item.name) > longest_name_len:
-                    longest_name_len = len(item.name)
+                if len(item) > longest_name_len:
+                    longest_name_len = len(item)
 
         if longest_name_len:
             if longest_name_len > width:
@@ -1269,7 +1272,9 @@ class SelectItemToCraft(UserOptionsWithPages):
                                 compatible_parts={},
                                 part_dict=part_dict,
                                 prevent_suppression=False,
-                                attachment_points=[]
+                                attachment_points=[],
+                                has_optic=False,
+                                attachments_dict={}
                                 )
             else:
                 return MainGameEventHandler(engine=self.engine)
@@ -1327,11 +1332,15 @@ class CraftGun(CraftItem):
                  compatible_parts: dict,
                  part_dict: dict,
                  prevent_suppression: bool,
-                 attachment_points: list
+                 attachment_points: list,
+                 attachments_dict: dict,
+                 has_optic: bool,
                  ):
 
         self.prevent_suppression = prevent_suppression
         self.attachment_points = attachment_points
+        self.attachments_dict = attachments_dict
+        self.has_optic = has_optic
 
         super().__init__(engine=engine,
                          item_to_craft=item_to_craft,
@@ -1358,12 +1367,28 @@ class CraftGun(CraftItem):
 
                     add_option = True
 
+                    # if the item is an optic, and if any of the current parts require an optic to be mounted,
+                    # prevents attachment item from being added as an option if it is incompatible with the part that
+                    # requires optics attachment
+                    if item.usable_properties.part_type == 'Optic':
+                        for part in self.part_dict.values():
+                            if part is not None:
+                                if hasattr(part.usable_properties, 'additional_required_parts'):
+                                    if 'Optic' in part.usable_properties.additional_required_parts \
+                                            and hasattr(item.usable_properties, 'attachment_point_required'):
+                                        if not any(attach_point in item.usable_properties.attachment_point_required
+                                                   for attach_point in
+                                                   part.usable_properties.is_attachment_point_types):
+                                            add_option = False
+
                     # checks if there is an attachment point compatible with the attachment
                     if hasattr(item.usable_properties, 'attachment_point_required'):
                         attachment_point = getattr(item.usable_properties, 'attachment_point_required')
                         if any(item in attachment_point for item in self.attachment_points):
-                            if attachment_point not in self.attachment_points:
-                                add_option = False
+                            pass
+
+                        else:
+                            add_option = False
 
                     if hasattr(item.usable_properties, 'incompatibilities'):
                         all_parts = []
@@ -1401,7 +1426,9 @@ class CraftGun(CraftItem):
                                 part_dict=self.part_dict,
                                 compatible_parts=self.compatible_parts,
                                 prevent_suppression=self.prevent_suppression,
-                                attachment_points=self.attachment_points
+                                attachment_points=self.attachment_points,
+                                attachments_dict=self.attachments_dict,
+                                has_optic=self.has_optic
                                 )
 
             # part is not required, adds the option to select no part
@@ -1429,6 +1456,10 @@ class CraftGun(CraftItem):
         if hasattr(option.usable_properties, 'is_attachment_point_types'):
             attachment_point_types = getattr(option.usable_properties, 'is_attachment_point_types')
             self.attachment_points.extend(attachment_point_types)
+            item_attachment_points = {}
+            for attachment_point in attachment_point_types:
+                item_attachment_points[attachment_point] = None
+            self.attachments_dict[option.name] = item_attachment_points
 
         if hasattr(option.usable_properties, 'additional_required_parts'):
             for i in option.usable_properties.additional_required_parts:
@@ -1438,57 +1469,25 @@ class CraftGun(CraftItem):
         if option.usable_properties.prevents_suppression:
             self.prevent_suppression = True
 
+        if option.usable_properties.is_optic:
+            self.has_optic = True
+
     def ev_on_option_selected(self, option):
 
         if not option == 'none':
+
+            # if requires attachment point, has player select specific attachment point
+            if hasattr(option.usable_properties, 'attachment_point_required'):
+                return SelectItemToAttach(engine=self.engine, item=option, crafting_handler=self)
+
             # sets part in part dict to be the selected part
             self.part_dict[self.parts[self.current_part_selection]] = option
             self.update_crafting_properties(option)
 
         # part is last part to select
         if self.parts[self.current_part_selection] == self.parts[-1]:
-            item = self.item_dict[self.item_name]['item']
-
-            craftable = True
-
-            # all possible components with the amount required to craft
-            full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
-                              **self.item_dict[self.item_name]['required parts']}
-
-            for key, value in self.part_dict.items():
-                if value is not None:
-                    if value in self.engine.player.inventory.items:
-
-                        # if crafting component in inventory is stacking, removes appropriate amount of item from
-                        # inventory
-                        if value.stacking:
-                            if value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] > 0:
-                                value.stacking.stack_size -= full_part_dict[value.usable_properties.part_type]
-                            elif value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] == 0:
-                                self.engine.player.inventory.items.remove(value)
-                            else:
-                                craftable = False
-
-                        # not stacking, removes from inventory
-                        else:
-                            self.engine.player.inventory.items.remove(value)
-
-                        if hasattr(item.usable_properties, 'parts'):
-                            setattr(item.usable_properties.parts, key, value)
-
-            if craftable:
-                if hasattr(item.usable_properties, 'parts'):
-                    item.usable_properties.parts.update_partlist()
-                item.parent = self.engine.player.inventory
-
-                for i in range(5):
-                    self.engine.handle_enemy_turns()
-
-                self.engine.player.inventory.add_to_inventory(item=item, item_container=None, amount=1)
-                return MainGameEventHandler(engine=self.engine)
-
-            else:
-                return MainGameEventHandler(engine=self.engine)
+            self.craft_item()
+            return MainGameEventHandler(engine=self.engine)
 
         else:
             self.current_part_selection += 1
@@ -1499,7 +1498,183 @@ class CraftGun(CraftItem):
                             part_dict=self.part_dict,
                             compatible_parts=self.compatible_parts,
                             prevent_suppression=self.prevent_suppression,
-                            attachment_points=self.attachment_points
+                            attachment_points=self.attachment_points,
+                            attachments_dict=self.attachments_dict,
+                            has_optic=self.has_optic
+                            )
+
+    def craft_item(self) -> Optional[ActionOrHandler]:
+
+        item = self.item_dict[self.item_name]['item']
+
+        craftable = True
+
+        # gun has no sights, cannot be crafted.
+        if not self.has_optic:
+            self.engine.message_log.add_message(f"Crafting failed - missing sights", colour.RED)
+            return MainGameEventHandler(self.engine)
+
+        # all possible components with the amount required to craft
+        full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
+                          **self.item_dict[self.item_name]['required parts']}
+
+        for key, value in self.part_dict.items():
+            if value is not None:
+                if value in self.engine.player.inventory.items:
+
+                    # if crafting component in inventory is stacking, removes appropriate amount of item from
+                    # inventory
+                    if value.stacking:
+                        if value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] > 0:
+                            value.stacking.stack_size -= full_part_dict[value.usable_properties.part_type]
+                        elif value.stacking.stack_size - full_part_dict[value.usable_properties.part_type] == 0:
+                            self.engine.player.inventory.items.remove(value)
+                        else:
+                            craftable = False
+
+                    # not stacking, removes from inventory
+                    else:
+                        self.engine.player.inventory.items.remove(value)
+
+                    if hasattr(item.usable_properties, 'parts'):
+                        setattr(item.usable_properties.parts, key, value)
+
+        if craftable:
+            if hasattr(item.usable_properties, 'parts'):
+                item.usable_properties.parts.update_partlist(attachment_dict=self.attachments_dict)
+            item.parent = self.engine.player.inventory
+
+            for i in range(5):
+                self.engine.handle_enemy_turns()
+
+            self.engine.player.inventory.add_to_inventory(item=item, item_container=None, amount=1)
+            return MainGameEventHandler(engine=self.engine)
+
+        else:
+            return MainGameEventHandler(engine=self.engine)
+
+
+class SelectItemToAttach(UserOptionsWithPages):
+
+    def __init__(self, engine: Engine, item: Item, crafting_handler: CraftGun):
+        title = f"Select Part to Attach to"
+
+        self.crafting_handler = crafting_handler
+        self.item = item  # item being attached to the attachment point (the accessory)
+
+        options = []
+
+        prevents_attachment_of = {}
+
+        # whether the part is an optic mount which, if present, an optic must be attached
+        required_optic_mount = False
+
+        # if the accessory is an optic, iterates through parts. If an additonal optics attachment is required for any
+        # of the parts, sets the attachment options to the given part.
+        if self.item.usable_properties.part_type == 'Optic':
+            for part in self.crafting_handler.part_dict.values():
+                if part is not None:
+                    if hasattr(part.usable_properties, 'additional_required_parts'):
+                        if 'Optic' in part.usable_properties.additional_required_parts:
+                            required_optic_mount = True
+                            options = [part, ]
+
+        if not required_optic_mount:
+            # iterate over each attachment point in item attachment point required
+            for attachment_point in item.usable_properties.attachment_point_required:
+
+                # iterates over each part currently added
+                for part in self.crafting_handler.part_dict.values():
+                    if part is not None:
+                        # part prevents attachment of certain accessories
+                        if hasattr(item.usable_properties, 'prevents_attachment_of'):
+                            part_prevents_attachment = getattr(item.usable_properties, 'prevents_attachment_of')
+                            prevents_attachment_of_keys = prevents_attachment_of.keys()
+                            for key, value in part_prevents_attachment.items():
+                                # if key already in prevents_attachment_of, updates it with new values
+                                if key in prevents_attachment_of_keys:
+                                    if value not in prevents_attachment_of[key]:
+                                        prevents_attachment_of[key] += value
+                                # key not already in dict, sets key and value
+                                else:
+                                    prevents_attachment_of[key] = value
+
+                        # if the given part has the attachment point and not already in options and this combination is
+                        # not prevented by prevents_attachment_of, adds to options
+                        if hasattr(part.usable_properties, 'is_attachment_point_types'):
+
+                            if part.usable_properties.part_type in prevents_attachment_of.keys():
+                                if self.item.usable_properties.part_type \
+                                        not in prevents_attachment_of[part.usable_properties.part_type]:
+                                    possible_attachment_points = getattr(part.usable_properties,
+                                                                         'is_attachment_point_types')
+                                    if attachment_point in possible_attachment_points:
+                                        if part not in options:
+                                            options.append(part)
+                            else:
+                                possible_attachment_points = getattr(part.usable_properties,
+                                                                     'is_attachment_point_types')
+                                if attachment_point in list(possible_attachment_points):
+                                    if part not in options:
+                                        options.append(part)
+
+        super().__init__(engine=engine, options=options, page=0, title=title)
+
+    def ev_on_option_selected(self, attachment_point_item: Item) -> Optional[ActionOrHandler]:
+
+        return SelectAttachPoint(engine=self.engine, attach_point_item=attachment_point_item, accessory=self.item,
+                                 crafting_handler=self.crafting_handler)
+
+
+class SelectAttachPoint(UserOptionsWithPages):
+
+    def __init__(self, engine: Engine, attach_point_item: Item, accessory: Item, crafting_handler: CraftGun):
+        title = f"Select Attachment Point"
+
+        self.crafting_handler = crafting_handler
+        self.attachment_point_item = attach_point_item
+        self.accessory = accessory
+
+        options = []
+
+        # iterates through all possible attachment points in attachment point types dict and if they are 'None' value
+        # (no attachment at this point), adds to options
+        for attachment_point in attach_point_item.usable_properties.is_attachment_point_types:
+            if attachment_point in self.crafting_handler.attachments_dict[attach_point_item.name].keys():
+                if self.crafting_handler.attachments_dict[attach_point_item.name][attachment_point] is None:
+                    options.append(attachment_point)
+
+        super().__init__(engine=engine, options=options, page=0, title=title)
+
+    def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+
+        # sets value for the given attachment point of the part to attach to be attached part
+        self.crafting_handler.attachments_dict[self.attachment_point_item.name][option] = self.accessory
+
+        # sets part in part dict to be the selected part
+        self.crafting_handler.part_dict[self.crafting_handler.parts[self.crafting_handler.current_part_selection]] = \
+            self.accessory
+        self.crafting_handler.update_crafting_properties(self.accessory)
+
+        # part is last part to select, crafts item
+        if self.crafting_handler.parts[self.crafting_handler.current_part_selection] == self.crafting_handler.parts[-1]:
+            self.crafting_handler.craft_item()
+            return MainGameEventHandler(engine=self.engine)
+
+        # still more parts, continues to next part type
+        else:
+            self.crafting_handler.current_part_selection += 1
+
+            return CraftGun(engine=self.engine,
+                            current_part_index=self.crafting_handler.current_part_selection,
+                            item_to_craft=self.crafting_handler.item_name,
+                            item_dict=self.crafting_handler.item_dict,
+                            part_dict=self.crafting_handler.part_dict,
+                            compatible_parts=self.crafting_handler.compatible_parts,
+                            prevent_suppression=self.crafting_handler.prevent_suppression,
+                            attachment_points=self.crafting_handler.attachment_points,
+                            attachments_dict=self.crafting_handler.attachments_dict,
+                            has_optic=self.crafting_handler.has_optic
                             )
 
 
@@ -1528,7 +1703,7 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Healing Amount --": ('amount', getattr(self.item.usable_properties, 'amount', 1)),
 
             # weapon
-            "-- AP to Equip --": ('ap_to_equip', getattr(self.item.usable_properties, 'ap_to_equip', 1)),
+            "-- AP to Equip --": ('ap_to_equip', round(getattr(self.item.usable_properties, 'ap_to_equip', 1), 3)),
 
             # melee weapon
             "-- Damage --": ('base_meat_damage', getattr(self.item.usable_properties, 'base_meat_damage', 1)),
@@ -1543,9 +1718,9 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Bullet Diameter (Inch) --": ('diameter', getattr(self.item.usable_properties, 'diameter', 1)),
             "-- Bullet Velocity (Feet/Sec) --": ('velocity', getattr(self.item.usable_properties, 'velocity', 1)),
             "-- Shot Sound Modifier --": ('sound_modifier',
-                                          getattr(self.item.usable_properties, 'sound_modifier', 1)),
+                                          round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
             "-- Bullet Spread Modifier --": ('spread_modifier',
-                                             getattr(self.item.usable_properties, 'spread_modifier', 1)),
+                                             round(getattr(self.item.usable_properties, 'spread_modifier', 1), 3)),
             "-- Ballistic Coefficient --": ('ballistic_coefficient',
                                             getattr(self.item.usable_properties, 'ballistic_coefficient', 1)),
             "-- Drag Coefficient --": ('drag_coefficient', getattr(self.item.usable_properties, 'drag_coefficient',
@@ -1561,13 +1736,14 @@ class InspectItemViewer(AskUserEventHandler):
             "-- AP to Load --": ('ap_to_load', getattr(self.item.usable_properties, 'ap_to_load', 1)),
 
             # gun
-            "-- Felt Recoil Modifier --": ('felt_recoil', getattr(self.item.usable_properties, 'felt_recoil', 1)),
+            "-- Felt Recoil Modifier --": ('felt_recoil', round(getattr(self.item.usable_properties, 'felt_recoil',
+                                                                        1), 3)),
             "-- Reload AP Modifier --": ('load_time_modifier',
-                                         getattr(self.item.usable_properties, 'load_time_modifier', 1)),
+                                         round(getattr(self.item.usable_properties, 'load_time_modifier', 1), 3)),
             "-- Fire Rate Modifier --": ('fire_rate_modifier',
-                                         getattr(self.item.usable_properties, 'fire_rate_modifier', 1)),
+                                         round(getattr(self.item.usable_properties, 'fire_rate_modifier', 1), 3)),
             "-- Barrel Length (Inch) --": ('barrel_length',
-                                           getattr(self.item.usable_properties, 'barrel_length', 1) * 12),
+                                           round((getattr(self.item.usable_properties, 'barrel_length', 1) * 12), 3)),
             "-- Zero Range (Yard) --": ('zero_range', getattr(self.item.usable_properties, 'zero_range', 1)),
             "-- Sight Height Over Bore (Inch) --": ('sight_height_above_bore',
                                                     getattr(self.item.usable_properties, 'sight_height_above_bore',
@@ -1576,15 +1752,18 @@ class InspectItemViewer(AskUserEventHandler):
                                                      getattr(self.item.usable_properties,
                                                              'receiver_height_above_bore', 1)),
             "-- AP Cost Distance Modifier --": ('ap_distance_cost_modifier',
-                                                getattr(self.item.usable_properties, 'ap_distance_cost_modifier', 1)),
+                                                round(getattr(self.item.usable_properties, 'ap_distance_cost_modifier',
+                                                              1), 3)),
             "-- AP Cost Target Acquisition --": ('target_acquisition_ap',
-                                                 getattr(self.item.usable_properties, 'target_acquisition_ap', 1)),
-            "-- AP Cost to Fire --": ('firing_ap_cost', getattr(self.item.usable_properties, 'firing_ap_cost', 1)),
+                                                 round(getattr(self.item.usable_properties, 'target_acquisition_ap',
+                                                               1), 3)),
+            "-- AP Cost to Fire --": ('firing_ap_cost', round(getattr(self.item.usable_properties, 'firing_ap_cost',
+                                                                      1), 3)),
             "-- Muzzle Break Efficiency % --": ('muzzle_break_efficiency',
                                                 (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
                                                          1)) * 100),
             "-- Bullet Velocity Modifier --": ('velocity_modifier',
-                                               getattr(self.item.usable_properties, 'velocity_modifier', 1)),
+                                               round(getattr(self.item.usable_properties, 'velocity_modifier', 1), 3)),
 
             # mag fed
             "-- Compatible Magazine Type --": ('compatible_magazine_type',
@@ -1626,22 +1805,30 @@ class InspectItemViewer(AskUserEventHandler):
                 keys_to_delete.append(key)
 
             else:
+
+                new_string = ''
+
                 if isinstance(value[1], dict):
-                    for key_2, value_2 in value[1]:
-                        self.item_info[key] = f"{key_2:}"
+
+                    for key_2, value_2 in value[1].items():
+                        new_string += f"{key_2:}"
                         for string in value_2:
-                            self.item_info[key] += f" {string}"
+                            new_string += f" {string}"
                             if not string == value_2[-1]:
-                                self.item_info[key] += ', '
+                                new_string += ', '
+
+                    self.item_info[key] = ('', new_string)
 
                 elif type(value[1]) in (list, tuple):
-                    self.item_info[key] = ''
-                    for x in value[1]:
-                        self.item_info[key] += f"{x}"
-                        if not x == value[1][-1]:
-                            self.item_info[key] += ', '
 
-        if isinstance(item.usable_properties, Gun):
+                    for x in value[1]:
+                        new_string += f"{x}"
+                        if not x == value[1][-1]:
+                            new_string += ', '
+
+                    self.item_info[key] = ('', new_string)
+
+        if hasattr(item.usable_properties, 'fire_modes'):
             fire_modes_str = ''
 
             for key, value in item.usable_properties.fire_modes.items():
@@ -1650,7 +1837,7 @@ class InspectItemViewer(AskUserEventHandler):
                 elif key == "rapid fire (semi-auto)":
                     pass
                 else:
-                    fire_modes_str += f"{key} - {value}RPM, "
+                    fire_modes_str += f"{key} - {value['fire rate']}RPM, "
 
             fire_modes = {" -- Fire Modes -- ": ('', fire_modes_str)}
             self.item_info.update(fire_modes)
@@ -1664,6 +1851,8 @@ class InspectItemViewer(AskUserEventHandler):
         for value in self.item_info.values():
             if len(str(value)) > 36:
                 self.menu_length += ceil((len(str(value))) / 36)
+            else:
+                self.menu_length += 1
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)  # Draw the main state as the background.
@@ -1691,15 +1880,16 @@ class InspectItemViewer(AskUserEventHandler):
             y += 1
             for string in word_list:
                 console.print(x=2, y=y, string=string)
+                print(string)
                 y += 1
 
             if y > 2 + self.max_list_length:
                 break
 
         if self.inspect_parts_option:
-            console.print(x=2, y=height + 2, string="(i) show parts", bg=(0, 0, 0))
+            console.print(x=2, y=height + 3, string="(i) show parts", bg=(0, 0, 0))
 
-        console.print(x=2, y=height + 3, string="use arrow keys to scroll", bg=(0, 0, 0))
+        console.print(x=2, y=height + 2, string="use arrow keys to scroll", bg=(0, 0, 0))
 
         if not self.scroll_position == 0:
             console.print(x=1, y=2, string="▲")

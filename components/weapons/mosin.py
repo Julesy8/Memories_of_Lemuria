@@ -216,10 +216,10 @@ mosin_suppressor = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    suffix="Suppressed",
-                                   muzzle_break_efficiency=0.32,
-                                   sound_radius=0.7,
+                                   muzzle_break_efficiency=0.43,
+                                   sound_radius=0.54,
                                    fire_rate_modifier=1.1,
-                                   target_acquisition_ap=1.07,
+                                   target_acquisition_ap=1.13,
                                    attachment_point_required=('Mosin-Nagant Barrel',),
                                    is_suppressor=True
                                    ),
@@ -234,7 +234,7 @@ mosin_muzzlebreak = Item(
     weight=0.099,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.42,
+                                   muzzle_break_efficiency=0.71,
                                    target_acquisition_ap=1.04,
                                    attachment_point_required=('Mosin-Nagant Barrel',)
                                    ),

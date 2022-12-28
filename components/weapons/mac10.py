@@ -383,7 +383,7 @@ mac1045_carbine_barrel = Item(
                                    velocity_modifier=1.11,
                                    target_acquisition_ap=1.1,
                                    equip_time=1.2,
-                                   barrel_length=1.33,  # TODO - have item stats display different units
+                                   barrel_length=1.33,
                                    compatible_bullet_type='.45 ACP',
                                    suffix="Carbine"),
     description='A 16" carbine barrel for the M10/45 manufactured by MasterPiece Arms')
@@ -664,8 +664,8 @@ mac10_vertical_grip = Item(
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        spread_modifier=0.93,
-                                       felt_recoil=0.83,
-                                       target_acquisition_ap=0.92,
+                                       felt_recoil=0.8,
+                                       target_acquisition_ap=0.77,
                                        ap_distance_cost_modifier=0.95,
                                    ), ),
     description='A vertical grip that clamps onto the barrel of M10 pattern submachineguns'
@@ -726,7 +726,7 @@ mac1045_sionics_suppressor = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    is_suppressor=True,
-                                   muzzle_break_efficiency=0.35,
+                                   muzzle_break_efficiency=0.46,
                                    velocity_modifier=1.14,
                                    attachment_point_required=('Barrel Thread 7/8x9',),
                                    grip_properties=GunComponent(
@@ -751,7 +751,7 @@ mac109_sionics_suppressor = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    is_suppressor=True,
-                                   muzzle_break_efficiency=0.35,
+                                   muzzle_break_efficiency=0.46,
                                    velocity_modifier=1.14,
                                    attachment_point_required=('Barrel Thread 3/4x10',),
                                    grip_properties=GunComponent(

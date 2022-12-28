@@ -3,13 +3,12 @@ from components.consumables import GunComponent
 import colour
 
 # TODO - ability to adjust zero range
-# TODO - add new parts
-# TODO - better consider muzzle break balancing
+# TODO - add new parts - lasers, flash lights, 
 
 """
 OPTICS
 """
-
+# TODO - add sight height over bore
 holosun503 = Item(
     x=0, y=0,
     char="!",
@@ -219,6 +218,170 @@ okp7 = Item(
 )
 
 """
+Grips
+"""
+
+grip_hera_cqr = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="HERA Arms CQR Front Grip",
+    weight=0.14,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Long', ),
+                                   grip_properties=GunComponent( # TODO - make grip properties a normal dict
+                                       part_type='Grip',
+                                       felt_recoil=0.82,
+                                       ap_distance_cost_modifier=0.92,
+                                       spread_modifier=0.91,
+                                       target_acquisition_ap=0.8,
+                                   ),
+                                   ),
+    description="An ergonomic polymer front grip manufactured by HERA Arms designed for AR-type rifles"
+)
+
+grip_promag_vertical = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Pro Mag Vertical Grip",
+    weight=0.09,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       spread_modifier=0.94,
+                                       felt_recoil=0.78,
+                                       target_acquisition_ap=0.75,
+                                       ap_distance_cost_modifier=0.95,
+                                   ),
+                                   ),
+    description="A simple polymer front vertical grip designed by Pro Mag"
+)
+
+grip_jem_vertical = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="JE Machine Tech Vertical Grip",
+    weight=0.181,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.75,
+                                       ap_distance_cost_modifier=0.96,
+                                       spread_modifier=0.92,
+                                       target_acquisition_ap=0.79,
+                                   ),
+                                   ),
+    description="An ergonomic polymer pistol grip style vertical grip designed by JE Machine Tech"
+)
+
+grip_magpul_angled = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Magpul AFG2 Angled Foregrip",
+    weight=0.072,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Long', ),
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.87,
+                                       ap_distance_cost_modifier=0.89,
+                                       spread_modifier=0.87,
+                                       target_acquisition_ap=0.81,
+                                   ),
+                                   ),
+    description="An angled polymer foregrip designed by Magpul"
+)
+
+grip_magpul_mvg = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Magpul M-LOK MVG Vertical Grip",
+    weight=0.039,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.79,
+                                       ap_distance_cost_modifier=0.93,
+                                       spread_modifier=0.89,
+                                       target_acquisition_ap=0.78,
+                                   ),
+                                   ),
+    description="A short polymer vertical fore grip designed by Magpul"
+)
+
+grip_aimtac_short = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AIM Sports Tactical Vertical Grip",
+    weight=0.085,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.77,
+                                       ap_distance_cost_modifier=0.94,
+                                       spread_modifier=0.91,
+                                       target_acquisition_ap=0.76,
+                                   ),
+                                   ),
+    description="A short polymer vertical fore grip designed by AIM Sports Tactical"
+)
+
+grip_magpul_handstop = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Magpul M-LOK Hand Stop",
+    weight=0.025,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Long', ),
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       felt_recoil=0.85,
+                                       ap_distance_cost_modifier=0.87,
+                                       spread_modifier=0.89,
+                                       target_acquisition_ap=0.75,
+                                   ),
+                                   ),
+    description="A polymer hand stop designed by Magpul"
+)
+
+grip_hipoint_folding = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="HI Point Folding Vertical Grip",
+    weight=0.18,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Underbarrel Accessory',
+                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   grip_properties=GunComponent(
+                                       part_type='Grip',
+                                       spread_modifier=0.91,
+                                       felt_recoil=0.81,
+                                       target_acquisition_ap=0.75,
+                                       ap_distance_cost_modifier=0.93,
+                                   ),
+                                   ),
+    description="A slim, polymer folding vertical grip designed by HI Point"
+)
+
+"""
 Suppressor
 """
 
@@ -230,7 +393,7 @@ suppressor_obsidian_45 = Item(
     weight=0.36,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.31,
+                                   muzzle_break_efficiency=0.35,
                                    target_acquisition_ap=1.13,
                                    fire_rate_modifier=1.09,
                                    sound_radius=0.27,
@@ -248,7 +411,7 @@ suppressor_wolfman_9mm = Item(
     weight=0.408,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.35,
+                                   muzzle_break_efficiency=0.38,
                                    target_acquisition_ap=1.15,
                                    fire_rate_modifier=1.11,
                                    sound_radius=0.24,
@@ -266,7 +429,7 @@ suppressor_obsidian_9 = Item(
     weight=0.36,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.30,
+                                   muzzle_break_efficiency=0.33,
                                    target_acquisition_ap=1.12,
                                    fire_rate_modifier=1.08,
                                    sound_radius=0.25,
@@ -284,7 +447,7 @@ suppressor_saker_762 = Item(
     weight=0.663,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.31,
+                                   muzzle_break_efficiency=0.4,
                                    target_acquisition_ap=1.16,
                                    fire_rate_modifier=1.12,
                                    sound_radius=0.27,
@@ -345,17 +508,4 @@ laser_sight = Item(
                                    close_range_accuracy=1.05,
                                    ),
     description='A small red laser to assist with target aquisition'
-)
-
-forward_grip = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    name="Forward Grip",
-    weight=0.2,
-    stacking=None,
-    usable_properties=GunComponent(part_type='accessory_underbarrel',
-                                   recoil=0.9
-                                   ),
-    description='A vertical grip for easier recoil control'
 )
