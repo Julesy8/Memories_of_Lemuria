@@ -15,12 +15,14 @@ reciever_akm = Item(
     weight=2.34,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Reciever',
+                                   incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
                                    compatible_magazine_type='AK 7.62x39',
                                    compatible_bullet_type='7.62x39',
                                    compatible_parts={'AK Barrel': ['AK Barrel - 7.62x39', 'RPK Barrel - 7.62x39',
                                                                    'AK Carbine Barrel - 7.62x39',
                                                                    'AK Pistol Barrel - 7.62x39']},
+                                   is_optic=True,
                                    ),
     description='AKM stamped kalashnikov type reciever'
 )
@@ -33,12 +35,14 @@ reciever_ak74 = Item(
     weight=2.11,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Reciever',
+                                   incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
                                    compatible_magazine_type='AK 5.45x39',
                                    compatible_bullet_type='5.45x39',
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.45x39', 'RPK-74 Barrel - 5.45x39',
                                                                    'AK Carbine Barrel - 5.45x39',
                                                                    'AK Pistol Barrel - 5.45x39']},
+                                   is_optic=True,
                                    ),
     description='AK-74 stamped kalashnikov type reciever'
 )
@@ -51,12 +55,14 @@ reciever_100556 = Item(
     weight=2.11,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Reciever',
+                                   incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
                                    compatible_magazine_type='AK 5.56x45',
                                    compatible_bullet_type='5.56x45',
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.56x45',
                                                                    'AK Carbine Barrel - 5.56x45',
                                                                    'AK Pistol Barrel - 5.56x45']},
+                                   is_optic=True,
                                    ),
     description='AK 101/102 series reciever for 5.56x45 AK rifles'
 )
@@ -73,13 +79,11 @@ handguard_akm = Item(
     weight=0.144,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.82,
-                                       ap_distance_cost_modifier=0.91,
-                                       spread_modifier=0.9,
-                                       target_acquisition_ap=0.8,
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.82,
+                                       'ap_distance_cost_modifier': 0.91,
+                                       'spread_modifier': 0.9,
+                                       'target_acquisition_ap': 0.8},
                                    ),
     description='A wooden AKM-style hand guard'
 )
@@ -92,13 +96,11 @@ handguard_amd65 = Item(
     weight=0.284,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.79,
-                                       ap_distance_cost_modifier=0.95,
-                                       spread_modifier=0.93,
-                                       target_acquisition_ap=0.87,
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.79,
+                                       'ap_distance_cost_modifier': 0.95,
+                                       'spread_modifier': 0.93,
+                                       'target_acquisition_ap': 0.87},
                                    ),
     description='AMD-65 steel AK hand guard with vertical grip'
 )
@@ -111,13 +113,11 @@ handguard_ak74 = Item(
     weight=0.273,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.86,
-                                       ap_distance_cost_modifier=0.9,
-                                       spread_modifier=0.89,
-                                       target_acquisition_ap=0.78,
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.86,
+                                       'ap_distance_cost_modifier': 0.9,
+                                       'spread_modifier': 0.89,
+                                       'target_acquisition_ap': 0.78},
                                    ),
     description='Polymer hand guard such as that of the AK-74 and the AK-100 series'
 )
@@ -130,13 +130,11 @@ handguard_romanian = Item(
     weight=0.23,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.81,
-                                       ap_distance_cost_modifier=0.93,
-                                       spread_modifier=0.92,
-                                       target_acquisition_ap=0.89,
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.81,
+                                       'ap_distance_cost_modifier': 0.93,
+                                       'spread_modifier': 0.92,
+                                       'target_acquisition_ap': 0.89},
                                    ),
     description="A wooden hand guard featuring the signature romanian-style verticle grip"
 )
@@ -165,13 +163,11 @@ handguard_ak100 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
                                    is_attachment_point_types=['Picrail Underbarrel - Long', ],
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.86,
-                                       ap_distance_cost_modifier=0.9,
-                                       spread_modifier=0.9,
-                                       target_acquisition_ap=0.79,
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.86,
+                                       'ap_distance_cost_modifier': 0.9,
+                                       'spread_modifier': 0.9,
+                                       'target_acquisition_ap': 0.79},
                                    ),
     description="A polymer AK hand guard featuring picatinny rails on the underside"
 )
@@ -186,14 +182,13 @@ handguard_B10M = Item(
     usable_properties=GunComponent(part_type='AK Handguard',
                                    is_attachment_point_types=['Picrail Underbarrel - Long',
                                                               'Picrail Top Mount - Long',
+                                                              'Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Long'],
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.82,
-                                       ap_distance_cost_modifier=0.93,
-                                       spread_modifier=0.92,
-                                       target_acquisition_ap=0.78,
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.82,
+                                       'ap_distance_cost_modifier': 0.93,
+                                       'spread_modifier': 0.92,
+                                       'target_acquisition_ap': 0.78},
                                    ),
     description='An aftermarket AK hand guard by Zenitco, featuring picatinny rails on all sides'
 )
@@ -207,20 +202,18 @@ handguard_leader = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
                                    is_attachment_point_types=['MLOK Underbarrel - Long',
-                                                              'MLOK Top Mount - Long',  # todo - ability to mount optics without conflicting
+                                                              'MLOK Top Mount - Long',
                                                               'MLOK Side Mount - Long'],
                                    compatible_parts={'AK Barrel': ["AK Barrel - 7.62x39",
                                                                    "AK Barrel - 5.45x39",
                                                                    "AK Barrel - 5.56x45",
                                                                    "RPK Barrel - 7.62x39",
-                                                                   "RPK-74 Barrel - 5.45x39",]},
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.87,
-                                       ap_distance_cost_modifier=0.88,
-                                       spread_modifier=0.87,
-                                       target_acquisition_ap=0.78,
-                                   ),
+                                                                   "RPK-74 Barrel - 5.45x39"]},
+                                   grip_properties={
+                                       'felt_recoil': 0.87,
+                                       'ap_distance_cost_modifier': 0.88,
+                                       'spread_modifier': 0.87,
+                                       'target_acquisition_ap': 0.78},
                                    ),
     description='An aftermarket light weight long AK hand guard by Zenitco with MLOK rail attachment points'
 )
@@ -233,14 +226,12 @@ handguard_magpul = Item(
     weight=0.415,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Handguard',
-                                   is_attachment_point_types=['MLOK Underbarrel - Long',],
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.83,
-                                       ap_distance_cost_modifier=0.9,
-                                       spread_modifier=0.9,
-                                       target_acquisition_ap=0.8,
-                                   ),
+                                   is_attachment_point_types=['MLOK Underbarrel - Long', ],
+                                   grip_properties={
+                                       'felt_recoil': 0.83,
+                                       'ap_distance_cost_modifier': 0.9,
+                                       'spread_modifier': 0.9,
+                                       'target_acquisition_ap': 0.8},
                                    ),
     description='An aftermarket light weight polymer hand guard by Magpul with attachment points on its underside'
 )
@@ -947,9 +938,9 @@ accessory_dustcoverrail = Item(
     weight=0.01,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Optics Mount',
-                                   is_attachment_point_types=['Picrail Optics Mount - Long',],
+                                   is_attachment_point_types=['Picrail Optics Mount - Long', ],
                                    additional_required_parts=('Optic',),
-                                   receiver_height_above_bore=0.1,
+                                   optic_mount_properties={'receiver_height_above_bore': 0.1},
                                    ),
     description="An AK dust cover featuring a picatinny rail for optics mounting"
 )
@@ -962,9 +953,9 @@ accessory_railsidemount = Item(
     weight=0.175,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Optics Mount',
-                                   is_attachment_point_types=['Picrail Optics Mount - Short',],
+                                   is_attachment_point_types=['Picrail Optics Mount - Short', ],
                                    additional_required_parts=('Optic',),
-                                   receiver_height_above_bore=0.1,
+                                   optic_mount_properties={'receiver_height_above_bore': 0.1},
                                    ),
     description="A side mounted AK picatinny rail for optics mounting"
 )
@@ -1030,6 +1021,7 @@ akmdict = {
                 },
                 "compatible parts": {
                     "AK Stock": 1,
+                    "Attachment Adapter": 1,
                     "AK Optics Mount": 1,
                     "Side Mounted Accessory": 1,
                     "Underbarrel Accessory": 1,

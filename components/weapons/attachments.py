@@ -162,7 +162,6 @@ compactprism = Item(
     description='A fixed 2x magnification scope by Monstrum Tactical'
 )
 
-
 pm2scope = Item(
     x=0, y=0,
     char="!",
@@ -176,7 +175,7 @@ pm2scope = Item(
                                    ap_distance_cost_modifier=0.63,
                                    ap_to_equip=1.11,
                                    spread_modifier=0.62,
-                                   attachment_point_required=('Picrail Optics Mount - Long', ),
+                                   attachment_point_required=('Picrail Optics Mount - Long',),
                                    ),
     description='A popular precision scope by Schmidt and Bender capable of 1-8x magnification'
 )
@@ -229,8 +228,8 @@ grip_hera_cqr = Item(
     weight=0.14,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Long', ),
-                                   grip_properties=GunComponent( # TODO - make grip properties a normal dict
+                                   attachment_point_required=('Picrail Underbarrel - Long',),
+                                   grip_properties=GunComponent(  # TODO - make grip properties a normal dict
                                        part_type='Grip',
                                        felt_recoil=0.82,
                                        ap_distance_cost_modifier=0.92,
@@ -249,7 +248,7 @@ grip_promag_vertical = Item(
     weight=0.09,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   attachment_point_required=('Picrail Underbarrel - Short',),
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        spread_modifier=0.94,
@@ -269,7 +268,7 @@ grip_jem_vertical = Item(
     weight=0.181,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   attachment_point_required=('Picrail Underbarrel - Short',),
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        felt_recoil=0.75,
@@ -289,7 +288,7 @@ grip_magpul_angled = Item(
     weight=0.072,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Long', ),
+                                   attachment_point_required=('Picrail Underbarrel - Long',),
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        felt_recoil=0.87,
@@ -309,7 +308,7 @@ grip_magpul_mvg = Item(
     weight=0.039,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   attachment_point_required=('Picrail Underbarrel - Short',),
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        felt_recoil=0.79,
@@ -329,7 +328,7 @@ grip_aimtac_short = Item(
     weight=0.085,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   attachment_point_required=('Picrail Underbarrel - Short',),
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        felt_recoil=0.77,
@@ -349,7 +348,7 @@ grip_magpul_handstop = Item(
     weight=0.025,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Long', ),
+                                   attachment_point_required=('Picrail Underbarrel - Long',),
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        felt_recoil=0.85,
@@ -369,7 +368,7 @@ grip_hipoint_folding = Item(
     weight=0.18,
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
-                                   attachment_point_required=('Picrail Underbarrel - Short', ),
+                                   attachment_point_required=('Picrail Underbarrel - Short',),
                                    grip_properties=GunComponent(
                                        part_type='Grip',
                                        spread_modifier=0.91,
@@ -461,16 +460,20 @@ suppressor_saker_762 = Item(
 Accessories
 """
 
+# TODO - unfuck this
+
 adapter_mlok_picrail = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="MLOK Picatinny Rail Adapter - Long Rails",
-    weight=0.1,
+    weight=0.09,
     stacking=None,
-    usable_properties=GunComponent(part_type='Rail Adapter',
-                                   is_attachment_point_types=['Picrail Side Mount - Long', 'Picrail Underbarrel - Long',
-                                                              'Picrail Top Mount - Long'],
+    usable_properties=GunComponent(part_type='Attachment Adapter',
+                                   tags=['Handguard', ],
+                                   converts_attachment_points={'MLOK Side Mount - Long': 'Picrail Side Mount - Long',
+                                                               'MLOK Underbarrel - Long': 'Picrail Underbarrel - Long',
+                                                               'MLOK Top Mount - Long': 'Picrail Top Mount - Long'},
                                    attachment_point_required=('MLOK Side Mount - Long', 'MLOK Underbarrel - Long',
                                                               'MLOK Top Mount - Long'),
                                    ),
@@ -483,14 +486,15 @@ adapter_mlok_picrail_short = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="MLOK Picatinny Rail Adapter - Short Rails",
-    weight=0.1,
+    weight=0.048,
     stacking=None,
-    usable_properties=GunComponent(part_type='Rail Adapter',
-                                   is_attachment_point_types=['Picrail Side Mount - Short',
-                                                              'Picrail Underbarrel - Short',
-                                                              'Picrail Top Mount - Short'],
-                                   attachment_point_required=('MLOK Side Mount - Short',
-                                                              'MLOK Underbarrel - Short',
+    usable_properties=GunComponent(part_type='Attachment Adapter',
+                                   tags=['Handguard', ],
+                                   converts_attachment_points={
+                                       'MLOK Side Mount - Short': 'Picrail Side Mount - Short',
+                                       'MLOK Underbarrel - Short': 'Picrail Underbarrel - Short',
+                                       'MLOK Top Mount - Short': 'Picrail Top Mount - Short'},
+                                   attachment_point_required=('MLOK Side Mount - Short', 'MLOK Underbarrel - Short',
                                                               'MLOK Top Mount - Short'),
                                    ),
     description='Picatinny rail adapters for MLOK attachment systems, allowing the attachment of picatinny rail '

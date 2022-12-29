@@ -1554,6 +1554,7 @@ class CraftGun(CraftItem):
             return MainGameEventHandler(engine=self.engine)
 
 
+# TODO - ability to add as many attachments as you want of certain types
 class SelectItemToAttach(UserOptionsWithPages):
 
     def __init__(self, engine: Engine, item: Item, crafting_handler: CraftGun):
@@ -1603,20 +1604,42 @@ class SelectItemToAttach(UserOptionsWithPages):
                         # not prevented by prevents_attachment_of, adds to options
                         if hasattr(part.usable_properties, 'is_attachment_point_types'):
 
-                            if part.usable_properties.part_type in prevents_attachment_of.keys():
+                            # creates list of tags of the accessory
+                            tags_item = []
+                            if hasattr(self.item.usable_properties, 'tags'):
+                                tags_item = getattr(self.item.usable_properties, 'tags')
+
+                            # checks if part type or one of the accessories tags is in prevents_attachments
+                            if part.usable_properties.part_type in prevents_attachment_of.keys() or \
+                                    any(tag in prevents_attachment_of.keys() for tag in tags_item):
+
+                                # accessories part type incompatible with part type
                                 if self.item.usable_properties.part_type \
-                                        not in prevents_attachment_of[part.usable_properties.part_type]:
-                                    possible_attachment_points = getattr(part.usable_properties,
-                                                                         'is_attachment_point_types')
-                                    if attachment_point in possible_attachment_points:
-                                        if part not in options:
-                                            options.append(part)
-                            else:
-                                possible_attachment_points = getattr(part.usable_properties,
-                                                                     'is_attachment_point_types')
-                                if attachment_point in list(possible_attachment_points):
-                                    if part not in options:
-                                        options.append(part)
+                                        in prevents_attachment_of[part.usable_properties.part_type]:
+                                    continue
+
+                                # accessories tag incompatible with part type
+                                for tag in tags_item:
+                                    if self.item.usable_properties.part_type in prevents_attachment_of[tag]:
+                                        continue
+
+                                if hasattr(part.usable_properties, 'tags'):
+                                    tags_part = getattr(part.usable_properties, 'tags')
+
+                                    for tag in tags_part:
+                                        # attachment point part type incompatible with part type
+                                        if tag in prevents_attachment_of[part.usable_properties.part_type]:
+                                            continue
+                                        # attachment point tags incompatible with tags
+                                        for x in tags_item:
+                                            if tag in prevents_attachment_of[x]:
+                                                continue
+
+                            possible_attachment_points = getattr(part.usable_properties,
+                                                                 'is_attachment_point_types')
+                            if attachment_point in list(possible_attachment_points):
+                                if part not in options:
+                                    options.append(part)
 
         super().__init__(engine=engine, options=options, page=0, title=title)
 
@@ -1648,13 +1671,30 @@ class SelectAttachPoint(UserOptionsWithPages):
 
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
 
-        # sets value for the given attachment point of the part to attach to be attached part
-        self.crafting_handler.attachments_dict[self.attachment_point_item.name][option] = self.accessory
+        # if the part converts attachment points - i.e. MLOK to picrail adapter - changes the attachment point type
+        # of the part the accessory is being attached to
+        if hasattr(self.accessory.usable_properties, 'converts_attachment_points'):
+            self.crafting_handler.attachment_points.remove(
+                self.crafting_handler.attachment_points[self.crafting_handler.attachments_dict[
+                    self.attachment_point_item.name][option]])
+            del self.crafting_handler.attachments_dict[self.attachment_point_item.name][option]
+            self.crafting_handler.attachments_dict[self.attachment_point_item.name][
+                self.accessory.usable_properties.converts_attachment_points[option]] = None
+            self.crafting_handler.attachment_points.append(
+                self.accessory.usable_properties.converts_attachment_points[option])
 
-        # sets part in part dict to be the selected part
-        self.crafting_handler.part_dict[self.crafting_handler.parts[self.crafting_handler.current_part_selection]] = \
-            self.accessory
-        self.crafting_handler.update_crafting_properties(self.accessory)
+        else:
+            # sets value for the given attachment point of the part to attach to be attached part
+            self.crafting_handler.attachments_dict[self.attachment_point_item.name][option] = self.accessory
+            self.crafting_handler.attachment_points.remove(
+                self.crafting_handler.attachment_points[self.crafting_handler.attachments_dict[
+                    self.attachment_point_item.name][option]])
+
+            # sets part in part dict to be the selected part
+            self.crafting_handler.part_dict[self.crafting_handler.parts[self.crafting_handler.current_part_selection]] \
+                = self.accessory
+
+            self.crafting_handler.update_crafting_properties(self.accessory)
 
         # part is last part to select, crafts item
         if self.crafting_handler.parts[self.crafting_handler.current_part_selection] == self.crafting_handler.parts[-1]:

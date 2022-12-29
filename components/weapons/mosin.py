@@ -21,13 +21,11 @@ mosin_stock = Item(
                                    spread_modifier=0.9,
                                    target_acquisition_ap=0.91,
                                    equip_time=1.4,
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.88,
-                                       ap_distance_cost_modifier=0.91,
-                                       spread_modifier=0.93,
-                                       target_acquisition_ap=0.82,
-                                   )),
+                                   grip_properties={
+                                       'felt_recoil': 0.88,
+                                       'ap_distance_cost_modifier': 0.91,
+                                       'spread_modifier': 0.93,
+                                       'target_acquisition_ap': 0.82}),
     description='Standard M91/30 stock'
 )
 
@@ -45,13 +43,11 @@ mosin_stock_montecarlo = Item(
                                    spread_modifier=0.86,
                                    target_acquisition_ap=0.78,
                                    equip_time=1.2,
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.82,
-                                       ap_distance_cost_modifier=0.89,
-                                       spread_modifier=0.87,
-                                       target_acquisition_ap=0.83,
-                                   )),
+                                   grip_properties={
+                                       'felt_recoil': 0.82,
+                                       'ap_distance_cost_modifier': 0.89,
+                                       'spread_modifier': 0.87,
+                                       'target_acquisition_ap': 0.83}),
     description='A modern polymer monte-carlo style stock for the Mosin-Nagant M91/30'
 )
 
@@ -71,14 +67,11 @@ mosin_archangel_stock = Item(
                                    spread_modifier=0.89,
                                    target_acquisition_ap=0.75,
                                    equip_time=1.3,
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.86,
-                                       ap_distance_cost_modifier=0.93,
-                                       spread_modifier=0.9,
-                                       target_acquisition_ap=0.81,
-                                   )
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.86,
+                                       'ap_distance_cost_modifier': 0.93,
+                                       'spread_modifier': 0.9,
+                                       'target_acquisition_ap': 0.81}),
     description='Tactical polymer Archangel replacement stock for the M91/30 Mosin-Nagant designed by ProMag'
 )
 
@@ -97,13 +90,11 @@ mosin_carbine_stock = Item(
                                    spread_modifier=0.92,
                                    target_acquisition_ap=0.76,
                                    equip_time=1.2,
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.89,
-                                       ap_distance_cost_modifier=0.86,
-                                       spread_modifier=0.9,
-                                       target_acquisition_ap=0.79,
-                                   )),
+                                   grip_properties={
+                                       'felt_recoil': 0.89,
+                                       'ap_distance_cost_modifier': 0.86,
+                                       'spread_modifier': 0.9,
+                                       'target_acquisition_ap': 0.79}),
     description='A shortened carbine stock for the Mosin-Nagant'
 )
 
@@ -120,13 +111,11 @@ mosin_obrez_stock = Item(
                                    ap_distance_cost_modifier=0.93,
                                    spread_modifier=0.9,
                                    target_acquisition_ap=71,
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.83,
-                                       ap_distance_cost_modifier=0.93,
-                                       spread_modifier=0.95,
-                                       target_acquisition_ap=0.74,
-                                   )),
+                                   grip_properties={
+                                       'felt_recoil': 0.83,
+                                       'ap_distance_cost_modifier': 0.93,
+                                       'spread_modifier': 0.95,
+                                       'target_acquisition_ap': 0.74}),
     description='A stockless pistol length housing for the Mosin-Nagant, perfect for concealment'
 )
 
@@ -142,8 +131,10 @@ mosin_barrel = Item(
     weight=1.22,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
+                                   incompatibilities=(("Iron Sight",),),
                                    velocity_modifier=1.14,
                                    is_attachment_point_types=['Mosin-Nagant Barrel', ],
+                                   is_optic=True,
                                    sound_radius=0.8,
                                    barrel_length=2.42,
                                    target_acquisition_ap=1.3,
@@ -159,9 +150,11 @@ mosin_carbine_barrel = Item(
     weight=1.14,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
+                                   incompatibilities=(("Iron Sight",),),
                                    suffix="Carbine",
                                    velocity_modifier=1.05,
                                    is_attachment_point_types=['Mosin-Nagant Barrel', ],
+                                   is_optic=True,
                                    sound_radius=0.9,
                                    barrel_length=1.68,
                                    target_acquisition_ap=1.15,
@@ -177,9 +170,11 @@ mosin_obrez_barrel = Item(
     weight=0.5,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
+                                   incompatibilities=(("Iron Sight",),),
                                    suffix="Obrez",
                                    velocity_modifier=0.79,
                                    is_attachment_point_types=['Mosin-Nagant Barrel', ],
+                                   is_optic=True,
                                    sound_radius=1.3,
                                    barrel_length=0.5,
                                    target_acquisition_ap=0.96,
@@ -202,8 +197,7 @@ mosin_pic_scope_mount = Item(
                                    is_attachment_point_types=['Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Short'],
                                    additional_required_parts=['Optic', ],
-                                   receiver_height_above_bore=0.56,
-                                   ),
+                                   optic_mount_properties={'receiver_height_above_bore': 0.56}, ),
     description='A three sided picatinny rail for mounting optics and other accessories to Mosin-Nagant rifles'
 )
 
@@ -282,6 +276,7 @@ mosindict = {
                     "Mosin-Nagant Barrel": 1,
                 },
                 "compatible parts": {
+                    "Attachment Adapter": 1,
                     "Mosin-Nagant Accessory Mount": 1,
                     "Mosin-Nagant Grip": 1,
                     "Muzzle Device": 1,

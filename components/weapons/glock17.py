@@ -11,6 +11,7 @@ glock17_frame = Item(
     weight=0.155,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Frame',
+                                   incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['Picrail Underbarrel - Short', ],
                                    ),
     description='Standard Glock frame compatible with Glock 17, 17L and 34 slides and barrels'
@@ -396,6 +397,7 @@ glock17dict = {
                 },
                 "compatible parts": {
                     "Glock Stock": 1,
+                    "Attachment Adapter": 1,
                     "Glock Optics Mount": 1,
                     "Glock Base Plate": 1,
                     "Side Mounted Accessory": 1,
