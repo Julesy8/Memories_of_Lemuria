@@ -4,7 +4,6 @@ from components.gunparts import Parts
 import colour
 
 # todo - belt fed upper, 7.62x39 parts, 9mm/45 acp parts,
-# todo - set optic mount properties
 
 """
 Lower Receivers
@@ -49,10 +48,14 @@ upper_ar_m16a2 = Item(
     weight=0.42,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Upper Receiver',
-                                   additional_required_parts=('AR Front Sight',),
+                                   additional_required_parts=('Front Sight',),
                                    tags=['Iron Sight', ],
-                                   optic_mount_properties={'receiver_height_above_bore': 0.97,
-                                                           'sight_height_above_bore': 1.4},
+                                   ap_to_equip=1.04,
+                                   optic_properties={'target_acquisition_ap': 1.03,
+                                                     'ap_distance_cost_modifier': 0.96,
+                                                     'spread_modifier': 0.97,
+                                                     'zero_range': 25, },
+                                   optic_mount_properties={'receiver_height_above_bore': 2.5},
                                    prevents_attachment_of={'AR Handguard': ['Optic', ],
                                                            'Handguard': ['Iron Sight', ]},
                                    is_optic=True,
@@ -769,7 +772,7 @@ ar_handguard_m16a2_carbine = Item(
                                        'felt_recoil': 0.85,
                                        'ap_distance_cost_modifier': 0.9,
                                        'spread_modifier': 0.9,
-                                       'target_acquisition_ap': 0.77},),
+                                       'target_acquisition_ap': 0.77}, ),
     description='Carbine length M16A2 style handguard for AR rifles')
 
 ar_handguard_magpul = Item(
@@ -906,7 +909,7 @@ ar_handguard_faxon_carbine = Item(
                                        'felt_recoil': 0.91,
                                        'ap_distance_cost_modifier': 0.9,
                                        'spread_modifier': 0.86,
-                                       'target_acquisition_ap': 0.8},),
+                                       'target_acquisition_ap': 0.8}, ),
     description='A super light weight carbon fibre carbine length handguard for AR rifles with MLOK accessory mounts')
 
 ar_handguard_faxon_pistol = Item(
@@ -1032,8 +1035,6 @@ ar10_handguard_vseven = Item(
                                    tags=['Handguard', ],
                                    optic_mount_properties={'receiver_height_above_bore': 1.11},
                                    is_attachment_point_types=['MLOK Side Mount - Long', 'MLOK Underbarrel - Long',
-                                                              # TODO - make dict i.e. Side Mount: MLOK - allowing for
-                                                              #  rail attachments
                                                               'Picrail Top Mount - Long',
                                                               'Picrail Optics Mount - Long'],
                                    grip_properties={
@@ -1336,37 +1337,14 @@ ar_front_sight = Item(
     name="AR A2 Front Sight",
     weight=0.13,
     stacking=None,
-    usable_properties=GunComponent(part_type='AR Front Sight',
+    usable_properties=GunComponent(part_type='Front Sight',
                                    incompatibilities=(('full length barrel', 'full length covers barrel'),
                                                       ('carbine length barrel', 'carbine length covers barrel'),
                                                       ('pistol length barrel', 'pistol length covers barrel'),),
+                                   compatible_parts={'AR Barrel': ['AR Barrel', ]},
                                    ),
 
     description='An M16A2-style front sight for AR type rifles')
-
-ar_front_sight_picatinny = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    name="AR Picatinny Rail Front Sight",
-    weight=0.002,
-    stacking=None,
-    usable_properties=GunComponent(part_type='AR Front Sight',
-                                   attachment_point_required=('Picrail Top Mount - Long', 'Picrail Top Mount - Short')
-                                   ),
-    description='A picatinny rail mounted front sight for AR type rifles')
-
-ar_front_sight_mlok = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    name="AR MLOK Front Sight",
-    weight=0.002,
-    stacking=None,
-    usable_properties=GunComponent(part_type='AR Front Sight',
-                                   attachment_point_required=('Picrail Top Mount - Long', 'Picrail Top Mount - Short')
-                                   ),
-    description='A MLOK mounted front sight for AR type rifles')
 
 ar_carry_handle = Item(
     x=0, y=0,
@@ -1376,11 +1354,17 @@ ar_carry_handle = Item(
     weight=0.15,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
                                    tags=['Carry Handle Attachment', 'Iron Sight'],
-                                   additional_required_parts=('AR Front Sight',),
+                                   additional_required_parts=('Front Sight',),
+                                   ap_to_equip=1.04,
                                    # keys: mount type, values: accessory type
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
-                                   receiver_height_above_bore=1.4
+                                   optic_mount_properties={'receiver_height_above_bore': 1.4},
+                                   optic_properties={'target_acquisition_ap': 1.03,
+                                                     'ap_distance_cost_modifier': 0.96,
+                                                     'spread_modifier': 0.97,
+                                                     'zero_range': 25, },
                                    ),
     description='Carry handle rear sight intended for AR-15 type rifles')
 
@@ -1395,7 +1379,7 @@ carry_handle_optic_mount = Item(
                                    is_attachment_point_types=['Picrail Optics Mount - Short', ],
                                    additional_required_parts=('Optic',),
                                    incompatibilities=(('Carry Handle Attachment',),),
-                                   receiver_height_above_bore=0.1
+                                   receiver_height_above_bore=1.0
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel')
 
@@ -1446,7 +1430,7 @@ ardict = {
                 "compatible parts": {
                     "AR Stock": 1,
                     "Attachment Adapter": 1,
-                    "AR Front Sight": 1,
+                    "Front Sight": 1,
                     "AR Optics Mount": 1,
                     "Underbarrel Accessory": 1,
                     "Side Mounted Accessory": 1,

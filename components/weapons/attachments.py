@@ -8,7 +8,7 @@ import colour
 """
 OPTICS
 """
-# TODO - add sight height over bore
+
 holosun503 = Item(
     x=0, y=0,
     char="!",
@@ -17,11 +17,12 @@ holosun503 = Item(
     weight=0.106,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=25,
-                                   target_acquisition_ap=0.9,
-                                   ap_distance_cost_modifier=0.83,
                                    ap_to_equip=1.04,
-                                   spread_modifier=0.76,
+                                   optic_properties={'target_acquisition_ap': 0.9,
+                                                     'ap_distance_cost_modifier': 0.83,
+                                                     'spread_modifier': 0.76,
+                                                     'sight_height_above_bore': 1.63,
+                                                     'zero_range': 25, },
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
@@ -36,11 +37,12 @@ acog_ta01 = Item(
     weight=0.297,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=100,
-                                   target_acquisition_ap=1.16,
-                                   ap_distance_cost_modifier=0.71,
+                                   optic_properties={'target_acquisition_ap': 1.16,
+                                                     'ap_distance_cost_modifier': 0.71,
+                                                     'spread_modifier': 0.65,
+                                                     'sight_height_above_bore': 1.535,
+                                                     'zero_range': 100, },
                                    ap_to_equip=1.07,
-                                   spread_modifier=0.65,
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
@@ -55,11 +57,12 @@ eotech_exps3 = Item(
     weight=0.317,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=50,
-                                   target_acquisition_ap=0.84,
-                                   ap_distance_cost_modifier=0.89,
+                                   optic_properties={'target_acquisition_ap': 0.84,
+                                                     'ap_distance_cost_modifier': 0.89,
+                                                     'spread_modifier': 0.84,
+                                                     'sight_height_above_bore': 1.59,
+                                                     'zero_range': 50, },
                                    ap_to_equip=1.05,
-                                   spread_modifier=0.84,
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
@@ -74,11 +77,12 @@ aimpoint_comp = Item(
     weight=0.376,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=50,
-                                   target_acquisition_ap=0.94,
-                                   ap_distance_cost_modifier=0.82,
+                                   optic_properties={'target_acquisition_ap': 0.94,
+                                                     'ap_distance_cost_modifier': 0.82,
+                                                     'spread_modifier': 0.69,
+                                                     'sight_height_above_bore': 2.0,
+                                                     'zero_range': 50, },
                                    ap_to_equip=1.07,
-                                   spread_modifier=0.69,
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
@@ -93,13 +97,13 @@ kobra_ekp = Item(
     weight=0.410,
     stacking=None,
     usable_properties=GunComponent(part_type='optic',
-                                   zero_range=100,
-                                   target_acquisition_ap=0.8,
-                                   ap_distance_cost_modifier=0.92,
+                                   optic_properties={'target_acquisition_ap': 0.8,
+                                                     'ap_distance_cost_modifier': 0.92,
+                                                     'spread_modifier': 0.87,
+                                                     'sight_height_above_bore': 2.0,
+                                                     'zero_range': 100, },
                                    ap_to_equip=1.03,
-                                   spread_modifier=0.87,
-                                   attachment_point_required=('Picrail Optics Mount - Long',
-                                                              'Picrail Optics Mount - Short'),
+                                   attachment_point_required=('AK Side Mount', ),
                                    ),
     description='An unmagnified russian red dot sight designed to mount to AK and SVD type rifles'
 )
@@ -112,11 +116,12 @@ kobra_ekp_picrail = Item(
     weight=0.380,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=100,
-                                   target_acquisition_ap=0.8,
-                                   ap_distance_cost_modifier=0.92,
+                                   optic_properties={'target_acquisition_ap': 0.8,
+                                                     'ap_distance_cost_modifier': 0.92,
+                                                     'spread_modifier': 0.87,
+                                                     'sight_height_above_bore': 2.0,
+                                                     'zero_range': 100, },
                                    ap_to_equip=1.03,
-                                   spread_modifier=0.87,
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
@@ -132,11 +137,12 @@ amguh1 = Item(
     weight=0.33,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=25,
-                                   target_acquisition_ap=0.87,
-                                   ap_distance_cost_modifier=0.86,
+                                   optic_properties={'target_acquisition_ap': 0.87,
+                                                     'ap_distance_cost_modifier': 0.86,
+                                                     'spread_modifier': 0.74,
+                                                     'sight_height_above_bore': 1.58,
+                                                     'zero_range': 25, },
                                    ap_to_equip=1.02,
-                                   spread_modifier=0.74,
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
@@ -151,11 +157,12 @@ compactprism = Item(
     weight=0.48,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=50,
-                                   target_acquisition_ap=0.96,
-                                   ap_distance_cost_modifier=0.77,
+                                   optic_properties={'target_acquisition_ap': 0.96,
+                                                     'ap_distance_cost_modifier': 0.77,
+                                                     'spread_modifier': 0.72,
+                                                     'sight_height_above_bore': 2.19,
+                                                     'zero_range': 50, },
                                    ap_to_equip=1.06,
-                                   spread_modifier=0.72,
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
@@ -170,11 +177,12 @@ pm2scope = Item(
     weight=0.86,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=200,
-                                   target_acquisition_ap=1.25,
-                                   ap_distance_cost_modifier=0.63,
+                                   optic_properties={'target_acquisition_ap': 1.25,
+                                                     'ap_distance_cost_modifier': 0.63,
+                                                     'spread_modifier': 0.62,
+                                                     'sight_height_above_bore': 1.47,
+                                                     'zero_range': 200, },
                                    ap_to_equip=1.11,
-                                   spread_modifier=0.62,
                                    attachment_point_required=('Picrail Optics Mount - Long',),
                                    ),
     description='A popular precision scope by Schmidt and Bender capable of 1-8x magnification'
@@ -188,11 +196,12 @@ pso1 = Item(
     weight=0.6,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=100,
-                                   target_acquisition_ap=1.21,
-                                   ap_distance_cost_modifier=0.73,
+                                   optic_properties={'target_acquisition_ap': 1.21,
+                                                     'ap_distance_cost_modifier': 0.73,
+                                                     'spread_modifier': 0.66,
+                                                     'sight_height_above_bore': 1.39,
+                                                     'zero_range': 100, },
                                    ap_to_equip=1.06,
-                                   spread_modifier=0.66,
                                    attachment_point_required=('AK Side Mount',),
                                    ),
     description='A Russian 4x fixed magnification scope designed to mount to AK and SVD type rifles'
@@ -206,15 +215,171 @@ okp7 = Item(
     weight=0.255,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   zero_range=25,
-                                   target_acquisition_ap=0.79,
-                                   ap_distance_cost_modifier=0.93,
+                                   optic_properties={'target_acquisition_ap': 0.79,
+                                                     'ap_distance_cost_modifier': 0.93,
+                                                     'spread_modifier': 0.87,
+                                                     'sight_height_above_bore': 0.94,
+                                                     'zero_range': 25, },
                                    ap_to_equip=1.04,
-                                   spread_modifier=0.87,
                                    attachment_point_required=('AK Side Mount',),
                                    ),
     description='An unmagnified russian holographic sight designed to mount to AK and SVD type rifles'
 )
+
+""" 
+Iron Sights
+"""
+
+irons_sig_rear = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Sig Sauer Flip Up Rear Sight",
+    weight=0.1,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', ],
+                                   additional_required_parts=('Front Sight',),
+                                   compatible_parts={'Front Sight': ['AR15 Height', ]},
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   optic_properties={'target_acquisition_ap': 0.98,
+                                                     'ap_distance_cost_modifier': 0.97,
+                                                     'spread_modifier': 0.97,
+                                                     'zero_range': 25, },
+                                   sight_height_above_bore=1.4,
+                                   ),
+    description='A flip up, standard AR-15 height aperture rear sight manufactured by Sig Sauer. Attaches to picatinny '
+                'rails.')
+
+irons_sig_front = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Sig Sauer Flip Up Front Sight",
+    weight=0.08,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', 'AR15 Height'],
+                                   additional_required_parts=('Front Sight',),
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   ),
+    description='A flip up, standard AR-15 height front post sight manufactured by Sig Sauer. Attaches to picatinny '
+                'rails.')
+
+irons_magpul_rear = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Magpul MBUS Pro Flip Up Rear Sight",
+    weight=0.051,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', ],
+                                   additional_required_parts=('Front Sight',),
+                                   compatible_parts={'Front Sight': ['AR15 Height', ]},
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   optic_properties={'target_acquisition_ap': 1.04,
+                                                     'ap_distance_cost_modifier': 0.95,
+                                                     'spread_modifier': 0.95,
+                                                     'zero_range': 25, },
+                                   sight_height_above_bore=1.4,
+                                   ),
+    description='A flip up, standard AR-15 height slim aperture rear sight manufactured by Magpul. '
+                'Attaches to picatinny rails.')
+
+irons_magpul_front = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Magpul MBUS Pro Flip Up Front Sight",
+    weight=0.042,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', 'AR15 Height'],
+                                   additional_required_parts=('Front Sight',),
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   ),
+    description='A flip up, standard AR-15 height slim front post sight manufactured by Magpul. '
+                'Attaches to picatinny rails.')
+
+irons_dd_rear = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Daniel Defense A1.5 Rear Iron Sight",
+    weight=0.028,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', ],
+                                   additional_required_parts=('Front Sight',),
+                                   compatible_parts={'Front Sight': ['AR15 Height', ]},
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   optic_properties={'target_acquisition_ap': 1.01,
+                                                     'ap_distance_cost_modifier': 0.96,
+                                                     'spread_modifier': 0.96,
+                                                     'zero_range': 25, },
+                                   sight_height_above_bore=1.4,
+                                   ),
+    description='A standard AR-15 height aperture rear sight manufactured by Daniel Defense. '
+                'Attaches to picatinny rails.')
+
+irons_dd_front = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Daniel Defense A1.5 Front Iron Sight",
+    weight=0.042,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', 'AR15 Height'],
+                                   additional_required_parts=('Front Sight',),
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   ),
+    description='A flip up, standard AR-15 height front post sight manufactured by Daniel Defense. '
+                'Attaches to picatinny rails.')
+
+irons_troy_rear = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Troy M4 Rear Iron Sight",
+    weight=0.048,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', ],
+                                   additional_required_parts=('Front Sight',),
+                                   compatible_parts={'Front Sight': ['AR15 Height', ]},
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   optic_properties={'target_acquisition_ap': 0.97,
+                                                     'spread_modifier': 0.98,
+                                                     'zero_range': 25, },
+                                   sight_height_above_bore=1.4,
+                                   ),
+    description='A standard AR-15 height dioptic flip up rear sight manufactured by Troy. '
+                'Attaches to picatinny rails.')
+
+irons_troy_front = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Troy M4 Front Iron Sight",
+    weight=0.042,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   is_optic=True,
+                                   tags=['Iron Sight', 'AR15 Height'],
+                                   additional_required_parts=('Front Sight',),
+                                   prevents_attachment_of={'AR Handguard': ['Optic', ]},
+                                   ),
+    description='A flip up, standard AR-15 height flip up front post sight manufactured by Troy. '
+                'Attaches to picatinny rails.')
 
 """
 Grips
@@ -229,14 +394,11 @@ grip_hera_cqr = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Long',),
-                                   grip_properties=GunComponent(  # TODO - make grip properties a normal dict
-                                       part_type='Grip',
-                                       felt_recoil=0.82,
-                                       ap_distance_cost_modifier=0.92,
-                                       spread_modifier=0.91,
-                                       target_acquisition_ap=0.8,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.82,
+                                       'ap_distance_cost_modifier': 0.92,
+                                       'spread_modifier': 0.91,
+                                       'target_acquisition_ap': 0.8},),
     description="An ergonomic polymer front grip manufactured by HERA Arms designed for AR-type rifles"
 )
 
@@ -249,14 +411,11 @@ grip_promag_vertical = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Short',),
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       spread_modifier=0.94,
-                                       felt_recoil=0.78,
-                                       target_acquisition_ap=0.75,
-                                       ap_distance_cost_modifier=0.95,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.94,
+                                       'ap_distance_cost_modifier': 0.78,
+                                       'spread_modifier': 0.75,
+                                       'target_acquisition_ap': 0.95},),
     description="A simple polymer front vertical grip designed by Pro Mag"
 )
 
@@ -269,14 +428,11 @@ grip_jem_vertical = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Short',),
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.75,
-                                       ap_distance_cost_modifier=0.96,
-                                       spread_modifier=0.92,
-                                       target_acquisition_ap=0.79,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.75,
+                                       'ap_distance_cost_modifier': 0.96,
+                                       'spread_modifier': 0.92,
+                                       'target_acquisition_ap': 0.79},),
     description="An ergonomic polymer pistol grip style vertical grip designed by JE Machine Tech"
 )
 
@@ -289,14 +445,11 @@ grip_magpul_angled = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Long',),
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.87,
-                                       ap_distance_cost_modifier=0.89,
-                                       spread_modifier=0.87,
-                                       target_acquisition_ap=0.81,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.87,
+                                       'ap_distance_cost_modifier': 0.89,
+                                       'spread_modifier': 0.87,
+                                       'target_acquisition_ap': 0.81},),
     description="An angled polymer foregrip designed by Magpul"
 )
 
@@ -309,14 +462,11 @@ grip_magpul_mvg = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Short',),
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.79,
-                                       ap_distance_cost_modifier=0.93,
-                                       spread_modifier=0.89,
-                                       target_acquisition_ap=0.78,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.79,
+                                       'ap_distance_cost_modifier': 0.93,
+                                       'spread_modifier': 0.89,
+                                       'target_acquisition_ap': 0.78},),
     description="A short polymer vertical fore grip designed by Magpul"
 )
 
@@ -329,14 +479,11 @@ grip_aimtac_short = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Short',),
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.77,
-                                       ap_distance_cost_modifier=0.94,
-                                       spread_modifier=0.91,
-                                       target_acquisition_ap=0.76,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.77,
+                                       'ap_distance_cost_modifier': 0.94,
+                                       'spread_modifier': 0.91,
+                                       'target_acquisition_ap': 0.76},),
     description="A short polymer vertical fore grip designed by AIM Sports Tactical"
 )
 
@@ -349,14 +496,11 @@ grip_magpul_handstop = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Long',),
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       felt_recoil=0.85,
-                                       ap_distance_cost_modifier=0.87,
-                                       spread_modifier=0.89,
-                                       target_acquisition_ap=0.75,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.85,
+                                       'ap_distance_cost_modifier': 0.87,
+                                       'spread_modifier': 0.89,
+                                       'target_acquisition_ap': 0.75},),
     description="A polymer hand stop designed by Magpul"
 )
 
@@ -369,14 +513,11 @@ grip_hipoint_folding = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Underbarrel Accessory',
                                    attachment_point_required=('Picrail Underbarrel - Short',),
-                                   grip_properties=GunComponent(
-                                       part_type='Grip',
-                                       spread_modifier=0.91,
-                                       felt_recoil=0.81,
-                                       target_acquisition_ap=0.75,
-                                       ap_distance_cost_modifier=0.93,
-                                   ),
-                                   ),
+                                   grip_properties={
+                                       'felt_recoil': 0.91,
+                                       'ap_distance_cost_modifier': 0.81,
+                                       'spread_modifier': 0.75,
+                                       'target_acquisition_ap': 0.93},),
     description="A slim, polymer folding vertical grip designed by HI Point"
 )
 
@@ -459,8 +600,6 @@ suppressor_saker_762 = Item(
 """
 Accessories
 """
-
-# TODO - unfuck this
 
 adapter_mlok_picrail = Item(
     x=0, y=0,

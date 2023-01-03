@@ -1,0 +1,366 @@
+Wed Jul 13 16:41:56 2022    output.dat
+
+         3523631 function calls (3518926 primitive calls) in 25.466 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      341   21.865    0.064   21.865    0.064 {built-in method tcod._libtcod.SDL_WaitEvent}
+      339    2.199    0.006    3.031    0.009 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:89(render)
+   382565    0.256    0.000    0.256    0.000 {built-in method tcod._libtcod.TCOD_console_printn}
+   382565    0.244    0.000    0.562    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:932(print)
+  1356000    0.224    0.000    0.224    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\scrolling_map.py:12(screen_to_map)
+      341    0.183    0.001    0.183    0.001 {built-in method tcod._libtcod.TCOD_context_present}
+        1    0.136    0.136    0.136    0.136 {built-in method tcod._libtcod.TCOD_context_new}
+   376103    0.038    0.000    0.038    0.000 {built-in method builtins.chr}
+   382572    0.037    0.000    0.037    0.000 {method 'encode' of 'str' objects}
+   406789    0.027    0.000    0.027    0.000 {built-in method builtins.len}
+      344    0.019    0.000    0.020    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:394(clear)
+        1    0.018    0.018    0.018    0.018 {method 'release' of '_cffi_backend.FFI' objects}
+      974    0.013    0.000    0.019    0.000 C:\Program Files\Python38\lib\textwrap.py:233(_wrap_chunks)
+        1    0.011    0.011    0.011    0.011 {method 'compress' of '_lzma.LZMACompressor' objects}
+      974    0.010    0.000    0.010    0.000 {method 'split' of 're.Pattern' objects}
+    17402    0.007    0.000    0.013    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:108(<lambda>)
+      339    0.006    0.000    3.107    0.009 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\engine.py:66(render)
+     1193    0.006    0.000    0.034    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\ai.py:55(perform)
+        1    0.005    0.005   25.466   25.466 C:/Users/Jules/PycharmProjects/Age_of_Aquarius/main.py:20(main)
+    17402    0.005    0.000    0.006    0.000 C:\Program Files\Python38\lib\types.py:171(__get__)
+      208    0.005    0.000    0.009    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\map.py:171(compute_fov)
+      339    0.004    0.000    0.018    0.000 {built-in method builtins.sorted}
+      339    0.004    0.000    0.052    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\message_log.py:57(render_messages)
+      678    0.004    0.000    0.005    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\render_functions.py:17(get_names_at_location)
+  4315/66    0.004    0.000    0.008    0.000 C:\Program Files\Python38\lib\copy.py:128(deepcopy)
+      687    0.004    0.000    0.015    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:762(get)
+      497    0.004    0.000    0.004    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:65(get_blocking_entity_at_location)
+     1195    0.003    0.000    0.003    0.000 {method 'new' of '_cffi_backend.FFI' objects}
+       13    0.003    0.000    0.004    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:127(createHall)
+      208    0.003    0.000    0.012    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\engine.py:56(update_fov)
+        1    0.003    0.003    0.017    0.017 C:\Program Files\Python38\lib\lzma.py:310(compress)
+       59    0.003    0.000    0.007    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:779(add_edges)
+      339    0.003    0.000    0.007    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:288(__init__)
+       59    0.003    0.000    0.024    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\ai.py:19(get_path_to)
+      974    0.002    0.000    0.040    0.000 C:\Program Files\Python38\lib\textwrap.py:368(wrap)
+      208    0.002    0.000    0.002    0.000 {built-in method tcod._libtcod.TCOD_map_compute_fov}
+        1    0.002    0.002    0.002    0.002 {method 'flush' of '_lzma.LZMACompressor' objects}
+     2287    0.002    0.000    0.043    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\message_log.py:49(wrap)
+    20480    0.002    0.000    0.002    0.000 {method 'pop' of 'list' objects}
+     1675    0.002    0.000    0.003    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:55(<genexpr>)
+      341    0.002    0.000   21.867    0.064 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:816(wait)
+      339    0.002    0.000    0.009    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:295(from_sdl_event)
+      290    0.002    0.000    0.005    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:177(perform)
+      968    0.002    0.000    0.002    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:85(in_bounds)
+      974    0.002    0.000    0.002    0.000 {method 'translate' of 'str' objects}
+      207    0.002    0.000    0.039    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\engine.py:48(handle_enemy_turns)
+      341    0.002    0.000    0.186    0.001 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:193(present)
+    23007    0.002    0.000    0.002    0.000 {method 'append' of 'list' objects}
+      237    0.002    0.000    0.004    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\input_handlers.py:165(ev_keydown)
+    17402    0.002    0.000    0.002    0.000 C:\Program Files\Python38\lib\enum.py:659(value)
+    13291    0.002    0.000    0.002    0.000 {built-in method builtins.isinstance}
+      339    0.002    0.000    0.002    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\scrolling_map.py:24(update)
+     1082    0.001    0.000    0.003    0.000 C:\Program Files\Python38\lib\enum.py:278(__call__)
+      340    0.001    0.000    0.072    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\input_handlers.py:122(handle_events)
+     3740    0.001    0.000    0.002    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\entity.py:46(gamemap)
+      472    0.001    0.000    0.003    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:687(add_edge)
+        1    0.001    0.001    0.019    0.019 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\engine.py:42(save_as)
+     3545    0.001    0.000    0.003    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:21(engine)
+     1082    0.001    0.000    0.001    0.000 C:\Program Files\Python38\lib\enum.py:557(__new__)
+       59    0.001    0.000    0.001    0.000 {built-in method tcod._libtcod.path_compute}
+     2373    0.001    0.000    0.005    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\render_functions.py:97(render_part)
+      974    0.001    0.000    0.013    0.000 C:\Program Files\Python38\lib\textwrap.py:160(_split)
+        1    0.001    0.001    0.001    0.001 {built-in method tcod._libtcod.TCOD_tileset_load}
+      357    0.001    0.000    0.001    0.000 {built-in method numpy.array}
+      944    0.001    0.000    0.002    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:595(_as_hashable)
+       13    0.001    0.000    0.008    0.001 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:203(place_entities)
+      346    0.001    0.000    0.023    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:952(dispatch)
+     1737    0.001    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:17(__init__)
+      270    0.001    0.000    0.001    0.000 {built-in method numpy.empty}
+      974    0.001    0.000    0.001    0.000 C:\Program Files\Python38\lib\textwrap.py:179(<listcomp>)
+      346    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:234(__init__)
+      339    0.001    0.000    0.007    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\render_functions.py:67(render_names_at_mouse_location)
+      346    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:248(convert_event)
+      237    0.001    0.000    0.011    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:196(perform)
+      974    0.001    0.000    0.001    0.000 C:\Program Files\Python38\lib\textwrap.py:115(__init__)
+      118    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:339(_broadcast_to)
+      974    0.001    0.000    0.037    0.000 C:\Program Files\Python38\lib\textwrap.py:342(wrap)
+      686    0.001    0.000    0.001    0.000 {built-in method tcod._libtcod.SDL_PollEvent}
+     1940    0.001    0.000    0.002    0.000 C:\Program Files\Python38\lib\random.py:200(randrange)
+     1956    0.001    0.000    0.001    0.000 C:\Program Files\Python38\lib\random.py:250(_randbelow_with_getrandbits)
+   197/71    0.001    0.000    0.007    0.000 C:\Program Files\Python38\lib\copy.py:225(_deepcopy_dict)
+      974    0.001    0.000    0.003    0.000 C:\Program Files\Python38\lib\textwrap.py:146(_munge_whitespace)
+      339    0.001    0.000    0.064    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\input_handlers.py:135(handle_action)
+      974    0.001    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\message_log.py:15(full_text)
+       59    0.001    0.000    0.001    0.000 {built-in method numpy.ascontiguousarray}
+      527    0.001    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:55(__init__)
+      862    0.001    0.000    0.001    0.000 {built-in method numpy.asarray}
+     1655    0.001    0.000    0.001    0.000 {method 'join' of 'str' objects}
+     8774    0.001    0.000    0.001    0.000 {method 'get' of 'dict' objects}
+       14    0.001    0.000    0.003    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:120(createRoom)
+     1675    0.001    0.000    0.004    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:52(actors)
+      715    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:2264(__eq__)
+     1074    0.001    0.000    0.001    0.000 {built-in method builtins.getattr}
+     1726    0.001    0.000    0.003    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_gen_tools.py:22(select_random_tile)
+      974    0.001    0.000    0.016    0.000 C:\Program Files\Python38\lib\textwrap.py:336(_split_chunks)
+     2380    0.001    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:51(hp)
+      177    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:317(_export_dict)
+   246/71    0.001    0.000    0.008    0.000 C:\Program Files\Python38\lib\copy.py:257(_reconstruct)
+      344    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:355(default_fg)
+      209    0.001    0.000    0.001    0.000 C:\Program Files\Python38\lib\typing.py:865(__new__)
+     1661    0.001    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\entity.py:174(is_alive)
+      339    0.001    0.000    0.001    0.000 {built-in method tcod._libtcod.TCOD_console_draw_rect_rgb}
+  298/239    0.001    0.000    0.005    0.000 {built-in method numpy.core._multiarray_umath.implement_array_function}
+      649    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\_internal.py:250(__init__)
+     1878    0.001    0.000    0.001    0.000 {built-in method builtins.max}
+     1940    0.001    0.000    0.003    0.000 C:\Program Files\Python38\lib\random.py:244(randint)
+      339    0.001    0.000    0.052    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\message_log.py:40(render)
+      237    0.001    0.000    0.004    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:66(blocking_entity)
+       59    0.001    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:955(_compile_rules)
+      713    0.000    0.000    0.000    0.000 {built-in method builtins.min}
+       59    0.000    0.000    0.008    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1025(__init__)
+      339    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:1161(draw_rect)
+      339    0.000    0.000    3.107    0.009 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\input_handlers.py:159(on_render)
+      270    0.000    0.000    0.000    0.000 {method 'from_buffer' of '_cffi_backend.FFI' objects}
+      974    0.000    0.000    0.000    0.000 {method 'splitlines' of 'str' objects}
+     1774    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\scrolling_map.py:18(map_to_screen)
+       59    0.000    0.000    0.005    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:581(_world_array)
+       59    0.000    0.000    0.004    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1273(path_from)
+        1    0.000    0.000    0.000    0.000 {built-in method _pickle.dumps}
+      541    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:61(dest_xy)
+     5474    0.000    0.000    0.000    0.000 {built-in method builtins.id}
+     2626    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
+       59    0.000    0.000    0.008    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1082(__init__)
+        4    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.TCOD_load_xp}
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\getlimits.py:647(__init__)
+        1    0.000    0.000    0.000    0.000 {built-in method io.open}
+     3740    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:48(gamemap)
+      474    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:2271(__hash__)
+      480    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\copy.py:241(_keep_alive)
+      974    0.000    0.000    0.000    0.000 {method 'expandtabs' of 'str' objects}
+      118    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\fromnumeric.py:38(_wrapit)
+     2386    0.000    0.000    0.000    0.000 {built-in method builtins.abs}
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:415(_broadcast_shape)
+      339    0.000    0.000    0.000    0.000 {method 'capitalize' of 'str' objects}
+     3802    0.000    0.000    0.000    0.000 {method 'getrandbits' of '_random.Random' objects}
+     3600    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\copy.py:182(_deepcopy_atomic)
+       59    0.000    0.000    0.002    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:479(broadcast_arrays)
+       59    0.000    0.000    0.000    0.000 {method 'nonzero' of 'numpy.ndarray' objects}
+       59    0.000    0.000    0.003    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\function_base.py:4805(meshgrid)
+      118    0.000    0.000    0.000    0.000 {built-in method numpy.arange}
+        2    0.000    0.000    0.001    0.001 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\setup_game.py:127(on_render)
+        1    0.000    0.000    0.000    0.000 {built-in method builtins.print}
+      977    0.000    0.000    0.000    0.000 {method 'reverse' of 'list' objects}
+       59    0.000    0.000    0.003    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1215(resolve)
+       59    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:294(maxarray)
+      164    0.000    0.000    0.000    0.000 {built-in method builtins.any}
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:664(__init__)
+       58    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\random.py:386(choices)
+       59    0.000    0.000    0.002    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:978(_resolve)
+        3    0.000    0.000    0.000    0.000 {built-in method nt.stat}
+      118    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\fromnumeric.py:51(_wrapfunc)
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1182(_update_heuristic)
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1164(add_root)
+      523    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\_internal.py:59(_check)
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\function_base.py:4936(<listcomp>)
+       62    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\numeric.py:289(full)
+        7    0.000    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:59(hp)
+      260    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\entity.py:50(move)
+      649    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\_internal.py:304(data)
+      396    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x00007FFE4DA53810}
+      919    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:316(<genexpr>)
+      118    0.000    0.000    0.001    0.000 <__array_function__ internals>:177(transpose)
+    79/78    0.000    0.000    0.002    0.000 C:\Program Files\Python38\lib\copy.py:208(_deepcopy_tuple)
+     1689    0.000    0.000    0.000    0.000 {method 'random' of '_random.Random' objects}
+      181    0.000    0.000    0.000    0.000 {method 'update' of 'dict' objects}
+        7    0.000    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:85(die)
+     1956    0.000    0.000    0.000    0.000 {method 'bit_length' of 'int' objects}
+      181    0.000    0.000    0.000    0.000 {method '__reduce_ex__' of 'object' objects}
+      344    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:344(default_bg)
+     1193    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:39(perform)
+       59    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.TCOD_frontier_push}
+      349    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
+       59    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.TCOD_frontier_new}
+      492    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\copy.py:262(<genexpr>)
+      118    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:330(_export)
+      118    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.get_travel_path}
+      120    0.000    0.000    0.000    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+      179    0.000    0.000    0.000    0.000 {method 'cast' of '_cffi_backend.FFI' objects}
+       59    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:545(<listcomp>)
+       16    0.000    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:116(attack)
+       59    0.000    0.000    0.003    0.000 <__array_function__ internals>:177(meshgrid)
+      208    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\input_handlers.py:119(__init__)
+        3    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:115(__init__)
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\getlimits.py:671(max)
+      346    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+      181    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\copyreg.py:90(__newobj__)
+      118    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\fromnumeric.py:601(transpose)
+       62    0.000    0.000    0.000    0.000 <__array_function__ internals>:177(copyto)
+       15    0.000    0.000    0.001    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:131(deal_damage)
+     27/1    0.000    0.000    0.008    0.008 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:374(createRooms)
+       16    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:82(__init__)
+       59    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.update_frontier_heuristic}
+       61    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\entity.py:69(place)
+       59    0.000    0.000    0.002    0.000 <__array_function__ internals>:177(broadcast_arrays)
+    79/78    0.000    0.000    0.001    0.000 C:\Program Files\Python38\lib\copy.py:209(<listcomp>)
+      118    0.000    0.000    0.000    0.000 {method 'transpose' of 'numpy.ndarray' objects}
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\function_base.py:346(iterable)
+       91    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\copy.py:199(_deepcopy_list)
+        1    0.000    0.000    0.016    0.016 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:72(generateLevel)
+        2    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.TCOD_console_blit}
+      177    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:586(<genexpr>)
+       59    0.000    0.000    0.004    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1325(path_to)
+        2    0.000    0.000    0.000    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+      267    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+      354    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:344(<genexpr>)
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1056(set_heuristic)
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\ai.py:47(<listcomp>)
+       58    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\random.py:408(<listcomp>)
+       59    0.000    0.000    0.000    0.000 {method 'tolist' of 'numpy.ndarray' objects}
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:25(_maybe_view_as_subclass)
+      177    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:886(<genexpr>)
+    94/26    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:395(getRoom)
+        1    0.000    0.000    0.017    0.017 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\setup_game.py:40(new_game)
+       61    0.000    0.000    0.000    0.000 {method 'gc' of '_cffi_backend.FFI' objects}
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:537(<listcomp>)
+       59    0.000    0.000    0.002    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1069(_resolve)
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:897(set_heuristic)
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:541(<genexpr>)
+       16    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:335(splitLeaf)
+       22    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\copyreg.py:99(_slotnames)
+      217    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:211(<genexpr>)
+       14    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:78(get_actor_at_location)
+      101    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:988(ev_keyup)
+       59    0.000    0.000    0.000    0.000 {method 'copy' of 'dict' objects}
+      246    0.000    0.000    0.000    0.000 {built-in method builtins.issubclass}
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\path.py:1052(_heuristic)
+        2    0.000    0.000    0.001    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:1270(load_xp)
+       63    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:47(engine)
+        1    0.000    0.000    0.136    0.136 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:400(new)
+       58    0.000    0.000    0.000    0.000 {built-in method _bisect.bisect_right}
+        1    0.000    0.000   25.466   25.466 {built-in method builtins.exec}
+       59    0.000    0.000    0.000    0.000 {built-in method builtins.all}
+      197    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+        2    0.000    0.000    0.000    0.000 {built-in method numpy.frombuffer}
+      118    0.000    0.000    0.000    0.000 {built-in method builtins.iter}
+       68    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\enum.py:644(__reduce_ex__)
+      118    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\fromnumeric.py:597(_transpose_dispatcher)
+        1    0.000    0.000    0.001    0.001 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\tileset.py:326(load_tilesheet)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:181(_init_setup_console_data)
+       16    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:97(perform)
+      118    0.000    0.000    0.000    0.000 {built-in method numpy.asanyarray}
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:155(_from_cdata)
+       10    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\message_log.py:27(add_message)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:63(parse_parts)
+       28    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_gen_tools.py:40(centre)
+       59    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
+       14    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\actions.py:71(target_actor)
+        4    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:300(rgba)
+        8    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\entity.py:22(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:29(__init__)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:642(_parse_args)
+        5    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:619(from_sdl_event)
+       27    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_generator.py:323(__init__)
+       62    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\multiarray.py:1071(copyto)
+       14    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_gen_tools.py:34(__init__)
+       68    0.000    0.000    0.000    0.000 {method 'add' of 'set' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\entity.py:89(__init__)
+        1    0.000    0.000    0.018    0.018 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:181(close)
+        7    0.000    0.000    0.000    0.000 {built-in method math.floor}
+        1    0.000    0.000    0.019    0.019 C:/Users/Jules/PycharmProjects/Age_of_Aquarius/main.py:13(save_game)
+        2    0.000    0.000    0.000    0.000 {method 'view' of 'numpy.ndarray' objects}
+        8    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:702(__str__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\game_map.py:19(__init__)
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\stride_tricks.py:475(_broadcast_arrays_dispatcher)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:662(_from_parts)
+        1    0.000    0.000    0.017    0.017 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\setup_game.py:179(ev_keydown)
+       59    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\lib\function_base.py:4800(_meshgrid_dispatcher)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:1015(__new__)
+        6    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:23(__init__)
+       16    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\random.py:285(choice)
+        5    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\_internal.py:47(verify_order)
+       29    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:55(defence)
+        5    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\os.py:798(fsencode)
+        2    0.000    0.000    0.000    0.000 {method 'all' of 'numpy.ndarray' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method _warnings.warn}
+       22    0.000    0.000    0.000    0.000 {method 'get' of 'mappingproxy' objects}
+       12    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.TCOD_console_get_width}
+       12    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:198(width)
+        8    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:712(__fspath__)
+        1    0.000    0.000    0.136    0.136 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\_internal.py:26(wrapper)
+        6    0.000    0.000    0.017    0.003 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\input_handlers.py:75(handle_events)
+       14    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:203(height)
+        5    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:721(__bytes__)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\_internal.py:468(_view_is_safe)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:741(blit)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:6(__init__)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:145(splitroot)
+        1    0.000    0.000    0.136    0.136 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:540(new_terminal)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\tileset.py:40(_claim)
+       14    0.000    0.000    0.000    0.000 {built-in method tcod._libtcod.TCOD_console_get_height}
+        6    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\libtcodpy.py:66(BKGND_ALPHA)
+        4    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:237(ch)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:173(_claim)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\scrolling_map.py:3(__init__)
+        8    0.000    0.000    0.000    0.000 {built-in method nt.fspath}
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:321(rgb)
+       14    0.000    0.000    0.000    0.000 {method 'remove' of 'set' objects}
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_importer.py:8(level_dependent_import)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:1171(stat)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:1365(exists)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:1025(_init)
+        4    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\console.py:1309(<genexpr>)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:727(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\engine.py:28(__init__)
+        1    0.000    0.000   25.466   25.466 <string>:1(<module>)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\_methods.py:60(_all)
+        7    0.000    0.000    0.000    0.000 {method 'index' of 'tuple' objects}
+        6    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\consumables.py:638(__init__)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\tile_types.py:27(new_tile)
+        4    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\message_log.py:10(__init__)
+        3    0.000    0.000    0.000    0.000 C:\Program Files\Python38\lib\pathlib.py:685(_format_parsed_parts)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:475(<listcomp>)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:730(from_sdl_event)
+        1    0.000    0.000    0.018    0.018 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:189(__exit__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\npc_templates.py:28(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\_internal.py:73(_check_warn)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:277(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\level_gen_tools.py:7(generate_char_arrays)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\inventory.py:16(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\input_handlers.py:86(ev_quit)
+        6    0.000    0.000    0.000    0.000 {method 'ljust' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:203(__init__)
+        1    0.000    0.000    0.000    0.000 {method 'addressof' of '_cffi_backend.FFI' objects}
+        1    0.000    0.000    0.000    0.000 {method 'write' of '_io.BufferedWriter' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\ai.py:51(__init__)
+        3    0.000    0.000    0.000    0.000 {built-in method sys.intern}
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:169(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\tile_types.py:42(new_floor)
+        3    0.000    0.000    0.000    0.000 {method 'replace' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:237(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:259(from_sdl_event)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\message_log.py:24(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:153(_handle_title)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\components\bodyparts.py:308(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\numpy\core\__init__.py:144(_DType_reduce)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\setup_game.py:124(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\tile_types.py:50(new_wall)
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.ord}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:31(floor_fg_dark)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:148(_handle_tileset)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:1048(ev_windowclose)
+        2    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:1057(ev_)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:37(floor_tile)
+        1    0.000    0.000    0.000    0.000 {method 'new_handle' of '_cffi_backend.FFI' objects}
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\context.py:177(__enter__)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:1006(ev_windowshown)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:1012(ev_windowexposed)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\AppData\Roaming\Python\Python38\site-packages\tcod\event.py:1042(ev_windowfocusgained)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:25(floor_fg_light)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:28(floor_bg_light)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:34(floor_bg_dark)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:40(wall_fg_light)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:52(wall_tile)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:43(wall_bg_light)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:46(wall_fg_dark)
+        1    0.000    0.000    0.000    0.000 C:\Users\Jules\PycharmProjects\Age_of_Aquarius\colours_and_chars.py:49(wall_bg_dark)
+
+

@@ -19,13 +19,14 @@ from components.inventory import Inventory
 from components.ai import BaseAI
 from components.npc_templates import Fighter
 from components.bodyparts import Body, Arm, Leg, Head
+from random import randint, choices, choice
 
 from copy import deepcopy
 
 from components.weapons.glock17 import glock_17
 
 from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide, glock17_slide_optic, \
-    glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm, holosun503, holosun503_pistol
+    glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm
 
 # for crafting testing
 from pydantic.utils import deep_update
@@ -75,8 +76,7 @@ def new_game() -> Engine:
     #                   glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm]
 
     inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide_optic,
-                       glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm,
-                       holosun503, holosun503_pistol]
+                       glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm]
 
     engine.crafting_recipes = deep_update(engine.crafting_recipes, glock17dict)
 
@@ -130,11 +130,67 @@ def load_game(filename: str) -> Engine:
     return engine
 
 
+def generate_subtext() -> str:
+    verb_1 = choice(('Aquarian', 'New-Age', 'Postdiluvian', 'Cosmic', 'Mystical', 'Esoteric',
+                     'Dialectical', 'Demiurgic', 'Sublime', 'Hyper-Realistic', 'Platonic', 'MK-Ultra', 'Illegal',
+                     'Post-Apocalyptic', 'Morally Ambiguous', 'Atlantean', 'New World Order',
+                     'Harmonic', 'Universal', 'Post-Structural', 'Archetypal',
+                     'Philosophical', 'Angelic', 'Paranormal', 'Shamanic', 'Vampiric', 'Cryptic', 'Jungian',
+                     'Reptilian', 'Lovecraftian', 'Biblical', 'Heretical', 'Heterodox', 'Theological', 'Religious',
+                     'Cursed', 'Hegelian', 'Occult'))
+
+    verb_2 = choice(('Deep Underground', 'Splatterpunk', 'Cyphercore', 'Advanced', 'Modern', 'Post-Modern',
+                     'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',
+                     'Subversive', 'Covert', 'Magik', 'Chaos Magic', 'Solar', 'Lunar', 'Ideological', 'Cyclic',
+                     'Meditative', 'Divine', 'Tactical', 'Forbidden', 'Psychedelic', 'Oracular', 'Quantum',
+                     'Post-Industrial', 'Post-Fall', 'Hollow Earth', 'Pre-Modern', 'Introductory', 'Ritual'))
+
+    verb_3 = choice(('Combat', 'Gun Smithing', 'UFO-ology', 'Warfare', 'Conspiracy', 'CQC', 'Harm Prevention',
+                     'Self Defense', 'Horror', 'Action', 'Time-War', 'Numerology', 'Sacred Geometry',
+                     'Violence', 'Tulpamancy', 'Astral Projection', 'Psychic', 'Englightenment', 'Gun Fu', 'Gunplay',
+                     'Firearms Safety', 'Gun Collection', 'Ballistics', 'Gun Customization', 'Gun Building',
+                     'Demonology', 'Virtual Reality', 'Lucid Dreaming', 'Remote Viewing', 'Folklore', 'Exorcism',
+                     'Manifestation', 'Alien Abduction', 'Shape Shifting', 'Witchcraft', 'Predictive Programming',
+                     'Terrorism'))
+
+    noun = choice(('Computer Role Playing Game', 'Simulation', 'Training Module', 'Course', 'Engine',
+                   'RPG', 'Rogue Like', 'Rogue Lite', 'Program', 'Center', 'Game', 'Experience', 'Proof-of-Concept',
+                   'Videogame Adaptation', 'Demonstration', 'Tutorial', 'Simulator', '(DO NOT RESEARCH)', 'LARP',
+                   'Survival Game', 'Educational Game', 'Shooter', '-Hack Like'))
+
+    subtext_str = f"{verb_1} {verb_2} {verb_3} {noun}"
+    return subtext_str
+
+
 class MainMenu(input_handlers.BaseEventHandler):
     """Handle the main menu rendering and input."""
 
     def __init__(self):
         self.option_selected = 0
+        self.colour_mode_forward = [True, True, True]
+        self.fg_colour = [randint(60, 255), randint(60, 255), randint(60, 255)]
+        self.subtext = generate_subtext()
+
+    def change_fg_colour(self):
+
+        for i in range(3):
+            reverse_direction = choices(population=(True, False), weights=(1, 600))[0]
+
+            if self.colour_mode_forward[i - 1]:
+                if reverse_direction:
+                    self.colour_mode_forward[i - 1] = False
+                else:
+                    self.fg_colour[i - 1] += 1
+                    if self.fg_colour[i - 1] >= 250:
+                        self.colour_mode_forward[i - 1] = False
+
+            else:
+                if reverse_direction:
+                    self.colour_mode_forward[i - 1] = True
+                else:
+                    self.fg_colour[i - 1] -= 1
+                    if self.fg_colour[i - 1] <= 25:
+                        self.colour_mode_forward[i - 1] = True
 
     def on_render(self, console: tcod.Console) -> None:
         """Render the main menu on a background image."""
@@ -155,36 +211,38 @@ class MainMenu(input_handlers.BaseEventHandler):
         is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
         console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
 
-        console2.blit(dest=console, dest_x=console.width//2-17, dest_y=console.height//2-17, src_x=0, src_y=0, width=35, height=35)
+        self.change_fg_colour()
+        console2.rgb["fg"] = self.fg_colour
+
+        console2.blit(dest=console, dest_x=console.width//2-40, dest_y=console.height//2-25, src_x=0, src_y=0, width=80,
+                      height=50)
 
         console.print(
             console.width // 2,
-            console.height - 2,
-            "Submit bug reports and suggestions to DeepUndergroundRL@protonmail.com",
-            fg=colour.WHITE,
+            console.height // 2 + 18,
+            self.subtext,
+            fg=self.fg_colour,
             alignment=tcod.CENTER,
-        )
-        console.print(
-            1,
-            1,
-            "Pre-alpha",
-            fg=colour.WHITE,
         )
 
         menu_width = 8
         for i, text in enumerate(
-            ["New Game", "Continue", "Quit"]
+            ["New Game", "Continue", "  Quit"]
         ):
             console.print(
                 console.width // 2,
                 console.height // 2 - 2 + i,
                 text.ljust(menu_width),
-                fg=colour.RED,
+                fg=self.fg_colour,
                 alignment=tcod.CENTER,
                 bg_blend=tcod.BKGND_ALPHA(64),
             )
 
-        console.print(x=console.width // 2 - 5, y=console.height // 2 - 2 + self.option_selected, string='>', fg=colour.WHITE)
+        console.print(x=console.width // 2 - 6, y=console.height // 2 - 2 + self.option_selected, string='►',
+                      fg=self.fg_colour)
+
+        console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
+                      fg=self.fg_colour)
 
     def ev_keydown(
         self, event: tcod.event.KeyDown
@@ -195,10 +253,17 @@ class MainMenu(input_handlers.BaseEventHandler):
         elif event.sym == tcod.event.K_DOWN:
             if self.option_selected < 2:
                 self.option_selected += 1
+            else:
+                self.option_selected = 0
 
         elif event.sym == tcod.event.K_UP:
             if self.option_selected > 0:
                 self.option_selected -= 1
+            else:
+                self.option_selected = 2
+
+        elif event.sym == tcod.event.K_F1:
+            self.subtext = generate_subtext()
 
         elif event.sym == tcod.event.K_RETURN:
             if self.option_selected == 0:

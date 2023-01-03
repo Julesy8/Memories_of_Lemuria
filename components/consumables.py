@@ -615,7 +615,8 @@ class Wearable(Usable):
         self.medium_mag_slots = medium_mag_slots
         self.large_mag_slots = large_mag_slots
 
-        # TODO: different defense and attack types
+        # TODO: different defense and attack types - melee and ballistic, armour affects stats
+        # melee protection, ballistic protection
         # add screen to be able to see loadout - equiped items and stats
 
     def activate(self, action: actions.ItemAction):
@@ -881,7 +882,7 @@ class GunComponent(ComponentPart):
                  part_type: str,
                  prevents_suppression=False,
                  is_suppressor=False,
-                 is_optic=False,  # TODO - update parts with property
+                 is_optic=False,
                  **kwargs,
                  ):
         self.prevents_suppression = prevents_suppression

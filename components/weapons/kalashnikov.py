@@ -22,6 +22,9 @@ reciever_akm = Item(
                                    compatible_parts={'AK Barrel': ['AK Barrel - 7.62x39', 'RPK Barrel - 7.62x39',
                                                                    'AK Carbine Barrel - 7.62x39',
                                                                    'AK Pistol Barrel - 7.62x39']},
+                                   optic_properties={'target_acquisition_ap': 0.95,
+                                                     'ap_distance_cost_modifier': 1.04,
+                                                     'spread_modifier': 1.02, },
                                    is_optic=True,
                                    ),
     description='AKM stamped kalashnikov type reciever'
@@ -42,6 +45,9 @@ reciever_ak74 = Item(
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.45x39', 'RPK-74 Barrel - 5.45x39',
                                                                    'AK Carbine Barrel - 5.45x39',
                                                                    'AK Pistol Barrel - 5.45x39']},
+                                   optic_properties={'target_acquisition_ap': 0.95,
+                                                     'ap_distance_cost_modifier': 1.04,
+                                                     'spread_modifier': 1.02, },
                                    is_optic=True,
                                    ),
     description='AK-74 stamped kalashnikov type reciever'
@@ -62,6 +68,9 @@ reciever_100556 = Item(
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.56x45',
                                                                    'AK Carbine Barrel - 5.56x45',
                                                                    'AK Pistol Barrel - 5.56x45']},
+                                   optic_properties={'target_acquisition_ap': 0.95,
+                                                     'ap_distance_cost_modifier': 1.04,
+                                                     'spread_modifier': 1.02, },
                                    is_optic=True,
                                    ),
     description='AK 101/102 series reciever for 5.56x45 AK rifles'
@@ -955,7 +964,7 @@ accessory_railsidemount = Item(
     usable_properties=GunComponent(part_type='AK Optics Mount',
                                    is_attachment_point_types=['Picrail Optics Mount - Short', ],
                                    additional_required_parts=('Optic',),
-                                   optic_mount_properties={'receiver_height_above_bore': 0.1},
+                                   optic_mount_properties={'receiver_height_above_bore': 0.35},
                                    ),
     description="A side mounted AK picatinny rail for optics mounting"
 )

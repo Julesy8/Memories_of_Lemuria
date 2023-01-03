@@ -1365,8 +1365,6 @@ class CraftGun(CraftItem):
 
                 if item.usable_properties.part_type == self.parts[self.current_part_selection]:
 
-                    add_option = True
-
                     # if the item is an optic, and if any of the current parts require an optic to be mounted,
                     # prevents attachment item from being added as an option if it is incompatible with the part that
                     # requires optics attachment
@@ -1379,16 +1377,13 @@ class CraftGun(CraftItem):
                                         if not any(attach_point in item.usable_properties.attachment_point_required
                                                    for attach_point in
                                                    part.usable_properties.is_attachment_point_types):
-                                            add_option = False
+                                            continue
 
                     # checks if there is an attachment point compatible with the attachment
                     if hasattr(item.usable_properties, 'attachment_point_required'):
                         attachment_point = getattr(item.usable_properties, 'attachment_point_required')
-                        if any(item in attachment_point for item in self.attachment_points):
-                            pass
-
-                        else:
-                            add_option = False
+                        if not any(item in attachment_point for item in self.attachment_points):
+                            continue
 
                     if hasattr(item.usable_properties, 'incompatibilities'):
                         all_parts = []
@@ -1399,19 +1394,33 @@ class CraftGun(CraftItem):
                         for setups in incompatibilities:
                             for items in setups:
                                 if all(item in all_parts for item in items):
-                                    add_option = False
+                                    continue
 
                     # checks suppressor compatibility
                     if item.usable_properties.is_suppressor:
                         if self.prevent_suppression:
-                            add_option = False
+                            continue
 
-                    if add_option:
-                        if add_only_compatible and item.name in \
-                                self.compatible_parts[self.parts[self.current_part_selection]]:
+                    if add_only_compatible:
+                        if item.name in self.compatible_parts[self.parts[self.current_part_selection]]:
                             self.options.append(item)
-                        elif not add_only_compatible:
-                            self.options.append(item)
+                            continue
+
+                        has_compatible_tag = False
+                        tags = [item.usable_properties.part_type, ]
+
+                        if hasattr(item.usable_properties, 'tags'):
+                            tags.extend(getattr(item.usable_properties, 'tags'))
+
+                        for tag in getattr(item.usable_properties, 'tags'):
+                            if tag in self.compatible_parts[self.parts[self.current_part_selection]]:
+                                has_compatible_tag = True
+                                break
+
+                        if not has_compatible_tag:
+                            continue
+
+                    self.options.append(item)
 
         if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
             # if part is not required and there are no parts of this type available,
@@ -1554,7 +1563,6 @@ class CraftGun(CraftItem):
             return MainGameEventHandler(engine=self.engine)
 
 
-# TODO - ability to add as many attachments as you want of certain types
 class SelectItemToAttach(UserOptionsWithPages):
 
     def __init__(self, engine: Engine, item: Item, crafting_handler: CraftGun):
@@ -1605,18 +1613,12 @@ class SelectItemToAttach(UserOptionsWithPages):
                         if hasattr(part.usable_properties, 'is_attachment_point_types'):
 
                             # creates list of tags of the accessory
-                            tags_item = []
+                            tags_item = [self.item.usable_properties.part_type, ]
                             if hasattr(self.item.usable_properties, 'tags'):
-                                tags_item = getattr(self.item.usable_properties, 'tags')
+                                tags_item.extend(getattr(self.item.usable_properties, 'tags'))
 
                             # checks if part type or one of the accessories tags is in prevents_attachments
-                            if part.usable_properties.part_type in prevents_attachment_of.keys() or \
-                                    any(tag in prevents_attachment_of.keys() for tag in tags_item):
-
-                                # accessories part type incompatible with part type
-                                if self.item.usable_properties.part_type \
-                                        in prevents_attachment_of[part.usable_properties.part_type]:
-                                    continue
+                            if any(tag in prevents_attachment_of.keys() for tag in tags_item):
 
                                 # accessories tag incompatible with part type
                                 for tag in tags_item:
@@ -1627,10 +1629,10 @@ class SelectItemToAttach(UserOptionsWithPages):
                                     tags_part = getattr(part.usable_properties, 'tags')
 
                                     for tag in tags_part:
-                                        # attachment point part type incompatible with part type
+                                        # attachment point part type incompatible with part type of attachment
                                         if tag in prevents_attachment_of[part.usable_properties.part_type]:
                                             continue
-                                        # attachment point tags incompatible with tags
+                                        # attachment point tags incompatible with tags of item
                                         for x in tags_item:
                                             if tag in prevents_attachment_of[x]:
                                                 continue

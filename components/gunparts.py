@@ -38,6 +38,7 @@ class Parts:
         total_weight = 0
 
         grip_properties = None  # secondary weapon grip part GunComponent i.e. handguard, vertical grip
+        optic_properties = None
 
         for part in self.part_list:
 
@@ -117,6 +118,9 @@ class Parts:
             if hasattr(part.usable_properties, 'grip_properties'):
                 grip_properties = part.usable_properties.grip_properties
 
+            if hasattr(part.usable_properties, 'optic_properties'):
+                optic_properties = part.usable_properties.optic_properties
+
             # if current part is an optic, iterates through part list to find the part to which the optic is
             # currently attached. If found, updates the gun properties with that of the optic mount.
             if part.usable_properties.part_type == 'Optic':
@@ -138,6 +142,9 @@ class Parts:
         # sets appropriate properties given the weapon secondary grip
         if grip_properties is not None:
             self.set_property(part_properties=grip_properties)
+
+        if optic_properties is not None:
+            self.set_property(part_properties=optic_properties)
 
     def set_property(self, part_properties: dict) -> None:
 

@@ -1,21 +1,16 @@
 -----
 TO DO
 -----
+-TODO - way to toggle full screen
 -premade guns for enemies
--when building gun, highlight incompatible parts in red rather than excluding from list
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion
--range stats displayed using graphing package
 -more exotic magazines should jam every so often
--change recoil calculation so that it isn't recalculated multiple times for the same bullet
 -darkness level (how far away you can see enemies) depends on level
 
 -start on sewer level
 -ability to change optics magnification
--shotgun shells
--underbarrel grenade launchers
 -add stipper clips
 -ability to rename guns
--way to view compatible parts
 
 17) more room shapes on level generation
 19) weapon graphics
@@ -89,7 +84,3 @@ felt_recoil =
 ap_distance_cost_modifier =
 spread_modifier =
 target_acquisition_ap =
-
-Pistol Grip
-Compensator
-Suppressor
