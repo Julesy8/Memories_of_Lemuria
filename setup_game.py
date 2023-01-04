@@ -45,12 +45,12 @@ def new_game() -> Engine:
     fighter_component = Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
     #TODO: adjust to be correct
-    Head_part = Head(hp=50, defence=50, depth=15, width=15, height=20)
-    Body_part = Body(hp=100, defence=50, depth=20, width=15, height=20)
-    R_Arm = Arm(hp=30, defence=50, name='right arm', depth=15, width=15, height=20)
-    L_Arm = Arm(hp=30, defence=50, name='left arm', depth=15, width=15, height=20)
-    R_Leg = Leg(hp=30, defence=50, name='right leg', depth=15, width=15, height=20)
-    L_Leg = Leg(hp=30, defence=50, name='left leg', depth=15, width=15, height=20)
+    Head_part = Head(hp=50, protection_ballistic=50, protection_physical=50, depth=15, width=15, height=20)
+    Body_part = Body(hp=100, protection_ballistic=50, protection_physical=50, depth=20, width=15, height=20)
+    R_Arm = Arm(hp=30, protection_ballistic=50, protection_physical=50, name='right arm', depth=15, width=15, height=20)
+    L_Arm = Arm(hp=30, protection_ballistic=50, protection_physical=50, name='left arm', depth=15, width=15, height=20)
+    R_Leg = Leg(hp=30, protection_ballistic=50, protection_physical=50, name='right leg', depth=15, width=15, height=20)
+    L_Leg = Leg(hp=30, protection_ballistic=50, protection_physical=50, name='left leg', depth=15, width=15, height=20)
 
     body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
@@ -66,6 +66,7 @@ def new_game() -> Engine:
                    inventory=Inventory(capacity=15),
                    item_drops={},
                    weapons={},
+                   spawn_group_amount=0
                    )
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)
@@ -98,16 +99,15 @@ def new_game() -> Engine:
         player.inventory.items.append(itemcopy)
         itemcopy.parent = player.inventory
 
-    engine.game_map = MessyBSPTree(level_params[current_level][0],  # messy tunnels
-                                   level_params[current_level][1],  # map width
-                                   level_params[current_level][2],  # map height
-                                   level_params[current_level][3],  # max leaf size
-                                   level_params[current_level][4],  # max room size
-                                   level_params[current_level][5],  # room min size
-                                   level_params[current_level][6],  # max monsters per room
-                                   level_params[current_level][7],  # max items per room
-                                   engine,
-                                   current_level,
+    engine.game_map = MessyBSPTree(messy_tunnels=level_params[current_level][0],
+                                   map_width=level_params[current_level][1],
+                                   map_height=level_params[current_level][2],
+                                   max_leaf_size=level_params[current_level][3],
+                                   room_max_size=level_params[current_level][4],
+                                   room_min_size=level_params[current_level][5],
+                                   max_items_per_room=level_params[current_level][6],
+                                   engine=engine,
+                                   current_level=current_level,
                                    ).generateLevel()
 
     engine.game_map.camera_xy = (engine.player.x, engine.player.y)

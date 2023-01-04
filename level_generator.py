@@ -1,6 +1,7 @@
 import copy
 
 from random import random, randint, choice, choices
+import pickle
 from copy import deepcopy
 
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
@@ -23,7 +24,7 @@ class MessyBSPTree:
     """
 
     def __init__(self, messy_tunnels, map_width, map_height, max_leaf_size, room_max_size,
-                 room_min_size, max_monsters_per_room, max_items_per_room, engine, current_level):
+                 room_min_size, max_items_per_room, engine, current_level):
         self.messy_tunnels = messy_tunnels
         self.map_width = map_width
         self.map_height = map_height
@@ -32,7 +33,6 @@ class MessyBSPTree:
         self.max_leaf_size = max_leaf_size
         self.room_max_size = room_max_size
         self.room_min_size = room_min_size
-        self.max_monsters_per_room = max_monsters_per_room
         self.max_items_per_room = max_items_per_room
         self.player = engine.player
         self._rooms = []
@@ -197,7 +197,11 @@ class MessyBSPTree:
             self.dungeon.tiles[x, y] = select_random_tile(self.colours_chars_array)
 
     def place_entities(self, room: Rect):
-        number_of_monsters = randint(0, self.max_monsters_per_room)
+
+        enemy = copy.deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
+                                      k=1)[0])
+
+        number_of_monsters = randint(0, enemy.spawn_group_amount)
         number_of_items = randint(0, self.max_items_per_room)
 
         for i in range(number_of_monsters):
@@ -206,15 +210,15 @@ class MessyBSPTree:
 
             if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities):
                 # place enemy
-                enemy = copy.deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
-                                              k=1)[0])
                 enemy.place(x, y, self.dungeon)
 
                 if len(enemy.weapons.keys()) > 0:
                     weapons = list(enemy.weapons.keys())
                     weapon_weight = list(enemy.weapons.values())
                     held_weapon = deepcopy(choices(population=weapons, weights=weapon_weight, k=1)[0])
-                    held_weapon.usable_properties.parent = held_weapon
+                    weapon_file = open(f'components/weapons/premade_weapons/{held_weapon}.pkl', 'rb')
+                    held_weapon = pickle.load(weapon_file)
+                    weapon_file.close()
                     enemy.inventory.held = held_weapon
 
         for i in range(number_of_items):

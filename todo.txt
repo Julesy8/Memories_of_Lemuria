@@ -2,6 +2,14 @@
 TO DO
 -----
 -TODO - way to toggle full screen
+
+- levels -
+sewers
+caverns
+military base
+
+
+
 -premade guns for enemies
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion
 -more exotic magazines should jam every so often

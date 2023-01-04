@@ -600,24 +600,22 @@ class Gun(Weapon):
 
 class Wearable(Usable):
     def __init__(self,
-                 protection: int,  # equivalent to inches of mild steel
+                 protection_ballistic: int,  # equivalent to inches of mild steel
+                 protection_physical: int,
                  fits_bodypart_type: str,
                  small_mag_slots: int,
                  medium_mag_slots: int,
                  large_mag_slots: int,
                  ):
 
-        self.protection = protection
+        self.protection_ballistic = protection_ballistic
+        self.protection_physical = protection_physical
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
 
         # how much of an item type the armour can carry
         self.small_mag_slots = small_mag_slots
         self.medium_mag_slots = medium_mag_slots
         self.large_mag_slots = large_mag_slots
-
-        # TODO: different defense and attack types - melee and ballistic, armour affects stats
-        # melee protection, ballistic protection
-        # add screen to be able to see loadout - equiped items and stats
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError

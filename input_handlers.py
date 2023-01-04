@@ -1813,7 +1813,7 @@ class InspectItemViewer(AskUserEventHandler):
 
             # wearable
             "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
-            "-- Protection --": ('protection', getattr(self.item.usable_properties, 'protection', 1)),
+            "-- Protection --": ('protection_ballistic', getattr(self.item.usable_properties, 'protection_ballistic', 1)),
             "-- Large Magazine Slots --": ('large_mag_slots',
                                            getattr(self.item.usable_properties, 'large_mag_slots', 1)),
             "-- Medium Magazine Slots --": ('medium_mag_slots',

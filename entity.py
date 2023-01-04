@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from functools import lru_cache
 from typing import Optional, TypeVar, TYPE_CHECKING, Union
 import copy
 import math
@@ -93,6 +92,7 @@ class Actor(Entity):
             ai,
             fighter,
             bodyparts: tuple,  # list of bodyparts belonging to the entity
+            spawn_group_amount: int,  # TODO- change to proeprty of a separate class
             item_drops: dict,
             weapons: dict,
             inventory: Inventory,
@@ -124,6 +124,7 @@ class Actor(Entity):
             bodypart.parent = self
         self.item_drops = item_drops
         self.weapons = weapons
+        self.spawn_group_amount = spawn_group_amount
         # disables attacks and movement for a certain amount of turns
         self.turns_attack_inactive = 0
         self.turns_move_inactive = 0

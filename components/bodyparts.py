@@ -21,7 +21,8 @@ class Bodypart:
 
     def __init__(self,
                  hp: int,
-                 defence: int,
+                 protection_ballistic: int,
+                 protection_physical: int,
                  name: str,
                  width: int,
                  height: int,
@@ -35,7 +36,8 @@ class Bodypart:
         self.max_hp = hp
         self.hp_last_turn = hp
         self._hp = hp
-        self._defence = defence
+        self._protection_ballistic = protection_ballistic
+        self._protection_physical = protection_physical
         self.width = width
         self.height = height
         self.depth = depth
@@ -57,8 +59,20 @@ class Bodypart:
         return self._hp
 
     @property
-    def defence(self) -> int:
-        return self._defence
+    def protection_ballistic(self) -> int:
+        return self._protection_ballistic
+
+    @protection_ballistic.setter
+    def protection_ballistic(self, value):
+        self._protection_ballistic = value
+
+    @property
+    def protection_physical(self) -> int:
+        return self._protection_physical
+
+    @protection_physical.setter
+    def protection_physical(self, value):
+        self._protection_physical = value
 
     @hp.setter
     def hp(self, value: int) -> None:
@@ -87,10 +101,6 @@ class Bodypart:
                 if self.parent.fears_death and not self.parent.has_fled_death:
                     self.parent.fleeing_turns = 8
                     self.parent.has_fled_death = True
-
-    @defence.setter
-    def defence(self, value):
-        self._defence = value
 
     def die(self) -> None:
 
@@ -144,14 +154,14 @@ class Bodypart:
 
         armour_protection = 0
         if self.equipped:
-            armour_protection = self.equipped.usable_properties.protection
+            armour_protection = self.equipped.usable_properties.protection_physical
 
-        if armour_damage < self.defence + armour_protection:
+        if armour_damage < self.protection_physical + armour_protection:
             damage = 0
-        elif self.defence + armour_protection == 0:
+        elif self.protection_physical + armour_protection == 0:
             damage = meat_damage
         else:
-            damage = meat_damage - floor(((armour_protection + self.defence) / armour_damage)) * meat_damage
+            damage = meat_damage - floor(((armour_protection + self.protection_physical) / armour_damage)) * meat_damage
 
         if damage > 0:
             self.hp -= damage
@@ -173,7 +183,7 @@ class Bodypart:
             fail_colour = colour.YELLOW
 
         if self.equipped:
-            armour_protection = self.equipped.usable_properties.protection + self.defence
+            armour_protection = self.equipped.usable_properties.protection_ballistic + self.protection_ballistic
             ballistic_limit = sqrt(((diameter_bullet ** 3) / mass_bullet) *
                                    ((armour_protection / (9.35 * 10 ** -9 * diameter_bullet)) ** 1.25))
             residual_velocity = 0
@@ -242,7 +252,8 @@ class Bodypart:
 class Arm(Bodypart):
     def __init__(self,
                  hp: int,
-                 defence: int,
+                 protection_ballistic: int,
+                 protection_physical: int,
                  name: str,
                  width: int,
                  height: int,
@@ -254,7 +265,8 @@ class Arm(Bodypart):
 
         super().__init__(
             hp=hp,
-            defence=defence,
+            protection_ballistic=protection_ballistic,
+            protection_physical=protection_physical,
             name=name,
             depth=depth,
             strength_tissue=strength_tissue,
@@ -285,7 +297,8 @@ class Arm(Bodypart):
 class Leg(Bodypart):
     def __init__(self,
                  hp: int,
-                 defence: int,
+                 protection_ballistic: int,
+                 protection_physical: int,
                  name: str,
                  width: int,
                  height: int,
@@ -297,7 +310,8 @@ class Leg(Bodypart):
 
         super().__init__(
             hp=hp,
-            defence=defence,
+            protection_ballistic=protection_ballistic,
+            protection_physical=protection_physical,
             name=name,
             depth=depth,
             strength_tissue=strength_tissue,
@@ -333,7 +347,8 @@ class Leg(Bodypart):
 class Head(Bodypart):
     def __init__(self,
                  hp: int,
-                 defence: int,
+                 protection_ballistic: int,
+                 protection_physical: int,
                  width: int,
                  height: int,
                  depth: int,
@@ -344,7 +359,8 @@ class Head(Bodypart):
                  ):
         super().__init__(
             hp=hp,
-            defence=defence,
+            protection_ballistic=protection_ballistic,
+            protection_physical=protection_physical,
             name=name,
             depth=depth,
             strength_tissue=strength_tissue,
@@ -370,7 +386,8 @@ class Head(Bodypart):
 class Body(Bodypart):
     def __init__(self,
                  hp: int,
-                 defence: int,
+                 protection_ballistic: int,
+                 protection_physical: int,
                  width: int,
                  height: int,
                  depth: int,
@@ -381,7 +398,8 @@ class Body(Bodypart):
                  ):
         super().__init__(
             hp=hp,
-            defence=defence,
+            protection_ballistic=protection_ballistic,
+            protection_physical=protection_physical,
             name=name,
             depth=depth,
             strength_tissue=strength_tissue,
