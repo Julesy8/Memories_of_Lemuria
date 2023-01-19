@@ -4,6 +4,7 @@ from components.gunparts import Parts
 import colour
 
 # todo - belt fed upper, 7.62x39 parts, 9mm/45 acp parts,
+# todo - add muzzle devices
 
 """
 Lower Receivers

@@ -126,7 +126,10 @@ class Parts:
             if part.usable_properties.part_type == 'Optic':
                 for x in self.part_list:
                     if hasattr(x.usable_properties, 'is_attachment_point_types'):
+
+                        # comment below line out when making guns using gun_maker
                         if part in self.attachment_dict[x.name].values():
+
                             if hasattr(x.usable_properties, 'optic_mount_properties'):
                                 self.set_property(part_properties=x.usable_properties.optic_mount_properties)
 

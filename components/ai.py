@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, Tuple, Optional
 
+from random import randint, choice
 import numpy as np  # type: ignore
 import tcod
 
@@ -9,6 +10,8 @@ from components.consumables import Gun, Weapon, MeleeWeapon
 from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction, AttackAction, \
     ReloadAction
 from entity import Actor
+
+# TODO - clean this up so theres not as much repetition
 
 
 class BaseAI(Action):
@@ -53,6 +56,230 @@ class BaseAI(Action):
 
 
 class HostileEnemy(BaseAI):
+    def __init__(self, entity: Actor):
+        super().__init__(entity)
+        self.path: List[Tuple[int, int]] = []
+
+    def perform(self) -> None:
+        # TODO - enemies attack creatures not aligned with their faction
+        self.entity.target_actor = self.engine.player
+        target = self.entity.target_actor
+        dx = target.x - self.entity.x
+        dy = target.y - self.entity.y
+        distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
+        fighter = self.entity.fighter
+
+        # AP regeneration
+        fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
+
+        if self.entity.turns_attack_inactive >= 1:
+            self.entity.turns_attack_inactive -= 1
+        if self.entity.turns_move_inactive >= 1:
+            self.entity.turns_move_inactive -= 1
+
+        attack_range = 1
+
+        self.execute_queued_action(distance, target)
+
+        # checks if previous target actor is still visible, if not resets to None
+        if self.entity.previous_target_actor is not None:
+            if not self.engine.game_map.visible[self.entity.previous_target_actor.x,
+                                                self.entity.previous_target_actor.y]:
+                self.entity.previous_target_actor = None
+
+        while fighter.ap > 0:
+            # skips turn if both attack and move actions inactive for this turn
+            if self.entity.turns_attack_inactive > 0 and self.entity.turns_move_inactive > 0:
+                break
+
+            # perform attack action
+            if fighter.ap > 0 and self.entity.turns_attack_inactive <= 0 and distance <= attack_range \
+                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]:
+
+                if attack_range == 1:
+                    UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
+                                        targeted_bodypart=None).attack()
+
+            # any kind of movement action occurring
+            elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
+
+                # entity fleeing from target
+                if self.entity.fleeing_turns > 0:
+
+                    cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
+                    distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
+                                                            self.entity.gamemap.height), order="F")
+                    distance_dijkstra[target.x, target.y] = 0
+                    tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
+                    max_int = np.iinfo(distance_dijkstra.dtype).max
+                    touched = (distance_dijkstra != max_int)
+                    distance_dijkstra[touched] *= -6
+                    distance_dijkstra[touched] //= 5
+                    tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
+                    self.path = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
+                                                      cardinal=True, diagonal=True)[1:].tolist()
+                    self.entity.fleeing_turns -= 1
+
+                # entity not fleeing and can see target, sets path to them
+                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fleeing_turns == 0:
+                    self.path = self.get_path_to(target.x, target.y)
+
+                if self.path:
+                    dest_x, dest_y = self.path.pop(0)
+                    MovementAction(
+                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                    ).perform()
+
+                else:
+                    break
+
+            else:
+                break
+
+        return WaitAction(self.entity).perform()
+
+    def execute_queued_action(self, distance, target):
+        # checks if the queued action can still be performed
+        if self.queued_action is not None:  # and self.entity.turns_attack_inactive == 0
+
+            action_viable = True
+
+            # for attack actions
+            if isinstance(self.queued_action, AttackAction):
+
+                # target still visible
+                if self.engine.game_map.visible[target.x, target.y]:
+
+                    # updates distance
+                    self.queued_action.distance = distance
+
+                    if not distance == 1:
+                        action_viable = False
+
+                    # attack still viable
+                    if action_viable:
+
+                        self.turns_until_action -= 1
+
+                        # no more wait turns
+                        if self.turns_until_action == 0:
+                            self.queued_action.attack()
+                            self.queued_action = None
+
+                    # attack not viable, cancels queued attack
+                    else:
+                        self.queued_action = None
+                        # gives back the AP that would have been used for the remaining segment of the attack
+                        self.entity.fighter.ap += round(self.turns_until_action * self.entity.fighter.ap_per_turn)
+                        self.turns_until_action = 0
+
+                # entity no longer visible, cancels queued attack
+                else:
+                    self.queued_action = None
+                    self.turns_until_action = 0
+
+
+class HostileAnimal(HostileEnemy):
+    def __init__(self, entity: Actor, attack_radius: int = 5):
+        self.attack_radius = attack_radius
+        self.attacking_target = False
+        super().__init__(entity)
+
+    def perform(self) -> None:
+
+        self.entity.target_actor = self.engine.player
+        target = self.entity.target_actor
+        dx = target.x - self.entity.x
+        dy = target.y - self.entity.y
+        distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
+        fighter = self.entity.fighter
+
+        if distance <= self.attack_radius:
+            self.attacking_target = True
+
+        # if not attacking target, moves in random directions until coming into attack radius of player
+        if not self.attacking_target:
+            if fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
+                if choice((True, False)):
+                    MovementAction(
+                        self.entity, self.entity.x + randint(-1, 1), self.entity.y + randint(-1, 1),
+                    ).perform()
+            return
+
+        # AP regeneration
+        fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
+
+        if self.entity.turns_attack_inactive >= 1:
+            self.entity.turns_attack_inactive -= 1
+        if self.entity.turns_move_inactive >= 1:
+            self.entity.turns_move_inactive -= 1
+
+        attack_range = 1
+
+        self.execute_queued_action(distance, target)
+
+        # checks if previous target actor is still visible, if not resets to None
+        if self.entity.previous_target_actor is not None:
+            if not self.engine.game_map.visible[self.entity.previous_target_actor.x,
+                                                self.entity.previous_target_actor.y]:
+                self.entity.previous_target_actor = None
+
+        while fighter.ap > 0:
+            # skips turn if both attack and move actions inactive for this turn
+            if self.entity.turns_attack_inactive > 0 and self.entity.turns_move_inactive > 0:
+                break
+
+            # perform attack action
+            if fighter.ap > 0 and self.entity.turns_attack_inactive <= 0 and distance <= attack_range \
+                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]:
+
+                if attack_range == 1:
+                    UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
+                                        targeted_bodypart=None).attack()
+
+            # any kind of movement action occurring
+            elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
+
+                # entity fleeing from target
+                if self.entity.fleeing_turns > 0:
+
+                    cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
+                    distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
+                                                            self.entity.gamemap.height), order="F")
+                    distance_dijkstra[target.x, target.y] = 0
+                    tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
+                    max_int = np.iinfo(distance_dijkstra.dtype).max
+                    touched = (distance_dijkstra != max_int)
+                    distance_dijkstra[touched] *= -6
+                    distance_dijkstra[touched] //= 5
+                    tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
+                    self.path = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
+                                                      cardinal=True, diagonal=True)[1:].tolist()
+                    self.entity.fleeing_turns -= 1
+
+                # entity not fleeing and can see target, sets path to them
+                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fleeing_turns == 0:
+                    self.path = self.get_path_to(target.x, target.y)
+
+                if self.path:
+                    dest_x, dest_y = self.path.pop(0)
+                    MovementAction(
+                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                    ).perform()
+
+                else:
+                    break
+
+            else:
+                break
+
+        return WaitAction(self.entity).perform()
+
+
+# TODO - update enemies with this
+class HostileEnemyArmed(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
@@ -258,3 +485,4 @@ class HostileEnemy(BaseAI):
                     if self.turns_until_action == 0:
                         self.queued_action.perform()
                         self.queued_action = None
+

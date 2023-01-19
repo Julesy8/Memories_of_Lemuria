@@ -67,20 +67,20 @@ def get_views(screen_shape, world_shape, anchor):
 
 
 class GameMap:
-    def __init__(self, engine: Engine, width: int, height: int, level: int, debug_fov: bool,
-                 entities: Iterable[Entity] = ()):
+    def __init__(self, engine: Engine, width: int, height: int, level: int,
+                 entities: Iterable[Entity] = (), fov_radius: int = 15):
         self.level = level
-        self.debug_fov = debug_fov  # to disable fov, set to 'True' in level_generator
         self.engine = engine
+        self.fov_radius = fov_radius
 
         self.colours_chars = MapColoursChars(self.level)
 
         # defines the colours and characters used for wall tiles:
-        self.wall = tile_types.new_wall(self.colours_chars.wall_fg_dark(),
-                                        self.colours_chars.wall_bg_dark(),
-                                        self.colours_chars.wall_fg_light(),
-                                        self.colours_chars.wall_bg_light(),
-                                        self.colours_chars.wall_tile())
+        self.wall = tile_types.new_wall(self.colours_chars.wall_fg_dark,
+                                        self.colours_chars.wall_bg_dark,
+                                        self.colours_chars.wall_fg_light,
+                                        self.colours_chars.wall_bg_light,
+                                        self.colours_chars.wall_tile)
 
         self.entities = set(entities)
         self.width, self.height = width, height
@@ -191,8 +191,8 @@ class GameMap:
             max_leaf_size=level_params[self.engine.current_level][3],
             room_max_size=level_params[self.engine.current_level][4],
             room_min_size=level_params[self.engine.current_level][5],
-            max_monsters_per_room=level_params[self.engine.current_level][6],
-            max_items_per_room=level_params[self.engine.current_level][7],
+            max_items_per_room=level_params[self.engine.current_level][6],
             engine=self.engine,
             current_level=self.engine.current_level,
+            fov_radius=level_params[self.engine.current_level][7]
             ).generateLevel()

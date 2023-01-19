@@ -2,6 +2,16 @@
 TO DO
 -----
 -TODO - way to toggle full screen
+TODO - player can see where gun shots are coming from
+TODO - when disarmed, enemies seek out and pick up their gun
+TODO - enemies guns have worse condition, causing them to jam
+TODO - weapon jamming affected by part quality and magazine
+TODO - nodes placed in the middle of rooms during floor gen, patrolling type enemies navigate between nodes
+TODO - certain enemies only have an agro range - e.g. alligators wont chase after the player from far away
+TODO - bleeding
+TODO - bestiary
+TODO - ability to see 'ghost' of entity in last position it was seen
+
 
 - levels -
 sewers
@@ -9,7 +19,8 @@ caverns
 military base
 
 
-
+-unique enemies which spawn once per game
+-player can spawn in from previous games as enemy
 -premade guns for enemies
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion
 -more exotic magazines should jam every so often

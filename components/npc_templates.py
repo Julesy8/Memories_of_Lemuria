@@ -35,7 +35,7 @@ class Fighter(BaseComponent):
                  melee_accuracy: float = 1.0,  # more = more accurate
                  ranged_accuracy: float = 1.0,  # less = more accurate
                  move_success_chance: float = 1.0,
-                 automatic_fire_duration: float = 0.5,
+                 responds_to_sound: bool = True,  # todo - update entities with this property
                  ):
 
         self.max_ap = ap
@@ -67,8 +67,9 @@ class Fighter(BaseComponent):
 
         self.style_range_accuracy = 1.0
         self.style_action_ap = 1.0
-        # how long (in seconds) an automatic burst of fire should last
-        self.automatic_fire_duration = automatic_fire_duration
+
+        # whether entity paths towards gunshot sounds
+        self.responds_to_sound = responds_to_sound
 
     @property
     def ap(self) -> int:
@@ -98,12 +99,34 @@ class Fighter(BaseComponent):
     def ap(self, value: int) -> None:
         self._ap = min(value, self.max_ap)
 
+
+class GunFighter(Fighter):
+    def __init__(self,
+                 unarmed_meat_damage,
+                 unarmed_armour_damage,
+                 unarmed_ap_cost: int = 100,
+                 move_ap_cost: int = 100,
+                 ap: int = 100,
+                 ap_per_turn: int = 100,
+                 melee_accuracy: float = 1.0,
+                 ranged_accuracy: float = 1.0,
+                 move_success_chance: float = 1.0,
+                 responds_to_sound: bool = True,
+                 automatic_fire_duration: float = 0.5
+                 ):
+
+        # how long (in seconds) an automatic burst of fire should last
+        self.automatic_fire_duration = automatic_fire_duration
+
+        super().__init__(unarmed_meat_damage, unarmed_armour_damage, unarmed_ap_cost, move_ap_cost, ap, ap_per_turn,
+                         melee_accuracy, ranged_accuracy, move_success_chance, responds_to_sound,)
+
     def attack_style_precision(self):
         self.style_range_accuracy = 0.7
         self.automatic_fire_duration = 0.2
         self.style_action_ap = 1.3
 
-    def attack_style_cqc(self):
+    def attack_style_cqc(self):  # TODO - enemy attack style changes to this when gravely injured if fears death
         self.style_range_accuracy = 1.3
         self.automatic_fire_duration = 0.7
         self.style_action_ap = 0.7

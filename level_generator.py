@@ -24,7 +24,7 @@ class MessyBSPTree:
     """
 
     def __init__(self, messy_tunnels, map_width, map_height, max_leaf_size, room_max_size,
-                 room_min_size, max_items_per_room, engine, current_level):
+                 room_min_size, max_items_per_room, fov_radius, engine, current_level):
         self.messy_tunnels = messy_tunnels
         self.map_width = map_width
         self.map_height = map_height
@@ -34,6 +34,7 @@ class MessyBSPTree:
         self.room_max_size = room_max_size
         self.room_min_size = room_min_size
         self.max_items_per_room = max_items_per_room
+        self.fov_radius = fov_radius
         self.player = engine.player
         self._rooms = []
 
@@ -55,15 +56,16 @@ class MessyBSPTree:
         self.colours_chars_tuple = MapColoursChars(current_level)
 
         # makes tuple of colours and characters into an array usable by new_tile
-        self.colours_chars_array = generate_char_arrays(self.colours_chars_tuple.floor_fg_dark(),
-                                                        self.colours_chars_tuple.floor_bg_dark(),
-                                                        self.colours_chars_tuple.floor_fg_light(),
-                                                        self.colours_chars_tuple.floor_bg_light(),
-                                                        self.colours_chars_tuple.floor_tile()
+        self.colours_chars_array = generate_char_arrays(self.colours_chars_tuple.floor_fg_dark,
+                                                        self.colours_chars_tuple.floor_bg_dark,
+                                                        self.colours_chars_tuple.floor_fg_light,
+                                                        self.colours_chars_tuple.floor_bg_light,
+                                                        self.colours_chars_tuple.floor_tile
                                                         )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(engine, map_width, map_height, current_level, debug_fov=True, entities=[self.player])
+        self.dungeon = GameMap(engine, map_width, map_height, current_level, entities=[self.player],
+                               fov_radius=self.fov_radius)
 
     def generateLevel(self):
         # Creates an empty 2D array or clears existing array
@@ -219,7 +221,7 @@ class MessyBSPTree:
                     weapon_file = open(f'components/weapons/premade_weapons/{held_weapon}.pkl', 'rb')
                     held_weapon = pickle.load(weapon_file)
                     weapon_file.close()
-                    enemy.inventory.held = held_weapon
+                    enemy.inventory.held = copy.deepcopy(held_weapon)
 
         for i in range(number_of_items):
             x = randint(room.x1 + 1, room.x2 - 1)

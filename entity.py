@@ -114,7 +114,7 @@ class Actor(Entity):
         self.ai = ai(self)
         self.fighter = fighter
         self.fighter.parent = self
-        self.target_actor = None
+        self.target_actor = None  # TODO - remove some of these from entity and move to fighter
         self.previous_target_actor = None
         self.player = player
         self.bodyparts = copy.deepcopy(bodyparts)

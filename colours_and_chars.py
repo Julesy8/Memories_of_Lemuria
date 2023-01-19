@@ -1,4 +1,3 @@
-import level_importer
 import colour
 
 
@@ -6,66 +5,100 @@ class MapColoursChars:
     def __init__(self, level: int):
         self.level = level
 
-        cols_chars = level_importer.level_dependent_import(level)
+        level_colours_tiles = {
+
+            # Sewers
+            0: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.DARK_GRAY,
+                "wall bg light": colour.LIGHT_GRAY,
+
+                "floor fg dark": colour.DARK_GRAY,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 9617,
+                "floor tile": [46]
+            },
+
+            # Caverns
+            1: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.LIGHT_GRAY,
+                "wall bg light": colour.LIGHT_GUNMETAL,
+
+                "floor fg dark": colour.DARK_GRAY,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 35,
+                "floor tile": [46, 46, 46, 44]
+            },
+
+            # The Nexion
+            2: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.RED,
+                "wall bg light": colour.DARK_GRAY,
+
+                "floor fg dark": colour.DARK_GRAY,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 9619,
+                "floor tile": [43]
+            },
+
+            # DUMB
+            3: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.LIGHT_GRAY,
+                "wall bg light": colour.LIGHT_GRAY,
+
+                "floor fg dark": colour.DARK_GRAY,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 9608,
+                "floor tile": [46]
+            },
+
+            # Reptilian Hive
+            4: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.LIGHT_GRAY,
+                "wall bg light": colour.LIGHT_GUNMETAL,
+
+                "floor fg dark": colour.DARK_GRAY,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 35,
+                "floor tile": [46]
+            },
+
+        }
 
         # floor colours
-        self.floor_fg_dark_param = cols_chars[2][0]
-        self.floor_bg_dark_param = cols_chars[2][1]
-        self.floor_fg_light_param = cols_chars[2][2]
-        self.floor_bg_light_param = cols_chars[2][3]
-        self.floor_tile_param = cols_chars[4]
+        self.floor_fg_dark = level_colours_tiles[level]["floor fg dark"]
+        self.floor_bg_dark = level_colours_tiles[level]["floor bg dark"]
+        self.floor_fg_light = level_colours_tiles[level]["floor fg light"]
+        self.floor_bg_light = level_colours_tiles[level]["floor bg light"]
+        self.floor_tile = level_colours_tiles[level]["floor tile"]
 
         # wall colours
-        self.wall_fg_dark_param = cols_chars[1][0]
-        self.wall_bg_dark_param = cols_chars[1][1]
-        self.wall_fg_light_param = cols_chars[1][2]
-        self.wall_bg_light_param = cols_chars[1][3]
-        self.wall_tile_param = cols_chars[3][0]
-
-    def floor_fg_light(self):
-        return self.floor_fg_light_param
-
-    def floor_bg_light(self):
-        return self.floor_bg_light_param
-
-    def floor_fg_dark(self):
-        return self.floor_fg_dark_param
-
-    def floor_bg_dark(self):
-        return self.floor_bg_dark_param
-
-    def floor_tile(self):
-        return self.floor_tile_param
-
-    def wall_fg_light(self):
-        return self.wall_fg_light_param
-
-    def wall_bg_light(self):
-        return self.wall_bg_light_param
-
-    def wall_fg_dark(self):
-        return self.wall_fg_dark_param
-
-    def wall_bg_dark(self):
-        return self.wall_bg_dark_param
-
-    def wall_tile(self):
-        return self.wall_tile_param
-
-
-# level 0
-level_0 = {
-    1:  # wall colour
-        # foreground, background
-        (colour.DARK_GRAY, colour.BLACK,   # dark
-         colour.DARK_GRAY, colour.LIGHT_GRAY),  # light
-
-    2:  # floor colour
-        # foreground, background
-        (colour.DARK_GRAY, colour.BLACK,   # dark
-         colour.LIGHT_GRAY, colour.BLACK),  # light
-
-    3: [35],  # wall tile
-
-    4: [46]  # floor tile, to weight this add multiple of the same value
-}
+        self.wall_fg_dark = level_colours_tiles[level]["wall fg dark"]
+        self.wall_bg_dark = level_colours_tiles[level]["wall bg dark"]
+        self.wall_fg_light = level_colours_tiles[level]["wall fg light"]
+        self.wall_bg_light = level_colours_tiles[level]["wall bg light"]
+        self.wall_tile = level_colours_tiles[level]["wall tile"]

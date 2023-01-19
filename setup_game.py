@@ -17,7 +17,7 @@ from level_generator import MessyBSPTree
 from level_parameters import level_params
 from components.inventory import Inventory
 from components.ai import BaseAI
-from components.npc_templates import Fighter
+from components.npc_templates import GunFighter
 from components.bodyparts import Body, Arm, Leg, Head
 from random import randint, choices, choice
 
@@ -39,18 +39,26 @@ from components.weapons.glock17 import glock17dict
 
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance."""
-    current_level = 0
+    current_level = 1
 
     # initialises player entity
-    fighter_component = Fighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
+    fighter_component = GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
-    #TODO: adjust to be correct
-    Head_part = Head(hp=50, protection_ballistic=50, protection_physical=50, depth=15, width=15, height=20)
-    Body_part = Body(hp=100, protection_ballistic=50, protection_physical=50, depth=20, width=15, height=20)
-    R_Arm = Arm(hp=30, protection_ballistic=50, protection_physical=50, name='right arm', depth=15, width=15, height=20)
-    L_Arm = Arm(hp=30, protection_ballistic=50, protection_physical=50, name='left arm', depth=15, width=15, height=20)
-    R_Leg = Leg(hp=30, protection_ballistic=50, protection_physical=50, name='right leg', depth=15, width=15, height=20)
-    L_Leg = Leg(hp=30, protection_ballistic=50, protection_physical=50, name='left leg', depth=15, width=15, height=20)
+    Head_part = Head(hp=40, protection_ballistic=50, protection_physical=50, depth=20, width=20, height=26)
+    Body_part = Body(hp=100, protection_ballistic=50, protection_physical=50, depth=20, width=35, height=56)
+    R_Arm = Arm(hp=70, protection_ballistic=50, protection_physical=50, name='right arm', depth=10, width=10, height=78)
+    L_Arm = Arm(hp=70, protection_ballistic=50, protection_physical=50, name='left arm', depth=10, width=10, height=78)
+    R_Leg = Leg(hp=75, protection_ballistic=50, protection_physical=50, name='right leg', depth=12, width=15,
+                height=100)
+    L_Leg = Leg(hp=75, protection_ballistic=50, protection_physical=50, name='left leg', depth=12, width=15, height=100)
+
+    # Head_part = Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26)
+    # Body_part = Body(hp=100, protection_ballistic=0, protection_physical=0, depth=20, width=35, height=56)
+    # R_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=0, name='right arm', depth=10, width=10, height=78)
+    # L_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=0, name='left arm', depth=10, width=10, height=78)
+    # R_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=0, name='right leg', depth=12, width=15,
+    #             height=100)
+    # L_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=0, name='left leg', depth=12, width=15, height=100)
 
     body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
@@ -106,6 +114,7 @@ def new_game() -> Engine:
                                    room_max_size=level_params[current_level][4],
                                    room_min_size=level_params[current_level][5],
                                    max_items_per_room=level_params[current_level][6],
+                                   fov_radius=level_params[current_level][7],
                                    engine=engine,
                                    current_level=current_level,
                                    ).generateLevel()

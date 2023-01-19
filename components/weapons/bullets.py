@@ -1208,9 +1208,6 @@ round_slug_12 = Item(
     )
 )
 """
-bullet_dict = {
-    "9mm": ([round_9mm_115_fmj, 1], [round_9mm_124_fmj, 1])
-}
 
 bullet_list = (round_9mm_115_fmj, round_9mm_124_fmj, round_9mm_147_fp, round_9mm_115_fmj_pp,
                round_9mm_124_fmj_pp, round_9mm_147_fp_pp, round_9mm_115_jhp, round_9mm_124_jhp,

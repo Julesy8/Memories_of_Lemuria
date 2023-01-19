@@ -87,6 +87,8 @@ class AttackAction(Action):
                  queued: Optional[bool] = False):
         super().__init__(entity)
 
+        targeted_actor.active = True
+
         self.targeted_actor = targeted_actor
         self.targeted_bodypart = targeted_bodypart
         self.queued = queued

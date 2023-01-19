@@ -442,8 +442,7 @@ class Gun(Weapon):
 
                 # if the sound radius of the fired round is not already in the list, appends it to the list for
                 sound_radius = self.sound_modifier * self.chambered_bullet.usable_properties.sound_modifier
-                if sound_radius not in sound_radius_list:
-                    sound_radius_list.append(sound_radius)
+                sound_radius_list.append(sound_radius)
 
                 muzzle_velocity = self.chambered_bullet.usable_properties.velocity * self.velocity_modifier
 
@@ -570,27 +569,29 @@ class Gun(Weapon):
                         recoil_penalty = sum(recoil_spread_list)
 
             else:
-                self.shot_sound_activation(sound_radius_list=sound_radius_list, attacker=attacker)
+                self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
                 if attacker.player:
                     self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
                 break
 
-        self.shot_sound_activation(sound_radius_list=sound_radius_list, attacker=attacker)
+        self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
 
-    def shot_sound_activation(self, sound_radius_list: list[float], attacker: Actor) -> None:
+    def shot_sound_activation(self, sound_radius: float, attacker: Actor) -> None:
         # shot sound alert enemies in the vacinity of where the shot was fired from
         # only needs to be computed once for the 'loudest' shot fired
 
-        max_sound_radius = max(sound_radius_list)
+        for x in set(self.engine.game_map.actors) - {attacker} - {self.engine.player}:
 
-        for x in set(self.engine.game_map.actors) - {attacker}:
+            if not attacker.fighter.responds_to_sound:
+                continue
+
             dx = x.x - attacker.x
             dy = x.y - attacker.y
             distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-            if distance <= max_sound_radius:
+            if distance <= sound_radius:
                 path = x.ai.get_path_to(attacker.x, attacker.y)
-                if len(path) <= max_sound_radius:
+                if len(path) <= sound_radius:
                     setattr(x.ai, 'path', path)
                     x.active = True
 
@@ -601,6 +602,7 @@ class Gun(Weapon):
 class Wearable(Usable):
     def __init__(self,
                  protection_ballistic: int,  # equivalent to inches of mild steel
+                 armour_coverage: int,  # chance that when an attack occurs, the armour will be hit
                  protection_physical: int,
                  fits_bodypart_type: str,
                  small_mag_slots: int,
@@ -609,6 +611,7 @@ class Wearable(Usable):
                  ):
 
         self.protection_ballistic = protection_ballistic
+        self.armour_coverage = armour_coverage
         self.protection_physical = protection_physical
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
 

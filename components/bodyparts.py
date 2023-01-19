@@ -21,7 +21,7 @@ class Bodypart:
 
     def __init__(self,
                  hp: int,
-                 protection_ballistic: int,
+                 protection_ballistic: float,
                  protection_physical: int,
                  name: str,
                  width: int,
@@ -59,7 +59,7 @@ class Bodypart:
         return self._hp
 
     @property
-    def protection_ballistic(self) -> int:
+    def protection_ballistic(self) -> float:
         return self._protection_ballistic
 
     @protection_ballistic.setter
@@ -154,7 +154,10 @@ class Bodypart:
 
         armour_protection = 0
         if self.equipped:
-            armour_protection = self.equipped.usable_properties.protection_physical
+            if choices(population=(True, False),
+                       weights=(self.equipped.usable_properties.protection_physical,
+                                100 - self.equipped.usable_properties.protection_physical))[0]:
+                armour_protection = self.equipped.usable_properties.protection_physical
 
         if armour_damage < self.protection_physical + armour_protection:
             damage = 0
@@ -173,9 +176,9 @@ class Bodypart:
     def deal_damage_gun(self, diameter_bullet: float, mass_bullet: int, velocity_bullet: int,
                         drag_bullet: float, config_bullet: float, attacker: Actor):
 
-        diameter_bullet = diameter_bullet * 25.4  # millimitres
-        mass_bullet = mass_bullet * 0.0647989  # grams
-        velocity_bullet = velocity_bullet * 0.3048  # metres per second
+        diameter_bullet_metric = diameter_bullet * 25.4  # millimitres
+        mass_bullet_metric = mass_bullet * 0.0647989  # grams
+        velocity_bullet_metric = velocity_bullet * 0.3048  # metres per second
 
         fail_colour = colour.LIGHT_BLUE
 
@@ -191,22 +194,22 @@ class Bodypart:
                 residual_velocity = sqrt((velocity_bullet ** 2) - (ballistic_limit ** 2))
             except ValueError:
                 pass
-            velocity_bullet = residual_velocity
+            velocity_bullet_metric = residual_velocity * 0.3048
 
-        if velocity_bullet > 0:
+        if velocity_bullet_metric > 0:
 
             # uniaxial strain proportionality
-            strain_prop = (diameter_bullet ** (1.0 / 3)) * sqrt(self.strength_tissue / self.density_tissue)
+            strain_prop = (diameter_bullet_metric ** (1.0 / 3)) * sqrt(self.strength_tissue / self.density_tissue)
 
-            pen_depth = log(((velocity_bullet / strain_prop) ** 2 + 1)) * \
-                        (mass_bullet / (pi * ((0.5 * (diameter_bullet / 10)) ** 2)
-                                        * (self.density_tissue / 1000) * drag_bullet))
+            pen_depth = log(((velocity_bullet_metric / strain_prop) ** 2 + 1)) * \
+                        (mass_bullet_metric / (pi * ((0.5 * (diameter_bullet_metric / 10)) ** 2)
+                                               * (self.density_tissue / 1000) * drag_bullet))
 
-            wound_mass = round(pi * (0.5 * ((diameter_bullet / 10) ** 2)) * pen_depth *
+            wound_mass = round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * pen_depth *
                                (self.density_tissue / 1000) * config_bullet)
 
             if wound_mass > 0:
-                self.hp -= wound_mass
+                self.hp -= wound_mass * 0.875
 
             # hit, no damage dealt
             else:
@@ -252,7 +255,7 @@ class Bodypart:
 class Arm(Bodypart):
     def __init__(self,
                  hp: int,
-                 protection_ballistic: int,
+                 protection_ballistic: float,
                  protection_physical: int,
                  name: str,
                  width: int,
@@ -297,7 +300,7 @@ class Arm(Bodypart):
 class Leg(Bodypart):
     def __init__(self,
                  hp: int,
-                 protection_ballistic: int,
+                 protection_ballistic: float,
                  protection_physical: int,
                  name: str,
                  width: int,
@@ -347,7 +350,7 @@ class Leg(Bodypart):
 class Head(Bodypart):
     def __init__(self,
                  hp: int,
-                 protection_ballistic: int,
+                 protection_ballistic: float,
                  protection_physical: int,
                  width: int,
                  height: int,
@@ -386,7 +389,7 @@ class Head(Bodypart):
 class Body(Bodypart):
     def __init__(self,
                  hp: int,
-                 protection_ballistic: int,
+                 protection_ballistic: float,
                  protection_physical: int,
                  width: int,
                  height: int,
