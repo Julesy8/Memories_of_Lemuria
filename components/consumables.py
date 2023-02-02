@@ -84,7 +84,6 @@ class Weapon(Usable):
         inventory = entity.parent
 
         if isinstance(inventory, components.inventory.Inventory):
-
             self.consume_equip_ap()
             inventory.held = entity
 
@@ -580,7 +579,7 @@ class Gun(Weapon):
         # shot sound alert enemies in the vacinity of where the shot was fired from
         # only needs to be computed once for the 'loudest' shot fired
 
-        for x in set(self.engine.game_map.actors) - {attacker} - {self.engine.player}:
+        for x in set(self.engine.game_map.actors) - {attacker}:
 
             if not attacker.fighter.responds_to_sound:
                 continue
@@ -594,6 +593,26 @@ class Gun(Weapon):
                 if len(path) <= sound_radius:
                     setattr(x.ai, 'path', path)
                     x.active = True
+
+                # prints to console vaguely where gunshots are coming from for the player
+                if not attacker.player and not self.gamemap.visible[attacker.x, attacker.y]:
+
+                    position_str = 'north'
+
+                    x_dist = abs(abs(self.engine.player.x) - (abs(attacker.x)))
+                    y_dist = abs(abs(self.engine.player.y) - (abs(attacker.y)))
+
+                    if x_dist < y_dist:
+                        if self.engine.player.x > attacker.x:
+                            position_str = 'east'
+                        else:
+                            position_str = 'west'
+
+                    elif self.engine.player.y > attacker.y:
+                        position_str = 'south'
+
+                    self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
+                                                        colour.WHITE)
 
     def chamber_round(self):
         return NotImplementedError

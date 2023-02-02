@@ -6,7 +6,6 @@ from entity import Item
 
 
 class Parts:
-
     parent: Usable
 
     def __init__(self):
@@ -127,7 +126,7 @@ class Parts:
                 for x in self.part_list:
                     if hasattr(x.usable_properties, 'is_attachment_point_types'):
 
-                        # comment below line out when making guns using gun_maker
+                        # !!! comment line out directly below when making guns using gun_maker !!!
                         if part in self.attachment_dict[x.name].values():
 
                             if hasattr(x.usable_properties, 'optic_mount_properties'):

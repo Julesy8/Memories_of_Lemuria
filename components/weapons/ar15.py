@@ -3,8 +3,7 @@ from components.consumables import GunMagFed, GunComponent
 from components.gunparts import Parts
 import colour
 
-# todo - belt fed upper, 7.62x39 parts, 9mm/45 acp parts,
-# todo - add muzzle devices
+# to add belt fed upper, 7.62x39 parts, 9mm/45 acp parts,
 
 """
 Lower Receivers
@@ -1325,6 +1324,148 @@ ar10_buffer_light = Item(
                                    felt_recoil=1.1,
                                    ),
     description='Buffer assembly for AR15 type rifles featuring a light-weight buffer'
+)
+
+"""
+Muzzle Devices
+"""
+
+# 5.56
+
+ar15_muzzle_flashhider = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5.56x45 A2 Flash Hider",
+    weight=0.064,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   muzzle_break_efficiency=0.11,
+                                   target_acquisition_ap=1.01,
+                                   spread_modifier=1.01,
+                                   sound_radius=1.09,
+                                   ),
+    description="Flash hider designed for AR15 type 5.56x45 rifles"
+)
+
+ar15_muzzle_st6012 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5.56x45 ST-6012 Muzzle Brake",
+    weight=0.125,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   muzzle_break_efficiency=0.5,
+                                   target_acquisition_ap=1.03,
+                                   spread_modifier=1.03,
+                                   sound_radius=1.16,
+                                   ),
+    description="Muzzle brake designed for AR15 type 5.56x45 rifles designed by bulletec"
+)
+
+ar15_muzzle_mi_mb4 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5.56x45 MI-MB4 Muzzle Brake",
+    weight=0.085,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   muzzle_break_efficiency=0.18,
+                                   sound_radius=1.05,
+                                   ),
+    description="A small two chamber muzzle brake designed for AR15 type 5.56x45 rifles designed by Midwest Industries"
+)
+
+ar15_muzzle_cobra = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5.56x45 Cobra Billet Muzzle Brake",
+    weight=0.124,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   muzzle_break_efficiency=0.55,
+                                   target_acquisition_ap=1.06,
+                                   spread_modifier=1.05,
+                                   sound_radius=1.22,
+                                   ),
+    description="A large muzzle brake designed for AR15 type 5.56x45 rifles designed by Jacob Grey Firearms"
+)
+
+# .300 blackout / .308
+
+ar15_300_muzzle_flashhider = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5/8x24 A2 Flash Hider",
+    weight=0.053,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 5/8x24',),
+                                   muzzle_break_efficiency=0.11,
+                                   target_acquisition_ap=1.01,
+                                   spread_modifier=1.01,
+                                   sound_radius=1.09,
+                                   ),
+    description="Flash hider designed for AR15/AR10 type rifles designed by Diamondback Firearms"
+)
+
+ar15_300_muzzle_cobra = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5/8x24 Cobra Billet Muzzle Brake",
+    weight=0.124,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 5/8x24',),
+                                   muzzle_break_efficiency=0.55,
+                                   target_acquisition_ap=1.06,
+                                   spread_modifier=1.05,
+                                   sound_radius=1.22,
+                                   ),
+    description="A large muzzle brake designed for AR15/AR10 type rifles designed by Jacob Grey Firearms"
+)
+
+ar15_300_muzzle_pegasus = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5/8x24 Pegasus Muzzle Brake",
+    weight=0.189,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 5/8x24',),
+                                   muzzle_break_efficiency=0.58,
+                                   target_acquisition_ap=1.08,
+                                   spread_modifier=1.06,
+                                   sound_radius=1.2,
+                                   ),
+    description="A large muzzle brake designed for AR15/AR10 type rifles designed by Ultradyne USA"
+)
+
+ar15_300_muzzle_strike = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR15 5/8x24 King Muzzle Brake",
+    weight=0.097,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 5/8x24',),
+                                   muzzle_break_efficiency=0.41,
+                                   target_acquisition_ap=1.02,
+                                   spread_modifier=1.02,
+                                   sound_radius=1.17,
+                                   ),
+    description="A muzzle brake/compensator designed for AR15/AR10 type rifles designed by Strike Industries"
 )
 
 """

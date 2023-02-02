@@ -1,6 +1,6 @@
 from components.npc_templates import Fighter, GunFighter
-from entity import Actor
-from components.ai import HostileEnemy
+from entity import AIActor
+from components.ai import HostileEnemy, HostileAnimal, HostileEnemyArmed
 from components.bodyparts import Arm, Leg, Head, Body
 from components.inventory import Inventory
 import colour
@@ -79,43 +79,65 @@ def placeholder_fighter():
 Sewers
 """
 
-giant_snake = Actor(
+giant_snake = AIActor(
     x=0, y=0,
     char='S',
     fg_colour=colour.JADE,
     name='Snake',
-    fighter=Fighter(unarmed_meat_damage=10, unarmed_armour_damage=2),
-    ai=HostileEnemy,
+    fighter=Fighter(unarmed_meat_damage=10, unarmed_armour_damage=2, responds_to_sound=False),
+    ai=HostileAnimal,
     bodyparts=(Body(hp=45, protection_ballistic=0, protection_physical=0, depth=15, width=120, height=15),
                Head(hp=10, protection_ballistic=0, protection_physical=0, depth=15, width=15, height=15)),
     inventory=Inventory(capacity=0),
     fears_death=False,
     item_drops={},
     weapons={},
-    spawn_group_amount=2
+    spawn_group_amount=2,
+    description='Large pythons lurk in the caverns, feeding on rodents and the occasional unfortunate adventurer. '
+                'The descendants of escaped pets, these are the least dangerous of the reptilian creatures found in '
+                'the depths.'
 )
 
-large_rat = Actor(
+large_rat = AIActor(
     x=0, y=0,
     char='r',
     fg_colour=colour.BROWN,
     name='Large Rat',
-    fighter=Fighter(unarmed_meat_damage=6, unarmed_armour_damage=0),
-    ai=HostileEnemy,
+    fighter=Fighter(unarmed_meat_damage=6, unarmed_armour_damage=0, responds_to_sound=False),
+    ai=HostileAnimal,
     bodyparts=(Body(hp=20, protection_ballistic=0, protection_physical=0, depth=15, width=20, height=15),),
     inventory=Inventory(capacity=0),
     fears_death=False,
     item_drops={},
     weapons={},
-    spawn_group_amount=4
+    spawn_group_amount=4,
+    description='Rodents grown large from feeding on the detritus and death in the depths. While single rats are '
+                'little more than an annoyance for experienced adventurers, large groups may serve a larger nuisance.'
 )
 
-aligator = Actor(
+rat_king = AIActor(
+    x=0, y=0,
+    char='R',
+    fg_colour=colour.BROWN,
+    name='Rat King',
+    fighter=Fighter(unarmed_meat_damage=15, unarmed_armour_damage=0, responds_to_sound=False),
+    ai=HostileAnimal,
+    bodyparts=(Body(hp=200, protection_ballistic=0, protection_physical=0, depth=20, width=40, height=40,
+                    name='Squirming Mass'),),
+    inventory=Inventory(capacity=0),
+    fears_death=False,
+    item_drops={},
+    weapons={},
+    spawn_group_amount=1,
+    description='A writhing mass of rodents, their tails intertwined. As dangerous as it is disgusting.'
+)
+
+aligator = AIActor(
     x=0, y=0,
     char='A',
     fg_colour=colour.GREEN,
     name='Aligator',
-    fighter=Fighter(unarmed_meat_damage=30, unarmed_armour_damage=15, ap_per_turn=50),
+    fighter=Fighter(unarmed_meat_damage=30, unarmed_armour_damage=15, ap_per_turn=50, responds_to_sound=False),
     ai=HostileEnemy,
     bodyparts=(Body(hp=250, protection_ballistic=0, protection_physical=3, depth=50, width=250, height=50),
                Head(hp=150, protection_ballistic=0, protection_physical=3, depth=50, width=250, height=50),
@@ -132,16 +154,16 @@ aligator = Actor(
     fears_death=False,
     item_drops={},
     weapons={},
-    spawn_group_amount=1
+    spawn_group_amount=1,
 )
 
-outlaw = Actor(
+outlaw = AIActor(
     x=0, y=0,
     char='☺',
     fg_colour=colour.LIGHT_BROWN,
     name='Outlaw',
     fighter=GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=3, ranged_accuracy=1.4),
-    ai=HostileEnemy,
+    ai=HostileEnemyArmed,
     bodyparts=(Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26),
                Body(hp=100, protection_ballistic=0, protection_physical=1, depth=20, width=35, height=56),
                Arm(hp=70, protection_ballistic=0, protection_physical=1,
@@ -157,16 +179,19 @@ outlaw = Actor(
     fears_death=True,
     item_drops={},
     weapons={},
-    spawn_group_amount=1
+    spawn_group_amount=1,
+    description="Many criminals and deviants have retreated into the depths in hopes of evading the detection by the"
+                "tyrannical surface world forces. Often carrying knives and pistols, they won't hesitate to "
+                "attack lone adventurers."
 )
 
-peacekeeper = Actor(
+peacekeeper = AIActor(
     x=0, y=0,
     char='☺',
     fg_colour=colour.LIGHT_BLUE,
     name='Peace Keeper',
     fighter=GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=3, ranged_accuracy=1.3),
-    ai=HostileEnemy,
+    ai=HostileEnemyArmed,
     bodyparts=(Head(hp=40, protection_ballistic=0.16, protection_physical=2, depth=20, width=20, height=26),
                Body(hp=100, protection_ballistic=0.2, protection_physical=2, depth=20, width=35, height=56),
                Arm(hp=70, protection_ballistic=0, protection_physical=1,
@@ -182,16 +207,19 @@ peacekeeper = Actor(
     fears_death=True,
     item_drops={},
     weapons={},
-    spawn_group_amount=1
+    spawn_group_amount=1,
+    description="With surface world police and military forces struggling to maintain order, peace keepers have been "
+                "deployed to quell rebellion and anarchy. These blue-helmeted foreign soldiers often be seen in the "
+                "caverns in pursuit of outlaws and anti government elements."
 )
 
 
-maniac = Actor(
+maniac = AIActor(
     x=0, y=0,
     char='☺',
     fg_colour=colour.LIGHT_RED,
     name='Maniac',
-    fighter=Fighter(unarmed_meat_damage=20, unarmed_armour_damage=5),
+    fighter=Fighter(unarmed_meat_damage=20, unarmed_armour_damage=5, responds_to_sound=False),
     ai=HostileEnemy,
     bodyparts=(Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26),
                Body(hp=100, protection_ballistic=0, protection_physical=0, depth=20, width=35, height=56),
@@ -208,19 +236,22 @@ maniac = Actor(
     fears_death=False,
     item_drops={},
     weapons={},
-    spawn_group_amount=1
+    spawn_group_amount=2,
+    description="Under the pressure of the oppressive darkness and savagery of the depths, many individuals fleeing "
+                "the tyrannical surface government have fallen to violent insanity. Often carrying knives, "
+                "they are deadly to the inexperienced adventurer."
 )
 
 """
 Caverns
 """
 
-troglodyte = Actor(
+troglodyte = AIActor(
     x=0, y=0,
     char='t',
     fg_colour=colour.WHITE,
     name='Troglodyte',
-    fighter=Fighter(unarmed_meat_damage=16, unarmed_armour_damage=1),
+    fighter=Fighter(unarmed_meat_damage=16, unarmed_armour_damage=1, responds_to_sound=False),
     ai=HostileEnemy,
     bodyparts=(Head(hp=32, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=18),
                Body(hp=80, protection_ballistic=0, protection_physical=0, depth=17, width=30, height=40),
@@ -237,16 +268,19 @@ troglodyte = Actor(
     fears_death=True,
     item_drops={},
     weapons={},
-    spawn_group_amount=4
+    spawn_group_amount=4,
+    description="Humans degenerated by hundreds of generations of exposure to the depths, and recently exposed "
+                "to humanity again due to recent incursions into the depths. Crawling on all fours, "
+                "they have a pale and ghoulish appearance."
 )
 
-soldier = Actor(
+soldier = AIActor(
     x=0, y=0,
     char='☺',
     fg_colour=colour.LIGHT_BLUE,
     name='Soldier',
     fighter=GunFighter(unarmed_meat_damage=20, unarmed_armour_damage=4, ranged_accuracy=1.2),
-    ai=HostileEnemy,
+    ai=HostileEnemyArmed,
     bodyparts=(Head(hp=40, protection_ballistic=0.2, protection_physical=3, depth=20, width=20, height=26),
                Body(hp=100, protection_ballistic=0.28, protection_physical=3, depth=20, width=35, height=56),
                Arm(hp=70, protection_ballistic=0, protection_physical=1,
@@ -262,15 +296,17 @@ soldier = Actor(
     fears_death=True,
     item_drops={},
     weapons={},
-    spawn_group_amount=2
+    spawn_group_amount=2,
+    description="Soldiers tasked with protecting deep underground military bases from civilians, armed with heavy "
+                "weaponry and permitted to use lethal force at their discretion."
 )
 
-wyrm = Actor(
+wyrm = AIActor(
     x=0, y=0,
     char='W',
     fg_colour=colour.JADE,
     name='Wyrm',
-    fighter=Fighter(unarmed_meat_damage=25, unarmed_armour_damage=3),
+    fighter=Fighter(unarmed_meat_damage=25, unarmed_armour_damage=3, responds_to_sound=False),
     ai=HostileEnemy,
     bodyparts=(Body(hp=100, protection_ballistic=0, protection_physical=0, depth=30, width=300, height=30),
                Head(hp=80, protection_ballistic=0, protection_physical=0, depth=30, width=30, height=35)),
@@ -278,10 +314,12 @@ wyrm = Actor(
     fears_death=False,
     item_drops={},
     weapons={},
-    spawn_group_amount=1
+    spawn_group_amount=1,
+    description="A large serpentine reptilian creature of Draconian origins. It burrows deep into the earth and "
+                "ambushes unsuspecting prey."
 )
 
-chimera = Actor(
+chimera = AIActor(
     x=0, y=0,
     char='C',
     fg_colour=colour.LIGHT_YELLOW,
@@ -303,15 +341,17 @@ chimera = Actor(
     fears_death=True,
     item_drops={},
     weapons={},
-    spawn_group_amount=2
+    spawn_group_amount=2,
+    description='A quadrupedal genetically modified abomination escaped from the labs of the deep underground military '
+                'base. It is hairless with sharp teeth and claws.'
 )
 
-dogman = Actor(
+dogman = AIActor(
     x=0, y=0,
     char='D',
     fg_colour=colour.LIGHT_GRAY,
     name='Dogman',
-    fighter=Fighter(unarmed_meat_damage=33, unarmed_armour_damage=3, move_ap_cost=50),
+    fighter=Fighter(unarmed_meat_damage=33, unarmed_armour_damage=3, move_ap_cost=50, responds_to_sound=False),
     ai=HostileEnemy,
     bodyparts=(Head(hp=100, protection_ballistic=0.16, protection_physical=2, depth=50, width=40, height=45),
                Body(hp=200, protection_ballistic=0.2, protection_physical=2, depth=35, width=50, height=75),
@@ -328,7 +368,10 @@ dogman = Actor(
     fears_death=True,
     item_drops={},
     weapons={},
-    spawn_group_amount=1
+    spawn_group_amount=1,
+    description="A very large canine-like humanoid biped of unknown origins. Some say they are another genetically "
+                "modified abomination created in the underground labs, however, the hundreds of reports of these "
+                "werewolf like creatures stalking the forests for centuries seems to point to a more mysterious origin."
 )
 
 """

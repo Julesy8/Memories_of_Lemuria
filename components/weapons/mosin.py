@@ -284,9 +284,7 @@ mosindict = {
                     "Mosin-Nagant Barrel": 1,
                 },
                 "compatible parts": {
-                    "Attachment Adapter": 1,
                     "Mosin-Nagant Accessory Mount": 1,
-                    "Mosin-Nagant Grip": 1,
                     "Muzzle Device": 1,
                     "Optic": 1,
                     "Side Mounted Accessory": 1,

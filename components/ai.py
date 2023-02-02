@@ -11,8 +11,6 @@ from actions import Action, WeaponAttackAction, MovementAction, WaitAction, Unar
     ReloadAction
 from entity import Actor
 
-# TODO - clean this up so theres not as much repetition
-
 
 class BaseAI(Action):
 
@@ -61,9 +59,8 @@ class HostileEnemy(BaseAI):
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        # TODO - enemies attack creatures not aligned with their faction
-        self.entity.target_actor = self.engine.player
-        target = self.entity.target_actor
+        self.entity.fighter.target_actor = self.engine.player
+        target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
@@ -83,9 +80,9 @@ class HostileEnemy(BaseAI):
         self.execute_queued_action(distance, target)
 
         # checks if previous target actor is still visible, if not resets to None
-        if self.entity.previous_target_actor is not None:
-            if not self.engine.game_map.visible[self.entity.previous_target_actor.x,
-                                                self.entity.previous_target_actor.y]:
+        if self.entity.fighter.previous_target_actor is not None:
+            if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
+                                                self.entity.fighter.previous_target_actor.y]:
                 self.entity.previous_target_actor = None
 
         while fighter.ap > 0:
@@ -188,8 +185,8 @@ class HostileAnimal(HostileEnemy):
 
     def perform(self) -> None:
 
-        self.entity.target_actor = self.engine.player
-        target = self.entity.target_actor
+        self.entity.fighter.target_actor = self.engine.player
+        target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
@@ -199,17 +196,17 @@ class HostileAnimal(HostileEnemy):
         if distance <= self.attack_radius:
             self.attacking_target = True
 
+        # AP regeneration
+        fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
+
         # if not attacking target, moves in random directions until coming into attack radius of player
         if not self.attacking_target:
             if fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
                 if choice((True, False)):
                     MovementAction(
-                        self.entity, self.entity.x + randint(-1, 1), self.entity.y + randint(-1, 1),
+                        self.entity, randint(-1, 1), randint(-1, 1),
                     ).perform()
             return
-
-        # AP regeneration
-        fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
 
         if self.entity.turns_attack_inactive >= 1:
             self.entity.turns_attack_inactive -= 1
@@ -221,12 +218,13 @@ class HostileAnimal(HostileEnemy):
         self.execute_queued_action(distance, target)
 
         # checks if previous target actor is still visible, if not resets to None
-        if self.entity.previous_target_actor is not None:
-            if not self.engine.game_map.visible[self.entity.previous_target_actor.x,
-                                                self.entity.previous_target_actor.y]:
+        if self.entity.fighter.previous_target_actor is not None:
+            if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
+                                                self.entity.fighter.previous_target_actor.y]:
                 self.entity.previous_target_actor = None
 
         while fighter.ap > 0:
+
             # skips turn if both attack and move actions inactive for this turn
             if self.entity.turns_attack_inactive > 0 and self.entity.turns_move_inactive > 0:
                 break
@@ -235,9 +233,8 @@ class HostileAnimal(HostileEnemy):
             if fighter.ap > 0 and self.entity.turns_attack_inactive <= 0 and distance <= attack_range \
                     and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]:
 
-                if attack_range == 1:
-                    UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
-                                        targeted_bodypart=None).attack()
+                UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
+                                    targeted_bodypart=None).attack()
 
             # any kind of movement action occurring
             elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
@@ -278,15 +275,14 @@ class HostileAnimal(HostileEnemy):
         return WaitAction(self.entity).perform()
 
 
-# TODO - update enemies with this
 class HostileEnemyArmed(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        self.entity.target_actor = self.engine.player
-        target = self.entity.target_actor
+        self.entity.fighter.target_actor = self.engine.player
+        target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
@@ -316,9 +312,9 @@ class HostileEnemyArmed(BaseAI):
         self.execute_queued_action(distance, target)
 
         # checks if previous target actor is still visible, if not resets to None
-        if self.entity.previous_target_actor is not None:
-            if not self.engine.game_map.visible[self.entity.previous_target_actor.x,
-                                                self.entity.previous_target_actor.y]:
+        if self.entity.fighter.previous_target_actor is not None:
+            if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
+                                                self.entity.fighter.previous_target_actor.y]:
                 self.entity.previous_target_actor = None
 
         while fighter.ap > 0:

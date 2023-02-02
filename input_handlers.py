@@ -4,8 +4,12 @@ import os
 from copy import deepcopy
 from typing import Optional, TYPE_CHECKING, Union
 from math import ceil
+from random import randint, choices
+from setup_game import generate_subtext, new_game, load_game
+import traceback
+import tcod
+import numpy as np
 import textwrap
-
 import tcod.event
 
 from entity import Item
@@ -85,27 +89,165 @@ class BaseEventHandler(tcod.event.EventDispatch[ActionOrHandler]):
         raise SystemExit()
 
 
+class MainMenu(BaseEventHandler):
+    """Handle the main menu rendering and input."""
+
+    def __init__(self):
+        self.option_selected = 0
+        self.colour_mode_forward = [True, True, True]
+        self.fg_colour = [randint(60, 249), randint(60, 249), randint(60, 249)]
+        self.subtext = generate_subtext()
+
+    def change_fg_colour(self):
+
+        for i in range(3):
+            reverse_direction = choices(population=(True, False), weights=(1, 600))[0]
+
+            if self.colour_mode_forward[i - 1]:
+                if reverse_direction:
+                    self.colour_mode_forward[i - 1] = False
+                else:
+                    self.fg_colour[i - 1] += 1
+                    if self.fg_colour[i - 1] >= 250:
+                        self.colour_mode_forward[i - 1] = False
+
+            else:
+                if reverse_direction:
+                    self.colour_mode_forward[i - 1] = True
+                else:
+                    self.fg_colour[i - 1] -= 1
+                    if self.fg_colour[i - 1] <= 25:
+                        self.colour_mode_forward[i - 1] = True
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Render the main menu on a background image."""
+
+        path = "newmenu1.xp"  # REXPaint file with one layer.
+        # Load a REXPaint file with a single layer.
+        # The comma after console is used to unpack a single item tuple.
+        console2, = tcod.console.load_xp(path, order="F")
+
+        # Convert tcod's Code Page 437 character mapping into a NumPy array.
+        CP437_TO_UNICODE = np.asarray(tcod.tileset.CHARMAP_CP437)
+
+        # Convert from REXPaint's CP437 encoding to Unicode in-place.
+        console2.ch[:] = CP437_TO_UNICODE[console2.ch]
+
+        # Apply REXPaint's alpha key color.
+        KEY_COLOR = (255, 0, 255)
+        is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
+        console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
+
+        self.change_fg_colour()
+        console2.rgb["fg"] = self.fg_colour
+
+        console2.blit(dest=console, dest_x=console.width // 2 - 40, dest_y=console.height // 2 - 25, src_x=0, src_y=0,
+                      width=80,
+                      height=50)
+
+        console.print(
+            console.width // 2,
+            console.height // 2 + 18,
+            self.subtext,
+            fg=self.fg_colour,
+            alignment=tcod.CENTER,
+        )
+
+        menu_width = 8
+        for i, text in enumerate(
+                ["New Game", "Continue", "  Quit"]
+        ):
+            console.print(
+                console.width // 2,
+                console.height // 2 - 2 + i,
+                text.ljust(menu_width),
+                fg=self.fg_colour,
+                alignment=tcod.CENTER,
+                bg_blend=tcod.BKGND_ALPHA(64),
+            )
+
+        console.print(x=console.width // 2 - 6, y=console.height // 2 - 2 + self.option_selected, string='►',
+                      fg=self.fg_colour)
+
+        console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
+                      fg=self.fg_colour)
+
+    def ev_keydown(
+            self, event: tcod.event.KeyDown
+    ) -> Optional[BaseEventHandler]:
+        if event.sym == tcod.event.K_ESCAPE:
+            raise SystemExit()
+
+        elif event.sym == tcod.event.K_DOWN:
+            if self.option_selected < 2:
+                self.option_selected += 1
+            else:
+                self.option_selected = 0
+
+        elif event.sym == tcod.event.K_UP:
+            if self.option_selected > 0:
+                self.option_selected -= 1
+            else:
+                self.option_selected = 2
+
+        elif event.sym == tcod.event.K_F1:
+            self.subtext = generate_subtext()
+
+        elif event.sym == tcod.event.K_RETURN:
+            if self.option_selected == 0:
+                return MainGameEventHandler(new_game())
+            elif self.option_selected == 1:
+                try:
+                    return MainGameEventHandler(load_game("savegame.sav"))
+                except FileNotFoundError:
+                    return PopupMessage(self, "No saved game to load.", title='Error')
+                except Exception as exc:
+                    traceback.print_exc()  # Print to stderr.
+                    return PopupMessage(self, f"Failed to load save:\n{exc}", title='Error')
+                pass
+            elif self.option_selected == 2:
+                raise SystemExit()
+
+        return None
+
+
 class PopupMessage(BaseEventHandler):
     """Display a popup text window."""
 
-    def __init__(self, parent_handler: BaseEventHandler, text: str):
+    def __init__(self, parent_handler: BaseEventHandler, text: str, title: str):
         self.parent = parent_handler
         self.text = text
+        self.title = title
 
     def on_render(self, console: tcod.Console) -> None:
         """Render the parent and dim the result, then print the message on top."""
         self.parent.on_render(console)
-        console.tiles_rgb["fg"] //= 8
-        console.tiles_rgb["bg"] //= 8
 
-        console.print(
-            console.width // 2,
-            console.height // 2,
-            self.text,
-            fg=colour.WHITE,
-            bg=(0, 0, 0),
-            alignment=tcod.CENTER,
-        )
+        wrapper = textwrap.TextWrapper(width=37)
+        wrapped_text = wrapper.wrap(text=self.text)
+
+        lines_text = len(wrapped_text)
+
+        # Draw a frame with a custom banner title.
+        console.draw_frame(console.width // 2 - 20, console.height // 2 - 1, 40,
+                           lines_text + 3, bg=(0, 0, 0), fg=colour.WHITE)
+        console.print_box(console.width // 2 - 20, console.height // 2 - 1, 40,
+                          lines_text + 3, f"┤{self.title}├", alignment=tcod.CENTER, bg=(0, 0, 0), fg=colour.WHITE)
+
+        y = console.height // 2
+
+        for line in wrapped_text:
+
+            console.print(
+                console.width // 2 - 19,
+                y,
+                line,
+                fg=colour.WHITE,
+                bg=(0, 0, 0),
+                #alignment=tcod.CENTER,
+            )
+
+            y += 1
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
         """Any key returns to the parent handler."""
@@ -129,9 +271,9 @@ class EventHandler(BaseEventHandler):
                 return GameOverEventHandler(self.engine)
 
             # checks if previous target actor is still visible, if not resets to None
-            if self.engine.player.previous_target_actor is not None:
-                if not self.engine.game_map.visible[self.engine.player.previous_target_actor.x,
-                self.engine.player.previous_target_actor.y]:
+            if self.engine.player.fighter.previous_target_actor is not None:
+                if not self.engine.game_map.visible[self.engine.player.fighter.previous_target_actor.x,
+                self.engine.player.fighter.previous_target_actor.y]:
                     self.engine.player.previous_target_actor = None
 
             return MainGameEventHandler(self.engine)  # Return to the main handler.
@@ -211,6 +353,8 @@ class MainGameEventHandler(EventHandler):
             return EquipmentEventHandler(self.engine)
         elif key == tcod.event.K_s:
             return AttackStyleMenu(self.engine)
+        elif key == tcod.event.K_p:
+            return Bestiary(self.engine)
         # No valid key was pressed
         return action
 
@@ -865,7 +1009,7 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.targets.append(actor)
 
                 # checks if previous target is still visible
-                if player.target_actor == actor:
+                if player.fighter.target_actor == actor:
                     target_visible = True
 
                 # checks for closest actor incase previous target not visible
@@ -876,19 +1020,19 @@ class ChangeTargetActor(AskUserEventHandler):
 
         # sets target actor to closest actor
         if not target_visible:
-            player.target_actor = closest_actor
+            player.fighter.target_actor = closest_actor
 
-        if player.target_actor is not None:
+        if player.fighter.target_actor is not None:
             # centres camera on target
-            self.engine.game_map.camera_xy = (player.target_actor.x, player.target_actor.y)
+            self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y)
 
             # selects bodypart
-            self.selected_bodypart = player.target_actor.bodyparts[0]
+            self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
 
             self.update_bodypart_list()
 
             # sets targets index in target list
-            self.target_index = self.targets.index(player.target_actor)
+            self.target_index = self.targets.index(player.fighter.target_actor)
 
             self.update_part_str_colour()
 
@@ -904,14 +1048,14 @@ class ChangeTargetActor(AskUserEventHandler):
 
         console.print(x=1, y=1, string="ATTACK MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
 
-        if player.target_actor is not None:
+        if player.fighter.target_actor is not None:
 
-            target_x, target_y = player.target_actor.x - cam_x, player.target_actor.y - cam_y
+            target_x, target_y = player.fighter.target_actor.x - cam_x, player.fighter.target_actor.y - cam_y
 
             if 0 <= target_x < console.width and 0 <= target_y < console.height:
                 console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('X'), colour.YELLOW
 
-            target_str = f"Targeting: {player.target_actor.name} - {self.selected_bodypart.name}".upper()
+            target_str = f"Targeting: {player.fighter.target_actor.name} - {self.selected_bodypart.name}".upper()
             ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
 
             console.print(x=1, y=console.height - 8, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
@@ -933,22 +1077,22 @@ class ChangeTargetActor(AskUserEventHandler):
         if key == tcod.event.K_SPACE:  # change target
 
             try:
-                player.target_actor = self.targets[self.target_index + 1]
-                self.selected_bodypart = player.target_actor.bodyparts[0]
+                player.fighter.target_actor = self.targets[self.target_index + 1]
+                self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index += 1
                 # centres camera on target
-                self.engine.game_map.camera_xy = (player.target_actor.x, player.target_actor.y)
+                self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y)
             except IndexError:
-                player.target_actor = self.targets[0]
-                self.selected_bodypart = player.target_actor.bodyparts[0]
+                player.fighter.target_actor = self.targets[0]
+                self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index = 0
-                self.engine.game_map.camera_xy = (player.target_actor.x, player.target_actor.y)
+                self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y)
             except TypeError:
                 return MainGameEventHandler(self.engine)
 
-            self.target_index = self.targets.index(player.target_actor)
+            self.target_index = self.targets.index(player.fighter.target_actor)
 
             # updates list of target bodyparts
             self.update_bodypart_list()
@@ -970,21 +1114,21 @@ class ChangeTargetActor(AskUserEventHandler):
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
 
-            if player.target_actor:
+            if player.fighter.target_actor:
 
-                distance_target = round(player.distance(player.target_actor.x, player.target_actor.y))
+                distance_target = round(player.distance(player.fighter.target_actor.x, player.fighter.target_actor.y))
 
                 # attack with weapon
                 if self.item is not None:
 
                     actions.WeaponAttackAction(distance=distance_target, item=self.item, entity=player,
-                                               targeted_actor=player.target_actor,
+                                               targeted_actor=player.fighter.target_actor,
                                                targeted_bodypart=self.selected_bodypart).attack()
 
                 # unarmed attack
                 else:
                     actions.UnarmedAttackAction(distance=distance_target, entity=player,
-                                                targeted_actor=player.target_actor,
+                                                targeted_actor=player.fighter.target_actor,
                                                 targeted_bodypart=self.selected_bodypart).attack()
 
                 self.get_targets()
@@ -1007,7 +1151,7 @@ class ChangeTargetActor(AskUserEventHandler):
     def update_bodypart_list(self) -> None:
         # updates bodypart list
         self.bodypartlist = []
-        for bodypart in self.engine.player.target_actor.bodyparts:
+        for bodypart in self.engine.player.fighter.target_actor.bodyparts:
             self.bodypartlist.append(bodypart)
 
     def update_part_str_colour(self) -> None:
@@ -1051,22 +1195,24 @@ class QuitEventHandler(AskUserEventHandler):
         super().on_render(console)  # Draw the main state as the background.
 
         console.draw_frame(
-            x=24,
-            y=22,
-            width=32,
-            height=4,
+            x=console.width // 2 - 11,
+            y=console.height // 2 - 4,
+            width=19,
+            height=5,
             clear=True,
             fg=colour.WHITE,
             bg=(0, 0, 0),
         )
 
-        console.print(x=25, y=23, string="Are you sure you want to quit?", fg=colour.WHITE, bg=(0, 0, 0))
-        console.print(x=32, y=24, string="(Y) Yes, (N) No", fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=console.width // 2 - 8, y=console.height // 2 - 3, string="Quit to Menu?",
+                      fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=console.width // 2 - 10, y=console.height // 2 - 1, string="(Y) Yes    (N) No",
+                      fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
         if key == tcod.event.K_y:
-            raise SystemExit()
+            return MainMenu()
 
         elif key == tcod.event.K_n:
             return MainGameEventHandler(self.engine)
@@ -1813,7 +1959,8 @@ class InspectItemViewer(AskUserEventHandler):
 
             # wearable
             "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
-            "-- Protection --": ('protection_ballistic', getattr(self.item.usable_properties, 'protection_ballistic', 1)),
+            "-- Protection --": (
+                'protection_ballistic', getattr(self.item.usable_properties, 'protection_ballistic', 1)),
             "-- Large Magazine Slots --": ('large_mag_slots',
                                            getattr(self.item.usable_properties, 'large_mag_slots', 1)),
             "-- Medium Magazine Slots --": ('medium_mag_slots',
@@ -2015,3 +2162,16 @@ class AttackStyleMenu(UserOptionsEventHandler):
             player.fighter.attack_style_cqc()
 
         return MainGameEventHandler(engine=self.engine)
+
+
+class Bestiary(UserOptionsWithPages):
+
+    def __init__(self, engine):
+        title = f"Bestiary"
+
+        super().__init__(engine=engine, options=list(engine.bestiary.keys()), page=0, title=title)
+
+    def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+
+        return PopupMessage(text=self.engine.bestiary[option], parent_handler=self, title=option)

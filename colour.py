@@ -4,6 +4,7 @@ Player hit enemy - green
 enemy hit player / error / failure - red
 player miss enemy - yellow
 enemy miss player - light blue
+neutral event - white
 special (death, descend floor, etc) - light magenta
 """
 

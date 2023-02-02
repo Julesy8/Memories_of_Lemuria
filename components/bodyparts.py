@@ -96,28 +96,35 @@ class Bodypart:
                 self.engine.message_log.add_message(f"The {self.parent.name}'s {self.name} is crippled!",
                                                     fg=colour.GREEN)
 
-            # causes AI to flee
-            if self.vital:
-                if self.parent.fears_death and not self.parent.has_fled_death:
-                    self.parent.fleeing_turns = 8
-                    self.parent.has_fled_death = True
+                # causes AI to flee
+                if self.vital:
+                    if self.parent.fears_death and not self.parent.has_fled_death:
+                        self.parent.fleeing_turns = 5
+                        self.parent.has_fled_death = True
+
+                        # changes fight style to less accurate and more frantic
+                        try:
+                            self.parent.fighter.attack_style_cqc()
+
+                        except AttributeError:
+                            pass
 
     def die(self) -> None:
 
         self.parent.ai = None
 
-        entity = Entity(x=0, y=0, char=self.parent.char, fg_colour=colour.WHITE, name=f"{self.parent.name} remains",
+        entity = Entity(x=0, y=0, char='%', fg_colour=colour.WHITE, name=f"{self.parent.name} remains",
                         blocks_movement=False, parent=self.engine.game_map)
 
         entity.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
-        # puts items in enemy inventory
+        # drops random item from list and held item
         if len(self.parent.item_drops.keys()) > 0:
 
             drops = list(self.parent.item_drops.keys())
             drop_weight = list(self.parent.item_drops.values())
 
-            # places random item in inventory
+            # chooses item to drop from list
             item_drop = deepcopy(choices(population=drops, weights=drop_weight, k=1)[0])
 
             # gives PDA datapack properties
@@ -137,11 +144,17 @@ class Bodypart:
 
             item_drop.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
+        # drops held weapon
         if self.parent.inventory.held is not None:
             self.parent.inventory.held.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
         if self.parent.player:
             self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
+
+        else:
+            if self.parent.name not in self.engine.bestiary.keys():
+                if not self.parent.description == '':
+                    self.engine.bestiary[self.parent.name] = self.parent.description
 
         self.engine.game_map.entities.remove(self.parent)
 
@@ -283,14 +296,17 @@ class Arm(Bodypart):
 
         self.functional = False
 
-        if isinstance(self.parent.inventory.held, Item):
-
-            self.parent.inventory.held.place(self.parent.x, self.parent.y, self.engine.game_map)
-            self.parent.inventory.held = None
-
-            if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"The {self.parent.inventory.held.name} slips from your grasp",
-                                                    colour.RED)
+        # try:
+        #
+        #     self.parent.inventory.held.place(self.parent.x, self.parent.y, self.engine.game_map)
+        #     self.parent.inventory.held = None
+        #
+        #     if self.parent == self.engine.player:
+        #         self.engine.message_log.add_message(f"The {self.parent.inventory.held.name} slips from your grasp",
+        #                                             colour.RED)
+        #
+        # except AttributeError:
+        #     pass
 
         self.parent.fighter.ranged_accuracy *= 1.2
         self.parent.fighter.melee_accuracy *= 0.8

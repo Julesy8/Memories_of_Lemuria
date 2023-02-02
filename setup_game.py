@@ -1,17 +1,11 @@
 """Handle the loading and initialization of game sessions."""
 from __future__ import annotations
 
-from typing import Optional
-
-import tcod
-import numpy as np
 import lzma
 import pickle
-import traceback
 
 import colour
 from engine import Engine
-import input_handlers
 from entity import Actor
 from level_generator import MessyBSPTree
 from level_parameters import level_params
@@ -19,7 +13,7 @@ from components.inventory import Inventory
 from components.ai import BaseAI
 from components.npc_templates import GunFighter
 from components.bodyparts import Body, Arm, Leg, Head
-from random import randint, choices, choice
+from random import choice
 
 from copy import deepcopy
 
@@ -72,9 +66,6 @@ def new_game() -> Engine:
                    bodyparts=body_parts,
                    player=True,
                    inventory=Inventory(capacity=15),
-                   item_drops={},
-                   weapons={},
-                   spawn_group_amount=0
                    )
 
     engine = Engine(player=player, current_level=current_level, current_floor=0)
@@ -143,150 +134,39 @@ def generate_subtext() -> str:
     verb_1 = choice(('Aquarian', 'New-Age', 'Postdiluvian', 'Cosmic', 'Mystical', 'Esoteric',
                      'Dialectical', 'Demiurgic', 'Sublime', 'Hyper-Realistic', 'Platonic', 'MK-Ultra', 'Illegal',
                      'Post-Apocalyptic', 'Morally Ambiguous', 'Atlantean', 'New World Order',
-                     'Harmonic', 'Universal', 'Post-Structural', 'Archetypal',
+                     'Harmonic', 'Universal', 'Post-Structural', 'Archetypal', 'Scientific', 'Haunted', 'Absurdist',
                      'Philosophical', 'Angelic', 'Paranormal', 'Shamanic', 'Vampiric', 'Cryptic', 'Jungian',
                      'Reptilian', 'Lovecraftian', 'Biblical', 'Heretical', 'Heterodox', 'Theological', 'Religious',
-                     'Cursed', 'Hegelian', 'Occult'))
+                     'Cursed', 'Hegelian', 'Occult', 'Banned', 'Experimental', 'Reviled', '"Fictional"', 'CIA',
+                     'Timeless', 'Theoretical', 'Runic', 'Spiritual', 'Soulful', 'Historical', 'Symbolic',
+                     'Intuitive', 'Weaponized', 'Primal', 'Subconscious', 'Arthurian', 'Goetic', 'Wagnerian',
+                     'Tantric'))
 
-    verb_2 = choice(('Deep Underground', 'Splatterpunk', 'Cyphercore', 'Advanced', 'Modern', 'Post-Modern',
+    verb_2 = choice(('Deep Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',
                      'Subversive', 'Covert', 'Magik', 'Chaos Magic', 'Solar', 'Lunar', 'Ideological', 'Cyclic',
-                     'Meditative', 'Divine', 'Tactical', 'Forbidden', 'Psychedelic', 'Oracular', 'Quantum',
-                     'Post-Industrial', 'Post-Fall', 'Hollow Earth', 'Pre-Modern', 'Introductory', 'Ritual'))
+                     'Meditative', 'Divine', 'Tactical', 'Forbidden', 'Psychedelic', 'Quantum', 'Etheric'
+                     'Post-Industrial', 'Post-Fall', 'Hollow Earth', 'Pre-Modern', 'Introductory', 'Ritual',
+                     'Cautionary', 'Transcendental', 'Chaotic', 'Perennial', 'Secret', 'Revisionist', 'Pseudo',
+                     'Military', 'Sensory', 'Planetary', 'Radical', 'Chakra', 'Compassionate', 'Archaic', 'Arcane',
+                     'Lawful', 'Royal', 'Sacrificial', 'Cubic', 'Elite', 'Satirical', 'Polemical'))
 
     verb_3 = choice(('Combat', 'Gun Smithing', 'UFO-ology', 'Warfare', 'Conspiracy', 'CQC', 'Harm Prevention',
                      'Self Defense', 'Horror', 'Action', 'Time-War', 'Numerology', 'Sacred Geometry',
-                     'Violence', 'Tulpamancy', 'Astral Projection', 'Psychic', 'Englightenment', 'Gun Fu', 'Gunplay',
+                     'Ultra Violence', 'Tulpamancy', 'Astral Projection', 'Psychic', 'Englightenment', 'Gun Fu',
+                     'Gunplay', 'Brainwashing', 'Martial Arts', 'Hand Loading', 'Gun Design', 'Physics',
                      'Firearms Safety', 'Gun Collection', 'Ballistics', 'Gun Customization', 'Gun Building',
                      'Demonology', 'Virtual Reality', 'Lucid Dreaming', 'Remote Viewing', 'Folklore', 'Exorcism',
                      'Manifestation', 'Alien Abduction', 'Shape Shifting', 'Witchcraft', 'Predictive Programming',
-                     'Terrorism'))
+                     'Terrorism', 'Mythology', 'Chemtrails'))
 
     noun = choice(('Computer Role Playing Game', 'Simulation', 'Training Module', 'Course', 'Engine',
                    'RPG', 'Rogue Like', 'Rogue Lite', 'Program', 'Center', 'Game', 'Experience', 'Proof-of-Concept',
                    'Videogame Adaptation', 'Demonstration', 'Tutorial', 'Simulator', '(DO NOT RESEARCH)', 'LARP',
-                   'Survival Game', 'Educational Game', 'Shooter', '-Hack Like'))
+                   'Survival Game', 'Shooter', '-Hack Like', 'Documentary', 'Temple', 'Metaphor', 'Parable',
+                   'Oracle', 'Thing', 'Infohazard', 'Psyop', 'Manual', 'Vision', 'Project', 'Transcript',
+                   'In Silico', 'Matrix', 'Frequency', 'Glossary', 'Algorithm', 'Host', 'Gateway'))
 
     subtext_str = f"{verb_1} {verb_2} {verb_3} {noun}"
     return subtext_str
 
-
-class MainMenu(input_handlers.BaseEventHandler):
-    """Handle the main menu rendering and input."""
-
-    def __init__(self):
-        self.option_selected = 0
-        self.colour_mode_forward = [True, True, True]
-        self.fg_colour = [randint(60, 255), randint(60, 255), randint(60, 255)]
-        self.subtext = generate_subtext()
-
-    def change_fg_colour(self):
-
-        for i in range(3):
-            reverse_direction = choices(population=(True, False), weights=(1, 600))[0]
-
-            if self.colour_mode_forward[i - 1]:
-                if reverse_direction:
-                    self.colour_mode_forward[i - 1] = False
-                else:
-                    self.fg_colour[i - 1] += 1
-                    if self.fg_colour[i - 1] >= 250:
-                        self.colour_mode_forward[i - 1] = False
-
-            else:
-                if reverse_direction:
-                    self.colour_mode_forward[i - 1] = True
-                else:
-                    self.fg_colour[i - 1] -= 1
-                    if self.fg_colour[i - 1] <= 25:
-                        self.colour_mode_forward[i - 1] = True
-
-    def on_render(self, console: tcod.Console) -> None:
-        """Render the main menu on a background image."""
-
-        path = "newmenu1.xp"  # REXPaint file with one layer.
-        # Load a REXPaint file with a single layer.
-        # The comma after console is used to unpack a single item tuple.
-        console2, = tcod.console.load_xp(path, order="F")
-
-        # Convert tcod's Code Page 437 character mapping into a NumPy array.
-        CP437_TO_UNICODE = np.asarray(tcod.tileset.CHARMAP_CP437)
-
-        # Convert from REXPaint's CP437 encoding to Unicode in-place.
-        console2.ch[:] = CP437_TO_UNICODE[console2.ch]
-
-        # Apply REXPaint's alpha key color.
-        KEY_COLOR = (255, 0, 255)
-        is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
-        console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
-
-        self.change_fg_colour()
-        console2.rgb["fg"] = self.fg_colour
-
-        console2.blit(dest=console, dest_x=console.width//2-40, dest_y=console.height//2-25, src_x=0, src_y=0, width=80,
-                      height=50)
-
-        console.print(
-            console.width // 2,
-            console.height // 2 + 18,
-            self.subtext,
-            fg=self.fg_colour,
-            alignment=tcod.CENTER,
-        )
-
-        menu_width = 8
-        for i, text in enumerate(
-            ["New Game", "Continue", "  Quit"]
-        ):
-            console.print(
-                console.width // 2,
-                console.height // 2 - 2 + i,
-                text.ljust(menu_width),
-                fg=self.fg_colour,
-                alignment=tcod.CENTER,
-                bg_blend=tcod.BKGND_ALPHA(64),
-            )
-
-        console.print(x=console.width // 2 - 6, y=console.height // 2 - 2 + self.option_selected, string='►',
-                      fg=self.fg_colour)
-
-        console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
-                      fg=self.fg_colour)
-
-    def ev_keydown(
-        self, event: tcod.event.KeyDown
-    ) -> Optional[input_handlers.BaseEventHandler]:
-        if event.sym == tcod.event.K_ESCAPE:
-            raise SystemExit()
-
-        elif event.sym == tcod.event.K_DOWN:
-            if self.option_selected < 2:
-                self.option_selected += 1
-            else:
-                self.option_selected = 0
-
-        elif event.sym == tcod.event.K_UP:
-            if self.option_selected > 0:
-                self.option_selected -= 1
-            else:
-                self.option_selected = 2
-
-        elif event.sym == tcod.event.K_F1:
-            self.subtext = generate_subtext()
-
-        elif event.sym == tcod.event.K_RETURN:
-            if self.option_selected == 0:
-                return input_handlers.MainGameEventHandler(new_game())
-            elif self.option_selected == 1:
-                try:
-                    return input_handlers.MainGameEventHandler(load_game("savegame.sav"))
-                except FileNotFoundError:
-                    return input_handlers.PopupMessage(self, "No saved game to load.")
-                except Exception as exc:
-                    traceback.print_exc()  # Print to stderr.
-                    return input_handlers.PopupMessage(self, f"Failed to load save:\n{exc}")
-                pass
-            elif self.option_selected == 2:
-                raise SystemExit()
-
-        return None

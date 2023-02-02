@@ -28,6 +28,7 @@ class Entity:  # generic entity
                  parent: Optional[GameMap] = None,
                  render_order: RenderOrder = RenderOrder.CORPSE,
                  ):
+
         self.x = x
         self.y = y
         self.char = char
@@ -35,6 +36,10 @@ class Entity:  # generic entity
         self.name = name
         self.render_order = render_order
         self.blocks_movement = blocks_movement
+        self.seen = False
+        self.ghost_x = x
+        self.ghost_y = y
+
         if parent:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
@@ -82,6 +87,7 @@ class Entity:  # generic entity
 
 
 class Actor(Entity):
+
     def __init__(
             self,
             x: int,
@@ -92,12 +98,8 @@ class Actor(Entity):
             ai,
             fighter,
             bodyparts: tuple,  # list of bodyparts belonging to the entity
-            spawn_group_amount: int,  # TODO- change to proeprty of a separate class
-            item_drops: dict,
-            weapons: dict,
             inventory: Inventory,
             bleeds=True,
-            fears_death=True,
             player: bool = False,
     ):
         super().__init__(
@@ -109,29 +111,21 @@ class Actor(Entity):
             blocks_movement=True,
             render_order=RenderOrder.ACTOR,
         )
-        self.bleeds = bleeds
-        self.active = False
+
         self.ai = ai(self)
+        self.bleeds = bleeds
         self.fighter = fighter
         self.fighter.parent = self
-        self.target_actor = None  # TODO - remove some of these from entity and move to fighter
-        self.previous_target_actor = None
         self.player = player
         self.bodyparts = copy.deepcopy(bodyparts)
         self.inventory = inventory
         self.inventory.parent = self
         for bodypart in self.bodyparts:
             bodypart.parent = self
-        self.item_drops = item_drops
-        self.weapons = weapons
-        self.spawn_group_amount = spawn_group_amount
+
         # disables attacks and movement for a certain amount of turns
         self.turns_attack_inactive = 0
         self.turns_move_inactive = 0
-
-        self.fears_death = fears_death
-        self.fleeing_turns = 0
-        self.has_fled_death = False
 
     @property
     def is_alive(self) -> bool:
@@ -139,21 +133,64 @@ class Actor(Entity):
         return bool(self.ai)
 
 
+class AIActor(Actor):
+    def __init__(
+            self,
+            x: int,
+            y: int,
+            char: str,
+            fg_colour: tuple[int, int, int],
+            name: str,
+            ai,
+            fighter,
+            bodyparts: tuple,
+            spawn_group_amount: int,
+            item_drops: dict,
+            weapons: dict,
+            inventory: Inventory,
+            bleeds=True,
+            fears_death=True,
+            player: bool = False,
+            description: str = ''
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            fg_colour=fg_colour,
+            name=name,
+            ai=ai,
+            fighter=fighter,
+            bodyparts=bodyparts,
+            inventory=inventory,
+            bleeds=bleeds,
+            player=player,
+        )
+
+        self.active = False
+        self.item_drops = item_drops
+        self.weapons = weapons
+        self.spawn_group_amount = spawn_group_amount
+        self.fears_death = fears_death
+        self.fleeing_turns = 0
+        self.has_fled_death = False
+        self.description = description
+
+
 class Item(Entity):
     def __init__(
-        self,
-        *,
-        x: int = 0,
-        y: int = 0,
-        char: str = "?",
-        fg_colour: tuple[int, int, int],
-        name: str = "<Unnamed>",
-        weight: float,
-        stacking: Optional[Stacking],
-        usable_properties: Optional[Usable],
-        description: str,
+            self,
+            *,
+            x: int = 0,
+            y: int = 0,
+            char: str = "?",
+            fg_colour: tuple[int, int, int],
+            name: str = "<Unnamed>",
+            weight: float,
+            stacking: Optional[Stacking],
+            usable_properties: Optional[Usable],
+            description: str,
     ):
-
         self.weight = weight
         self.stacking = stacking
 

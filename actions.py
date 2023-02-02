@@ -240,7 +240,7 @@ class WeaponAttackAction(AttackAction):
             ap_cost += ap_distance_cost_modifier * self.distance
 
             # if previous actor is different from the current target, adds cost of acquiring new target
-            if self.entity.previous_target_actor == self.entity.target_actor:
+            if self.entity.fighter.previous_target_actor == self.entity.fighter.target_actor:
                 ap_cost += target_acquisition_ap
 
             # AP cost for the duration of fully automatic fire
@@ -356,7 +356,7 @@ class ReloadAction(Action):
 
     def perform(self) -> None:
 
-        # gun mag fedR
+        # gun mag fed
         if hasattr(self.gun.usable_properties, 'loaded_magazine'):
             self.gun.usable_properties.load_gun(magazine=self.gun.usable_properties.previously_loaded_magazine)
 

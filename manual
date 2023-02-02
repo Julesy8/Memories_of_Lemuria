@@ -3,6 +3,10 @@
 MOVEMENT AND MENUS
 ------------------
 
+- WINDOW -
+
+F11 - Toggle full screen
+
  - MENUS -
 
 I: Inventory
@@ -12,6 +16,7 @@ R: Magazine Loadout
 Q: Interact with Held Weapon
 C: Crafting
 S: Change Attack Style
+P: Bestiary
 Space: Attack Mode
 Escape: Save and Exit
 

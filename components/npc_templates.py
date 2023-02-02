@@ -28,6 +28,7 @@ class Fighter(BaseComponent):
     def __init__(self,
                  unarmed_meat_damage,
                  unarmed_armour_damage,
+                 #faction_allegiance: tuple,
                  unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
                  ap: int = 100,
@@ -35,8 +36,11 @@ class Fighter(BaseComponent):
                  melee_accuracy: float = 1.0,  # more = more accurate
                  ranged_accuracy: float = 1.0,  # less = more accurate
                  move_success_chance: float = 1.0,
-                 responds_to_sound: bool = True,  # todo - update entities with this property
+                 responds_to_sound: bool = True,
                  ):
+
+        self.target_actor = None
+        self.previous_target_actor = None
 
         self.max_ap = ap
         self._ap = ap
@@ -70,6 +74,9 @@ class Fighter(BaseComponent):
 
         # whether entity paths towards gunshot sounds
         self.responds_to_sound = responds_to_sound
+
+        # allegiance of the entity. hostile to entities of different factions.
+        #self.faction_allegiance = faction_allegiance
 
     @property
     def ap(self) -> int:
@@ -126,7 +133,7 @@ class GunFighter(Fighter):
         self.automatic_fire_duration = 0.2
         self.style_action_ap = 1.3
 
-    def attack_style_cqc(self):  # TODO - enemy attack style changes to this when gravely injured if fears death
+    def attack_style_cqc(self):
         self.style_range_accuracy = 1.3
         self.automatic_fire_duration = 0.7
         self.style_action_ap = 0.7

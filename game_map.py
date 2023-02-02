@@ -5,6 +5,7 @@ from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
 
+import colour
 import tile_types
 from colours_and_chars import MapColoursChars
 from entity import Actor, Item
@@ -165,11 +166,23 @@ class GameMap:
         for entity in entities_sorted_for_rendering:
 
             if self.visible[entity.x, entity.y]:
+                entity.seen = True
+                entity.ghost_x = entity.x
+                entity.ghost_y = entity.y
                 obj_x, obj_y = entity.x - cam_x, entity.y - cam_y
                 if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
                     console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
                     if isinstance(entity, Actor):
                         entity.active = True
+
+            elif entity.seen:
+
+                if self.visible[entity.ghost_x, entity.ghost_y]:
+                    entity.seen = False
+                else:
+                    obj_x, obj_y = entity.ghost_x - cam_x, entity.ghost_y - cam_y
+                    if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
+                        console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), colour.LIGHT_GRAY
 
     def move_camera(self, x: int, y: int) -> None:
 

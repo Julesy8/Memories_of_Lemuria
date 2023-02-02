@@ -303,7 +303,7 @@ ak545_45rd = Item(
     stacking=None,
     description='45 round capacity 5.45x39 AK magazine designed for RPK-74 light machine guns',
     usable_properties=Magazine(
-        magazine_type='AK 7.62x39',
+        magazine_type='AK 5.45x39',
         compatible_bullet_type=['5.45x39', ],
         mag_capacity=45,
         magazine_size='medium',
@@ -480,6 +480,90 @@ stanag_100rd = Item(
         ap_distance_cost_mod=1.18,
         spread_mod=1.13,
         equip_ap_mod=1.25,
+    )
+)
+
+"""
+AR-10
+"""
+
+ar10_20rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR-10 7.62x51 20 Round Magazine",
+    weight=0.17,
+    stacking=None,
+    description='A polymer 20 round 7.62x51 magazine for AR-10 type rifles',
+    usable_properties=Magazine(
+        magazine_type='AR10 7.62x51',
+        compatible_bullet_type=['7.62x51', ],
+        mag_capacity=20,
+        magazine_size='medium',
+        ap_to_load=300,
+    )
+)
+
+ar10_25rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR-10 7.62x51 25 Round Magazine",
+    weight=0.206,
+    stacking=None,
+    description='A polymer 25 round 7.62x51 magazine for AR-10 type rifles',
+    usable_properties=Magazine(
+        magazine_type='AR10 7.62x51',
+        compatible_bullet_type=['7.62x51', ],
+        mag_capacity=25,
+        magazine_size='medium',
+        ap_to_load=300,
+        target_acquisition_ap_mod=1.02,
+        ap_distance_cost_mod=1.01,
+        spread_mod=1.01,
+        equip_ap_mod=1.02,
+    )
+)
+
+ar10_40rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR-10 7.62x51 40 Round Magazine",
+    weight=0.226,
+    stacking=None,
+    description='A polymer 40 round 7.62x51 magazine for AR-10 type rifles',
+    usable_properties=Magazine(
+        magazine_type='AR10 7.62x51',
+        compatible_bullet_type=['7.62x51', ],
+        mag_capacity=40,
+        magazine_size='large',
+        ap_to_load=400,
+        target_acquisition_ap_mod=1.05,
+        ap_distance_cost_mod=1.04,
+        spread_mod=1.04,
+        equip_ap_mod=1.06,
+    )
+)
+
+ar10_50rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR-10 7.62x51 50 Round Drum Magazine",
+    weight=0.771,
+    stacking=None,
+    description='A polymer 50 round 7.62x51 drum magazine for AR-10 type rifles',
+    usable_properties=Magazine(
+        magazine_type='AR10 7.62x51',
+        compatible_bullet_type=['7.62x51', ],
+        mag_capacity=50,
+        magazine_size='large',
+        ap_to_load=500,
+        target_acquisition_ap_mod=1.07,
+        ap_distance_cost_mod=1.06,
+        spread_mod=1.06,
+        equip_ap_mod=1.12,
     )
 )
 

@@ -249,7 +249,7 @@ sks_ak_mag_adapter = Item(
     weight=0.01,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Magazine Adapter',
-                                   compatible_magazine_type='STANAG 5.56x45',
+                                   compatible_magazine_type="AK 7.62x39",
                                    ),
     description="Magazine adapter SKS rifles providing compatibility with 7.62x39 AK style magazines"
 )
@@ -307,7 +307,6 @@ sksdict = {
         "automatic rifles": {
             "SKS Rifle": {
                 "required parts": {
-                    "SKS Receiver": 1,
                     "SKS Barrel": 1,
                     "SKS Stock": 1,
                 },

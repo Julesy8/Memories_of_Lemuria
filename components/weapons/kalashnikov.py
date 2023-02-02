@@ -833,6 +833,23 @@ muzzle_dtk = Item(
     description="A muzzle brake/compensator fitting 5.45x49 AK rifles by Zenitco"
 )
 
+muzzle_amd65 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AK AMD-65 Muzzle Brake",
+    weight=0.201,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 14x1',),
+                                   muzzle_break_efficiency=0.47,
+                                   target_acquisition_ap=1.05,
+                                   spread_modifier=1.04,
+                                   sound_radius=1.23,
+                                   ),
+    description="A muzzle brake/compensator fitting 7.62x39 AK type rifles made for the AMD-65"
+)
+
 muzzle_akm = Item(
     x=0, y=0,
     char="!",

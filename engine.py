@@ -30,8 +30,9 @@ class Engine:
         self.player = player
         self.crafting_recipes = {
             "guns": {},
-            "gun parts": {},
         }
+
+        self.bestiary = {}
 
         self.floor_str = f"{level_names[self.current_level]} {self.current_floor + 1}"
 

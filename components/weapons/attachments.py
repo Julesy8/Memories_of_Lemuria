@@ -2,9 +2,6 @@ from entity import Item
 from components.consumables import GunComponent
 import colour
 
-# TODO - ability to adjust zero range
-# TODO - add new parts - lasers, flash lights, 
-
 """
 OPTICS
 """
@@ -638,17 +635,4 @@ adapter_mlok_picrail_short = Item(
                                    ),
     description='Picatinny rail adapters for MLOK attachment systems, allowing the attachment of picatinny rail '
                 'mounted accessories'
-)
-
-laser_sight = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    name="Laser Sight",
-    weight=0.2,
-    stacking=None,
-    usable_properties=GunComponent(part_type='gun_accessory',
-                                   close_range_accuracy=1.05,
-                                   ),
-    description='A small red laser to assist with target aquisition'
 )

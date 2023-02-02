@@ -1,6 +1,5 @@
 import traceback
 
-import setup_game
 import exceptions
 import input_handlers
 import colour
@@ -17,6 +16,19 @@ def toggle_maximized(context: tcod.context.Context) -> None:
     window.maximize()
 
 
+def toggle_fullscreen(context: tcod.context.Context) -> None:
+    """Toggle a context window between fullscreen and windowed modes."""
+    if not context.sdl_window_p:
+        return
+    fullscreen = tcod.lib.SDL_GetWindowFlags(context.sdl_window_p) & (
+        tcod.lib.SDL_WINDOW_FULLSCREEN | tcod.lib.SDL_WINDOW_FULLSCREEN_DESKTOP
+    )
+    tcod.lib.SDL_SetWindowFullscreen(
+        context.sdl_window_p,
+        0 if fullscreen else tcod.lib.SDL_WINDOW_FULLSCREEN_DESKTOP,
+    )
+
+
 def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
     """If the current event handler has an active Engine then save it."""
     if isinstance(handler, input_handlers.EventHandler):
@@ -26,7 +38,7 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
 
 def main() -> None:
 
-    handler: input_handlers.BaseEventHandler = setup_game.MainMenu()
+    handler: input_handlers.BaseEventHandler = input_handlers.MainMenu()
 
     screen_width = 720
     screen_height = 480
@@ -52,6 +64,14 @@ def main() -> None:
                     for event in tcod.event.wait():
                         if event.type == "WINDOWRESIZED":
                             console = tcod.Console(*context.recommended_console_size(), order="F")
+
+                        try:
+                            if event.sym == tcod.event.K_F11 and not event.repeat:
+                                if isinstance(event, tcod.event.KeyDown):
+                                    toggle_fullscreen(context=context)
+                        except AttributeError:
+                            pass
+
                         context.convert_event(event)
                         handler = handler.handle_events(event)
 
