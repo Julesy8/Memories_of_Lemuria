@@ -220,6 +220,31 @@ class MessyBSPTree:
                     held_weapon = deepcopy(choices(population=weapons, weights=weapon_weight, k=1)[0])
                     weapon_file = open(f'components/weapons/premade_weapons/{held_weapon}.pkl', 'rb')
                     held_weapon = pickle.load(weapon_file)
+
+                    no_functional_part = 0
+                    no_accuracy_part = 0
+
+                    functional_cond_total = 0
+                    accuracy_cond_total = 0
+
+                    for part in held_weapon.usable_properties.parts:
+
+                        if part.usable_properties.functional_part:
+                            no_functional_part += 1
+                            part.usable_properties.condition_function = randint(1, 5)
+                            functional_cond_total += part.usable_properties.condition_function
+
+                        if part.usable_properties.accuracy_part:
+                            no_accuracy_part += 1
+                            part.usable_properties.condition_accuracy = randint(1, 5)
+                            accuracy_cond_total += part.usable_properties.condition_accuracy
+
+                    if no_functional_part > 0:
+                        held_weapon.usable_properties.condition_function = functional_cond_total / no_functional_part
+
+                    if no_accuracy_part > 0:
+                        held_weapon.usable_properties.condition_accuracy = accuracy_cond_total / no_accuracy_part
+
                     weapon_file.close()
                     enemy.inventory.held = copy.deepcopy(held_weapon)
 

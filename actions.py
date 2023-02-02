@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from abc import ABC
 from typing import Optional, Tuple, TYPE_CHECKING
 from math import ceil
 from random import randint
@@ -342,6 +343,31 @@ class WeaponAttackAction(AttackAction):
 
                 # how many turns entity has to wait until attack
                 self.entity.ai.turns_until_action = turns_to_skip
+
+
+class ClearJam(Action):
+
+    def __init__(self, entity: Actor):
+        super().__init__(entity)
+
+    def perform(self):
+
+        # jam takes between 2 and 5 seconds to clear
+        jam_ap = randint(2, 5) * 100 * self.entity.fighter.action_ap_modifier
+
+        # skips player turns while clearing jam
+        # if self.entity.player:
+        self.engine.message_log.add_message(f"Cleared jam", colour.GREEN)
+        if jam_ap >= 100:
+            for i in range(round(jam_ap / 100)):
+                self.engine.handle_enemy_turns()
+            self.entity.fighter.ap -= jam_ap % 100
+        else:
+            self.entity.fighter.ap -= jam_ap
+        # else:
+        #     turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
+        #                                                        self.entity.fighter.ap_per_turn_modifier)))
+        #     self.entity.ai.turns_until_action = turns_to_skip
 
 
 # reloads guns for non-player AI

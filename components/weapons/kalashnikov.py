@@ -26,6 +26,7 @@ reciever_akm = Item(
                                                      'ap_distance_cost_modifier': 1.04,
                                                      'spread_modifier': 1.02, },
                                    is_optic=True,
+                                   functional_part=True,
                                    ),
     description='AKM stamped kalashnikov type reciever'
 )
@@ -49,6 +50,7 @@ reciever_ak74 = Item(
                                                      'ap_distance_cost_modifier': 1.04,
                                                      'spread_modifier': 1.02, },
                                    is_optic=True,
+                                   functional_part=True,
                                    ),
     description='AK-74 stamped kalashnikov type reciever'
 )
@@ -72,6 +74,7 @@ reciever_100556 = Item(
                                                      'ap_distance_cost_modifier': 1.04,
                                                      'spread_modifier': 1.02, },
                                    is_optic=True,
+                                   functional_part=True,
                                    ),
     description='AK 101/102 series reciever for 5.56x45 AK rifles'
 )
@@ -462,6 +465,8 @@ barrel_ak762 = Item(
                                    barrel_length=1.36,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 7.62x39"
 )
@@ -489,6 +494,8 @@ barrel_ak545 = Item(
                                    barrel_length=1.36,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
+                                   functional_part=True,
+                                   accuracy_part=True,
                                    ),
     description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 5.45x39"
 )
@@ -516,6 +523,8 @@ barrel_ak556 = Item(
                                    barrel_length=1.36,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
+                                   functional_part=True,
+                                   accuracy_part=True,
                                    ),
     description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 5.56x45 such as that of the AK-101"
 )
@@ -543,6 +552,8 @@ barrel_rpk762 = Item(
                                    barrel_length=1.93,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.13,
+                                   functional_part=True,
+                                   accuracy_part=True,
                                    ),
     description="A longer (23.2 inch), heavier AK barrel assembly intended for the RPK, chambered in 7.62x39"
 )
@@ -570,6 +581,8 @@ barrel_rpk545 = Item(
                                    barrel_length=1.93,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.13,
+                                   functional_part=True,
+                                   accuracy_part=True,
                                    ),
     description="A longer (23.2 inch), heavier AK barrel assembly intended for the RPK-74, chambered in 5.45x39"
 )
@@ -597,6 +610,8 @@ barrel_ak762_short = Item(
                                    barrel_length=1.03,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
+                                   functional_part=True,
+                                   accuracy_part=True,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 7.62x39 such as that of "
                 "the AK-104"
@@ -625,6 +640,8 @@ barrel_ak545_short = Item(
                                    barrel_length=1.03,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
+                                   functional_part=True,
+                                   accuracy_part=True,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.45x39 such as that of "
                 "the AK-105"
@@ -653,6 +670,8 @@ barrel_ak556_short = Item(
                                    barrel_length=1.03,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
+                                   functional_part=True,
+                                   accuracy_part=True,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.56x39 such as that of "
                 "the AK-102"

@@ -62,6 +62,7 @@ glock_mag_9mm_50 = Item(
         ap_distance_cost_mod=1.15,
         spread_mod=1.09,
         equip_ap_mod=1.18,
+        failure_chance=2,
     )
 )
 
@@ -83,6 +84,7 @@ glock_mag_9mm_100 = Item(
         ap_distance_cost_mod=1.23,
         spread_mod=1.16,
         equip_ap_mod=1.25,
+        failure_chance=3,
     )
 )
 
@@ -228,6 +230,7 @@ ak762_60rd = Item(
         ap_distance_cost_mod=1.08,
         spread_mod=1.05,
         equip_ap_mod=1.06,
+        failure_chance=2,
     )
 )
 
@@ -249,6 +252,7 @@ ak762_75rd = Item(
         ap_distance_cost_mod=1.12,
         spread_mod=1.09,
         equip_ap_mod=1.15,
+        failure_chance=3,
     )
 )
 
@@ -270,6 +274,7 @@ ak762_100rd = Item(
         ap_distance_cost_mod=1.22,
         spread_mod=1.16,
         equip_ap_mod=1.25,
+        failure_chance=3,
     )
 )
 
@@ -333,6 +338,7 @@ ak545_60rd = Item(
         ap_distance_cost_mod=1.06,
         spread_mod=1.05,
         equip_ap_mod=1.05,
+        failure_chance=2,
     )
 )
 
@@ -354,6 +360,7 @@ ak545_100rd = Item(
         ap_distance_cost_mod=1.2,
         spread_mod=1.15,
         equip_ap_mod=1.25,
+        failure_chance=3,
     )
 )
 
@@ -438,6 +445,7 @@ stanag_50rd = Item(
         ap_distance_cost_mod=1.06,
         spread_mod=1.05,
         equip_ap_mod=1.09,
+        failure_chance=1,
     )
 )
 
@@ -459,6 +467,7 @@ stanag_60rd = Item(
         ap_distance_cost_mod=1.07,
         spread_mod=1.04,
         equip_ap_mod=1.07,
+        failure_chance=2,
     )
 )
 
@@ -480,6 +489,7 @@ stanag_100rd = Item(
         ap_distance_cost_mod=1.18,
         spread_mod=1.13,
         equip_ap_mod=1.25,
+        failure_chance=3,
     )
 )
 
@@ -543,6 +553,7 @@ ar10_40rd = Item(
         ap_distance_cost_mod=1.04,
         spread_mod=1.04,
         equip_ap_mod=1.06,
+        failure_chance=1,
     )
 )
 
@@ -564,6 +575,7 @@ ar10_50rd = Item(
         ap_distance_cost_mod=1.06,
         spread_mod=1.06,
         equip_ap_mod=1.12,
+        failure_chance=2,
     )
 )
 
@@ -589,6 +601,7 @@ calico_9mm_50rd = Item(
         ap_distance_cost_mod=1.17,
         spread_mod=1.09,
         equip_ap_mod=1.14,
+        failure_chance=1,
     )
 )
 
@@ -610,6 +623,7 @@ calico_9mm_100rd = Item(
         ap_distance_cost_mod=1.25,
         spread_mod=1.16,
         equip_ap_mod=1.3,
+        failure_chance=1,
     )
 )
 
@@ -656,6 +670,7 @@ m31_9mm_71rd = Item(
         ap_distance_cost_mod=1.18,
         spread_mod=1.13,
         equip_ap_mod=1.22,
+        failure_chance=2,
     )
 )
 

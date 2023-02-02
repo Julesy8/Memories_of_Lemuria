@@ -173,6 +173,8 @@ barrel_sks = Item(
                                    is_optic=True,
                                    equip_time=1.1,
                                    velocity_modifier=1.024,
+                                   accuracy_part=True,
+                                   functional_part=True,
                                    ),
     description="An SKS receiver with a standard length SKS barrel"
 )
@@ -192,6 +194,8 @@ barrel_sks_shortened = Item(
                                                      'spread_modifier': 0.96, },
                                    is_optic=True,
                                    equip_time=0.9,
+                                   accuracy_part=True,
+                                   functional_part=True,
                                    ),
     description="An SKS receiver with a cut down 17.5 inch SKS barrel "
 )
@@ -213,6 +217,8 @@ barrel_sks_auto = Item(
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
                                    equip_time=1.1,
                                    velocity_modifier=1.024,
+                                   accuracy_part=True,
+                                   functional_part=True,
                                    ),
     description="An SKS receiver with a standard length SKS barrel converted to be capable of fully automatic fire"
 )
@@ -233,6 +239,8 @@ barrel_sks_shortened_auto = Item(
                                    is_optic=True,
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
                                    equip_time=0.9,
+                                   accuracy_part=True,
+                                   functional_part=True,
                                    ),
     description="An SKS receiver with a cut down 17.5 inch SKS barrel converted to be capable of fully automatic fire"
 )

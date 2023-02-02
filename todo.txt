@@ -1,35 +1,20 @@
 -----
 TO DO
 -----
-TODO - enemies guns have worse condition, causing them to jam
-TODO - weapon jamming affected by part quality and magazine
-
-- levels -
-sewers
-caverns
-military base
-
 
 -unique enemies which spawn once per game
--player can spawn in from previous games as enemy
--premade guns for enemies
+-in the dungeon you find enemies using your looted equipment from previous runs
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion
--more exotic magazines should jam every so often
--darkness level (how far away you can see enemies) depends on level
 
--start on sewer level
--ability to change optics magnification
--add stipper clips
--ability to rename guns
+-TODO add stipper clips
+-TODO ability to rename guns
 
 17) more room shapes on level generation
 19) weapon graphics
 
--music
--score board
+-music for levels
 -save guns to look at in main menu
 -grave yard
--in the dungeon you find enemies using your looted equipment from previous runs
 
 1.5 seconds average to draw, aim, shoot - pistol
 can pull trigger 4 times per second

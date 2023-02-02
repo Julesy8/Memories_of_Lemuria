@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import os
+from multiprocessing import Process
+from configparser import ConfigParser
+from playsound import playsound
 from copy import deepcopy
 from typing import Optional, TYPE_CHECKING, Union
 from math import ceil
@@ -27,6 +30,11 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
+
+config = ConfigParser()
+config.read('settings.ini')
+
+music = config.getboolean('settings', 'music')
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -89,6 +97,11 @@ class BaseEventHandler(tcod.event.EventDispatch[ActionOrHandler]):
         raise SystemExit()
 
 
+def playmusic():
+    while True:
+        playsound('stepinside.mp3')
+
+
 class MainMenu(BaseEventHandler):
     """Handle the main menu rendering and input."""
 
@@ -97,6 +110,10 @@ class MainMenu(BaseEventHandler):
         self.colour_mode_forward = [True, True, True]
         self.fg_colour = [randint(60, 249), randint(60, 249), randint(60, 249)]
         self.subtext = generate_subtext()
+
+        if music:
+            self.music = Process(target=playmusic)
+            self.music.start()
 
     def change_fg_colour(self):
 
@@ -176,6 +193,8 @@ class MainMenu(BaseEventHandler):
             self, event: tcod.event.KeyDown
     ) -> Optional[BaseEventHandler]:
         if event.sym == tcod.event.K_ESCAPE:
+            if music:
+                self.music.terminate()
             raise SystemExit()
 
         elif event.sym == tcod.event.K_DOWN:
@@ -195,9 +214,12 @@ class MainMenu(BaseEventHandler):
 
         elif event.sym == tcod.event.K_RETURN:
             if self.option_selected == 0:
+                if music:
+                    self.music.terminate()
                 return MainGameEventHandler(new_game())
             elif self.option_selected == 1:
                 try:
+                    self.music.terminate()
                     return MainGameEventHandler(load_game("savegame.sav"))
                 except FileNotFoundError:
                     return PopupMessage(self, "No saved game to load.", title='Error')
@@ -206,6 +228,8 @@ class MainMenu(BaseEventHandler):
                     return PopupMessage(self, f"Failed to load save:\n{exc}", title='Error')
                 pass
             elif self.option_selected == 2:
+                if music:
+                    self.music.terminate()
                 raise SystemExit()
 
         return None
@@ -237,14 +261,13 @@ class PopupMessage(BaseEventHandler):
         y = console.height // 2
 
         for line in wrapped_text:
-
             console.print(
                 console.width // 2 - 19,
                 y,
                 line,
                 fg=colour.WHITE,
                 bg=(0, 0, 0),
-                #alignment=tcod.CENTER,
+                # alignment=tcod.CENTER,
             )
 
             y += 1
@@ -1114,6 +1137,11 @@ class ChangeTargetActor(AskUserEventHandler):
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
 
+            if self.item is not None:
+                if isinstance(self.item.usable_properties, Gun):
+                    if self.item.usable_properties.jammed:
+                        return actions.ClearJam(entity=player).perform()
+
             if player.fighter.target_actor:
 
                 distance_target = round(player.distance(player.fighter.target_actor.x, player.fighter.target_actor.y))
@@ -1267,6 +1295,9 @@ class GunOptionsHandler(UserOptionsEventHandler):
 
         self.firemodes = self.gun.usable_properties.fire_modes
 
+        if self.gun.usable_properties.jammed:
+            options.append('clear jam')
+
         if type(self.gun.usable_properties) is GunMagFed:
             options += ["load magazine", "unload magazine"]
 
@@ -1293,6 +1324,10 @@ class GunOptionsHandler(UserOptionsEventHandler):
 
         elif option == 'unload rounds':
             self.gun.usable_properties.unload_magazine()
+
+        elif option == 'clear jam':
+            self.gun.usable_properties.jammed = False
+            return actions.ClearJam(entity=self.engine.player).perform()
 
         elif option in self.firemodes:
             self.gun.usable_properties.current_fire_mode = option
@@ -1922,6 +1957,7 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Compatible Round --": ('compatible_bullet_type',
                                        getattr(self.item.usable_properties, 'compatible_bullet_type', 1)),
             "-- AP to Load --": ('ap_to_load', getattr(self.item.usable_properties, 'ap_to_load', 1)),
+            "-- Failure Chance (%) --": ('failure_chance', getattr(self.item.usable_properties, 'failure_chance', 1)),
 
             # gun
             "-- Felt Recoil Modifier --": ('felt_recoil', round(getattr(self.item.usable_properties, 'felt_recoil',
@@ -1947,11 +1983,19 @@ class InspectItemViewer(AskUserEventHandler):
                                                                1), 3)),
             "-- AP Cost to Fire --": ('firing_ap_cost', round(getattr(self.item.usable_properties, 'firing_ap_cost',
                                                                       1), 3)),
-            "-- Muzzle Break Efficiency % --": ('muzzle_break_efficiency',
-                                                (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
-                                                         1)) * 100),
+            "-- Muzzle Break Efficiency (%) --": ('muzzle_break_efficiency',
+                                                  (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
+                                                           1)) * 100),
             "-- Bullet Velocity Modifier --": ('velocity_modifier',
                                                round(getattr(self.item.usable_properties, 'velocity_modifier', 1), 3)),
+
+            "-- Part Condition: Accuracy (%) --": ('condition_accuracy',
+                                                   round((getattr(self.item.usable_properties, 'condition_accuracy',
+                                                                  1)) / 5 * 100), 3),
+
+            "-- Part Condition: Function (%) --": ('condition_function',
+                                                   round((getattr(self.item.usable_properties, 'condition_function',
+                                                                  1)) / 5 * 100), 3),
 
             # mag fed
             "-- Compatible Magazine Type --": ('compatible_magazine_type',

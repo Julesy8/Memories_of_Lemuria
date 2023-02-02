@@ -41,6 +41,15 @@ class Parts:
 
         for part in self.part_list:
 
+            # changes condition of the gun to reflect average of condition of the parts
+            if part.usable_properties.functional_part:
+                self.parent.condition_function = (part.usable_properties.condition_functional +
+                                                  self.parent.condition_function) / 2
+
+            if part.usable_properties.accuracy_part:
+                self.parent.condition_accuracy = (part.usable_properties.condition_accuracy +
+                                                  self.parent.condition_function) / 2
+
             item = self.parent.parent
 
             total_weight += part.weight
@@ -69,7 +78,9 @@ class Parts:
                                                    receiver_height_above_bore=self.parent.receiver_height_above_bore,
                                                    spread_modifier=self.parent.spread_modifier,
                                                    target_acquisition_ap=self.parent.target_acquisition_ap,
-                                                   firing_ap_cost=self.parent.firing_ap_cost
+                                                   firing_ap_cost=self.parent.firing_ap_cost,
+                                                   condition_accuracy=self.parent.condition_accuracy,
+                                                   condition_function=self.parent.condition_function,
                                                    )
 
                     self.parent.parent = item
@@ -98,7 +109,9 @@ class Parts:
                                             receiver_height_above_bore=self.parent.receiver_height_above_bore,
                                             spread_modifier=self.parent.spread_modifier,
                                             target_acquisition_ap=self.parent.target_acquisition_ap,
-                                            firing_ap_cost=self.parent.firing_ap_cost
+                                            firing_ap_cost=self.parent.firing_ap_cost,
+                                            condition_accuracy=self.parent.condition_accuracy,
+                                            condition_function=self.parent.condition_function,
                                             )
 
                     self.parent.parent = item

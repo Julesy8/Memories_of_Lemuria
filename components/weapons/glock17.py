@@ -13,6 +13,7 @@ glock17_frame = Item(
     usable_properties=GunComponent(part_type='Glock 17 Frame',
                                    incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['Picrail Underbarrel - Short', ],
+                                   functional_part=True
                                    ),
     description='Standard Glock frame compatible with Glock 17, 17L and 34 slides and barrels'
 )
@@ -34,6 +35,8 @@ glock17_barrel = Item(
                                        'Glock 17 Slide': ['Glock 17 Slide', "Glock 17 Slide w/ Optics Cut",
                                                           'Glock 17 Custom Slide']},
                                    barrel_length=0.37,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='Standard Glock 17 barrel'
 )
@@ -55,6 +58,8 @@ glock17l_barrel = Item(
                                    barrel_length=0.5,
                                    target_acquisition_ap=1.05,
                                    equip_time=1.05,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='Glock 17L barrel. Longer than the standard Glock 17 barrel'
 )
@@ -76,6 +81,8 @@ glock_9in_barrel = Item(
                                    barrel_length=0.75,
                                    target_acquisition_ap=1.11,
                                    equip_time=1.11,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='Extra long 9 inch Glock 9mm barrel'
 )
@@ -96,6 +103,8 @@ glock17_barrel_ported = Item(
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.4,
                                    barrel_length=0.37,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='Glock 17 barrel with milled cutouts to reduce muzzle climb'
 )
@@ -115,7 +124,9 @@ glock17l_barrel_ported = Item(
                                    muzzle_break_efficiency=0.4,
                                    barrel_length=0.5,
                                    target_acquisition_ap=1.05,
-                                   equip_time=1.05
+                                   equip_time=1.05,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='Glock 17L barrel with milled cutouts to reduce muzzle climb'
 )
@@ -136,6 +147,8 @@ glock17_slide = Item(
                                                      'ap_distance_cost_modifier': 1.08,
                                                      'spread_modifier': 1.1, },
                                    is_optic=True,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='Glock 17 slide'
 )
@@ -152,6 +165,8 @@ glock17l_slide = Item(
                                                      'ap_distance_cost_modifier': 1.07,
                                                      'spread_modifier': 1.09, },
                                    is_optic=True,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='Glock 17L slide. Longer than the standard Glock 17 slide'
 )
@@ -169,6 +184,8 @@ glock17_slide_optic = Item(
                                                      'ap_distance_cost_modifier': 1.08,
                                                      'spread_modifier': 1.1, },
                                    is_optic=True,
+                                   accuracy_part=True,
+                                   functional_part=True
                                    ),
     description='Glock 17 slide, machined to allow the mounting of optics such as RMRs'
 )
@@ -186,6 +203,8 @@ glock17l_slide_optic = Item(
                                                      'ap_distance_cost_modifier': 1.07,
                                                      'spread_modifier': 1.09, },
                                    is_optic=True,
+                                   accuracy_part=True,
+                                   functional_part=True
                                    ),
     description='Glock 17L slide, machined to allow the mounting of optics such as RMRs. Longer than the standard '
                 'Glock 17 slide'
@@ -205,6 +224,8 @@ glock17_slide_custom = Item(
                                                      'spread_modifier': 1.1, },
                                    target_acquisition_ap=0.95,
                                    is_optic=True,
+                                   accuracy_part=True,
+                                   functional_part=True
                                    ),
     description='Custom milled Glock 17 slide, reducing weight and vastly improving aesthetics. '
                 'Machined to allow the mounting of optics such as RMRs'
@@ -224,6 +245,8 @@ glock17l_slide_custom = Item(
                                                      'spread_modifier': 1.09, },
                                    target_acquisition_ap=0.95,
                                    is_optic=True,
+                                   accuracy_part=True,
+                                   functional_part=True
                                    ),
     description='Custom milled Glock 17L slide, reducing weight and vastly improving aesthetics. '
                 'Machined to allow the mounting of optics such as RMRs'

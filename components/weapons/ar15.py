@@ -19,6 +19,7 @@ lower_ar15 = Item(
     usable_properties=GunComponent(part_type='AR Lower Receiver',
                                    compatible_parts={'AR Upper Receiver': ['M16A2 Upper Receiver',
                                                                            'M16A4 Upper Receiver']},
+                                   functional_part=True,
                                    ),
     description='A standard AR-15 type lower receiver capable of automatic fire'
 )
@@ -32,6 +33,7 @@ lower_ar10 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AR Lower Receiver',
                                    compatible_parts={'AR Upper Receiver': ['AR10 Upper Receiver', ]},
+                                   functional_part=True,
                                    ),
     description='AR-10 receiver designed for rifle calibre AR rifles'
 )
@@ -59,6 +61,7 @@ upper_ar_m16a2 = Item(
                                    prevents_attachment_of={'AR Handguard': ['Optic', ],
                                                            'Handguard': ['Iron Sight', ]},
                                    is_optic=True,
+                                   functional_part=True,
                                    ),
     description='A standard AR-15 type upper receiver for 5.56x45 or .300 Blackout rifles with integrated '
                 'carrying handle'
@@ -76,6 +79,7 @@ upper_ar_m16a4 = Item(
                                    compatible_parts={'AR Optics Mount': []},
                                    optic_mount_properties={'receiver_height_above_bore': 1.11},
                                    prevents_attachment_of={'Handguard': ['Iron Sight', ]},
+                                   functional_part=True,
                                    ),
     description='A standard AR-15 type upper receiver for 5.56x45 or .300 Blackout rifles with a picatinny '
                 'rail optics mount'
@@ -93,6 +97,7 @@ upper_ar10 = Item(
                                    compatible_parts={'AR Optics Mount': []},
                                    optic_mount_properties={'receiver_height_above_bore': 1.11},
                                    prevents_attachment_of={'Handguard': ['Iron Sight', ]},
+                                   functional_part=True,
                                    ),
     description='An AR-10 type upper receiver for rifle calibres such as 7.62x51'
 )
@@ -128,6 +133,8 @@ ar_barrel_standard_556 = Item(
                                    tags=['full length barrel', ],
                                    velocity_modifier=1.082,
                                    barrel_length=1.66,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 20" standard length AR 5.56x45 barrel with a rifle length gas system'
 )
@@ -159,6 +166,8 @@ ar_barrel_standard_556_midlen = Item(
                                    barrel_length=1.66,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 20" standard length AR 5.56x45 barrel with a mid length gas system'
 )
@@ -197,6 +206,8 @@ ar_barrel_carbine_556 = Item(
                                    equip_time=0.9,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 16" carbine length AR 5.56x45 barrel with a mid length gas system'
 )
@@ -235,6 +246,8 @@ ar_barrel_carbine_556_carblen = Item(
                                    equip_time=0.9,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 16" carbine length AR 5.56x45 barrel with a carbine length gas system'
 )
@@ -265,6 +278,8 @@ ar_barrel_pistol_556 = Item(
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel with a carbine length gas system'
 )
@@ -295,6 +310,8 @@ ar_barrel_pistol_556_pistollen = Item(
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel with a pistol length gas system'
 )
@@ -332,6 +349,8 @@ ar_barrel_carbine_300 = Item(
                                    equip_time=0.9,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 16" carbine length AR .300 Blackout barrel with a mid length gas system'
 )
@@ -368,6 +387,8 @@ ar_barrel_carbine_300_carbinelen = Item(
                                    equip_time=0.9,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 16" carbine length AR .300 Blackout barrel with a carbine length gas system'
 )
@@ -398,6 +419,8 @@ ar_barrel_pistol_300 = Item(
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 10" pistol length AR .300 Blackout barrel with a carbine length gas system'
 )
@@ -428,6 +451,8 @@ ar_barrel_pistol_300_pistollen = Item(
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 10" pistol length AR .300 Blackout barrel with a pistol length gas system'
 )
@@ -459,6 +484,8 @@ ar_barrel_standard_308 = Item(
                                    sound_radius=1.15,
                                    velocity_modifier=0.96,
                                    barrel_length=1.66,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 20" AR-10 7.62x51 barrel with a rifle length gas system'
 )
@@ -490,6 +517,8 @@ ar_barrel_standard_308_midlen = Item(
                                    barrel_length=1.66,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 20" AR-10 7.62x51 barrel with a mid length gas system'
 )
@@ -523,6 +552,8 @@ ar_barrel_carbine_308_midlen = Item(
                                    target_acquisition_ap=0.96,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 16" carbine length AR-10 7.62x51 barrel with a mid length gas system'
 )
@@ -556,6 +587,8 @@ ar_barrel_carbine_308_carblen = Item(
                                    target_acquisition_ap=0.96,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 16" carbine length AR-10 7.62x51 barrel with a carbine length gas system'
 )
@@ -584,6 +617,8 @@ ar_barrel_pistol_308_carblen = Item(
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 10" pistol length AR 7.62x51 barrel with a carbine length gas system'
 )
@@ -612,6 +647,8 @@ ar_barrel_pistol_308_pistollen = Item(
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
+                                   functional_part=True,
+                                   accuracy_part=True
                                    ),
     description='A 10" pistol length AR 7.62x51 barrel with a pistol length gas system'
 )
@@ -1253,7 +1290,8 @@ ar15_buffer = Item(
     name="AR15 Buffer Assembly - Standard",
     weight=0.28,
     stacking=None,
-    usable_properties=GunComponent(part_type='AR Buffer', ),
+    usable_properties=GunComponent(part_type='AR Buffer',
+                                   functional_part=True),
     description='Standard buffer assembly for AR15 type rifles'
 )
 
@@ -1267,6 +1305,7 @@ ar15_buffer_heavy = Item(
     usable_properties=GunComponent(part_type='AR Buffer',
                                    fire_rate_modifier=0.857,
                                    felt_recoil=0.93,
+                                   functional_part=True
                                    ),
     description='Buffer assembly for AR15 type rifles featuring a heavier buffer'
 )
@@ -1281,6 +1320,7 @@ ar15_buffer_light = Item(
     usable_properties=GunComponent(part_type='AR Buffer',
                                    fire_rate_modifier=1.078,
                                    felt_recoil=1.1,
+                                   functional_part=True
                                    ),
     description='Buffer assembly for AR15 type rifles featuring a light-weight buffer'
 )
@@ -1294,7 +1334,9 @@ ar10_buffer = Item(
     name="AR10 Buffer Assembly - Standard",
     weight=0.3,
     stacking=None,
-    usable_properties=GunComponent(part_type='AR Buffer', ),
+    usable_properties=GunComponent(part_type='AR Buffer',
+                                   functional_part=True
+                                   ),
     description='Standard buffer assembly for AR10 type rifles'
 )
 
@@ -1308,6 +1350,7 @@ ar10_buffer_heavy = Item(
     usable_properties=GunComponent(part_type='AR Buffer',
                                    fire_rate_modifier=0.857,
                                    felt_recoil=0.93,
+                                   functional_part=True
                                    ),
     description='Buffer assembly for AR15 type rifles featuring a heavier buffer'
 )
@@ -1322,6 +1365,7 @@ ar10_buffer_light = Item(
     usable_properties=GunComponent(part_type='AR Buffer',
                                    fire_rate_modifier=1.078,
                                    felt_recoil=1.1,
+                                   functional_part=True
                                    ),
     description='Buffer assembly for AR15 type rifles featuring a light-weight buffer'
 )

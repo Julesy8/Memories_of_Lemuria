@@ -5,7 +5,7 @@ from typing import Optional, TYPE_CHECKING
 from exceptions import Impossible
 
 from math import sqrt, e, pi, cos, sin
-from random import uniform
+from random import uniform, choices
 from copy import deepcopy
 from pydantic.utils import deep_update
 
@@ -239,6 +239,7 @@ class Magazine(Usable):
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
                  ap_to_load: int,  # ap it takes to load magazine into gun
+                 failure_chance: int = 0,  # % chance to cause a jam
                  target_acquisition_ap_mod: float = 1.0,
                  ap_distance_cost_mod: float = 1.0,
                  spread_mod: float = 1.0,
@@ -249,6 +250,7 @@ class Magazine(Usable):
         self.mag_capacity = mag_capacity
         self.magazine_size = magazine_size
         self.ap_to_load = ap_to_load
+        self.failure_chance = failure_chance
         self.target_acquisition_ap_mod = target_acquisition_ap_mod
         self.ap_distance_cost_mod = ap_distance_cost_mod
         self.spread_mod = spread_mod
@@ -356,6 +358,8 @@ class Gun(Weapon):
                  target_acquisition_ap: int,  # ap cost for acquiring new target
                  ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
                  spread_modifier: float,  # MoA / 100 - for M16A2 2-3 MoA, so 0.03
+                 condition_accuracy: int = 5,
+                 condition_function: int = 5,
                  firing_ap_cost: int = 25,  # additional AP cost for firing
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
@@ -397,6 +401,9 @@ class Gun(Weapon):
         self.target_acquisition_ap = target_acquisition_ap
         self.firing_ap_cost = firing_ap_cost
         self.ap_distance_cost_modifier = ap_distance_cost_modifier
+        self.condition_accuracy = condition_accuracy
+        self.condition_function = condition_function
+        self.jammed = False
 
         self.momentum_gun = 0
         self.time_in_barrel = 0
@@ -408,6 +415,9 @@ class Gun(Weapon):
 
     def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
                       hit_location_y: int) -> None:
+
+        if self.jammed:
+            self.engine.message_log.add_message("Attack failed: gun jammed. Press ENTER to clear.", colour.RED)
 
         self.momentum_gun = 0
         self.time_in_barrel = 0
@@ -439,6 +449,21 @@ class Gun(Weapon):
         while rounds_to_fire > 0:
             if self.chambered_bullet is not None:
 
+                # if attacker is player, jams the gun depending on its functional condition
+                if attacker.player:
+
+                    mag_fail_chance = 0
+
+                    if hasattr(self, 'loaded_magazine'):
+                        if self.loaded_magazine is not None:
+                            mag_fail_chance = self.loaded_magazine.fail_chance
+
+                    if choices(population=(True, False), weights=(round(25 - ((self.condition_function / 5) * 25) +
+                                                                        mag_fail_chance), 100))[0]:
+                        self.engine.message_log.add_message("Your gun is jammed! Press ENTER to clear.", colour.RED)
+                        self.jammed = True
+                        return
+
                 # if the sound radius of the fired round is not already in the list, appends it to the list for
                 sound_radius = self.sound_modifier * self.chambered_bullet.usable_properties.sound_modifier
                 sound_radius_list.append(sound_radius)
@@ -453,7 +478,7 @@ class Gun(Weapon):
                 # gives projectile spread in MoA
                 spread_diameter = \
                     self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * mag_spread_mod * \
-                    distance * attacker.fighter.ranged_accuracy
+                    distance * attacker.fighter.ranged_accuracy * min((5/self.condition_accuracy), 2)
 
                 # bullet spread hit location coordinates
                 radius = (spread_diameter * 0.523) * sqrt(uniform(0, 1))
@@ -709,6 +734,8 @@ class GunMagFed(Gun):
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
+                 condition_accuracy: int = 5,
+                 condition_function: int = 5,
                  firing_ap_cost: int = 25,  # additional AP cost for firing
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
@@ -744,7 +771,9 @@ class GunMagFed(Gun):
             target_acquisition_ap=target_acquisition_ap,
             firing_ap_cost=firing_ap_cost,
             ap_distance_cost_modifier=ap_distance_cost_modifier,
-            receiver_height_above_bore=receiver_height_above_bore
+            receiver_height_above_bore=receiver_height_above_bore,
+            condition_accuracy=condition_accuracy,
+            condition_function=condition_function
         )
 
     def load_gun(self, magazine: Item):
@@ -843,6 +872,8 @@ class GunIntegratedMag(Gun, Magazine):
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
+                 condition_accuracy: int = 5,
+                 condition_function: int = 5,
                  firing_ap_cost: int = 25,  # additional AP cost for firing
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
@@ -878,6 +909,8 @@ class GunIntegratedMag(Gun, Magazine):
             firing_ap_cost=firing_ap_cost,
             ap_distance_cost_modifier=ap_distance_cost_modifier,
             receiver_height_above_bore=receiver_height_above_bore,
+            condition_accuracy=condition_accuracy,
+            condition_function=condition_function
         )
 
     def chamber_round(self):
@@ -903,11 +936,19 @@ class GunComponent(ComponentPart):
                  prevents_suppression=False,
                  is_suppressor=False,
                  is_optic=False,
+                 condition_accuracy: int = 5,
+                 condition_function: int = 5,
+                 accuracy_part: bool = False,
+                 functional_part: bool = False,
                  **kwargs,
                  ):
         self.prevents_suppression = prevents_suppression
         self.is_suppressor = is_suppressor
         self.is_optic = is_optic
+        self.condition_accuracy = condition_accuracy
+        self.condition_function = condition_function
+        self.accuracy_part = accuracy_part
+        self.functional_part = functional_part
         self.__dict__.update(kwargs)
 
         super().__init__(

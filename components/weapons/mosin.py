@@ -25,7 +25,8 @@ mosin_stock = Item(
                                        'felt_recoil': 0.88,
                                        'ap_distance_cost_modifier': 0.91,
                                        'spread_modifier': 0.93,
-                                       'target_acquisition_ap': 0.82}),
+                                       'target_acquisition_ap': 0.82},
+                                   ),
     description='Standard M91/30 stock'
 )
 
@@ -47,7 +48,8 @@ mosin_stock_montecarlo = Item(
                                        'felt_recoil': 0.82,
                                        'ap_distance_cost_modifier': 0.89,
                                        'spread_modifier': 0.87,
-                                       'target_acquisition_ap': 0.83}),
+                                       'target_acquisition_ap': 0.83},
+                                   ),
     description='A modern polymer monte-carlo style stock for the Mosin-Nagant M91/30'
 )
 
@@ -71,7 +73,8 @@ mosin_archangel_stock = Item(
                                        'felt_recoil': 0.86,
                                        'ap_distance_cost_modifier': 0.93,
                                        'spread_modifier': 0.9,
-                                       'target_acquisition_ap': 0.81}),
+                                       'target_acquisition_ap': 0.81},
+                                   ),
     description='Tactical polymer Archangel replacement stock for the M91/30 Mosin-Nagant designed by ProMag'
 )
 
@@ -94,7 +97,8 @@ mosin_carbine_stock = Item(
                                        'felt_recoil': 0.89,
                                        'ap_distance_cost_modifier': 0.86,
                                        'spread_modifier': 0.9,
-                                       'target_acquisition_ap': 0.79}),
+                                       'target_acquisition_ap': 0.79},
+                                   ),
     description='A shortened carbine stock for the Mosin-Nagant'
 )
 
@@ -115,7 +119,8 @@ mosin_obrez_stock = Item(
                                        'felt_recoil': 0.83,
                                        'ap_distance_cost_modifier': 0.93,
                                        'spread_modifier': 0.95,
-                                       'target_acquisition_ap': 0.74}),
+                                       'target_acquisition_ap': 0.74},
+                                   ),
     description='A stockless pistol length housing for the Mosin-Nagant, perfect for concealment'
 )
 
@@ -141,6 +146,8 @@ mosin_barrel = Item(
                                    sound_radius=0.8,
                                    barrel_length=2.42,
                                    target_acquisition_ap=1.3,
+                                   accuracy_part=True,
+                                   functional_part=True,
                                    ),
     description='Standard 29 inch M91/30 barrel assembly'
 )
@@ -164,6 +171,8 @@ mosin_carbine_barrel = Item(
                                    sound_radius=0.9,
                                    barrel_length=1.68,
                                    target_acquisition_ap=1.15,
+                                   accuracy_part=True,
+                                   functional_part=True,
                                    ),
     description='A shortened 20.2 inch carbine length barrel assembly for the Mosin-Nagant'
 )
@@ -186,6 +195,8 @@ mosin_obrez_barrel = Item(
                                    is_optic=True,
                                    sound_radius=1.3,
                                    barrel_length=0.5,
+                                   accuracy_part=True,
+                                   functional_part=True,
                                    ),
     description='A pistol length barrel assembly for the Mosin-Nagant'
 )
