@@ -189,6 +189,11 @@ class MainMenu(BaseEventHandler):
         console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
                       fg=self.fg_colour)
 
+        if music:
+            console.print(x=console.width // 2 - 26, y=54,
+                          string='MUSIC BY BLAVATSKY -- HTTPS://BLAVATSKY.BANDCAMP.COM',
+                          fg=self.fg_colour)
+
     def ev_keydown(
             self, event: tcod.event.KeyDown
     ) -> Optional[BaseEventHandler]:
@@ -665,8 +670,7 @@ class UserOptionsWithPages(AskUserEventHandler):
         return NotImplementedError
 
 
-class TypeAmountEventHandler(AskUserEventHandler):
-
+class TypeInputEventHandler(AskUserEventHandler):
     def __init__(self, item: Item, prompt_string: str, engine: Engine):
         super().__init__(engine)
         self.item = item
@@ -689,30 +693,61 @@ class TypeAmountEventHandler(AskUserEventHandler):
         console.print(x=2, y=2, string=f"{self.prompt_string} {self.buffer}", fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event):
+        key = event.sym
+
+        try:
+            for event in tcod.event.wait():
+                if isinstance(event, tcod.event.TextInput):
+                    if len(self.buffer) < 21:
+                        self.buffer += event.text
+
+            if not event.repeat:
+                if key == tcod.event.K_ESCAPE:
+                    return MainGameEventHandler(self.engine)
+
+                elif key == tcod.event.K_BACKSPACE:
+                    self.buffer = self.buffer[:-1]
+
+                elif key == tcod.event.K_RETURN:
+                    return self.ev_on_option_selected()
+
+        except AttributeError:
+            pass
+
+    def ev_on_option_selected(self):
+        return NotImplementedError
+
+
+class TypeAmountEventHandler(TypeInputEventHandler):
+
+    def ev_keydown(self, event):
+
+        key = event.sym
 
         if self.item.stacking:
             if self.item.stacking.stack_size > 1:
+                try:
 
-                for event in tcod.event.wait():
-                    try:
+                    for event in tcod.event.wait():
                         if isinstance(event, tcod.event.TextInput):
-                            self.buffer += event.text
+                            if event.text.isdigit():
+                                self.buffer += event.text
 
-                        elif event.scancode == tcod.event.SCANCODE_ESCAPE:
-                            return MainGameEventHandler(self.engine)
+                    if key == tcod.event.K_ESCAPE:
+                        return MainGameEventHandler(self.engine)
 
-                        elif event.scancode == tcod.event.SCANCODE_BACKSPACE:
-                            self.buffer = self.buffer[:-1]
+                    elif key == tcod.event.K_BACKSPACE:
+                        self.buffer = self.buffer[:-1]
 
-                        elif event.scancode == tcod.event.SCANCODE_RETURN:
+                    elif key == tcod.event.K_RETURN:
 
-                            if self.buffer == '' or int(self.buffer) < 1:
-                                self.buffer = f'{self.item.stacking.stack_size}'
+                        if self.buffer == '' or int(self.buffer) < 1:
+                            self.buffer = f'{self.item.stacking.stack_size}'
 
-                            return self.ev_on_option_selected()
+                        return self.ev_on_option_selected()
 
-                    except AttributeError:
-                        self.buffer = f'{self.item.stacking.stack_size}'
+                except AttributeError:
+                    self.buffer = f'{self.item.stacking.stack_size}'
 
             else:
                 self.buffer = '1'
@@ -746,7 +781,7 @@ class InventoryEventHandler(UserOptionsWithPages):
             options.append('Equip')
 
         if isinstance(item.usable_properties, Gun):
-            options += ['Equip to Primary', 'Equip to Secondary', 'Disassemble']
+            options += ['Equip to Primary', 'Equip to Secondary', 'Disassemble', 'Rename']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
@@ -770,6 +805,9 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
+
+        elif option == 'Rename':
+            return RenameItem(item=self.item, prompt_string='New Name:', engine=self.engine)
 
         elif option == 'Equip':
             try:
@@ -1291,7 +1329,7 @@ class GunOptionsHandler(UserOptionsEventHandler):
         self.gun = gun
 
         title = gun.name
-        options = []
+        options = ['Rename', ]
 
         self.firemodes = self.gun.usable_properties.fire_modes
 
@@ -1302,7 +1340,7 @@ class GunOptionsHandler(UserOptionsEventHandler):
             options += ["load magazine", "unload magazine"]
 
         elif type(self.gun.usable_properties) is GunIntegratedMag:
-            options += ["load rounds", "unload rounds"]
+            options += ["load rounds", "unload rounds", "load from clip"]
 
         for firemode in self.firemodes:
             if not firemode == self.gun.usable_properties.current_fire_mode:
@@ -1325,12 +1363,33 @@ class GunOptionsHandler(UserOptionsEventHandler):
         elif option == 'unload rounds':
             self.gun.usable_properties.unload_magazine()
 
+        elif option == 'load from clip':
+            return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
+            # TODO - fix situations like this where the function is interacting with something indirectly
+            # i.e. should take gun class as arg rather than item.
+
+        elif option == 'Rename':
+            return RenameItem(item=self.gun, prompt_string='New Name:', engine=self.engine)
+
         elif option == 'clear jam':
             self.gun.usable_properties.jammed = False
             return actions.ClearJam(entity=self.engine.player).perform()
 
         elif option in self.firemodes:
             self.gun.usable_properties.current_fire_mode = option
+
+        return MainGameEventHandler(engine=self.engine)
+
+
+class RenameItem(TypeInputEventHandler):
+
+    def __init__(self, item: Item, prompt_string: str, engine: Engine):
+        super().__init__(prompt_string=prompt_string, engine=engine, item=item)
+
+    def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
+
+        if not self.buffer == '':
+            self.item.name = self.buffer
 
         return MainGameEventHandler(engine=self.engine)
 
@@ -1357,6 +1416,31 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
         """Called when the user selects a valid item."""
 
         self.gun.usable_properties.load_gun(item)
+        return MainGameEventHandler(engine=self.engine)
+
+
+class SelectClipToLoadIntoGun(UserOptionsWithPages):
+
+    def __init__(self, engine: Engine, gun: Item):
+        self.gun = gun
+
+        mag_list = []
+        title = gun.name
+
+        loadout = self.engine.player.inventory.small_magazines + \
+                  self.engine.player.inventory.medium_magazines + self.engine.player.inventory.large_magazines
+
+        for item in self.engine.player.inventory.items:
+            if item in loadout:
+                if item.usable_properties.magazine_type == self.gun.usable_properties.compatible_clip:
+                    mag_list.append(item)
+
+        super().__init__(engine=engine, options=mag_list, page=0, title=title)
+
+    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+
+        self.gun.usable_properties.load_from_clip(item.usable_properties)
         return MainGameEventHandler(engine=self.engine)
 
 
@@ -1940,8 +2024,8 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Charge Mass (Grains) --": ('charge_mass', getattr(self.item.usable_properties, 'charge_mass', 1)),
             "-- Bullet Diameter (Inch) --": ('diameter', getattr(self.item.usable_properties, 'diameter', 1)),
             "-- Bullet Velocity (Feet/Sec) --": ('velocity', getattr(self.item.usable_properties, 'velocity', 1)),
-            "-- Shot Sound Modifier --": ('sound_modifier',
-                                          round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
+            "-- Shot Sound --": ('sound_modifier',
+                                 round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
             "-- Bullet Spread Modifier --": ('spread_modifier',
                                              round(getattr(self.item.usable_properties, 'spread_modifier', 1), 3)),
             "-- Ballistic Coefficient --": ('ballistic_coefficient',
@@ -1969,9 +2053,9 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Barrel Length (Inch) --": ('barrel_length',
                                            round((getattr(self.item.usable_properties, 'barrel_length', 1) * 12), 3)),
             "-- Zero Range (Yard) --": ('zero_range', getattr(self.item.usable_properties, 'zero_range', 1)),
-            "-- Sight Height Over Bore (Inch) --": ('sight_height_above_bore',
-                                                    getattr(self.item.usable_properties, 'sight_height_above_bore',
-                                                            1)),
+            "-- Sight Height Over Mount (Inch) --": ('sight_height_above_bore',
+                                                     getattr(self.item.usable_properties, 'sight_height_above_bore',
+                                                             1)),
             "-- Sight Mount / Over Bore (Inch) --": ('receiver_height_above_bore',
                                                      getattr(self.item.usable_properties,
                                                              'receiver_height_above_bore', 1)),
@@ -2003,8 +2087,11 @@ class InspectItemViewer(AskUserEventHandler):
 
             # wearable
             "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
-            "-- Protection --": (
+            "-- Ballistic Protection --": (
                 'protection_ballistic', getattr(self.item.usable_properties, 'protection_ballistic', 1)),
+            "-- Physical Protection --": ('protection_physical', getattr(self.item.usable_properties,
+                                                                         'protection_physical', 1)),
+            "-- Armour Coverage --": ('armour_coverage', getattr(self.item.usable_properties, 'armour_coverage', 1)),
             "-- Large Magazine Slots --": ('large_mag_slots',
                                            getattr(self.item.usable_properties, 'large_mag_slots', 1)),
             "-- Medium Magazine Slots --": ('medium_mag_slots',
@@ -2113,7 +2200,6 @@ class InspectItemViewer(AskUserEventHandler):
             y += 1
             for string in word_list:
                 console.print(x=2, y=y, string=string)
-                print(string)
                 y += 1
 
             if y > 2 + self.max_list_length:

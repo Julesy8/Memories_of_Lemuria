@@ -268,6 +268,10 @@ class Magazine(Usable):
 
         if isinstance(inventory, components.inventory.Inventory):
 
+            if isinstance(self, GunIntegratedMag):
+                if not self.keep_round_chambered:
+                    actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
+
             if load_amount > ammo.stacking.stack_size or load_amount < 1:
                 raise Impossible("Invalid entry.")
 
@@ -478,7 +482,7 @@ class Gun(Weapon):
                 # gives projectile spread in MoA
                 spread_diameter = \
                     self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * mag_spread_mod * \
-                    distance * attacker.fighter.ranged_accuracy * min((5/self.condition_accuracy), 2)
+                    distance * attacker.fighter.ranged_accuracy * min((5 / self.condition_accuracy), 2)
 
                 # bullet spread hit location coordinates
                 radius = (spread_diameter * 0.523) * sqrt(uniform(0, 1))
@@ -799,7 +803,7 @@ class GunMagFed(Gun):
                 inventory.items.remove(magazine)
 
                 reload_ap = \
-                    magazine.usable_properties.turns_to_load * \
+                    magazine.usable_properties.ap_to_load * \
                     self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
 
                 if reload_ap >= 100:
@@ -878,12 +882,15 @@ class GunIntegratedMag(Gun, Magazine):
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
+                 compatible_clip: str = None,
                  chambered_bullet: Optional[Item] = None,
                  ):
         self.mag_capacity = mag_capacity
 
         # magazine = list[item]
         self.magazine = []
+
+        self.compatible_clip = compatible_clip
 
         self.previously_loaded_round = chambered_bullet
 
@@ -917,6 +924,36 @@ class GunIntegratedMag(Gun, Magazine):
         if len(self.magazine) > 0:
             self.chambered_bullet = self.magazine.pop()
 
+    def load_from_clip(self, clip: Magazine):
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory) and len(clip.magazine) > 0:
+
+            if len(clip.magazine) <= self.mag_capacity - len(self.magazine):
+                actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
+                self.magazine += clip.magazine
+                clip.magazine = []
+                self.chambered_bullet = self.magazine.pop()
+
+                if inventory.parent == self.engine.player:
+
+                    reload_ap = \
+                        clip.ap_to_load * \
+                        self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
+
+                    if reload_ap >= 100:
+                        for i in range(round(reload_ap / 100)):
+                            self.engine.handle_enemy_turns()
+                        inventory.parent.fighter.ap -= reload_ap % 100
+                    else:
+                        inventory.parent.fighter.ap -= reload_ap
+
+        else:
+            self.engine.message_log.add_message(f"Cannot load from stripper clip: too many rounds in magazine",
+                                                colour.RED)
+
 
 class ComponentPart(Usable):
     def __init__(self,
@@ -945,8 +982,12 @@ class GunComponent(ComponentPart):
         self.prevents_suppression = prevents_suppression
         self.is_suppressor = is_suppressor
         self.is_optic = is_optic
-        self.condition_accuracy = condition_accuracy
-        self.condition_function = condition_function
+
+        if accuracy_part:
+            self.condition_accuracy = condition_accuracy
+        if functional_part:
+            self.condition_function = condition_function
+
         self.accuracy_part = accuracy_part
         self.functional_part = functional_part
         self.__dict__.update(kwargs)

@@ -6,9 +6,6 @@ TO DO
 -in the dungeon you find enemies using your looted equipment from previous runs
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion
 
--TODO add stipper clips
--TODO ability to rename guns
-
 17) more room shapes on level generation
 19) weapon graphics
 

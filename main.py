@@ -8,6 +8,8 @@ import colour
 import tcod
 import tcod.sdl.video
 
+# pyinstaller -F -i "new_icon.ico" main.py
+
 freeze_support()
 
 config = ConfigParser()

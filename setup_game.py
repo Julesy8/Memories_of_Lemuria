@@ -145,7 +145,7 @@ def generate_subtext() -> str:
     verb_2 = choice(('Deep Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',
                      'Subversive', 'Covert', 'Magik', 'Chaos Magic', 'Solar', 'Lunar', 'Ideological', 'Cyclic',
-                     'Meditative', 'Divine', 'Tactical', 'Forbidden', 'Psychedelic', 'Quantum', 'Etheric'
+                     'Meditative', 'Divine', 'Tactical', 'Forbidden', 'Psychedelic', 'Quantum', 'Etheric',
                      'Post-Industrial', 'Post-Fall', 'Hollow Earth', 'Pre-Modern', 'Introductory', 'Ritual',
                      'Cautionary', 'Transcendental', 'Chaotic', 'Perennial', 'Secret', 'Revisionist', 'Pseudo',
                      'Military', 'Sensory', 'Planetary', 'Radical', 'Chakra', 'Compassionate', 'Archaic', 'Arcane',

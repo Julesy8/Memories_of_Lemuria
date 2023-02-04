@@ -170,6 +170,45 @@ mosin_nagant = Item(
     )
 )
 
+mosin_clip = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Mosin-Nagant Clip",
+    weight=0.0085,
+    stacking=None,
+    description='A 5 round capacity clip for Mosin-Nagant rifles',
+    usable_properties=Magazine(
+        magazine_type='Mosin-Nagant Clip',
+        compatible_bullet_type=['7.62x54R', ],
+        mag_capacity=5,
+        magazine_size='small',
+        ap_to_load=500,
+    )
+)
+
+"""
+SKS
+"""
+
+sks_clip = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS Clip",
+    weight=0.011,
+    stacking=None,
+    description='A 10 round capacity stripper clip for SKS rifles',
+    usable_properties=Magazine(
+        magazine_type='SKS Clip',
+        compatible_bullet_type=['7.62x39', ],
+        mag_capacity=10,
+        magazine_size='small',
+        ap_to_load=500,
+    )
+)
+
+
 """
 AK 7.62x39
 """
