@@ -68,13 +68,12 @@ def get_views(screen_shape, world_shape, anchor):
 
 
 class GameMap:
-    def __init__(self, engine: Engine, width: int, height: int, level: int,
+    def __init__(self, engine: Engine, width: int, height: int,
                  entities: Iterable[Entity] = (), fov_radius: int = 15):
-        self.level = level
         self.engine = engine
         self.fov_radius = fov_radius
 
-        self.colours_chars = MapColoursChars(self.level)
+        self.colours_chars = MapColoursChars(self.engine.current_level)
 
         # defines the colours and characters used for wall tiles:
         self.wall = tile_types.new_wall(self.colours_chars.wall_fg_dark,

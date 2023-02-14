@@ -211,6 +211,8 @@ Part Condition (Function): Physical condition of weapon parts affecting reliable
 Weapons with lower functional condition, for example as a result of a receiver in poor condition will be more likely
 to jam when fired.
 
+Action Cycling AP Cost: AP cost to cycle the action after each shot, i.e. work the bolt of a bolt action rifle
+
 - ARMOUR -
 
 Ballistic Protection: Protection from projectile-based attacks. Equivalent to inches of mild steel.

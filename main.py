@@ -10,6 +10,10 @@ import tcod.sdl.video
 
 # pyinstaller -F -i "new_icon.ico" main.py
 
+# to profile run times:
+# python -m cProfile main.py > cprofile_output.txt
+# kernprof -l -v main.py
+
 freeze_support()
 
 config = ConfigParser()
@@ -110,6 +114,8 @@ def main() -> None:
         except BaseException:  # Save on any other unexpected exception.
             save_game(handler, "savegame.sav")
             raise
+
+
 
 
 if __name__ == "__main__":

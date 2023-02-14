@@ -64,7 +64,7 @@ class MessyBSPTree:
                                                         )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(engine, map_width, map_height, current_level, entities=[self.player],
+        self.dungeon = GameMap(engine=engine, width=map_width, height=map_height, entities=[self.player],
                                fov_radius=self.fov_radius)
 
     def generateLevel(self):
@@ -215,38 +215,12 @@ class MessyBSPTree:
                 enemy.place(x, y, self.dungeon)
 
                 if len(enemy.weapons.keys()) > 0:
-                    weapons = list(enemy.weapons.keys())
-                    weapon_weight = list(enemy.weapons.values())
-                    held_weapon = deepcopy(choices(population=weapons, weights=weapon_weight, k=1)[0])
-                    weapon_file = open(f'components/weapons/premade_weapons/{held_weapon}.pkl', 'rb')
-                    held_weapon = pickle.load(weapon_file)
+                    held_weapon = deepcopy(choices(population=list(enemy.weapons.keys()),
+                                                   weights=list(enemy.weapons.values()), k=1)[0]).update_properties()
 
-                    no_functional_part = 0
-                    no_accuracy_part = 0
-
-                    functional_cond_total = 0
-                    accuracy_cond_total = 0
-
-                    for part in held_weapon.usable_properties.parts:
-
-                        if part.usable_properties.functional_part:
-                            no_functional_part += 1
-                            part.usable_properties.condition_function = randint(1, 5)
-                            functional_cond_total += part.usable_properties.condition_function
-
-                        if part.usable_properties.accuracy_part:
-                            no_accuracy_part += 1
-                            part.usable_properties.condition_accuracy = randint(1, 5)
-                            accuracy_cond_total += part.usable_properties.condition_accuracy
-
-                    if no_functional_part > 0:
-                        held_weapon.usable_properties.condition_function = functional_cond_total / no_functional_part
-
-                    if no_accuracy_part > 0:
-                        held_weapon.usable_properties.condition_accuracy = accuracy_cond_total / no_accuracy_part
-
-                    weapon_file.close()
-                    enemy.inventory.held = copy.deepcopy(held_weapon)
+                    enemy.inventory.held = held_weapon
+                    enemy.inventory.held.usable_properties.parent = enemy.inventory.held
+                    enemy.inventory.held.parent = enemy.inventory
 
         for i in range(number_of_items):
             x = randint(room.x1 + 1, room.x2 - 1)

@@ -75,26 +75,42 @@ level_names = {
 # these dictionaries contain lists of the enemies that should appear on a given level
 
 Enemies_by_level = {
+    # sewers
     0:
         (
-            [giant_snake, 1],
-            [large_rat, 3]
+            (giant_snake, 5),
+            (large_rat, 5),
+            (rat_king, 5),
+            (aligator, 5),
+            (maniac, 5),
+            (outlaw, 100)
         ),
+    # caverns
     1:
         (
-            [giant_snake, 1],
-            [large_rat, 3]
+            (large_rat, 3),
+            (maniac, 1),
+            (outlaw, 1),
+            (peacekeeper, 1),
+            (troglodyte, 1),
+            (soldier, 1),
+            (wyrm, 1),
+            (chimera, 1),
+            (dogman, 1)
         ),
+    # the nexion
     2:
         (
             [giant_snake, 1],
             [large_rat, 3]
         ),
+    # D.U.M.B
     3:
         (
             [giant_snake, 1],
             [large_rat, 3]
         ),
+    # reptilian hive
     4:
         (
             [giant_snake, 1],

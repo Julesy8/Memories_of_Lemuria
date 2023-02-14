@@ -43,7 +43,7 @@ class Parts:
 
             # changes condition of the gun to reflect average of condition of the parts
             if part.usable_properties.functional_part:
-                self.parent.condition_function = (part.usable_properties.condition_functional +
+                self.parent.condition_function = (part.usable_properties.condition_function +
                                                   self.parent.condition_function) / 2
 
             if part.usable_properties.accuracy_part:
@@ -139,11 +139,12 @@ class Parts:
                 for x in self.part_list:
                     if hasattr(x.usable_properties, 'is_attachment_point_types'):
 
-                        # !!! comment line out directly below when making guns using gun_maker !!!
-                        if part in self.attachment_dict[x.name].values():
-
-                            if hasattr(x.usable_properties, 'optic_mount_properties'):
-                                self.set_property(part_properties=x.usable_properties.optic_mount_properties)
+                        try:
+                            if part in self.attachment_dict[x.name].values():
+                                if hasattr(x.usable_properties, 'optic_mount_properties'):
+                                    self.set_property(part_properties=x.usable_properties.optic_mount_properties)
+                        except KeyError:
+                            pass
 
             # updates gun properties with that of the current part
             self.set_property(part_properties=part.usable_properties.__dict__)

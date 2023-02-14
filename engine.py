@@ -22,11 +22,11 @@ if TYPE_CHECKING:
 class Engine:
     game_map: GameMap
 
-    def __init__(self, player: Actor, current_level: int, current_floor: int):
+    def __init__(self, player: Actor):
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
-        self.current_level = current_level  # denotes the floor type
-        self.current_floor = current_floor  # denotes the sublevel of the floor type
+        self.current_level = 0  # denotes the floor type
+        self.current_floor = 0  # denotes the sublevel of the floor type
         self.player = player
         self.crafting_recipes = {
             "guns": {},
@@ -126,4 +126,4 @@ class Engine:
                 console.print(x=66, y=console.height - 3, string=f"{len(gun.magazine) + chamber}/{gun.mag_capacity}",
                               fg=colour.WHITE, bg_blend=1)
 
-        render_names_at_mouse_location(console=console, x=1, y=console.height - 5, engine=self)
+        render_names_at_mouse_location(console=console, x=1, y=console.height - 5, engine=self, game_map=self.game_map)

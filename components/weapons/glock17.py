@@ -333,7 +333,7 @@ glock_pistol_brace = Item(
                                    spread_modifier=0.94,
                                    target_acquisition_ap=0.71,
                                    ),
-    description='Collapsing pistol brace for Glock handguns designed by Flux Defense'
+    description='Collapsing pistol brace "not a stock" for Glock handguns designed by Flux Defense'
 )
 
 # SF Ryder 9M
@@ -399,7 +399,6 @@ glock17dict = {
                 },
                 "compatible parts": {
                     "Glock Stock": 1,
-                    "Attachment Adapter": 1,
                     "Glock Optics Mount": 1,
                     "Glock Base Plate": 1,
                     "Side Mounted Accessory": 1,

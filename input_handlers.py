@@ -806,6 +806,15 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
+        elif option == 'Pick Up':
+            if self.item.stacking:
+                if self.item.stacking.stack_size > 1:
+                    return AmountToPickUpMenu(item=self.item, engine=self.engine)
+                else:
+                    return PickupAction(entity=self.engine.player, item=self.item, amount=1)
+            else:
+                return PickupAction(entity=self.engine.player, item=self.item, amount=1)
+
         elif option == 'Rename':
             return RenameItem(item=self.item, prompt_string='New Name:', engine=self.engine)
 
@@ -1007,16 +1016,10 @@ class PickUpEventHandler(UserOptionsWithPages):
             if actor_location_x == item.x and actor_location_y == item.y:
                 items_at_location.append(item)
 
-        super().__init__(engine=engine, page=0, options=items_at_location, title="Pick Up Items")
+        super().__init__(engine=engine, page=0, options=items_at_location, title="Pick Up/Inspect Items")
 
     def ev_on_option_selected(self, item):
-        if item.stacking:
-            if item.stacking.stack_size > 1:
-                return AmountToPickUpMenu(item=item, engine=self.engine)
-            else:
-                return PickupAction(entity=self.engine.player, item=item, amount=1)
-        else:
-            return PickupAction(entity=self.engine.player, item=item, amount=1)
+        return ItemInteractionHandler(item=item, options=['Pick Up', 'Inspect'], engine=self.engine)
 
 
 class AmountToPickUpMenu(TypeAmountEventHandler):
@@ -1617,7 +1620,7 @@ class CraftGun(CraftItem):
 
     def add_options(self):
 
-        # checks if current part selection is the same as the type an item in the prerequisite parts
+        # checks if current part selection is the same as the type as item in the prerequisite parts
         # if it is, only adds parts to options that are in prerequisites
         add_only_compatible = False
         for part_type in self.compatible_parts.keys():
@@ -1677,7 +1680,9 @@ class CraftGun(CraftItem):
                         if hasattr(item.usable_properties, 'tags'):
                             tags.extend(getattr(item.usable_properties, 'tags'))
 
-                        for tag in getattr(item.usable_properties, 'tags'):
+                        # TODO - commented out the old line because I think it is broken
+                        #for tag in getattr(item.usable_properties, 'tags'):
+                        for tag in tags:
                             if tag in self.compatible_parts[self.parts[self.current_part_selection]]:
                                 has_compatible_tag = True
                                 break
@@ -2067,6 +2072,10 @@ class InspectItemViewer(AskUserEventHandler):
                                                                1), 3)),
             "-- AP Cost to Fire --": ('firing_ap_cost', round(getattr(self.item.usable_properties, 'firing_ap_cost',
                                                                       1), 3)),
+
+            "-- Action Cycling AP Cost --": ('action_cycle_ap_cost',
+                                             round(getattr(self.item.usable_properties, 'action_cycle_ap_cost', 1), 3)),
+
             "-- Muzzle Break Efficiency (%) --": ('muzzle_break_efficiency',
                                                   (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
                                                            1)) * 100),

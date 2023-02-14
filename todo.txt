@@ -2,14 +2,16 @@
 TO DO
 -----
 
+-multple sizes of icon, can add new sizes in main.spec
 -unique enemies which spawn once per game
 -in the dungeon you find enemies using your looted equipment from previous runs
 -unique guns and gun parts - e.g. super fast fire rate reciever for mac 10, calico mag mac 10 conversion
 
+- TODO - instead of using randint, use int(128 * random.random()) - https://eli.thegreenplace.net/2018/slow-and-fast-methods-for-generating-random-integers-in-python/
+
 17) more room shapes on level generation
 19) weapon graphics
 
--music for levels
 -save guns to look at in main menu
 -grave yard
 

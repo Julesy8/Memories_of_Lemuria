@@ -184,7 +184,6 @@ class HostileAnimal(HostileEnemy):
         super().__init__(entity)
 
     def perform(self) -> None:
-
         self.entity.fighter.target_actor = self.engine.player
         target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
@@ -301,6 +300,7 @@ class HostileEnemyArmed(BaseAI):
         held_item = self.entity.inventory.held
         attack_range = 1
         has_weapon = False
+        reload_check = True
 
         # check held weapon type
         if held_item is not None:
@@ -324,7 +324,8 @@ class HostileEnemyArmed(BaseAI):
 
             # perform attack action
             if fighter.ap > 0 and self.entity.turns_attack_inactive <= 0 and distance <= attack_range \
-                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]\
+                    and self.queued_action is None:
 
                 if attack_range == 1:
 
@@ -344,8 +345,7 @@ class HostileEnemyArmed(BaseAI):
 
                         # reload weapon
                         if held_item.usable_properties.chambered_bullet is None:
-
-                            self.queued_action = ReloadAction(entity=self.entity, gun=held_item)
+                            ReloadAction(entity=self.entity, gun=held_item).perform()
 
                         # round in chamber, attacks
                         else:
@@ -353,7 +353,9 @@ class HostileEnemyArmed(BaseAI):
                                                targeted_actor=target, targeted_bodypart=None).attack()
 
             # reload if magazine below half capacity and player not visible, reloads
-            elif not self.engine.game_map.visible[self.entity.x, self.entity.y] and has_weapon:
+            elif not self.engine.game_map.visible[self.entity.x, self.entity.y] and has_weapon and reload_check:
+
+                reload_check = False
 
                 if isinstance(held_item.usable_properties, Gun):
 
@@ -368,11 +370,13 @@ class HostileEnemyArmed(BaseAI):
                     # magazine fed gun
                     elif hasattr(held_item.usable_properties, 'loaded_magazine'):
                         loaded_magazine = getattr(held_item.usable_properties, 'loaded_magazine')
-                        mag_capacity = getattr(loaded_magazine, 'mag_capacity')
-                        mag_round_count = len(getattr(loaded_magazine, 'magazine'))
+                        mag_capacity = getattr(loaded_magazine.usable_properties, 'mag_capacity')
+                        mag_round_count = len(getattr(loaded_magazine.usable_properties, 'magazine'))
 
                     if mag_capacity < mag_round_count / 2:
-                        self.queued_action = ReloadAction(entity=self.entity, gun=held_item)
+                        if not isinstance(self.queued_action, ReloadAction):
+                            ReloadAction(entity=self.entity, gun=held_item).perform()
+                        pass
 
             # any kind of movement action occurring
             elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
@@ -451,7 +455,7 @@ class HostileEnemyArmed(BaseAI):
                         self.turns_until_action -= 1
 
                         # no more wait turns
-                        if self.turns_until_action == 0:
+                        if self.turns_until_action <= 0:
                             self.queued_action.attack()
                             self.queued_action = None
 
@@ -475,10 +479,17 @@ class HostileEnemyArmed(BaseAI):
                     action_viable = False
 
                 if action_viable:
+
                     self.turns_until_action -= 1
 
                     # no more wait turns
-                    if self.turns_until_action == 0:
+                    if self.turns_until_action <= 0:
                         self.queued_action.perform()
                         self.queued_action = None
 
+                # attack not viable, cancels queued attack
+                else:
+                    self.queued_action = None
+                    # gives back the AP that would have been used for the remaining segment of the attack
+                    self.entity.fighter.ap += round(self.turns_until_action * self.entity.fighter.ap_per_turn)
+                    self.turns_until_action = 0

@@ -33,18 +33,19 @@ from components.weapons.glock17 import glock17dict
 
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance."""
-    current_level = 1
+
+    current_level = 0
 
     # initialises player entity
     fighter_component = GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
-    Head_part = Head(hp=40, protection_ballistic=50, protection_physical=50, depth=20, width=20, height=26)
-    Body_part = Body(hp=100, protection_ballistic=50, protection_physical=50, depth=20, width=35, height=56)
-    R_Arm = Arm(hp=70, protection_ballistic=50, protection_physical=50, name='right arm', depth=10, width=10, height=78)
-    L_Arm = Arm(hp=70, protection_ballistic=50, protection_physical=50, name='left arm', depth=10, width=10, height=78)
-    R_Leg = Leg(hp=75, protection_ballistic=50, protection_physical=50, name='right leg', depth=12, width=15,
+    Head_part = Head(hp=40, protection_ballistic=0, protection_physical=50, depth=20, width=20, height=26)
+    Body_part = Body(hp=100, protection_ballistic=0, protection_physical=50, depth=20, width=35, height=56)
+    R_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=50, name='right arm', depth=10, width=10, height=78)
+    L_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=50, name='left arm', depth=10, width=10, height=78)
+    R_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=50, name='right leg', depth=12, width=15,
                 height=100)
-    L_Leg = Leg(hp=75, protection_ballistic=50, protection_physical=50, name='left leg', depth=12, width=15, height=100)
+    L_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=50, name='left leg', depth=12, width=15, height=100)
 
     # Head_part = Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26)
     # Body_part = Body(hp=100, protection_ballistic=0, protection_physical=0, depth=20, width=35, height=56)
@@ -68,7 +69,7 @@ def new_game() -> Engine:
                    inventory=Inventory(capacity=15),
                    )
 
-    engine = Engine(player=player, current_level=current_level, current_floor=0)
+    engine = Engine(player=player)
 
     #inventory_items = [mac1045,]
 

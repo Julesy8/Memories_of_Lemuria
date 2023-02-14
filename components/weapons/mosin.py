@@ -272,6 +272,8 @@ mosin_nagant = Item(
         parts=Parts(),
         compatible_bullet_type='7.62x54R',
         compatible_clip='Mosin-Nagant Clip',
+        manual_action=True,
+        action_cycle_ap_cost=150,
         mag_capacity=5,
         velocity_modifier=1.0,
         felt_recoil=1.0,
@@ -283,7 +285,7 @@ mosin_nagant = Item(
         zero_range=100,
         receiver_height_above_bore=0.71,
         sight_height_above_bore=0.5,
-        spread_modifier=0.05
+        spread_modifier=0.05,
     )
 )
 

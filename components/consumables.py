@@ -211,7 +211,7 @@ class Bullet(Usable):
                  sound_modifier: float,  # alters amount of noise the gun makes - relative to muzzle energy
                  spread_modifier: float,  # range penalty per tile to account for spread
                  ballistic_coefficient: float,
-                 load_time_modifier: float = 2,
+                 load_time_modifier: int = 200,
                  projectile_no: int = 1,
                  ):
         self.bullet_type = bullet_type
@@ -362,6 +362,8 @@ class Gun(Weapon):
                  target_acquisition_ap: int,  # ap cost for acquiring new target
                  ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
                  spread_modifier: float,  # MoA / 100 - for M16A2 2-3 MoA, so 0.03
+                 manual_action: bool = False,
+                 action_cycle_ap_cost: int = 100,
                  condition_accuracy: int = 5,
                  condition_function: int = 5,
                  firing_ap_cost: int = 25,  # additional AP cost for firing
@@ -409,6 +411,10 @@ class Gun(Weapon):
         self.condition_function = condition_function
         self.jammed = False
 
+        self.manual_action = manual_action
+        if self.manual_action:
+            self.action_cycle_ap_cost = action_cycle_ap_cost
+
         self.momentum_gun = 0
         self.time_in_barrel = 0
 
@@ -437,6 +443,9 @@ class Gun(Weapon):
 
         rounds_fired = 0
         recoil_penalty = 0
+
+        if distance < 1:
+            distance = 1
 
         spread_angle = uniform(0, 1) * 2 * pi
         dist_yards = distance * 1.09361
@@ -588,7 +597,8 @@ class Gun(Weapon):
                     recoil_spread_list.append(recoil_spread)
 
                     rounds_per_quarter_sec = \
-                        (self.fire_modes[self.current_fire_mode]['fire rate'] / 60 * self.fire_rate_modifier) * 0.25
+                        round((self.fire_modes[self.current_fire_mode]['fire rate'] / 60 * self.fire_rate_modifier) * \
+                              0.25)
 
                     if rounds_fired > rounds_per_quarter_sec:
                         rounds = recoil_spread_list[-rounds_per_quarter_sec:]
@@ -608,7 +618,7 @@ class Gun(Weapon):
         # shot sound alert enemies in the vacinity of where the shot was fired from
         # only needs to be computed once for the 'loudest' shot fired
 
-        for x in set(self.engine.game_map.actors) - {attacker}:
+        for x in set(self.gamemap.actors) - {attacker}:
 
             if not attacker.fighter.responds_to_sound:
                 continue
@@ -618,7 +628,10 @@ class Gun(Weapon):
             distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
             if distance <= sound_radius:
-                path = x.ai.get_path_to(attacker.x, attacker.y)
+                try:
+                    path = x.ai.get_path_to(attacker.x, attacker.y)
+                except AttributeError:
+                    continue
                 if len(path) <= sound_radius:
                     setattr(x.ai, 'path', path)
                     x.active = True
@@ -631,13 +644,13 @@ class Gun(Weapon):
                     x_dist = abs(abs(self.engine.player.x) - (abs(attacker.x)))
                     y_dist = abs(abs(self.engine.player.y) - (abs(attacker.y)))
 
-                    if x_dist < y_dist:
+                    if x_dist > y_dist:
                         if self.engine.player.x > attacker.x:
                             position_str = 'east'
                         else:
                             position_str = 'west'
 
-                    elif self.engine.player.y > attacker.y:
+                    elif self.engine.player.y < attacker.y:
                         position_str = 'south'
 
                     self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
@@ -738,6 +751,8 @@ class GunMagFed(Gun):
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
+                 manual_action: bool = False,
+                 action_cycle_ap_cost: int = 100,
                  condition_accuracy: int = 5,
                  condition_function: int = 5,
                  firing_ap_cost: int = 25,  # additional AP cost for firing
@@ -777,7 +792,9 @@ class GunMagFed(Gun):
             ap_distance_cost_modifier=ap_distance_cost_modifier,
             receiver_height_above_bore=receiver_height_above_bore,
             condition_accuracy=condition_accuracy,
-            condition_function=condition_function
+            condition_function=condition_function,
+            manual_action=manual_action,
+            action_cycle_ap_cost=action_cycle_ap_cost,
         )
 
     def load_gun(self, magazine: Item):
@@ -799,12 +816,16 @@ class GunMagFed(Gun):
             else:
                 self.loaded_magazine = deepcopy(magazine)
 
+            # TODO - move handling of AP to reload action
             if inventory.parent == self.engine.player:
                 inventory.items.remove(magazine)
 
                 reload_ap = \
                     magazine.usable_properties.ap_to_load * \
                     self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
+
+                if self.manual_action:
+                    reload_ap += self.action_cycle_ap_cost
 
                 if reload_ap >= 100:
                     for i in range(round(reload_ap / 100)):
@@ -849,9 +870,11 @@ class GunMagFed(Gun):
             inventory.held = None
 
     def chamber_round(self):
+
         if self.loaded_magazine is not None:
             if len(self.loaded_magazine.usable_properties.magazine) > 0:
-                if self.loaded_magazine.usable_properties.magazine[-1].bullet_type == self.compatible_bullet_type:
+                if self.loaded_magazine.usable_properties.magazine[-1].usable_properties.bullet_type == \
+                        self.compatible_bullet_type:
                     self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
                 else:
                     self.engine.message_log.add_message(f"Failed to chamber a new round!", colour.RED)
@@ -876,6 +899,8 @@ class GunIntegratedMag(Gun, Magazine):
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
+                 manual_action: bool = False,
+                 action_cycle_ap_cost: int = 100,
                  condition_accuracy: int = 5,
                  condition_function: int = 5,
                  firing_ap_cost: int = 25,  # additional AP cost for firing
@@ -917,10 +942,13 @@ class GunIntegratedMag(Gun, Magazine):
             ap_distance_cost_modifier=ap_distance_cost_modifier,
             receiver_height_above_bore=receiver_height_above_bore,
             condition_accuracy=condition_accuracy,
-            condition_function=condition_function
+            condition_function=condition_function,
+            manual_action=manual_action,
+            action_cycle_ap_cost=action_cycle_ap_cost,
         )
 
     def chamber_round(self):
+
         if len(self.magazine) > 0:
             self.chambered_bullet = self.magazine.pop()
 
@@ -982,14 +1010,14 @@ class GunComponent(ComponentPart):
         self.prevents_suppression = prevents_suppression
         self.is_suppressor = is_suppressor
         self.is_optic = is_optic
+        self.accuracy_part = accuracy_part
+        self.functional_part = functional_part
 
         if accuracy_part:
             self.condition_accuracy = condition_accuracy
         if functional_part:
             self.condition_function = condition_function
 
-        self.accuracy_part = accuracy_part
-        self.functional_part = functional_part
         self.__dict__.update(kwargs)
 
         super().__init__(

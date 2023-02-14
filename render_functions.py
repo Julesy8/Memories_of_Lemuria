@@ -18,23 +18,22 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
 
     names = []
 
-    for entity in game_map.entities:
+    for entity in set(game_map.entities) - {game_map.engine.player}:
         if entity.x == x and entity.y == y:
 
             # omits player name from list
             try:
-                if not entity.player:
 
-                    weapon_name = None
+                weapon_name = None
 
-                    if hasattr(entity, 'inventory'):
-                        if entity.inventory.held is not None:
-                            weapon_name = entity.inventory.held.name
+                if hasattr(entity, 'inventory'):
+                    if entity.inventory.held is not None:
+                        weapon_name = entity.inventory.held.name
 
-                    if weapon_name is None:
-                        names.append(entity.name)
-                    else:
-                        names.append(f"{entity.name} - {weapon_name}")
+                if weapon_name is None:
+                    names.append(entity.name)
+                else:
+                    names.append(f"{entity.name} - {weapon_name}")
 
             except AttributeError:
                 names.append(entity.name)
@@ -63,23 +62,31 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
 
 
 def render_names_at_mouse_location(
-    console: Console, x: int, y: int, engine: Engine
+    console: Console, x: int, y: int, engine: Engine, game_map: GameMap
 ) -> None:
-    mouse_x, mouse_y = engine.mouse_location
 
-    names_at_mouse_location = get_names_at_location(
-        x=mouse_x, y=mouse_y, game_map=engine.game_map
-    )
+    screen_shape = console.rgb.shape
+    cam_x, cam_y = game_map.get_left_top_pos(screen_shape)
+
+    mouse_x, mouse_y = engine.mouse_location
+    mouse_x += cam_x
+    mouse_y += cam_y
+
+    names_at_mouse_location = ""
+
+    if game_map.in_bounds(mouse_x, mouse_y):
+        names_at_mouse_location = get_names_at_location(
+            x=mouse_x, y=mouse_y, game_map=engine.game_map
+        )
 
     names_at_player = get_names_at_location(
         x=engine.player.x, y=engine.player.y, game_map=engine.game_map
     )
 
     if names_at_mouse_location == "":
-        if not names_at_player == engine.player.name.capitalize():
-            console.print(x=x, y=y, string=names_at_player, fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=x, y=y, string=names_at_player, fg=colour.WHITE, bg=(0, 0, 0))
     else:
-        console.print(x=x, y=y, string=names_at_mouse_location, fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=x, y=y, string=f"Mouse: {names_at_mouse_location}", fg=colour.WHITE, bg=(0, 0, 0))
 
 
 def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -> None:

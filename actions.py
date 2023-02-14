@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import random
-from abc import ABC
 from typing import Optional, Tuple, TYPE_CHECKING
 from math import ceil
 from random import randint
@@ -229,9 +228,9 @@ class WeaponAttackAction(AttackAction):
             # alters attributes according to magazine properties
             if weapon_type == 'GunMagFed':
                 if hasattr(self.item.usable_properties, 'loaded_magazine'):
-                    target_acquisition_ap *= getattr(self.item.usable_properties.loaded_magazine,
+                    target_acquisition_ap *= getattr(self.item.usable_properties.loaded_magazine.usable_properties,
                                                      'target_acquisition_ap_mod')
-                    ap_distance_cost_modifier *= getattr(self.item.usable_properties.loaded_magazine,
+                    ap_distance_cost_modifier *= getattr(self.item.usable_properties.loaded_magazine.usable_properties,
                                                          'ap_distance_cost_mod')
 
             # adds cost of firing (pulling trigger)
@@ -256,6 +255,10 @@ class WeaponAttackAction(AttackAction):
                     rounds_in_mag = len(gun.loaded_magazine.magazine)
                 elif weapon_type == 'GunIntegratedMag':
                     rounds_in_mag = len(gun.magazine)
+
+                if gun.manual_action:
+                    if rounds_in_mag >= 1:
+                        ap_cost += gun.action_cycle_ap_cost
 
                 # if less rounds in magazine than rounds fired in the given duration of automatic fire, AP cost of
                 # firing adjusted to amount of time it takes to fire remaining rounds in magazine
@@ -289,7 +292,7 @@ class WeaponAttackAction(AttackAction):
 
                 self.item.usable_properties.attack_ranged(target=self.targeted_actor, attacker=self.entity,
                                                           part_index=self.part_index, hit_location_x=hit_location_x,
-                                                          hit_location_y=hit_location_y)
+                                                          hit_location_y=hit_location_y, distance=self.distance)
 
             # melee
             else:
@@ -307,7 +310,8 @@ class WeaponAttackAction(AttackAction):
                                                              part_index=self.part_index, hit_chance=hit_chance)
 
         # insufficient AP for action - queues action for later turn
-        elif self.entity.ai.queued_action is None:
+        # elif self.entity.ai.queued_action is None:
+        elif not self.queued:
             fighter.ap -= ap_cost
 
             turns_to_skip = ceil(abs(fighter.ap / (fighter.ap_per_turn * fighter.ap_per_turn_modifier)))
@@ -376,40 +380,71 @@ class ReloadAction(Action):
     def __init__(self, entity: Actor, gun: Item):
         super().__init__(entity)
         self.gun = gun
+        self.queued = False
 
         # resets previous target actor since need to reacquire target after reloading
         entity.previous_target_actor = None
 
     def perform(self) -> None:
 
+        ap_cost = 0
+
+        if self.gun.usable_properties.manual_action:
+            ap_cost += self.gun.usable_properties.action_cycle_ap_cost
+
         # gun mag fed
         if hasattr(self.gun.usable_properties, 'loaded_magazine'):
-            self.gun.usable_properties.load_gun(magazine=self.gun.usable_properties.previously_loaded_magazine)
 
-            reload_ap = self.gun.usable_properties.previously_loaded_magazine.usable_properties.ap_to_load * \
-                        self.entity.fighter.action_ap_modifier * self.gun.usable_properties.load_time_modifier
+            # AP cost calculated
+            ap_cost += self.gun.usable_properties.previously_loaded_magazine.usable_properties.ap_to_load * \
+                       self.entity.fighter.action_ap_modifier * self.gun.usable_properties.load_time_modifier
 
-            if reload_ap >= 100:
-                self.entity.ai.turns_until_action = round(reload_ap / 100)
-                self.entity.fighter.ap -= reload_ap % 100
-            else:
-                self.entity.fighter.ap -= reload_ap
+            turns_cost = round(ap_cost / 100)
 
-            self.entity.ai.turns_until_action = \
-                (self.gun.usable_properties.previously_loaded_magazine.usable_properties.ap_to_load *
-                 self.entity.fighter.action_ap_modifier)
+            # sufficient AP cost or action queued
+            if self.entity.fighter.ap >= ap_cost or self.queued:
+                if not self.queued:
+                    self.entity.fighter.ap -= ap_cost
+                else:
+                    self.entity.fighter.ap += (self.entity.fighter.ap_per_turn * turns_cost) - ap_cost
+                self.gun.usable_properties.load_gun(magazine=self.gun.usable_properties.previously_loaded_magazine)
+
+            # insufficient AP to reload and not queued
+            elif not self.queued:
+                self.queued = True
+                self.entity.ai.queued_action = self
+                self.entity.ai.turns_until_action = turns_cost
+                self.entity.ai.fleeing_turns = turns_cost
 
         # gun internal mag
         else:
-            self.gun.usable_properties.load_magazine(ammo=self.gun.usable_properties.previously_loaded_round,
-                                                     load_amount=self.gun.usable_properties.mag_capacity)
 
+            ammo = self.gun.usable_properties.previously_loaded_round
+            ammo.stacking.stack_size = self.gun.usable_properties.mag_capacity
             ammo = self.gun.usable_properties.previously_loaded_round
 
             # entity attack inactive and fleeing for given reload period
-            self.entity.ai.turns_until_action = round(self.gun.usable_properties.mag_capacity *
-                                                      self.entity.fighter.action_ap_modifier *
-                                                      ammo.usable_properties.load_time_modifier)
+            ap_cost += round(self.gun.usable_properties.mag_capacity *
+                             self.entity.fighter.action_ap_modifier *
+                             ammo.usable_properties.load_time_modifier)
+
+            turns_cost = round(ap_cost / 100)
+
+            # sufficient AP cost or action queued
+            if self.entity.fighter.ap >= ap_cost or self.queued:
+                if not self.queued:
+                    self.entity.fighter.ap -= ap_cost
+                else:
+                    self.entity.fighter.ap += (self.entity.fighter.ap_per_turn * turns_cost) - ap_cost
+                self.gun.usable_properties.load_magazine(ammo=ammo,
+                                                         load_amount=self.gun.usable_properties.mag_capacity)
+
+            # insufficient AP to reload and not queued
+            elif not self.queued:
+                self.queued = True
+                self.entity.ai.queued_action = self
+                self.entity.ai.turns_until_action = turns_cost
+                self.entity.fleeing_turns = turns_cost
 
 
 class MovementAction(ActionWithDirection):
@@ -439,6 +474,15 @@ class MovementAction(ActionWithDirection):
                     self.entity.move(self.dx, self.dy)
                 elif self.entity.player:
                     self.engine.message_log.add_message("You try to move but you stumble", colour.RED)
+                    trying_to_move = True
+                    while trying_to_move:
+                        if random.uniform(0, 1) < fighter.move_success_chance:
+                            self.entity.move(self.dx, self.dy)
+                            trying_to_move = False
+                        else:
+                            self.engine.handle_enemy_turns()
+
+                self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
 
             else:
                 self.entity.move(self.dx, self.dy)
@@ -458,18 +502,24 @@ class MovementAction(ActionWithDirection):
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
+
         if self.blocking_entity:
 
-            item_held = self.engine.player.inventory.held
+            try:
 
-            if item_held is not None:
-                return WeaponAttackAction(distance=1, item=item_held, entity=self.entity,
-                                          targeted_actor=self.target_actor,
-                                          targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+                item_held = self.engine.player.inventory.held
 
-            else:
-                return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
-                                           targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+                if item_held is not None:
+                    return WeaponAttackAction(distance=1, item=item_held, entity=self.entity,
+                                              targeted_actor=self.blocking_entity,
+                                              targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+
+                else:
+                    return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.blocking_entity,
+                                               targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+
+            except AttributeError:
+                pass
 
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

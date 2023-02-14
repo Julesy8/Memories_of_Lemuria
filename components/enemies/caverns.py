@@ -1,6 +1,8 @@
 from components.npc_templates import Fighter, GunFighter
 from entity import AIActor
+from components.commonitems import pda
 from components.ai import HostileEnemy, HostileAnimal, HostileEnemyArmed
+from components.weapons.gun_maker import glock17_normal
 from components.bodyparts import Arm, Leg, Head, Body
 from components.inventory import Inventory
 import colour
@@ -93,7 +95,7 @@ giant_snake = AIActor(
     item_drops={},
     weapons={},
     spawn_group_amount=2,
-    description='Large pythons lurk in the caverns, feeding on rodents and the occasional unfortunate adventurer. '
+    description='Large pythons lurk in the sewers, feeding on rodents and the occasional unfortunate adventurer. '
                 'The descendants of escaped pets, these are the least dangerous of the reptilian creatures found in '
                 'the depths.'
 )
@@ -137,7 +139,7 @@ aligator = AIActor(
     char='A',
     fg_colour=colour.GREEN,
     name='Aligator',
-    fighter=Fighter(unarmed_meat_damage=30, unarmed_armour_damage=15, ap_per_turn=50, responds_to_sound=False),
+    fighter=Fighter(unarmed_meat_damage=30, unarmed_armour_damage=4, ap_per_turn=50, responds_to_sound=False),
     ai=HostileEnemy,
     bodyparts=(Body(hp=250, protection_ballistic=0, protection_physical=3, depth=50, width=250, height=50),
                Head(hp=150, protection_ballistic=0, protection_physical=3, depth=50, width=250, height=50),
@@ -155,6 +157,7 @@ aligator = AIActor(
     item_drops={},
     weapons={},
     spawn_group_amount=1,
+    description='A large reptile that has somehow found its way into the sewers.'
 )
 
 outlaw = AIActor(
@@ -162,7 +165,7 @@ outlaw = AIActor(
     char='☺',
     fg_colour=colour.LIGHT_BROWN,
     name='Outlaw',
-    fighter=GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=3, ranged_accuracy=1.4),
+    fighter=GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=1, ranged_accuracy=1.4),
     ai=HostileEnemyArmed,
     bodyparts=(Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26),
                Body(hp=100, protection_ballistic=0, protection_physical=1, depth=20, width=35, height=56),
@@ -177,8 +180,9 @@ outlaw = AIActor(
                ),
     inventory=Inventory(capacity=0),
     fears_death=True,
-    item_drops={},
-    weapons={},
+    item_drops={None: 500, pda: 100, },
+    weapons={glock17_normal: 5, },
+    # weapons={'mosin_gun': 10, 'glock17_stock': 5, 'sks_gun': 5},
     spawn_group_amount=1,
     description="Many criminals and deviants have retreated into the depths in hopes of evading the detection by the"
                 "tyrannical surface world forces. Often carrying knives and pistols, they won't hesitate to "
@@ -190,7 +194,7 @@ peacekeeper = AIActor(
     char='☺',
     fg_colour=colour.LIGHT_BLUE,
     name='Peace Keeper',
-    fighter=GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=3, ranged_accuracy=1.3),
+    fighter=GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=1, ranged_accuracy=1.4),
     ai=HostileEnemyArmed,
     bodyparts=(Head(hp=40, protection_ballistic=0.16, protection_physical=2, depth=20, width=20, height=26),
                Body(hp=100, protection_ballistic=0.2, protection_physical=2, depth=20, width=35, height=56),
@@ -219,7 +223,7 @@ maniac = AIActor(
     char='☺',
     fg_colour=colour.LIGHT_RED,
     name='Maniac',
-    fighter=Fighter(unarmed_meat_damage=20, unarmed_armour_damage=5, responds_to_sound=False),
+    fighter=GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=1, ranged_accuracy=1.4),
     ai=HostileEnemy,
     bodyparts=(Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26),
                Body(hp=100, protection_ballistic=0, protection_physical=0, depth=20, width=35, height=56),
