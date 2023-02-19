@@ -119,11 +119,19 @@ class GunFighter(Fighter):
                  ranged_accuracy: float = 1.0,
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
-                 automatic_fire_duration: float = 0.5
+                 automatic_fire_duration: float = 0.5,
+                 felt_recoil: float = 1.0,
+                 target_acquisition_ap: float = 1.0,
+                 firing_ap_cost: float = 1.0,
+                 ap_distance_cost_modifier: float = 1.0,  # TODO - player skill system
                  ):
 
         # how long (in seconds) an automatic burst of fire should last
         self.automatic_fire_duration = automatic_fire_duration
+        self.felt_recoil = felt_recoil
+        self.target_acquisition_ap = target_acquisition_ap
+        self.firing_ap_cost = firing_ap_cost
+        self.ap_distance_cost_modifier = ap_distance_cost_modifier
 
         super().__init__(unarmed_meat_damage, unarmed_armour_damage, unarmed_ap_cost, move_ap_cost, ap, ap_per_turn,
                          melee_accuracy, ranged_accuracy, move_success_chance, responds_to_sound,)

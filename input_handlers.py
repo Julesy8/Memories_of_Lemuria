@@ -1343,7 +1343,14 @@ class GunOptionsHandler(UserOptionsEventHandler):
             options += ["load magazine", "unload magazine"]
 
         elif type(self.gun.usable_properties) is GunIntegratedMag:
-            options += ["load rounds", "unload rounds", "load from clip"]
+            options += ["load rounds", "unload rounds"]
+
+        if self.gun.usable_properties.compatible_clip is not None:
+            if isinstance(self.gun.usable_properties, GunMagFed):
+                if self.gun.usable_properties.loaded_magazine is not None:
+                    options.append("load from clip")
+            else:
+                options.append("load from clip")
 
         for firemode in self.firemodes:
             if not firemode == self.gun.usable_properties.current_fire_mode:
@@ -1368,8 +1375,6 @@ class GunOptionsHandler(UserOptionsEventHandler):
 
         elif option == 'load from clip':
             return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
-            # TODO - fix situations like this where the function is interacting with something indirectly
-            # i.e. should take gun class as arg rather than item.
 
         elif option == 'Rename':
             return RenameItem(item=self.gun, prompt_string='New Name:', engine=self.engine)
@@ -1442,8 +1447,16 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
 
     def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
+        # gun is mag fed
+        if isinstance(self.gun.usable_properties, GunMagFed):
+            self.gun.usable_properties.\
+                load_from_clip(clip=item.usable_properties,
+                               magazine=self.gun.usable_properties.loaded_magazine.usable_properties)
 
-        self.gun.usable_properties.load_from_clip(item.usable_properties)
+        # gun has integrated magazine
+        else:
+            self.gun.usable_properties.load_from_clip(clip=item.usable_properties, magazine=self.gun.usable_properties)
+
         return MainGameEventHandler(engine=self.engine)
 
 

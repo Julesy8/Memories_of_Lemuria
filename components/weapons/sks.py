@@ -1,5 +1,5 @@
 from entity import Item
-from components.consumables import GunIntegratedMag, GunComponent
+from components.consumables import GunMagFed, GunComponent
 from components.gunparts import Parts
 import colour
 
@@ -36,7 +36,6 @@ stock_sks_tapco = Item(
     weight=1.08,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   compatible_magazine_type='AK 7.62x39',
                                    is_attachment_point_types=['Picrail Underbarrel - Long',
                                                               'Picrail Optics Mount - Long'],
                                    optic_mount_properties={'receiver_height_above_bore': 0.079},
@@ -62,7 +61,6 @@ stock_sks_dragunov = Item(
     weight=1.01,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   compatible_magazine_type='AK 7.62x39',
                                    felt_recoil=0.48,
                                    ap_distance_cost_modifier=0.69,
                                    spread_modifier=0.83,
@@ -84,7 +82,6 @@ stock_sks_fab = Item(
     weight=1.36,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   compatible_magazine_type='AK 7.62x39',
                                    is_attachment_point_types=['Picrail Underbarrel - Short',
                                                               'Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Short'],
@@ -111,7 +108,6 @@ stock_sks_sabertooth = Item(
     weight=1,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   compatible_magazine_type='AK 7.62x39',
                                    is_attachment_point_types=['Picrail Underbarrel - Long',
                                                               'Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Long'],
@@ -134,7 +130,6 @@ stock_sks_bullpup = Item(
     weight=0.93,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   compatible_magazine_type='AK 7.62x39',
                                    is_attachment_point_types=['Picrail Underbarrel - Long',
                                                               'Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Long'],
@@ -162,7 +157,7 @@ barrel_sks = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="SKS Receiver & Barrel",
-    weight=3.15,
+    weight=2.965,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Barrel',
                                    incompatibilities=(("Iron Sight",),),
@@ -170,6 +165,7 @@ barrel_sks = Item(
                                    optic_properties={'target_acquisition_ap': 1.09,
                                                      'ap_distance_cost_modifier': 0.94,
                                                      'spread_modifier': 0.95, },
+                                   compatible_magazine_type='SKS Magazine',
                                    is_optic=True,
                                    equip_time=1.1,
                                    velocity_modifier=1.024,
@@ -184,7 +180,7 @@ barrel_sks_shortened = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="SKS Receiver & Barrel - Shortened",
-    weight=2.9,
+    weight=2.715,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Barrel',
                                    incompatibilities=(("Iron Sight",),),
@@ -192,6 +188,7 @@ barrel_sks_shortened = Item(
                                    optic_properties={'target_acquisition_ap': 1.06,
                                                      'ap_distance_cost_modifier': 0.95,
                                                      'spread_modifier': 0.96, },
+                                   compatible_magazine_type='SKS Magazine',
                                    is_optic=True,
                                    equip_time=0.9,
                                    accuracy_part=True,
@@ -205,7 +202,7 @@ barrel_sks_auto = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="SKS Receiver & Barrel (Full-Auto Conversion)",
-    weight=3.15,
+    weight=2.965,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Barrel',
                                    incompatibilities=(("Iron Sight",),),
@@ -213,6 +210,7 @@ barrel_sks_auto = Item(
                                    optic_properties={'target_acquisition_ap': 1.09,
                                                      'ap_distance_cost_modifier': 0.94,
                                                      'spread_modifier': 0.95, },
+                                   compatible_magazine_type='SKS Magazine',
                                    is_optic=True,
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
                                    equip_time=1.1,
@@ -228,7 +226,7 @@ barrel_sks_shortened_auto = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="SKS Receiver & Barrel - Shortened (Full-Auto Conversion)",
-    weight=2.9,
+    weight=2.715,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Barrel',
                                    incompatibilities=(("Iron Sight",),),
@@ -236,6 +234,7 @@ barrel_sks_shortened_auto = Item(
                                    optic_properties={'target_acquisition_ap': 1.06,
                                                      'ap_distance_cost_modifier': 0.95,
                                                      'spread_modifier': 0.96, },
+                                   compatible_magazine_type='SKS Magazine',
                                    is_optic=True,
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
                                    equip_time=0.9,
@@ -245,21 +244,121 @@ barrel_sks_shortened_auto = Item(
     description="An SKS receiver with a cut down 17.5 inch SKS barrel converted to be capable of fully automatic fire"
 )
 
+barrel_sks_akmag = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS Receiver & Barrel (AK Mag Conversion)",
+    weight=2.965,
+    stacking=None,
+    usable_properties=GunComponent(part_type='SKS Barrel',
+                                   incompatibilities=(("Iron Sight",),),
+                                   compatible_parts={'SKS Internal Magazine': []},
+                                   is_attachment_point_types=['Barrel Thread 14x1', ],
+                                   optic_properties={'target_acquisition_ap': 1.09,
+                                                     'ap_distance_cost_modifier': 0.94,
+                                                     'spread_modifier': 0.95, },
+                                   compatible_magazine='AK 7.62x39',
+                                   is_optic=True,
+                                   equip_time=1.1,
+                                   velocity_modifier=1.024,
+                                   accuracy_part=True,
+                                   functional_part=True,
+                                   ),
+    description="An SKS receiver with a standard length SKS barrel. The magazine well has been converted to accept "
+                "7.62x39 Kalashnikov type magazines."
+)
+
+barrel_sks_shortened_akmag = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS Receiver & Barrel - Shortened (AK Mag Conversion)",
+    weight=2.715,
+    stacking=None,
+    usable_properties=GunComponent(part_type='SKS Barrel',
+                                   incompatibilities=(("Iron Sight",),),
+                                   compatible_parts={'SKS Internal Magazine': []},
+                                   is_attachment_point_types=['Barrel Thread 14x1', ],
+                                   optic_properties={'target_acquisition_ap': 1.06,
+                                                     'ap_distance_cost_modifier': 0.95,
+                                                     'spread_modifier': 0.96, },
+                                   compatible_magazine_type='AK 7.62x39',
+                                   is_optic=True,
+                                   equip_time=0.9,
+                                   accuracy_part=True,
+                                   functional_part=True,
+                                   ),
+    description="An SKS receiver with a cut down 17.5 inch SKS barrel. The magazine well has been converted to accept "
+                "7.62x39 Kalashnikov type magazines."
+)
+
+barrel_sks_auto_akmag = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS Receiver & Barrel (Full-Auto + AK Mag Conversion)",
+    weight=2.965,
+    stacking=None,
+    usable_properties=GunComponent(part_type='SKS Barrel',
+                                   incompatibilities=(("Iron Sight",),),
+                                   compatible_parts={'SKS Internal Magazine': []},
+                                   is_attachment_point_types=['Barrel Thread 14x1', ],
+                                   optic_properties={'target_acquisition_ap': 1.09,
+                                                     'ap_distance_cost_modifier': 0.94,
+                                                     'spread_modifier': 0.95, },
+                                   compatible_magazine_type='AK 7.62x39',
+                                   is_optic=True,
+                                   fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
+                                   equip_time=1.1,
+                                   velocity_modifier=1.024,
+                                   accuracy_part=True,
+                                   functional_part=True,
+                                   ),
+    description="An SKS receiver with a standard length SKS barrel converted to be capable of fully automatic fire. "
+                "The magazine well has been converted to accept 7.62x39 Kalashnikov type magazines."
+)
+
+barrel_sks_shortened_auto_akmag = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS Receiver & Barrel - Shortened (Full-Auto + AK Mag Conversion)",
+    weight=2.715,
+    stacking=None,
+    usable_properties=GunComponent(part_type='SKS Barrel',
+                                   incompatibilities=(("Iron Sight",),),
+                                   compatible_parts={'SKS Internal Magazine': []},
+                                   is_attachment_point_types=['Barrel Thread 14x1', ],
+                                   optic_properties={'target_acquisition_ap': 1.06,
+                                                     'ap_distance_cost_modifier': 0.95,
+                                                     'spread_modifier': 0.96, },
+                                   compatible_magazine_type='AK 7.62x39',
+                                   is_optic=True,
+                                   fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
+                                   equip_time=0.9,
+                                   accuracy_part=True,
+                                   functional_part=True,
+                                   ),
+    description="An SKS receiver with a cut down 17.5 inch SKS barrel converted to be capable of fully automatic fire. "
+                "The magazine well has been converted to accept 7.62x39 Kalashnikov type magazines."
+)
+
 """
 other
 """
 
-sks_ak_mag_adapter = Item(
+sks_integrated_mag = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    name="SKS AK Magazine Adapter",
-    weight=0.01,
+    name="SKS 10 Round Internal Magazine",
+    weight=0.185,
     stacking=None,
-    usable_properties=GunComponent(part_type='SKS Magazine Adapter',
-                                   compatible_magazine_type="AK 7.62x39",
+    usable_properties=GunComponent(part_type='SKS Internal Magazine',
+                                   mag_capacity=10,
                                    ),
-    description="Magazine adapter SKS rifles providing compatibility with 7.62x39 AK style magazines"
+    description="A standard SKS 10 round internal magazine."
 )
 
 sks_optics_mount = Item(
@@ -286,7 +385,7 @@ sks = Item(
     stacking=None,
     description='A soviet gas operated semi-automatic rifle featuring an integrated magazine introduced shortly '
                 'after WW2',
-    usable_properties=GunIntegratedMag(
+    usable_properties=GunMagFed(
         chambered_bullet=None,
         keep_round_chambered=False,
         ap_to_equip=75,
@@ -296,18 +395,18 @@ sks = Item(
         parts=Parts(),
         compatible_bullet_type='7.62x39',
         compatible_clip='SKS Clip',
-        mag_capacity=10,
         velocity_modifier=1.0,
         felt_recoil=1.0,
-        target_acquisition_ap=50, # TODO - these costs should be to some degree determined by 'skills'
-        firing_ap_cost=20,
+        target_acquisition_ap=50,
+        firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
         barrel_length=1.36,
         zero_range=25,
         receiver_height_above_bore=0.9,
         sight_height_above_bore=0.23,
-        spread_modifier=0.05
+        spread_modifier=0.05,
+        compatible_magazine_type='SKS Magazine'
     )
 )
 
@@ -320,7 +419,7 @@ sksdict = {
                     "SKS Stock": 1,
                 },
                 "compatible parts": {
-                    "SKS Magazine Adapter": 1,
+                    "SKS Internal Magazine": 1,
                     "Attachment Adapter": 1,
                     "SKS Optics Mount": 1,
                     "Underbarrel Accessory": 1,

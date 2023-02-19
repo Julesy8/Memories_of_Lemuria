@@ -1597,7 +1597,7 @@ ar15 = Item(
         receiver_height_above_bore=0,
         sight_height_above_bore=0,
         target_acquisition_ap=50,
-        firing_ap_cost=15,
+        firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         spread_modifier=0.05))
 

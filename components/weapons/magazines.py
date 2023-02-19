@@ -167,6 +167,10 @@ mosin_nagant = Item(
         mag_capacity=10,
         magazine_size='large',
         ap_to_load=500,
+        target_acquisition_ap_mod=1.03,
+        ap_distance_cost_mod=1.03,
+        spread_mod=1.02,
+        equip_ap_mod=1.06,
     )
 )
 
@@ -205,6 +209,73 @@ sks_clip = Item(
         mag_capacity=10,
         magazine_size='small',
         ap_to_load=500,
+    )
+)
+
+sks_mag_20rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS 20 Round Magazine",
+    weight=0.112,
+    stacking=None,
+    description='An aftermarket polymer duckbill magazine designed by ProMag for SKS rifles. It holds 20 rounds '
+                'and is compatible with unmodified SKS magazine wells.',
+    usable_properties=Magazine(
+        magazine_type='SKS Magazine',
+        compatible_bullet_type=['7.62x39', ],
+        mag_capacity=20,
+        magazine_size='medium',
+        ap_to_load=400,
+        target_acquisition_ap_mod=1.04,
+        ap_distance_cost_mod=1.04,
+        spread_mod=1.03,
+        equip_ap_mod=1.05,
+    )
+)
+
+sks_mag_35rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS 35 Round Magazine",
+    weight=0.23,
+    stacking=None,
+    description='An aftermarket polymer duckbill magazine designed by ProMag for SKS rifles. It holds 35 rounds '
+                'and is compatible with unmodified SKS magazine wells.',
+    usable_properties=Magazine(
+        magazine_type='SKS Magazine',
+        compatible_bullet_type=['7.62x39', ],
+        mag_capacity=20,
+        magazine_size='medium',
+        ap_to_load=500,
+        target_acquisition_ap_mod=1.05,
+        ap_distance_cost_mod=1.05,
+        spread_mod=1.04,
+        equip_ap_mod=1.06,
+    )
+)
+
+sks_mag_75rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SKS 75 Round Drum Magazine",
+    weight=1.043,
+    stacking=None,
+    description='An aftermarket 75 round capacity steel drum magazine for the SKS in the style of an Kalashnikov drum '
+                'magazine. It is compatible with unmodified SKS magazine wells.',
+    usable_properties=Magazine(
+        magazine_type='SKS Magazine',
+        compatible_bullet_type=['7.62x39', ],
+        mag_capacity=75,
+        magazine_size='large',
+        ap_to_load=600,
+        target_acquisition_ap_mod=1.11,
+        ap_distance_cost_mod=1.12,
+        spread_mod=1.09,
+        equip_ap_mod=1.15,
+        failure_chance=3,
     )
 )
 

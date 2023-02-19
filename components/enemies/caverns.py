@@ -2,7 +2,7 @@ from components.npc_templates import Fighter, GunFighter
 from entity import AIActor
 from components.commonitems import pda
 from components.ai import HostileEnemy, HostileAnimal, HostileEnemyArmed
-from components.weapons.gun_maker import glock17_normal
+from components.weapons.gun_maker import g_17
 from components.bodyparts import Arm, Leg, Head, Body
 from components.inventory import Inventory
 import colour
@@ -181,8 +181,7 @@ outlaw = AIActor(
     inventory=Inventory(capacity=0),
     fears_death=True,
     item_drops={None: 500, pda: 100, },
-    weapons={glock17_normal: 5, },
-    # weapons={'mosin_gun': 10, 'glock17_stock': 5, 'sks_gun': 5},
+    weapons={g_17: 5, },
     spawn_group_amount=1,
     description="Many criminals and deviants have retreated into the depths in hopes of evading the detection by the"
                 "tyrannical surface world forces. Often carrying knives and pistols, they won't hesitate to "

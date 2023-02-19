@@ -58,6 +58,7 @@ mac1045_upper = Item(
                                                                     "M10/45 Carbine Barrel"],
                                                      'M10 Optics Mount': ['M10 Picatinny Optics Mount', ]},
                                    fire_modes={'automatic': {'fire rate': 1000, 'automatic': True}},
+                                   compatible_magazine_type='M10/45',
                                    additional_required_parts=('M10 Barrel',),
                                    suffix="M10/45",
                                    sight_height_above_bore=0.5,
@@ -90,6 +91,7 @@ mac1045_upper_tactical = Item(
                                    fire_modes={'automatic': {'fire rate': 1000, 'automatic': True}},
                                    additional_required_parts=('M10 Barrel',),
                                    suffix="M10/45 Side Cocking",
+                                   compatible_magazine_type='M10/45',
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
                                        'spread_modifier': 0.94,
@@ -118,6 +120,7 @@ mac1045_upper_max = Item(
                                    compatible_parts={'M10 Barrel': ['MAX-10/45 Barrel', ]},
                                    additional_required_parts=('Optic', 'M10 Barrel'),
                                    suffix='M10 (MAX-10/45 mk2 Conversion)',
+                                   compatible_magazine_type='M10/45',
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
                                        'spread_modifier': 0.91,
@@ -148,6 +151,7 @@ mac109_upper = Item(
                                                      'M10 Optics Mount': ['M10 Picatinny Optics Mount', ]
                                                      },
                                    additional_required_parts=('M10 Barrel',),
+                                   compatible_magazine_type='M10/9',
                                    sight_height_above_bore=0.5,
                                    optic_mount_properties={'receiver_height_above_bore': 1.15},
                                    optic_properties={'target_acquisition_ap': 1.05,
@@ -178,6 +182,7 @@ mac109_upper_tactical = Item(
                                    compatible_parts={'M10 Barrel': ['M10/9 Barrel', "MAX-10/9 Barrel",
                                                                     "M10/9 Carbine Barrel"]},
                                    additional_required_parts=('M10 Barrel',),
+                                   compatible_magazine_type='M10/9',
                                    suffix='M10/9 Side Cocking',
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
@@ -206,6 +211,7 @@ mac109_upper_max = Item(
                                                               'Picrail Underbarrel - Short'],
                                    compatible_parts={'M10 Barrel': ['MAX-10/9 Barrel', ]},
                                    additional_required_parts=('Optic', 'M10 Barrel'),
+                                   compatible_magazine_type='M10/9',
                                    suffix='M10 (MAX-10/9 mk2 Conversion)',
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
@@ -386,7 +392,8 @@ mac1045_max_barrel = Item(
     weight=0.13,
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Barrel',
-                                   is_attachment_point_types=['Barrel Thread .578x28', ],
+                                   is_attachment_point_types=['Barrel Thread .578x28', ],  # TODO - add more
+                                   # attachments compatible with this barrel thread
                                    velocity_modifier=1.07,
                                    barrel_length=0.75,
                                    target_acquisition_ap=1.04,
@@ -866,7 +873,7 @@ mac10 = Item(
         current_fire_mode='single shot',
         parts=Parts(),
         compatible_bullet_type='',
-        firing_ap_cost=23,
+        firing_ap_cost=50,
         velocity_modifier=1.0,
         felt_recoil=1.13,
         ap_distance_cost_modifier=1.0,

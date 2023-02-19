@@ -278,7 +278,7 @@ mosin_nagant = Item(
         velocity_modifier=1.0,
         felt_recoil=1.0,
         target_acquisition_ap=50,
-        firing_ap_cost=25,
+        firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
         barrel_length=1.36,
@@ -298,6 +298,7 @@ mosindict = {
                     "Mosin-Nagant Barrel": 1,
                 },
                 "compatible parts": {
+                    "Attachment Adapter": 1,
                     "Mosin-Nagant Accessory Mount": 1,
                     "Muzzle Device": 1,
                     "Optic": 1,

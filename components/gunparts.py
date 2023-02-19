@@ -81,6 +81,7 @@ class Parts:
                                                    firing_ap_cost=self.parent.firing_ap_cost,
                                                    condition_accuracy=self.parent.condition_accuracy,
                                                    condition_function=self.parent.condition_function,
+                                                   compatible_clip=self.parent.compatible_clip
                                                    )
 
                     self.parent.parent = item
@@ -112,6 +113,7 @@ class Parts:
                                             firing_ap_cost=self.parent.firing_ap_cost,
                                             condition_accuracy=self.parent.condition_accuracy,
                                             condition_function=self.parent.condition_function,
+                                            compatible_clip=self.parent.compatible_clip
                                             )
 
                     self.parent.parent = item

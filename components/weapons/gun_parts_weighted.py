@@ -358,7 +358,10 @@ sks_part_dict = {
     sks.barrel_sks_shortened: 40,
     sks.barrel_sks_auto: 30,
     sks.barrel_sks_shortened_auto: 20,
+    sks.barrel_sks_akmag: 60,
+    sks.barrel_sks_shortened_akmag: 40,
+    sks.barrel_sks_auto_akmag: 30,
+    sks.barrel_sks_shortened_auto_akmag: 20,
 
-    sks.sks_ak_mag_adapter: 15,
     sks.sks_optics_mount: 20,
 }

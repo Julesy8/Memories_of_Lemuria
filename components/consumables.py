@@ -370,6 +370,7 @@ class Gun(Weapon):
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
+                 compatible_clip: str = None,
                  chambered_bullet: Optional[Item] = None,
                  ):
 
@@ -409,6 +410,7 @@ class Gun(Weapon):
         self.ap_distance_cost_modifier = ap_distance_cost_modifier
         self.condition_accuracy = condition_accuracy
         self.condition_function = condition_function
+        self.compatible_clip = compatible_clip
         self.jammed = False
 
         self.manual_action = manual_action
@@ -592,7 +594,8 @@ class Gun(Weapon):
                     # recoil spread (MoA / 100) based assuming M4 recoil spread is 1 MoA with stock, handguard,
                     # and pistol grip reducing felt recoil by 70% shooting 55gr bullets.
                     # arbitrary but almost impossible to calculate actual muzzle rise for all guns and conifgurations
-                    recoil_spread = (velocity_gun / self.time_in_barrel) * self.felt_recoil * 4.572e-5
+                    recoil_spread = (velocity_gun / self.time_in_barrel) * self.felt_recoil * attacker.fighter.\
+                        felt_recoil * 4.572e-5
 
                     recoil_spread_list.append(recoil_spread)
 
@@ -655,6 +658,36 @@ class Gun(Weapon):
 
                     self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
                                                         colour.WHITE)
+
+    def load_from_clip(self, clip: Magazine, magazine: Magazine):
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory) and len(clip.magazine) > 0:
+
+            if len(clip.magazine) <= magazine.mag_capacity - len(magazine.magazine):
+                actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
+                magazine.magazine += clip.magazine
+                clip.magazine = []
+                self.chambered_bullet = magazine.magazine.pop()
+
+                if inventory.parent == self.engine.player:
+
+                    reload_ap = \
+                        clip.ap_to_load * \
+                        self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
+
+                    if reload_ap >= 100:
+                        for i in range(round(reload_ap / 100)):
+                            self.engine.handle_enemy_turns()
+                        inventory.parent.fighter.ap -= reload_ap % 100
+                    else:
+                        inventory.parent.fighter.ap -= reload_ap
+
+        else:
+            self.engine.message_log.add_message(f"Cannot load from stripper clip: too many rounds in magazine",
+                                                colour.RED)
 
     def chamber_round(self):
         return NotImplementedError
@@ -761,6 +794,7 @@ class GunMagFed(Gun):
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,
                  loaded_magazine: Optional[Item] = None,
+                 compatible_clip: str = None
                  ):
 
         self.compatible_magazine_type = compatible_magazine_type
@@ -795,6 +829,7 @@ class GunMagFed(Gun):
             condition_function=condition_function,
             manual_action=manual_action,
             action_cycle_ap_cost=action_cycle_ap_cost,
+            compatible_clip=compatible_clip
         )
 
     def load_gun(self, magazine: Item):
@@ -816,7 +851,6 @@ class GunMagFed(Gun):
             else:
                 self.loaded_magazine = deepcopy(magazine)
 
-            # TODO - move handling of AP to reload action
             if inventory.parent == self.engine.player:
                 inventory.items.remove(magazine)
 
@@ -915,8 +949,6 @@ class GunIntegratedMag(Gun, Magazine):
         # magazine = list[item]
         self.magazine = []
 
-        self.compatible_clip = compatible_clip
-
         self.previously_loaded_round = chambered_bullet
 
         super().__init__(
@@ -945,42 +977,13 @@ class GunIntegratedMag(Gun, Magazine):
             condition_function=condition_function,
             manual_action=manual_action,
             action_cycle_ap_cost=action_cycle_ap_cost,
+            compatible_clip=compatible_clip
         )
 
     def chamber_round(self):
 
         if len(self.magazine) > 0:
             self.chambered_bullet = self.magazine.pop()
-
-    def load_from_clip(self, clip: Magazine):
-
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory) and len(clip.magazine) > 0:
-
-            if len(clip.magazine) <= self.mag_capacity - len(self.magazine):
-                actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
-                self.magazine += clip.magazine
-                clip.magazine = []
-                self.chambered_bullet = self.magazine.pop()
-
-                if inventory.parent == self.engine.player:
-
-                    reload_ap = \
-                        clip.ap_to_load * \
-                        self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
-
-                    if reload_ap >= 100:
-                        for i in range(round(reload_ap / 100)):
-                            self.engine.handle_enemy_turns()
-                        inventory.parent.fighter.ap -= reload_ap % 100
-                    else:
-                        inventory.parent.fighter.ap -= reload_ap
-
-        else:
-            self.engine.message_log.add_message(f"Cannot load from stripper clip: too many rounds in magazine",
-                                                colour.RED)
 
 
 class ComponentPart(Usable):

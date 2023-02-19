@@ -222,8 +222,8 @@ class WeaponAttackAction(AttackAction):
 
             gun = self.item.usable_properties
 
-            target_acquisition_ap = gun.target_acquisition_ap
-            ap_distance_cost_modifier = gun.ap_distance_cost_modifier
+            target_acquisition_ap = gun.target_acquisition_ap * self.entity.fighter.target_acquisition_ap
+            ap_distance_cost_modifier = gun.ap_distance_cost_modifier * self.entity.fighter.ap_distance_cost_modifier
 
             # alters attributes according to magazine properties
             if weapon_type == 'GunMagFed':
@@ -234,7 +234,7 @@ class WeaponAttackAction(AttackAction):
                                                          'ap_distance_cost_mod')
 
             # adds cost of firing (pulling trigger)
-            ap_cost += gun.firing_ap_cost
+            ap_cost += gun.firing_ap_cost * self.entity.fighter.firing_ap_cost
 
             # ap cost for the given distance to the target
             ap_cost += ap_distance_cost_modifier * self.distance
