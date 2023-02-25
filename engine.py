@@ -77,12 +77,12 @@ class Engine:
 
         # head
         render_part(console=console, x=2, y=console.height - 4, character="O",
-                    current_value=self.player.bodyparts[0].hp,
-                    maximum_value=self.player.bodyparts[0].max_hp)
-        # body upper
-        render_part(console=console, x=2, y=console.height - 3, character="┼",
                     current_value=self.player.bodyparts[1].hp,
                     maximum_value=self.player.bodyparts[1].max_hp)
+        # body upper
+        render_part(console=console, x=2, y=console.height - 3, character="┼",
+                    current_value=self.player.bodyparts[0].hp,
+                    maximum_value=self.player.bodyparts[0].max_hp)
         # right arm
         render_part(console=console, x=1, y=console.height - 3, character="─",
                     current_value=self.player.bodyparts[2].hp,

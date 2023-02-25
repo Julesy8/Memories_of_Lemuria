@@ -4,7 +4,7 @@ import random
 from typing import Optional, Tuple, TYPE_CHECKING
 from math import ceil
 from random import randint
-from copy import deepcopy
+from copy import deepcopy, copy
 import numpy.random
 
 import colour
@@ -217,6 +217,9 @@ class WeaponAttackAction(AttackAction):
 
         ap_cost = 0
 
+        proficiency = 1.0
+        marksmanship = 1.0
+
         # AP cost calculations
         if weapon_type == 'GunMagFed' or weapon_type == 'GunIntegratedMag':
 
@@ -225,40 +228,80 @@ class WeaponAttackAction(AttackAction):
             target_acquisition_ap = gun.target_acquisition_ap * self.entity.fighter.target_acquisition_ap
             ap_distance_cost_modifier = gun.ap_distance_cost_modifier * self.entity.fighter.ap_distance_cost_modifier
 
+            total_weight = self.item.weight
+
+            rounds_in_mag = 0
+
+            # gives XP and calculates proficiency multiplier based on gun type
+            if self.entity.player:
+                if self.item.usable_properties.gun_type == 'pistol':
+                    proficiency = copy(fighter.skill_pistol_proficiency)
+                    fighter.skill_pistol_proficiency += 1
+                elif self.item.usable_properties.gun_type == 'pdw':
+                    proficiency = copy(fighter.skill_smg_proficiency)
+                    fighter.skill_smg_proficiency += 1
+                elif self.item.usable_properties.gun_type == 'rifle':
+                    proficiency = copy(fighter.skill_rifle_proficiency)
+                    fighter.skill_rifle_proficiency += 1
+                elif self.item.usable_properties.gun_type == 'bolt action':
+                    proficiency = copy(fighter.skill_bolt_action_proficiency)
+                    fighter.skill_bolt_action_proficiency += 1
+
+                proficiency = 1 - (proficiency / 4000)
+
+                if self.distance > 15:
+                    marksmanship = fighter.skill_marksmanship
+                    fighter.skill_marksmanship += ((self.distance - 15) // 10) + 1
+
             # alters attributes according to magazine properties
             if weapon_type == 'GunMagFed':
                 if hasattr(self.item.usable_properties, 'loaded_magazine'):
+
+                    rounds_in_mag = len(gun.loaded_magazine.usable_properties.magazine)
+                    magazine = gun.loaded_magazine.usable_properties.magazine
+
                     target_acquisition_ap *= getattr(self.item.usable_properties.loaded_magazine.usable_properties,
                                                      'target_acquisition_ap_mod')
                     ap_distance_cost_modifier *= getattr(self.item.usable_properties.loaded_magazine.usable_properties,
                                                          'ap_distance_cost_mod')
 
+                    # adds weight of magazine to total weight
+                    total_weight += self.item.usable_properties.loaded_magazine.weight
+
+            elif weapon_type == 'GunIntegratedMag':
+                rounds_in_mag = len(gun.magazine)
+                magazine = gun.magazine
+
+            # adds weight of rounds in magazine to total weight
+            if rounds_in_mag >= 1:
+                total_weight += (len(magazine) * magazine[0].weight)
+
+            # calculates AP modifier based on weight and weapon type
+            if gun.gun_type == 'pistol':
+                weight_handling_modifier = 0.4 + 0.6 * total_weight
+
+            else:
+                weight_handling_modifier = 0.5 + 0.5 * (total_weight/4)
+
             # adds cost of firing (pulling trigger)
-            ap_cost += gun.firing_ap_cost * self.entity.fighter.firing_ap_cost
+            ap_cost += gun.firing_ap_cost * self.entity.fighter.firing_ap_cost * proficiency
 
             # ap cost for the given distance to the target
-            ap_cost += ap_distance_cost_modifier * self.distance
+            ap_cost += ap_distance_cost_modifier * self.distance * proficiency * marksmanship * weight_handling_modifier
 
             # if previous actor is different from the current target, adds cost of acquiring new target
             if self.entity.fighter.previous_target_actor == self.entity.fighter.target_actor:
-                ap_cost += target_acquisition_ap
+                ap_cost += target_acquisition_ap * proficiency * weight_handling_modifier
+
+            # adds AP cost of manually cycling action e.g. for bolt action
+            if gun.manual_action:
+                if rounds_in_mag >= 1:
+                    ap_cost += gun.action_cycle_ap_cost * proficiency
 
             # AP cost for the duration of fully automatic fire
             if gun.fire_modes[gun.current_fire_mode]['automatic']:
                 rounds_to_fire = round(gun.fire_modes[gun.current_fire_mode]['fire rate'] / 60
                                        * gun.fire_rate_modifier * fighter.automatic_fire_duration)
-
-                rounds_in_mag = 0
-
-                # determines rounds remaining in magazine
-                if weapon_type == 'GunMagFed':
-                    rounds_in_mag = len(gun.loaded_magazine.magazine)
-                elif weapon_type == 'GunIntegratedMag':
-                    rounds_in_mag = len(gun.magazine)
-
-                if gun.manual_action:
-                    if rounds_in_mag >= 1:
-                        ap_cost += gun.action_cycle_ap_cost
 
                 # if less rounds in magazine than rounds fired in the given duration of automatic fire, AP cost of
                 # firing adjusted to amount of time it takes to fire remaining rounds in magazine
@@ -292,7 +335,8 @@ class WeaponAttackAction(AttackAction):
 
                 self.item.usable_properties.attack_ranged(target=self.targeted_actor, attacker=self.entity,
                                                           part_index=self.part_index, hit_location_x=hit_location_x,
-                                                          hit_location_y=hit_location_y, distance=self.distance)
+                                                          hit_location_y=hit_location_y, distance=self.distance,
+                                                          proficiency=proficiency, skill_range_modifier=marksmanship)
 
             # melee
             else:
@@ -351,13 +395,30 @@ class WeaponAttackAction(AttackAction):
 
 class ClearJam(Action):
 
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Actor, gun: Item):
+        self.gun = gun
         super().__init__(entity)
 
     def perform(self):
 
+        proficiency = 1.0
+
+        self.gun.usable_properties.jammed = False
+
+        if self.entity.player:
+            if self.gun.usable_properties.gun_type == 'pistol':
+                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
+            elif self.gun.usable_properties.gun_type == 'pdw':
+                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
+            elif self.gun.usable_properties.gun_type == 'rifle':
+                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
+            elif self.gun.usable_properties.gun_type == 'bolt action':
+                proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
+
+            proficiency = 1 - (proficiency / 4000)
+
         # jam takes between 2 and 5 seconds to clear
-        jam_ap = randint(2, 5) * 100 * self.entity.fighter.action_ap_modifier
+        jam_ap = randint(2, 5) * 100 * self.entity.fighter.action_ap_modifier * proficiency
 
         # skips player turns while clearing jam
         # if self.entity.player:
@@ -388,6 +449,20 @@ class ReloadAction(Action):
     def perform(self) -> None:
 
         ap_cost = 0
+
+        proficiency = 1.0
+
+        if self.entity.player:
+            if self.gun.usable_properties.gun_type == 'pistol':
+                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
+            elif self.gun.usable_properties.gun_type == 'pdw':
+                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
+            elif self.gun.usable_properties.gun_type == 'rifle':
+                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
+            elif self.gun.usable_properties.gun_type == 'bolt action':
+                proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
+
+            proficiency = 1 - (proficiency / 4000)
 
         if self.gun.usable_properties.manual_action:
             ap_cost += self.gun.usable_properties.action_cycle_ap_cost
@@ -426,7 +501,7 @@ class ReloadAction(Action):
             # entity attack inactive and fleeing for given reload period
             ap_cost += round(self.gun.usable_properties.mag_capacity *
                              self.entity.fighter.action_ap_modifier *
-                             ammo.usable_properties.load_time_modifier)
+                             ammo.usable_properties.load_time_modifier * proficiency)
 
             turns_cost = round(ap_cost / 100)
 

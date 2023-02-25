@@ -1181,7 +1181,7 @@ class ChangeTargetActor(AskUserEventHandler):
             if self.item is not None:
                 if isinstance(self.item.usable_properties, Gun):
                     if self.item.usable_properties.jammed:
-                        return actions.ClearJam(entity=player).perform()
+                        return actions.ClearJam(entity=player, gun=self.item).perform()
 
             if player.fighter.target_actor:
 
@@ -1380,8 +1380,7 @@ class GunOptionsHandler(UserOptionsEventHandler):
             return RenameItem(item=self.gun, prompt_string='New Name:', engine=self.engine)
 
         elif option == 'clear jam':
-            self.gun.usable_properties.jammed = False
-            return actions.ClearJam(entity=self.engine.player).perform()
+            return actions.ClearJam(entity=self.engine.player, gun=self.gun).perform()
 
         elif option in self.firemodes:
             self.gun.usable_properties.current_fire_mode = option
@@ -1693,7 +1692,7 @@ class CraftGun(CraftItem):
                         if hasattr(item.usable_properties, 'tags'):
                             tags.extend(getattr(item.usable_properties, 'tags'))
 
-                        # TODO - commented out the old line because I think it is broken
+                        # commented out below line - appears depricated
                         #for tag in getattr(item.usable_properties, 'tags'):
                         for tag in tags:
                             if tag in self.compatible_parts[self.parts[self.current_part_selection]]:
@@ -2029,6 +2028,8 @@ class InspectItemViewer(AskUserEventHandler):
 
             # weapon
             "-- AP to Equip --": ('ap_to_equip', round(getattr(self.item.usable_properties, 'ap_to_equip', 1), 3)),
+
+            "-- Gun Type --": ('gun_type', getattr(self.item.usable_properties, 'gun_type', 1)),
 
             # melee weapon
             "-- Damage --": ('base_meat_damage', getattr(self.item.usable_properties, 'base_meat_damage', 1)),

@@ -39,7 +39,6 @@ glock_mag_9mm_33 = Item(
         ap_to_load=330,
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.02,
-        spread_mod=1.03,
         equip_ap_mod=1.06,
     )
 )
@@ -60,7 +59,6 @@ glock_mag_9mm_50 = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.13,
         ap_distance_cost_mod=1.15,
-        spread_mod=1.09,
         equip_ap_mod=1.18,
         failure_chance=2,
     )
@@ -82,7 +80,6 @@ glock_mag_9mm_100 = Item(
         ap_to_load=700,
         target_acquisition_ap_mod=1.21,
         ap_distance_cost_mod=1.23,
-        spread_mod=1.16,
         equip_ap_mod=1.25,
         failure_chance=3,
     )
@@ -126,7 +123,6 @@ mac10_mag_45_extended = Item(
         ap_to_load=300,
         target_acquisition_ap_mod=1.05,
         ap_distance_cost_mod=1.05,
-        spread_mod=1.03,
         equip_ap_mod=1.05,
     )
 )
@@ -169,7 +165,6 @@ mosin_nagant = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.03,
-        spread_mod=1.02,
         equip_ap_mod=1.06,
     )
 )
@@ -229,7 +224,6 @@ sks_mag_20rd = Item(
         ap_to_load=400,
         target_acquisition_ap_mod=1.04,
         ap_distance_cost_mod=1.04,
-        spread_mod=1.03,
         equip_ap_mod=1.05,
     )
 )
@@ -251,7 +245,6 @@ sks_mag_35rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.05,
         ap_distance_cost_mod=1.05,
-        spread_mod=1.04,
         equip_ap_mod=1.06,
     )
 )
@@ -273,7 +266,6 @@ sks_mag_75rd = Item(
         ap_to_load=600,
         target_acquisition_ap_mod=1.11,
         ap_distance_cost_mod=1.12,
-        spread_mod=1.09,
         equip_ap_mod=1.15,
         failure_chance=3,
     )
@@ -317,7 +309,6 @@ ak762_40rd = Item(
         ap_to_load=300,
         target_acquisition_ap_mod=1.04,
         ap_distance_cost_mod=1.03,
-        spread_mod=1.02,
         equip_ap_mod=1.05,
     )
 )
@@ -338,7 +329,6 @@ ak762_60rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.07,
         ap_distance_cost_mod=1.08,
-        spread_mod=1.05,
         equip_ap_mod=1.06,
         failure_chance=2,
     )
@@ -360,7 +350,6 @@ ak762_75rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.11,
         ap_distance_cost_mod=1.12,
-        spread_mod=1.09,
         equip_ap_mod=1.15,
         failure_chance=3,
     )
@@ -382,7 +371,6 @@ ak762_100rd = Item(
         ap_to_load=700,
         target_acquisition_ap_mod=1.2,
         ap_distance_cost_mod=1.22,
-        spread_mod=1.16,
         equip_ap_mod=1.25,
         failure_chance=3,
     )
@@ -425,7 +413,6 @@ ak545_45rd = Item(
         ap_to_load=300,
         target_acquisition_ap_mod=1.05,
         ap_distance_cost_mod=1.04,
-        spread_mod=1.03,
         equip_ap_mod=1.07,
     )
 )
@@ -446,7 +433,6 @@ ak545_60rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.06,
         ap_distance_cost_mod=1.06,
-        spread_mod=1.05,
         equip_ap_mod=1.05,
         failure_chance=2,
     )
@@ -468,7 +454,6 @@ ak545_100rd = Item(
         ap_to_load=700,
         target_acquisition_ap_mod=1.19,
         ap_distance_cost_mod=1.2,
-        spread_mod=1.15,
         equip_ap_mod=1.25,
         failure_chance=3,
     )
@@ -532,7 +517,6 @@ stanag_40rd = Item(
         ap_to_load=300,
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.02,
-        spread_mod=1.02,
         equip_ap_mod=1.04,
     )
 )
@@ -553,7 +537,6 @@ stanag_50rd = Item(
         ap_to_load=400,
         target_acquisition_ap_mod=1.06,
         ap_distance_cost_mod=1.06,
-        spread_mod=1.05,
         equip_ap_mod=1.09,
         failure_chance=1,
     )
@@ -575,7 +558,6 @@ stanag_60rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.07,
         ap_distance_cost_mod=1.07,
-        spread_mod=1.04,
         equip_ap_mod=1.07,
         failure_chance=2,
     )
@@ -597,7 +579,6 @@ stanag_100rd = Item(
         ap_to_load=600,
         target_acquisition_ap_mod=1.18,
         ap_distance_cost_mod=1.18,
-        spread_mod=1.13,
         equip_ap_mod=1.25,
         failure_chance=3,
     )
@@ -640,7 +621,6 @@ ar10_25rd = Item(
         ap_to_load=300,
         target_acquisition_ap_mod=1.02,
         ap_distance_cost_mod=1.01,
-        spread_mod=1.01,
         equip_ap_mod=1.02,
     )
 )
@@ -661,7 +641,6 @@ ar10_40rd = Item(
         ap_to_load=400,
         target_acquisition_ap_mod=1.05,
         ap_distance_cost_mod=1.04,
-        spread_mod=1.04,
         equip_ap_mod=1.06,
         failure_chance=1,
     )
@@ -683,7 +662,6 @@ ar10_50rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.07,
         ap_distance_cost_mod=1.06,
-        spread_mod=1.06,
         equip_ap_mod=1.12,
         failure_chance=2,
     )
@@ -709,7 +687,6 @@ calico_9mm_50rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.13,
         ap_distance_cost_mod=1.17,
-        spread_mod=1.09,
         equip_ap_mod=1.14,
         failure_chance=1,
     )
@@ -731,7 +708,6 @@ calico_9mm_100rd = Item(
         ap_to_load=700,
         target_acquisition_ap_mod=1.23,
         ap_distance_cost_mod=1.25,
-        spread_mod=1.16,
         equip_ap_mod=1.3,
         failure_chance=1,
     )
@@ -757,7 +733,6 @@ m31_9mm_36rd = Item(
         ap_to_load=300,
         target_acquisition_ap_mod=1.02,
         ap_distance_cost_mod=1.03,
-        spread_mod=1.01,
         equip_ap_mod=1.03,
     )
 )
@@ -778,7 +753,6 @@ m31_9mm_71rd = Item(
         ap_to_load=500,
         target_acquisition_ap_mod=1.16,
         ap_distance_cost_mod=1.18,
-        spread_mod=1.13,
         equip_ap_mod=1.22,
         failure_chance=2,
     )

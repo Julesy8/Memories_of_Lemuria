@@ -132,9 +132,8 @@ ar_barrel_standard_556 = Item(
                                                                       ]},
                                    tags=['full length barrel', ],
                                    velocity_modifier=1.082,
-                                   barrel_length=1.66,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
                                    ),
     description='A 20" standard length AR 5.56x45 barrel with a rifle length gas system'
 )
@@ -163,7 +162,6 @@ ar_barrel_standard_556_midlen = Item(
                                                                       ]},
                                    tags=['full length barrel', ],
                                    velocity_modifier=1.082,
-                                   barrel_length=1.66,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
                                    functional_part=True,
@@ -201,7 +199,6 @@ ar_barrel_carbine_556 = Item(
                                    tags=['carbine barrel', ],
                                    sound_radius=1.1,
                                    velocity_modifier=1.051,
-                                   barrel_length=1.33,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    fire_rate_modifier=1.054,
@@ -241,7 +238,6 @@ ar_barrel_carbine_556_carblen = Item(
                                    tags=['carbine barrel', ],
                                    sound_radius=1.1,
                                    velocity_modifier=1.051,
-                                   barrel_length=1.33,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    fire_rate_modifier=1.235,
@@ -274,12 +270,12 @@ ar_barrel_pistol_556 = Item(
                                    equip_time=0.78,
                                    sound_radius=1.4,
                                    velocity_modifier=0.89,
-                                   barrel_length=0.83,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel with a carbine length gas system'
 )
@@ -306,12 +302,12 @@ ar_barrel_pistol_556_pistollen = Item(
                                    equip_time=0.78,
                                    sound_radius=1.4,
                                    velocity_modifier=0.89,
-                                   barrel_length=0.83,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='A 10" pistol length AR 5.56x45 barrel with a pistol length gas system'
 )
@@ -344,7 +340,6 @@ ar_barrel_carbine_300 = Item(
                                                                       ]},
                                    tags=['carbine barrel', ],
                                    sound_radius=1.1,
-                                   barrel_length=1.33,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    fire_rate_modifier=1.054,
@@ -382,7 +377,6 @@ ar_barrel_carbine_300_carbinelen = Item(
                                                                       ]},
                                    tags=['carbine barrel', ],
                                    sound_radius=1.1,
-                                   barrel_length=1.33,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    fire_rate_modifier=1.235,
@@ -415,12 +409,12 @@ ar_barrel_pistol_300 = Item(
                                    equip_time=0.78,
                                    sound_radius=1.1,
                                    velocity_modifier=0.91,
-                                   barrel_length=0.83,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='A 10" pistol length AR .300 Blackout barrel with a carbine length gas system'
 )
@@ -447,12 +441,12 @@ ar_barrel_pistol_300_pistollen = Item(
                                    equip_time=0.78,
                                    sound_radius=1.1,
                                    velocity_modifier=0.91,
-                                   barrel_length=0.83,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='A 10" pistol length AR .300 Blackout barrel with a pistol length gas system'
 )
@@ -483,7 +477,6 @@ ar_barrel_standard_308 = Item(
                                    equip_time=1.1,
                                    sound_radius=1.15,
                                    velocity_modifier=0.96,
-                                   barrel_length=1.66,
                                    functional_part=True,
                                    accuracy_part=True
                                    ),
@@ -514,7 +507,6 @@ ar_barrel_standard_308_midlen = Item(
                                    equip_time=1.1,
                                    sound_radius=1.15,
                                    velocity_modifier=0.96,
-                                   barrel_length=1.66,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
                                    functional_part=True,
@@ -548,7 +540,6 @@ ar_barrel_carbine_308_midlen = Item(
                                    sound_radius=1.2,
                                    equip_time=0.9,
                                    velocity_modifier=0.92,
-                                   barrel_length=1.33,
                                    target_acquisition_ap=0.96,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
@@ -583,7 +574,6 @@ ar_barrel_carbine_308_carblen = Item(
                                    sound_radius=1.2,
                                    equip_time=0.9,
                                    velocity_modifier=0.92,
-                                   barrel_length=1.33,
                                    target_acquisition_ap=0.96,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
@@ -613,7 +603,6 @@ ar_barrel_pistol_308_carblen = Item(
                                    equip_time=0.78,
                                    sound_radius=1.4,
                                    velocity_modifier=0.88,
-                                   barrel_length=0.83,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
@@ -643,12 +632,12 @@ ar_barrel_pistol_308_pistollen = Item(
                                    equip_time=0.78,
                                    sound_radius=1.4,
                                    velocity_modifier=0.88,
-                                   barrel_length=0.83,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='A 10" pistol length AR 7.62x51 barrel with a pistol length gas system'
 )
@@ -670,6 +659,7 @@ ar_stock_m16a2 = Item(
                                    spread_modifier=0.86,
                                    equip_time=1.2,
                                    target_acquisition_ap=0.75,
+                                   has_stock=True,
                                    ),
     description='M16A2 style fixed rifle stock'
 )
@@ -687,6 +677,7 @@ ar_stock_moe = Item(
                                    spread_modifier=0.9,
                                    equip_time=1.08,
                                    target_acquisition_ap=0.7,
+                                   has_stock=True,
                                    ),
     description='A light weight collapsing stock carbine by Magpul'
 )
@@ -704,6 +695,7 @@ ar_stock_ubr = Item(
                                    ap_distance_cost_modifier=0.71,
                                    spread_modifier=0.84,
                                    target_acquisition_ap=0.76,
+                                   has_stock=True,
                                    ),
     description='A sturdy adjustable stock designed to provide similar support to a fixed stock'
 )
@@ -721,6 +713,7 @@ ar_stock_danieldefense = Item(
                                    spread_modifier=0.89,
                                    equip_time=1.1,
                                    target_acquisition_ap=0.73,
+                                   has_stock=True,
                                    ),
     description='A collapsing stock by Daniel Defense, light weight and providing a solid cheek rest'
 )
@@ -738,6 +731,7 @@ ar_stock_prs = Item(
                                    spread_modifier=0.81,
                                    equip_time=1.22,
                                    target_acquisition_ap=0.79,
+                                   has_stock=True,
                                    ),
     description='A precision stock for AR rifles featuring an adjustable cheek rest and butstock'
 )
@@ -755,6 +749,7 @@ ar_stock_maxim_cqb = Item(
                                    spread_modifier=0.93,
                                    target_acquisition_ap=0.68,
                                    equip_time=1.03,
+                                   has_stock=True,
                                    ),
     description='A compact, PDW-style adjustable stock for AR rifles by Maxim Defense. As the name suggests, ideal for '
                 'close quarters gunfighting'
@@ -1592,14 +1587,15 @@ ar15 = Item(
         velocity_modifier=1.0,
         felt_recoil=1.0,
         sound_modifier=1.0,
-        barrel_length=1.33,
         zero_range=25,
         receiver_height_above_bore=0,
         sight_height_above_bore=0,
         target_acquisition_ap=50,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=0.05))
+        spread_modifier=0.05,
+        gun_type='rifle'
+    ))
 
 ardict = {
     "guns": {

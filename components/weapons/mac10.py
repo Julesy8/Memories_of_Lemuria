@@ -128,6 +128,7 @@ mac1045_upper_max = Item(
                                        'target_acquisition_ap': 0.82,
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
+                                   gun_type='pdw',
                                    ),
     description='MAX-10 upper receiver for the M10/45 by Lage Manufacturing. Unlike the original upper receiver, '
                 'it is side charging rather than top charging and features picatinny rails for mounting of '
@@ -220,6 +221,7 @@ mac109_upper_max = Item(
                                        'target_acquisition_ap': 0.82,
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
+                                   gun_type='pdw',
                                    ),
     description='MAX-10 upper receiver for the M10/9 by Lage Manufacturing. Unlike the original upper receiver, '
                 'it is side charging rather than top charging and features picatinny rails for mounting of '
@@ -286,6 +288,7 @@ mac109_upper_max31 = Item(
                                        'target_acquisition_ap': 0.81,
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
+                                   gun_type='pdw',
                                    ),
     description='Upper receiver for the M10/9 by Lage Manufacturing. Featuring compatibility with Suomi M31 '
                 'magazines and decreased rate of fire at 600 RPM. Also sporting picatinny rail optic and accessory '
@@ -318,6 +321,7 @@ mac109_upper_max31k = Item(
                                        'target_acquisition_ap': 0.79,
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
+                                   gun_type='pdw',
                                    ),
     description='Shorter version of the MAX-10/31. Upper receiver for the M10/9 by Lage Manufacturing. '
                 'Featuring compatibility with Suomi M31 magazines and decreased rate of fire at 631 RPM. '
@@ -378,9 +382,9 @@ mac1045_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 7/8x9', 'M10 Barrel'],
                                    velocity_modifier=0.94,
-                                   barrel_length=0.48,
                                    compatible_bullet_type='.45 ACP',
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='A standard length 5.75 inch .45 calibre M10/45 barrel')
 
@@ -395,11 +399,11 @@ mac1045_max_barrel = Item(
                                    is_attachment_point_types=['Barrel Thread .578x28', ],  # TODO - add more
                                    # attachments compatible with this barrel thread
                                    velocity_modifier=1.07,
-                                   barrel_length=0.75,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.07,
                                    compatible_bullet_type='.45 ACP',
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='9 inch .45 calibre barrel for the M10/45 intended for use with the MAX-10 upper receiver')
 
@@ -416,7 +420,6 @@ mac1045_carbine_barrel = Item(
                                    velocity_modifier=1.11,
                                    target_acquisition_ap=1.1,
                                    equip_time=1.2,
-                                   barrel_length=1.33,
                                    compatible_bullet_type='.45 ACP',
                                    suffix="Carbine",
                                    accuracy_part=True,
@@ -435,9 +438,9 @@ mac109_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 3/4x10', 'M10 Barrel'],
                                    velocity_modifier=1.066,
-                                   barrel_length=0.48,
                                    compatible_bullet_type='9mm',
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='A standard length 5.75 inch M10/9 barrel in 9mm'
 )
@@ -452,11 +455,11 @@ mac109_max_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    velocity_modifier=1.14,
-                                   barrel_length=0.75,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.07,
                                    compatible_bullet_type='9mm',
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='9 inch 9mm barrel for the M10/9 intended for use with the MAX-10 upper receiver'
 )
@@ -474,7 +477,6 @@ mac109_carbine_barrel = Item(
                                    equip_time=1.2,
                                    target_acquisition_ap=1.1,
                                    velocity_modifier=1.17,
-                                   barrel_length=1.33,
                                    compatible_bullet_type='9mm',
                                    suffix="Carbine",
                                    accuracy_part=True,
@@ -495,8 +497,8 @@ max1031_barrel_1228 = Item(
                                    velocity_modifier=1.17,
                                    target_acquisition_ap=1.03,
                                    equip_time=1.07,
-                                   barrel_length=0.7,
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='8-3/8 inch MAX-10/31 barrel with 1/2-28 threads'
 )
@@ -513,9 +515,9 @@ max1031k_barrel_1228 = Item(
                                    compatible_parts={'M10 Upper': ["MAX-10/31 Upper Receiver (M10/9)",
                                                                    "MAX-10/31k Upper Receiver (M10/9)"]},
                                    velocity_modifier=1.1,
-                                   barrel_length=0.48,
                                    target_acquisition_ap=1.01,
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='5-3/4 inch MAX-10/31 barrel with 1/2-28 threads'
 )
@@ -532,10 +534,10 @@ max1031_barrel_3410 = Item(
                                    compatible_parts={'M10 Upper': ["MAX-10/31k Upper Receiver (M10/9)"]},
                                    velocity_modifier=1.17,
                                    compatible_bullet_type='9mm',
-                                   barrel_length=0.7,
                                    target_acquisition_ap=1.03,
                                    equip_time=1.07,
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='8-3/8 inch MAX-10/31 barrel with 1/2-28 threads'
 )
@@ -552,10 +554,10 @@ max1031k_barrel_3410 = Item(
                                    compatible_parts={'M10 Upper': ["MAX-10/31 Upper Receiver (M10/9)",
                                                                    "MAX-10/31k Upper Receiver (M10/9)"]},
                                    velocity_modifier=1.1,
-                                   barrel_length=0.48,
                                    compatible_bullet_type='9mm',
                                    target_acquisition_ap=1.01,
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description='5-3/4 inch MAX-10/31 barrel with 1/2-28 threads'
 )
@@ -577,6 +579,7 @@ mac1045_full_stock = Item(
                                    spread_modifier=0.6,
                                    equip_time=1.1,
                                    target_acquisition_ap=0.71,
+                                   has_stock=True,
                                    ),
     description='A sturdy fixed polymer buttstock for the M10 submachinegun by Lage Manufacturing, designed for use '
                 'with their MAX-10 series of upper receivers'
@@ -595,6 +598,7 @@ mac1045_folding_stock = Item(
                                    spread_modifier=0.69,
                                    equip_time=1.03,
                                    target_acquisition_ap=0.69,
+                                   has_stock=True,
                                    ),
     description='A folding aluminium and polymer buttstock for the M10 submachinegun by Lage Manufacturing, '
                 'designed for use with their "K" series of upper receivers'
@@ -612,6 +616,7 @@ mac1045_stock = Item(
                                    ap_distance_cost_modifier=0.9,
                                    spread_modifier=0.74,
                                    target_acquisition_ap=0.78,
+                                   has_stock=True,
                                    ),
     description='The original collapsing wire buttstock for the M10 submachinegun'
 )
@@ -711,7 +716,8 @@ mac10_vertical_grip = Item(
                                        'spread_modifier': 0.93,
                                        'felt_recoil': 0.8,
                                        'target_acquisition_ap': 0.77,
-                                       'ap_distance_cost_modifier': 0.95}),
+                                       'ap_distance_cost_modifier': 0.95},
+                                   ),
     description='A vertical grip that clamps onto the barrel of M10 pattern submachineguns'
 )
 
@@ -780,7 +786,9 @@ mac1045_sionics_suppressor = Item(
                                        'spread_modifier': 0.75,
                                        'felt_recoil': 0.8,
                                        'target_acquisition_ap': 0.95,
-                                       'ap_distance_cost_modifier': 0.95}),
+                                       'ap_distance_cost_modifier': 0.95},
+                                   gun_type='pdw',
+                                   ),
     description='A large suppressor manufactured by the Sionics company for the M10/45. Uses a two-stage design to '
                 'significantly reduce the sound of firing, to the point that the bolt can be heard cycling when '
                 'subsonic ammunition is used. Also functions as a grip, increasing controllability in full auto.')
@@ -804,7 +812,9 @@ mac109_sionics_suppressor = Item(
                                        'spread_modifier': 0.75,
                                        'felt_recoil': 0.8,
                                        'target_acquisition_ap': 0.95,
-                                       'ap_distance_cost_modifier': 0.95}),
+                                       'ap_distance_cost_modifier': 0.95},
+                                   gun_type='pdw',
+                                   ),
     description='A large suppressor manufactured by the Sionics company for the M10/9. Uses a two-stage design to '
                 'significantly reduce the sound of firing, to the point that the bolt can be heard cycling when '
                 'subsonic ammunition is used. Also functions as a grip, increasing controllability in full auto.')
@@ -824,7 +834,9 @@ mac1045_extended_barrel = Item(
                                        'spread_modifier': 0.7,
                                        'felt_recoil': 0.85,
                                        'target_acquisition_ap': 0.95,
-                                       'ap_distance_cost_modifier': 0.9}),
+                                       'ap_distance_cost_modifier': 0.9},
+                                   gun_type='pdw',
+                                   ),
     description='A 7 inch barrel extension for the M10/45. Threads onto the original M10 barrel and acts as a '
                 'counterbalance, adding weight to the front of the gun and as a grip.')
 
@@ -843,7 +855,9 @@ mac109_extended_barrel = Item(
                                        'spread_modifier': 0.7,
                                        'felt_recoil': 0.85,
                                        'target_acquisition_ap': 0.95,
-                                       'ap_distance_cost_modifier': 0.9}),
+                                       'ap_distance_cost_modifier': 0.9},
+                                   gun_type='pdw',
+                                   ),
     description='A 7 inch barrel extension for the M10/9. Threads onto the original M10 barrel and acts as a '
                 'counterbalance, adding weight to the front of the gun and as a grip.'
 )
@@ -877,13 +891,13 @@ mac10 = Item(
         velocity_modifier=1.0,
         felt_recoil=1.13,
         ap_distance_cost_modifier=1.0,
-        barrel_length=0.48,
         sight_height_above_bore=0,
         receiver_height_above_bore=0,
         sound_modifier=1.0,
         target_acquisition_ap=50,
         zero_range=25,
-        spread_modifier=0.06
+        spread_modifier=0.06,
+        gun_type='pistol',
     )
 )
 

@@ -137,6 +137,7 @@ stock_sks_bullpup = Item(
                                    optic_mount_properties={'receiver_height_above_bore': 0.079},
                                    felt_recoil=0.51,
                                    ap_distance_cost_modifier=0.71,
+                                   load_time_modified=1.3,
                                    spread_modifier=0.79,
                                    target_acquisition_ap=0.81,
                                    equip_time=1.05,
@@ -401,12 +402,12 @@ sks = Item(
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
-        barrel_length=1.36,
         zero_range=25,
         receiver_height_above_bore=0.9,
         sight_height_above_bore=0.23,
         spread_modifier=0.05,
-        compatible_magazine_type='SKS Magazine'
+        compatible_magazine_type='SKS Magazine',
+        gun_type='rifle',
     )
 )
 

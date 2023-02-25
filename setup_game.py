@@ -11,7 +11,7 @@ from level_generator import MessyBSPTree
 from level_parameters import level_params
 from components.inventory import Inventory
 from components.ai import BaseAI
-from components.npc_templates import GunFighter
+from components.npc_templates import PlayerFighter
 from components.bodyparts import Body, Arm, Leg, Head
 from random import choice
 
@@ -37,7 +37,7 @@ def new_game() -> Engine:
     current_level = 0
 
     # initialises player entity
-    fighter_component = GunFighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
+    fighter_component = PlayerFighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
     Head_part = Head(hp=40, protection_ballistic=0, protection_physical=50, depth=20, width=20, height=26)
     Body_part = Body(hp=100, protection_ballistic=0, protection_physical=50, depth=20, width=35, height=56)

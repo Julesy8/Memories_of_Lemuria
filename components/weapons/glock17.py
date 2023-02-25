@@ -35,9 +35,9 @@ glock17_barrel = Item(
                                    compatible_parts={
                                        'Glock 17 Slide': ['Glock 17 Slide', "Glock 17 Slide w/ Optics Cut",
                                                           'Glock 17 Custom Slide']},
-                                   barrel_length=0.37,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True
                                    ),
     description='Standard Glock 17 barrel'
 )
@@ -56,11 +56,11 @@ glock17l_barrel = Item(
                                                                         'Glock 17 Slide', 'Glock 17 Custom Slide',
                                                                         "Glock 17 Slide w/ Optics Cut",
                                                                         "Glock 17L Slide w/ Optics Cut"]},
-                                   barrel_length=0.5,
                                    target_acquisition_ap=1.05,
                                    equip_time=1.05,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True
                                    ),
     description='Glock 17L barrel. Longer than the standard Glock 17 barrel'
 )
@@ -79,11 +79,11 @@ glock_9in_barrel = Item(
                                                                         'Glock 17 Slide', 'Glock 17 Custom Slide',
                                                                         "Glock 17 Slide w/ Optics Cut",
                                                                         "Glock 17L Slide w/ Optics Cut"]},
-                                   barrel_length=0.75,
                                    target_acquisition_ap=1.11,
                                    equip_time=1.11,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True
                                    ),
     description='Extra long 9 inch Glock 9mm barrel'
 )
@@ -103,9 +103,9 @@ glock17_barrel_ported = Item(
                                    compatible_parts={'Glock 17 Slide': ['Glock 17 Custom Slide']},
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.4,
-                                   barrel_length=0.37,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True
                                    ),
     description='Glock 17 barrel with milled cutouts to reduce muzzle climb'
 )
@@ -123,11 +123,11 @@ glock17l_barrel_ported = Item(
                                                                         'Glock 17 Custom Slide']},
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.4,
-                                   barrel_length=0.5,
                                    target_acquisition_ap=1.05,
                                    equip_time=1.05,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
+                                   short_barrel=True
                                    ),
     description='Glock 17L barrel with milled cutouts to reduce muzzle climb'
 )
@@ -300,6 +300,7 @@ glock_stock = Item(
                                    ap_distance_cost_modifier=0.71,
                                    spread_modifier=0.9,
                                    target_acquisition_ap=0.76,
+                                   has_stock=True
                                    ),
     description='A folding stock for Glock pistols'
 )
@@ -333,6 +334,7 @@ glock_pistol_brace = Item(
                                    ap_distance_cost_modifier=0.76,
                                    spread_modifier=0.94,
                                    target_acquisition_ap=0.71,
+                                   has_stock=True
                                    ),
     description='Collapsing pistol brace "not a stock" for Glock handguns designed by Flux Defense'
 )
@@ -377,7 +379,6 @@ glock_17 = Item(
         velocity_modifier=1.0,
         compatible_bullet_type='9mm',
         felt_recoil=1.1,
-        barrel_length=0,
         receiver_height_above_bore=0.46,
         sight_height_above_bore=0.08,
         sound_modifier=1.0,
@@ -386,6 +387,7 @@ glock_17 = Item(
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         spread_modifier=0.055,
+        gun_type='pistol',
     )
 )
 

@@ -265,6 +265,7 @@ stock_akm = Item(
                                    spread_modifier=0.89,
                                    equip_time=1.2,
                                    target_acquisition_ap=0.75,
+                                   has_stock=True,
                                    ),
     description='A wooden AKM-style stock'
 )
@@ -282,6 +283,7 @@ stock_rpk = Item(
                                    spread_modifier=0.81,
                                    equip_time=1.3,
                                    target_acquisition_ap=0.81,
+                                   has_stock=True,
                                    ),
     description='An RPK style stock fitting AK type rifles'
 )
@@ -299,6 +301,7 @@ stock_ak74 = Item(
                                    spread_modifier=0.86,
                                    equip_time=1.16,
                                    target_acquisition_ap=0.75,
+                                   has_stock=True,
                                    ),
     description='A polymer AK-74 style stock'
 )
@@ -316,6 +319,7 @@ stock_ak100 = Item(
                                    spread_modifier=0.88,
                                    equip_time=1.1,
                                    target_acquisition_ap=0.73,
+                                   has_stock=True,
                                    ),
     description='A polymer folding stock made for the 100 series of AK rifles'
 )
@@ -333,6 +337,7 @@ stock_ak_underfolder = Item(
                                    spread_modifier=0.92,
                                    equip_time=1.09,
                                    target_acquisition_ap=0.69,
+                                   has_stock=True,
                                    ),
     description='A metal underfolding stock for AK type rifles such as the AKM-S'
 )
@@ -350,6 +355,7 @@ stock_ak_triangle = Item(
                                    spread_modifier=0.9,
                                    equip_time=1.1,
                                    target_acquisition_ap=0.71,
+                                   has_stock=True,
                                    ),
     description='An almuninium ZPAP style side folding stock for AK type rifles'
 )
@@ -367,6 +373,7 @@ stock_ak12 = Item(
                                    spread_modifier=0.9,
                                    equip_time=1.15,
                                    target_acquisition_ap=0.7,
+                                   has_stock=True,
                                    ),
     description='A telescoping and folding polymer stock designed for the 2016 iteration of the AK-12'
 )
@@ -384,6 +391,7 @@ stock_amd65 = Item(
                                    spread_modifier=0.92,
                                    equip_time=1.02,
                                    target_acquisition_ap=0.69,
+                                   has_stock=True,
                                    ),
     description='A wire sidefolding stock for the AMD-65'
 )
@@ -401,6 +409,7 @@ stock_pt1 = Item(
                                    ap_distance_cost_modifier=0.71,
                                    spread_modifier=0.84,
                                    target_acquisition_ap=0.76,
+                                   has_stock=True,
                                    ),
     description='An aftermarket telescopic sidefolding stock for AK rifles manufactured by Zenitco'
 )
@@ -418,6 +427,7 @@ stock_moe = Item(
                                    ap_distance_cost_modifier=0.71,
                                    spread_modifier=0.84,
                                    target_acquisition_ap=0.73,
+                                   has_stock=True,
                                    ),
     description='An aftermarket polymer fixed stock for AK rifles manufactured by Magpul'
 )
@@ -435,6 +445,7 @@ stock_zhukov = Item(
                                    ap_distance_cost_modifier=0.68,
                                    spread_modifier=0.85,
                                    target_acquisition_ap=0.71,
+                                   has_stock=True,
                                    ),
     description='An aftermarket polymer folding stock for AK rifles manufactured by Magpul'
 )
@@ -462,11 +473,10 @@ barrel_ak762 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    sound_radius=1.1,
-                                   barrel_length=1.36,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    functional_part=True,
-                                   accuracy_part=True
+                                   accuracy_part=True,
                                    ),
     description="A standard 415mm (16.3 inch) AK barrel assembly chambered in 7.62x39"
 )
@@ -491,7 +501,6 @@ barrel_ak545 = Item(
                                                                       ]},
                                    velocity_modifier=1.082,
                                    sound_radius=1.1,
-                                   barrel_length=1.36,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    functional_part=True,
@@ -520,7 +529,6 @@ barrel_ak556 = Item(
                                                                       ]},
                                    velocity_modifier=1.082,
                                    sound_radius=1.1,
-                                   barrel_length=1.36,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    functional_part=True,
@@ -549,7 +557,6 @@ barrel_rpk762 = Item(
                                                                       ]},
                                    velocity_modifier=1.066,
                                    sound_radius=0.9,
-                                   barrel_length=1.93,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.13,
                                    functional_part=True,
@@ -578,7 +585,6 @@ barrel_rpk545 = Item(
                                                                       ]},
                                    velocity_modifier=1.056,
                                    sound_radius=0.9,
-                                   barrel_length=1.93,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.13,
                                    functional_part=True,
@@ -607,11 +613,11 @@ barrel_ak762_short = Item(
                                                                       ]},
                                    velocity_modifier=0.91,
                                    sound_radius=1.2,
-                                   barrel_length=1.03,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
                                    functional_part=True,
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 7.62x39 such as that of "
                 "the AK-104"
@@ -637,11 +643,11 @@ barrel_ak545_short = Item(
                                                                       ]},
                                    velocity_modifier=0.81,
                                    sound_radius=1.2,
-                                   barrel_length=1.03,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
                                    functional_part=True,
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.45x39 such as that of "
                 "the AK-105"
@@ -667,11 +673,11 @@ barrel_ak556_short = Item(
                                                                       ]},
                                    velocity_modifier=0.95,
                                    sound_radius=1.2,
-                                   barrel_length=1.03,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
                                    functional_part=True,
                                    accuracy_part=True,
+                                   short_barrel=True,
                                    ),
     description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.56x39 such as that of "
                 "the AK-102"
@@ -1046,11 +1052,11 @@ ak = Item(
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
-        barrel_length=1.36,
         zero_range=25,
         receiver_height_above_bore=1.5,
         sight_height_above_bore=0.31,
-        spread_modifier=0.052
+        spread_modifier=0.052,
+        gun_type='rifle',
     )
 )
 

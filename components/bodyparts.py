@@ -270,6 +270,9 @@ class Bodypart:
         self.parent.fighter.move_ap_cost = self.parent.fighter.move_ap_original
         self.parent.fighter.ap_per_turn_modifier = 1.0
 
+        if hasattr(self.parent.fighter, '_felt_recoil'):
+            self.parent.fighter.felt_recoil = self.parent.fighter.felt_recoil_original
+
 
 class Arm(Bodypart):
     def __init__(self,
@@ -317,6 +320,9 @@ class Arm(Bodypart):
         self.parent.fighter.ranged_accuracy *= 1.2
         self.parent.fighter.melee_accuracy *= 0.8
         self.parent.fighter.action_ap_modifier *= 1.3
+
+        if hasattr(self.parent.fighter, '_felt_recoil'):
+            self.parent.fighter.felt_recoil *= 1.3
 
 
 class Leg(Bodypart):
@@ -398,7 +404,6 @@ class Head(Bodypart):
 
     def cripple(self) -> None:
         # crippling the head 'knocks out' the entity for a random amount of turns
-
         if not self.parent == self.engine.player:
             self.functional = False
 
@@ -406,6 +411,8 @@ class Head(Bodypart):
             self.parent.turns_move_inactive = turns_inactive
             self.parent.turns_attack_inactive = turns_inactive
             self.parent.fighter.ap_per_turn_modifier = 0.7
+
+        self.parent.fighter.action_ap_modifier *= 1.4
 
 
 class Body(Bodypart):

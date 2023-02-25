@@ -140,7 +140,29 @@ class Weapon(Usable):
         entity = self.parent
         inventory = entity.parent
 
-        equip_time = self.ap_to_equip * inventory.parent.fighter.action_ap_modifier
+        weight_handling_modifier = 1.0
+
+        if isinstance(self, Gun):
+
+            total_weight = self.parent.weight
+
+            if hasattr(self, 'loaded_magazine'):
+                if self.loaded_magazine is not None:
+                    magazine = self.loaded_magazine.magazine
+                    total_weight += self.loaded_magazine.weight
+            else:
+                magazine = self
+
+            total_weight += len(magazine) * magazine[0].weight
+
+            # calculates AP modifier based on weight and weapon type
+            if self.gun_type == 'pistol':
+                weight_handling_modifier = 0.4 + 0.6 * total_weight
+
+            else:
+                weight_handling_modifier = 0.5 + 0.5 * (total_weight / 4)
+
+        equip_time = self.ap_to_equip * inventory.parent.fighter.action_ap_modifier * weight_handling_modifier
 
         if hasattr(self, 'loaded_magazine'):
             if self.loaded_magazine is not None:
@@ -242,7 +264,6 @@ class Magazine(Usable):
                  failure_chance: int = 0,  # % chance to cause a jam
                  target_acquisition_ap_mod: float = 1.0,
                  ap_distance_cost_mod: float = 1.0,
-                 spread_mod: float = 1.0,
                  equip_ap_mod: float = 1.0,
                  ):
         self.magazine_type = magazine_type
@@ -253,7 +274,6 @@ class Magazine(Usable):
         self.failure_chance = failure_chance
         self.target_acquisition_ap_mod = target_acquisition_ap_mod
         self.ap_distance_cost_mod = ap_distance_cost_mod
-        self.spread_mod = spread_mod
         self.equip_ap_mod = equip_ap_mod
         self.magazine = []
 
@@ -347,6 +367,7 @@ class Magazine(Usable):
 class Gun(Weapon):
     def __init__(self,
                  parts: Parts,
+                 gun_type: str,
                  compatible_bullet_type: str,
                  velocity_modifier: float,
                  ap_to_equip: int,
@@ -355,7 +376,6 @@ class Gun(Weapon):
                  keep_round_chambered: bool,
                  sound_modifier: float,
                  felt_recoil: float,  # 1.0 = regular M4
-                 barrel_length: float,  # feet
                  zero_range: int,  # yards
                  sight_height_above_bore: float,  # inches
                  receiver_height_above_bore: float,  # inches
@@ -372,6 +392,8 @@ class Gun(Weapon):
                  load_time_modifier: float = 1.0,
                  compatible_clip: str = None,
                  chambered_bullet: Optional[Item] = None,
+                 has_stock: bool = False,
+                 short_barrel: bool = False,
                  ):
 
         """
@@ -388,6 +410,9 @@ class Gun(Weapon):
         """
 
         self.parts = parts
+        self.gun_type = gun_type
+        self.has_stock = has_stock
+        self.short_barrel = short_barrel
         self.compatible_bullet_type = compatible_bullet_type
         self.parts.parent = self
         self.felt_recoil = felt_recoil
@@ -397,7 +422,6 @@ class Gun(Weapon):
         self.receiver_height_above_bore = receiver_height_above_bore
         self.sight_height_above_bore = sight_height_above_bore
         self.spread_modifier = spread_modifier  # MoA / 100
-        self.barrel_length = barrel_length
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
         self.fire_modes = fire_modes
@@ -426,7 +450,7 @@ class Gun(Weapon):
         )
 
     def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
-                      hit_location_y: int) -> None:
+                      hit_location_y: int, proficiency: float, skill_range_modifier: float) -> None:
 
         if self.jammed:
             self.engine.message_log.add_message("Attack failed: gun jammed. Press ENTER to clear.", colour.RED)
@@ -460,9 +484,25 @@ class Gun(Weapon):
 
         sight_height_above_bore_total = self.sight_height_above_bore + self.receiver_height_above_bore
 
+        mag_weight = 0
+        magazine = None
+
+        # adds weight of the magazine and loaded bullets to total weight for recoil calculations
+        if isinstance(self, GunMagFed):
+            if self.loaded_magazine is not None:
+                magazine = self.loaded_magazine
+                mag_weight = self.loaded_magazine.weight
+
+        elif isinstance(self, GunIntegratedMag):
+            magazine = self
+
         # fires rounds
         while rounds_to_fire > 0:
+
             if self.chambered_bullet is not None:
+
+                ammo_weight = len(magazine.usable_properties.magazine) * self.chambered_bullet.weight
+                total_weight = self.parent.weight + mag_weight + ammo_weight
 
                 # if attacker is player, jams the gun depending on its functional condition
                 if attacker.player:
@@ -485,15 +525,18 @@ class Gun(Weapon):
 
                 muzzle_velocity = self.chambered_bullet.usable_properties.velocity * self.velocity_modifier
 
-                # alters spread depending on magazine
-                mag_spread_mod = 1.0
-                if hasattr(self, 'loaded_magazine'):
-                    mag_spread_mod = self.loaded_magazine.usable_properties.spread_mod
+                # calculates AP modifier based on weight and weapon type
+                if self.gun_type == 'pistol':
+                    weight_handling_modifier = 0.75 + 0.25 * (self.parent.weight + total_weight)
+
+                else:
+                    weight_handling_modifier = 0.85 + 0.15 * ((self.parent.weight + total_weight) / 4)
 
                 # gives projectile spread in MoA
                 spread_diameter = \
-                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * mag_spread_mod * \
-                    distance * attacker.fighter.ranged_accuracy * min((5 / self.condition_accuracy), 2)
+                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * \
+                    dist_yards * attacker.fighter.ranged_accuracy * min((5 / self.condition_accuracy), 2) \
+                    * proficiency * skill_range_modifier * weight_handling_modifier
 
                 # bullet spread hit location coordinates
                 radius = (spread_diameter * 0.523) * sqrt(uniform(0, 1))
@@ -526,10 +569,10 @@ class Gun(Weapon):
 
                     # checks if hit
                     hit_location_x += spread_x
-                    hit_location_y += recoil_penalty + projectile_path + spread_y
+                    hit_location_y += (recoil_penalty * dist_yards) + projectile_path + spread_y
 
-                    if not hit_location_x > (target.bodyparts[part_index].width / 2) or hit_location_x < 0 or \
-                            hit_location_y > (target.bodyparts[part_index].height / 2) or hit_location_y < 0:
+                    if not hit_location_x > (target.bodyparts[part_index].width * 0.3937 / 2) or hit_location_x < 0 or \
+                            hit_location_y > (target.bodyparts[part_index].height * 0.3937 / 2) or hit_location_y < 0:
                         # does damage to given bodypart
                         target.bodyparts[part_index].deal_damage_gun(
                             diameter_bullet=self.chambered_bullet.usable_properties.diameter,
@@ -556,18 +599,6 @@ class Gun(Weapon):
 
                 if self.chambered_bullet is not None:
 
-                    additional_weight = 0
-
-                    # adds weight of the magazine and loaded bullets to total weight for recoil calculations
-                    if isinstance(self, GunMagFed):
-                        if self.loaded_magazine is not None:
-                            additional_weight = self.loaded_magazine.weight + \
-                                                (len(self.loaded_magazine.usable_properties.magazine)
-                                                 * self.chambered_bullet.weight)
-
-                    elif isinstance(self, GunIntegratedMag):
-                        additional_weight = len(self.magazine) * self.chambered_bullet.weight
-
                     # prevents recalculating recoil multiple times if the same bullet
                     # is chambered as was previously fired
                     if previous_round_fired is None or previous_round_fired == self.chambered_bullet:
@@ -576,8 +607,6 @@ class Gun(Weapon):
                         muzzle_break = 0
                         if self.muzzle_break_efficiency is not None:
                             muzzle_break = self.muzzle_break_efficiency
-
-                        self.time_in_barrel = self.barrel_length / (muzzle_velocity * 0.6)
 
                         gas_velocity = muzzle_velocity * 1.7
                         bullet_momentum = self.chambered_bullet.usable_properties.mass * 0.000142857 * muzzle_velocity
@@ -589,13 +618,12 @@ class Gun(Weapon):
                         self.momentum_gun = bullet_momentum + gas_momentum + momentum_jet
 
                     # TODO - potentailly better equation found in ADA561571 equation 7 - 8
-                    velocity_gun = (self.momentum_gun / self.parent.weight + additional_weight)
-
-                    # recoil spread (MoA / 100) based assuming M4 recoil spread is 1 MoA with stock, handguard,
+                    velocity_gun = (self.momentum_gun / total_weight)
+                    # recoil spread (MoA) based assuming M4 recoil spread is 2 MoA with stock, handguard,
                     # and pistol grip reducing felt recoil by 70% shooting 55gr bullets.
                     # arbitrary but almost impossible to calculate actual muzzle rise for all guns and conifgurations
-                    recoil_spread = (velocity_gun / self.time_in_barrel) * self.felt_recoil * attacker.fighter.\
-                        felt_recoil * 4.572e-5
+                    recoil_spread = \
+                        velocity_gun * self.felt_recoil * attacker.fighter.felt_recoil * 0.0019634 * proficiency
 
                     recoil_spread_list.append(recoil_spread)
 
@@ -648,7 +676,7 @@ class Gun(Weapon):
                     y_dist = abs(abs(self.engine.player.y) - (abs(attacker.y)))
 
                     if x_dist > y_dist:
-                        if self.engine.player.x > attacker.x:
+                        if self.engine.player.x < attacker.x:
                             position_str = 'east'
                         else:
                             position_str = 'west'
@@ -768,6 +796,7 @@ class Wearable(Usable):
 class GunMagFed(Gun):
     def __init__(self,
                  parts: Parts,
+                 gun_type: str,
                  compatible_magazine_type: str,
                  compatible_bullet_type: str,
                  velocity_modifier: float,
@@ -780,7 +809,6 @@ class GunMagFed(Gun):
                  sight_height_above_bore: float,
                  receiver_height_above_bore: float,
                  felt_recoil: float,
-                 barrel_length: float,
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
@@ -794,7 +822,9 @@ class GunMagFed(Gun):
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Item] = None,
                  loaded_magazine: Optional[Item] = None,
-                 compatible_clip: str = None
+                 compatible_clip: str = None,
+                 has_stock: bool = False,
+                 short_barrel: bool = False,
                  ):
 
         self.compatible_magazine_type = compatible_magazine_type
@@ -820,7 +850,6 @@ class GunMagFed(Gun):
             spread_modifier=spread_modifier,
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
-            barrel_length=barrel_length,
             target_acquisition_ap=target_acquisition_ap,
             firing_ap_cost=firing_ap_cost,
             ap_distance_cost_modifier=ap_distance_cost_modifier,
@@ -829,7 +858,10 @@ class GunMagFed(Gun):
             condition_function=condition_function,
             manual_action=manual_action,
             action_cycle_ap_cost=action_cycle_ap_cost,
-            compatible_clip=compatible_clip
+            compatible_clip=compatible_clip,
+            gun_type=gun_type,
+            has_stock=has_stock,
+            short_barrel=short_barrel
         )
 
     def load_gun(self, magazine: Item):
@@ -917,6 +949,7 @@ class GunMagFed(Gun):
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
                  parts: Parts,
+                 gun_type: str,
                  velocity_modifier: float,
                  ap_to_equip: int,
                  fire_modes: dict,
@@ -929,7 +962,6 @@ class GunIntegratedMag(Gun, Magazine):
                  zero_range: int,
                  sight_height_above_bore: float,
                  receiver_height_above_bore: float,
-                 barrel_length: float,
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
@@ -943,6 +975,8 @@ class GunIntegratedMag(Gun, Magazine):
                  load_time_modifier: float = 1.0,
                  compatible_clip: str = None,
                  chambered_bullet: Optional[Item] = None,
+                 has_stock: bool = False,
+                 short_barrel: bool = False,
                  ):
         self.mag_capacity = mag_capacity
 
@@ -968,7 +1002,6 @@ class GunIntegratedMag(Gun, Magazine):
             spread_modifier=spread_modifier,
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
-            barrel_length=barrel_length,
             target_acquisition_ap=target_acquisition_ap,
             firing_ap_cost=firing_ap_cost,
             ap_distance_cost_modifier=ap_distance_cost_modifier,
@@ -977,7 +1010,10 @@ class GunIntegratedMag(Gun, Magazine):
             condition_function=condition_function,
             manual_action=manual_action,
             action_cycle_ap_cost=action_cycle_ap_cost,
-            compatible_clip=compatible_clip
+            compatible_clip=compatible_clip,
+            gun_type=gun_type,
+            has_stock=has_stock,
+            short_barrel=short_barrel
         )
 
     def chamber_round(self):

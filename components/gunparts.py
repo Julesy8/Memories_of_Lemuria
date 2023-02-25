@@ -11,7 +11,9 @@ class Parts:
     def __init__(self):
         self.part_list = []
         self.attachment_dict = {}
-        self.update_partlist(attachment_dict={})
+
+        # I don't think below line does anything important - commented out for now
+        # self.update_partlist(attachment_dict={})
 
         self.non_multiplicative_properties = ["barrel_length", "zero_range", "sight_height_above_bore",
                                               "receiver_height_above_bore", "muzzle_break_efficiency"]
@@ -58,6 +60,9 @@ class Parts:
                 if hasattr(part.usable_properties, 'compatible_bullet_type') and hasattr(part.usable_properties,
                                                                                          'mag_capacity'):
                     self.parent = GunIntegratedMag(parts=self,
+                                                   gun_type=self.parent.gun_type,
+                                                   has_stock=self.parent.has_stock,
+                                                   short_barrel=self.parent.short_barrel,
                                                    velocity_modifier=self.parent.velocity_modifier,
                                                    muzzle_break_efficiency=self.parent.muzzle_break_efficiency,
                                                    compatible_bullet_type=part.compatible_bullet_type,
@@ -70,7 +75,6 @@ class Parts:
                                                    fire_rate_modifier=self.parent.fire_rate_modifier,
                                                    load_time_modifier=self.parent.load_time_modifier,
                                                    felt_recoil=self.parent.felt_recoil,
-                                                   barrel_length=self.parent.barrel_length,
                                                    sight_height_above_bore=self.parent.sight_height_above_bore,
                                                    sound_modifier=self.parent.sound_modifier,
                                                    zero_range=self.parent.zero_range,
@@ -90,6 +94,9 @@ class Parts:
             elif isinstance(self.parent, GunIntegratedMag):
                 if hasattr(part.usable_properties, 'compatible_magazine_type'):
                     self.parent = GunMagFed(parts=self,
+                                            gun_type=self.parent.gun_type,
+                                            has_stock=self.parent.has_stock,
+                                            short_barrel=self.parent.short_barrel,
                                             velocity_modifier=self.parent.velocity_modifier,
                                             muzzle_break_efficiency=self.parent.muzzle_break_efficiency,
                                             current_fire_mode=self.parent.current_fire_mode,
@@ -102,7 +109,6 @@ class Parts:
                                             fire_rate_modifier=self.parent.fire_rate_modifier,
                                             load_time_modifier=self.parent.load_time_modifier,
                                             felt_recoil=self.parent.felt_recoil,
-                                            barrel_length=self.parent.barrel_length,
                                             sight_height_above_bore=self.parent.sight_height_above_bore,
                                             sound_modifier=self.parent.sound_modifier,
                                             zero_range=self.parent.zero_range,
@@ -164,6 +170,21 @@ class Parts:
         if optic_properties is not None:
             self.set_property(part_properties=optic_properties)
 
+        # assigns type to weapon
+        if self.parent.gun_type == 'rifle':
+            if self.parent.short_barrel:
+                self.parent.gun_type = 'pdw'
+
+        elif self.parent.gun_type == 'pdw':
+            if not self.parent.short_barrel:
+                self.parent.gun_type = 'rifle'
+
+        elif self.parent.gun_type == 'pistol':
+            if self.parent.has_stock:
+                self.parent.gun_type = 'pdw'
+            if not self.parent.short_barrel:
+                self.parent.gun_type = 'rifle'
+
     def set_property(self, part_properties: dict) -> None:
 
         # alters properties of the item according to part properties
@@ -186,7 +207,7 @@ class Parts:
                     else:
                         setattr(self.parent, property_str, (part_properties[property_str] * gun_property))
 
-                elif type(part_properties[property_str]) in (None, str, int):
+                elif type(part_properties[property_str]) in (None, str, int, bool):
                     setattr(self.parent, property_str, part_properties[property_str])
 
                 elif type(part_properties[property_str]) is dict:

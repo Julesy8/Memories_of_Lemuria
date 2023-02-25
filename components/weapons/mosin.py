@@ -144,7 +144,6 @@ mosin_barrel = Item(
                                                      'spread_modifier': 0.92, },
                                    is_optic=True,
                                    sound_radius=0.8,
-                                   barrel_length=2.42,
                                    target_acquisition_ap=1.3,
                                    accuracy_part=True,
                                    functional_part=True,
@@ -169,7 +168,6 @@ mosin_carbine_barrel = Item(
                                                      'spread_modifier': 0.93, },
                                    is_optic=True,
                                    sound_radius=0.9,
-                                   barrel_length=1.68,
                                    target_acquisition_ap=1.15,
                                    accuracy_part=True,
                                    functional_part=True,
@@ -194,7 +192,6 @@ mosin_obrez_barrel = Item(
                                                      'spread_modifier': 1.05, },
                                    is_optic=True,
                                    sound_radius=1.3,
-                                   barrel_length=0.5,
                                    accuracy_part=True,
                                    functional_part=True,
                                    ),
@@ -281,11 +278,11 @@ mosin_nagant = Item(
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
-        barrel_length=1.36,
         zero_range=100,
         receiver_height_above_bore=0.71,
         sight_height_above_bore=0.5,
         spread_modifier=0.05,
+        gun_type='bolt action',
     )
 )
 
