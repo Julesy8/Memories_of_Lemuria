@@ -2,8 +2,6 @@ import colour
 from entity import Item, Stacking
 from components.consumables import Bullet
 
-# ammunition specifications from Alliant powder catalogue 2020
-
 # drag coefficients by projectile type
 cd_wadcutter = 0.8333
 cd_jhp = 0.441511
@@ -30,12 +28,15 @@ cf_round_ball = 0.497056
 
 cf_spitzer = 0.28
 
+# sound modifier = 0.00017784 * mass * velocity
 
 """
 9MM
 """
 
-# powder - sport pistol
+# source: 2020 Alliant Powder Catalog
+# test barrel length: 4 inches
+# powder: sport pistol
 
 # FMJ
 round_9mm_115_fmj = Item(
@@ -96,8 +97,8 @@ round_9mm_147_fp = Item(
         charge_mass=3.5,
         diameter=0.355,
         velocity=890,
-        proj_config=cf_cruciform_flat_nose,
-        drag_coefficient=cd_cruciform_flat_nose,
+        proj_config=cf_truncated_cone,
+        drag_coefficient=cd_truncated_cone,
         spread_modifier=0.0,
         sound_modifier=23.27,
         ballistic_coefficient=0.2
@@ -163,8 +164,8 @@ round_9mm_147_fp_pp = Item(
         charge_mass=3.7,
         diameter=0.355,
         velocity=956,
-        proj_config=cf_cruciform_flat_nose,
-        drag_coefficient=cd_cruciform_flat_nose,
+        proj_config=cf_truncated_cone,
+        drag_coefficient=cd_truncated_cone,
         spread_modifier=0.0,
         sound_modifier=24.99,
         ballistic_coefficient=0.2
@@ -309,8 +310,12 @@ round_9mm_147_jhp_pp = Item(
 
 
 """
-45
+45 
 """
+
+# source: 2020 Alliant Powder Catalog
+# test barrel length: 5 inches
+# powder: sport pistol
 
 # swc
 
@@ -612,10 +617,225 @@ round_45_230_fmj_pp = Item(
 )
 
 """
+10mm
+"""
+
+# source: 2020 Alliant Powder Catalog
+# test barrel length: 5 inches
+# powder: sport pistol
+
+round_10mm_155_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='10mm - 155gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='10mm Automatic 155gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='10mm',
+        mass=155,
+        charge_mass=8.5,
+        diameter=0.4,
+        velocity=1246,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=34.34,
+        ballistic_coefficient=0.137
+    )
+)
+
+round_10mm_180_fmj = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='10mm - 180gr FMJ',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='10mm Automatic 180gr full metal jacket round nose ammunition',
+    usable_properties=Bullet(
+        bullet_type='10mm',
+        mass=180,
+        charge_mass=8.3,
+        diameter=0.4,
+        velocity=1265,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        sound_modifier=40.49,
+        ballistic_coefficient=0.138
+    )
+)
+
+round_10mm_190_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='10mm - 190gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='10mm Automatic 190gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='10mm',
+        mass=190,
+        charge_mass=7.4,
+        diameter=0.4,
+        velocity=1182,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=39.94,
+        ballistic_coefficient=0.138
+    )
+)
+
+round_10mm_220_fp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='10mm - 220gr FP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='10mm Automatic 190gr jacketed flat point ammunition',
+    usable_properties=Bullet(
+        bullet_type='10mm',
+        mass=220,
+        charge_mass=4.7,
+        diameter=0.4,
+        velocity=929,
+        proj_config=cf_truncated_cone,
+        drag_coefficient=cd_truncated_cone,
+        spread_modifier=0.0,
+        sound_modifier=36.34,
+        ballistic_coefficient=0.137
+    )
+)
+
+"""
+40 S&W
+"""
+
+# source: 2020 Alliant Powder Catalog
+# test barrel length: 4 inches
+# powder: sport pistol
+
+round_40sw_155_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='40 S&W - 155gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='40 S&W 155gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='40 S&W',
+        mass=155,
+        charge_mass=5.6,
+        diameter=0.4,
+        velocity=1101,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=30.34,
+        ballistic_coefficient=0.137
+    )
+)
+
+round_40sw_165_fmj = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='40 S&W - 165gr FMJ',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='40 S&W 165 gr flat point full metal jacket ammunition',
+    usable_properties=Bullet(
+        bullet_type='40 S&W',
+        mass=165,
+        charge_mass=5.6,
+        diameter=0.4,
+        velocity=1070,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=31.4,
+        ballistic_coefficient=0.138
+    )
+)
+
+round_40sw_180_fmj = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='40 S&W - 180gr FMJ',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='40 S&W 180gr full metal jacket round nose ammunition',
+    usable_properties=Bullet(
+        bullet_type='40 S&W',
+        mass=180,
+        charge_mass=5.0,
+        diameter=0.4,
+        velocity=978,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        sound_modifier=31.3,
+        ballistic_coefficient=0.138
+    )
+)
+
+round_40sw_180_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='40 S&W - 180gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='40 S&W 180gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='40 S&W',
+        mass=180,
+        charge_mass=4.6,
+        diameter=0.4,
+        velocity=958,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        sound_modifier=30.67,
+        ballistic_coefficient=0.138
+    )
+)
+
+round_40sw_220_fp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='40 S&W - 220gr FP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='40 S&W 190gr jacketed flat point ammunition',
+    usable_properties=Bullet(
+        bullet_type='40 S&W',
+        mass=220,
+        charge_mass=2.9,
+        diameter=0.4,
+        velocity=728,
+        proj_config=cf_truncated_cone,
+        drag_coefficient=cd_truncated_cone,
+        spread_modifier=0.0,
+        sound_modifier=28.48,
+        ballistic_coefficient=0.137
+    )
+)
+
+"""
 7.62 x 39
 """
-# 16 inch barrel length
-# powder - N130 or closest
+# source: shootersreference.com
+# test barrel length: 24 inches
+# powder: 1680 Accurate (Closest to N130)
 
 #FMJ
 
@@ -632,7 +852,7 @@ round_76239_123_fmj = Item(
         mass=123,
         charge_mass=27.3,
         diameter=0.311,
-        velocity=2361,
+        velocity=2445,
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
@@ -652,9 +872,9 @@ round_76239_150_fmj = Item(
     usable_properties=Bullet(
         bullet_type='7.62x39',
         mass=150,
-        charge_mass=24.4,
+        charge_mass=23.6,
         diameter=0.311,
-        velocity=2185,
+        velocity=2109,
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
@@ -662,8 +882,6 @@ round_76239_150_fmj = Item(
         ballistic_coefficient=0.341
     )
 )
-
-# SST (21 in barrel)
 
 round_76239_123_sst = Item(
     x=0, y=0,
@@ -682,12 +900,10 @@ round_76239_123_sst = Item(
         proj_config=cd_jhp,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=53.48,
+        sound_modifier=51.65,
         ballistic_coefficient=0.295
     )
 )
-
-# soft point (21 in barrel)
 
 round_76239_150_sp = Item(
     x=0, y=0,
@@ -706,7 +922,7 @@ round_76239_150_sp = Item(
         proj_config=cd_jhp,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=56.26,
+        sound_modifier=58.29,
         ballistic_coefficient=0.341
     )
 )
@@ -714,8 +930,9 @@ round_76239_150_sp = Item(
 """
 5.56 
 """
-# 14 inch barrel length
-# powder - XMR-2015
+# source: Lyman 48th Ed.
+# test barrel length: 24 inches
+# powder: IMR-4198 or closest (Closest to N130)
 
 round_556_55_sp = Item(
     x=0, y=0,
@@ -831,9 +1048,9 @@ round_556_80_jhp = Item(
 """
 300 blackout
 """
-
-# barrel - 16 inch
-# powder - accurate 1680
+# source: shootersreference.com
+# test barrel length: 16 inches
+# powder: accurate 1680
 
 round_300aac_150_jhp = Item(
     x=0, y=0,
@@ -927,7 +1144,10 @@ round_300aac_210_jhp = Item(
 5.45
 """
 
-# barrel length - 26 inches
+# based on .222 remington loading data
+# source: Lyman 48th Ed.
+# test barrel length: 26 inches
+# powder: IMR-4198
 
 round_545_56_fmj = Item(
     x=0, y=0,
@@ -998,6 +1218,10 @@ round_545_60_jhp = Item(
 """
 7.62x51 
 """
+
+# source: Alliant 2020
+# test barrel length: 24 inches
+# powder: AR-Comp
 
 round_308_130_jhp = Item(
     x=0, y=0,
@@ -1091,6 +1315,10 @@ round_308_180_tsx = Item(
 """
 7.62x54R
 """
+
+# source: Lyman 48th Ed.
+# test barrel length: 26 inches
+# powder: IMR-4198
 
 # 'original' ammunition, 210gr projectile travelling 2200fps, muzzle energy 2257
 round_54r_174_jrn = Item(

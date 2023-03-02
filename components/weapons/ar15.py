@@ -3,7 +3,7 @@ from components.consumables import GunMagFed, GunComponent
 from components.gunparts import Parts
 import colour
 
-# to add belt fed upper, 7.62x39 parts, 9mm/45 acp parts,
+# to add belt fed upper, 7.62x39 parts, 9mm/45 acp parts, P90 mag conversion thing
 
 """
 Lower Receivers
@@ -34,6 +34,11 @@ lower_ar10 = Item(
     usable_properties=GunComponent(part_type='AR Lower Receiver',
                                    compatible_parts={'AR Upper Receiver': ['AR10 Upper Receiver', ]},
                                    functional_part=True,
+                                   description='Developed in the 1950s by Eugene Stoner, the AR-10 was designed as a '
+                                               'selective-fire rifle for military use and later gained popularity in '
+                                               'the civilian market. Unlike the AR-15, which is chambered for smaller '
+                                               'cartridges like the .223 Remington, the AR-10 is typically chambered '
+                                               'for larger cartridges such as the 7.62x51mm NATO.',
                                    ),
     description='AR-10 receiver designed for rifle calibre AR rifles'
 )
@@ -52,7 +57,6 @@ upper_ar_m16a2 = Item(
     usable_properties=GunComponent(part_type='AR Upper Receiver',
                                    additional_required_parts=('Front Sight',),
                                    tags=['Iron Sight', ],
-                                   ap_to_equip=1.04,
                                    optic_properties={'target_acquisition_ap': 1.03,
                                                      'ap_distance_cost_modifier': 0.96,
                                                      'spread_modifier': 0.97,
@@ -131,7 +135,7 @@ ar_barrel_standard_556 = Item(
                                                                       "AR Daniel Defense MK18 Handguard",
                                                                       ]},
                                    tags=['full length barrel', ],
-                                   velocity_modifier=1.082,
+                                   velocity_modifier=0.953,
                                    functional_part=True,
                                    accuracy_part=True,
                                    ),
@@ -161,7 +165,7 @@ ar_barrel_standard_556_midlen = Item(
                                                                       "AR Daniel Defense MK18 Handguard",
                                                                       ]},
                                    tags=['full length barrel', ],
-                                   velocity_modifier=1.082,
+                                   velocity_modifier=0.953,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
                                    functional_part=True,
@@ -198,7 +202,7 @@ ar_barrel_carbine_556 = Item(
                                                         ]},
                                    tags=['carbine barrel', ],
                                    sound_radius=1.1,
-                                   velocity_modifier=1.051,
+                                   velocity_modifier=0.921,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    fire_rate_modifier=1.054,
@@ -237,7 +241,7 @@ ar_barrel_carbine_556_carblen = Item(
                                                         ]},
                                    tags=['carbine barrel', ],
                                    sound_radius=1.1,
-                                   velocity_modifier=1.051,
+                                   velocity_modifier=0.921,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    fire_rate_modifier=1.235,
@@ -269,7 +273,7 @@ ar_barrel_pistol_556 = Item(
                                    tags=['pistol barrel', ],
                                    equip_time=0.78,
                                    sound_radius=1.4,
-                                   velocity_modifier=0.89,
+                                   velocity_modifier=0.77,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
@@ -301,7 +305,7 @@ ar_barrel_pistol_556_pistollen = Item(
                                    tags=['pistol barrel', ],
                                    equip_time=0.78,
                                    sound_radius=1.4,
-                                   velocity_modifier=0.89,
+                                   velocity_modifier=0.77,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
@@ -476,7 +480,7 @@ ar_barrel_standard_308 = Item(
                                    tags=['full length barrel', ],
                                    equip_time=1.1,
                                    sound_radius=1.15,
-                                   velocity_modifier=0.96,
+                                   velocity_modifier=0.968,
                                    functional_part=True,
                                    accuracy_part=True
                                    ),
@@ -506,7 +510,7 @@ ar_barrel_standard_308_midlen = Item(
                                    tags=['full length barrel', ],
                                    equip_time=1.1,
                                    sound_radius=1.15,
-                                   velocity_modifier=0.96,
+                                   velocity_modifier=0.968,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
                                    functional_part=True,
@@ -539,7 +543,7 @@ ar_barrel_carbine_308_midlen = Item(
                                    tags=['carbine barrel', ],
                                    sound_radius=1.2,
                                    equip_time=0.9,
-                                   velocity_modifier=0.92,
+                                   velocity_modifier=0.925,
                                    target_acquisition_ap=0.96,
                                    fire_rate_modifier=1.054,
                                    felt_recoil=1.05,
@@ -573,7 +577,7 @@ ar_barrel_carbine_308_carblen = Item(
                                    tags=['carbine barrel', ],
                                    sound_radius=1.2,
                                    equip_time=0.9,
-                                   velocity_modifier=0.92,
+                                   velocity_modifier=0.925,
                                    target_acquisition_ap=0.96,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
@@ -602,7 +606,7 @@ ar_barrel_pistol_308_carblen = Item(
                                    tags=['pistol barrel', ],
                                    equip_time=0.78,
                                    sound_radius=1.4,
-                                   velocity_modifier=0.88,
+                                   velocity_modifier=0.79,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.235,
                                    felt_recoil=1.12,
@@ -631,7 +635,7 @@ ar_barrel_pistol_308_pistollen = Item(
                                    tags=['pistol barrel', ],
                                    equip_time=0.78,
                                    sound_radius=1.4,
-                                   velocity_modifier=0.88,
+                                   velocity_modifier=0.79,
                                    target_acquisition_ap=0.92,
                                    fire_rate_modifier=1.35,
                                    felt_recoil=1.19,
@@ -1571,7 +1575,10 @@ ar15 = Item(
     name="AR15",
     weight=1,
     stacking=None,
-    description='The iconic American assault rifle designed by Armalite in the 1950s',
+    description='The AR-15 rifle was first developed by the American company ArmaLite in the late 1950s as a '
+                'lightweight and versatile rifle for military use. It was designed by Eugene Stoner and was later '
+                'adopted by the United States military as the M16 rifle. The M16 saw widespread use during the '
+                'Vietnam War and has since become one of the most iconic rifles in American military history.',
     usable_properties=GunMagFed(
         compatible_magazine_type='STANAG 5.56x45',
         chambered_bullet=None,

@@ -129,6 +129,10 @@ mac1045_upper_max = Item(
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
                                    gun_type='pdw',
+                                   description="The MAX 10 is a conversion of the M10 submachine gun, also known as "
+                                               "the MAC-10. Developed by Lage Manufacturing, the MAX 10 kit allows "
+                                               "the user to convert their M10 into a more accurate and controllable "
+                                               "firearm, primarily through decreasing the rate of fire."
                                    ),
     description='MAX-10 upper receiver for the M10/45 by Lage Manufacturing. Unlike the original upper receiver, '
                 'it is side charging rather than top charging and features picatinny rails for mounting of '
@@ -222,6 +226,10 @@ mac109_upper_max = Item(
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
                                    gun_type='pdw',
+                                   description="The MAX 10 is a conversion of the M10 submachine gun, also known as "
+                                               "the MAC-10. Developed by Lage Manufacturing, the MAX 10 kit allows "
+                                               "the user to convert their M10 into a more accurate and controllable "
+                                               "firearm, primarily through decreasing the rate of fire."
                                    ),
     description='MAX-10 upper receiver for the M10/9 by Lage Manufacturing. Unlike the original upper receiver, '
                 'it is side charging rather than top charging and features picatinny rails for mounting of '
@@ -289,6 +297,9 @@ mac109_upper_max31 = Item(
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
                                    gun_type='pdw',
+                                   description="The MAX-10/31 is a conversion for the M10 submachinegun by Lage "
+                                               "Manufacturing featuring compatibility with Suomi M31 magazines and "
+                                               "decreased rate of fire at 600 RPM."
                                    ),
     description='Upper receiver for the M10/9 by Lage Manufacturing. Featuring compatibility with Suomi M31 '
                 'magazines and decreased rate of fire at 600 RPM. Also sporting picatinny rail optic and accessory '
@@ -322,6 +333,10 @@ mac109_upper_max31k = Item(
                                        'ap_distance_cost_modifier': 0.91},
                                    functional_part=True,
                                    gun_type='pdw',
+                                   description="Designed as a shortened variant of the Max-10/31, the MAX-10/31k is a "
+                                               "conversion for the M10 submachinegun by Lage "
+                                               "Manufacturing featuring compatibility with Suomi M31 magazines and "
+                                               "decreased rate."
                                    ),
     description='Shorter version of the MAX-10/31. Upper receiver for the M10/9 by Lage Manufacturing. '
                 'Featuring compatibility with Suomi M31 magazines and decreased rate of fire at 631 RPM. '
@@ -381,7 +396,7 @@ mac1045_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 7/8x9', 'M10 Barrel'],
-                                   velocity_modifier=0.94,
+                                   velocity_modifier=1.036,
                                    compatible_bullet_type='.45 ACP',
                                    accuracy_part=True,
                                    short_barrel=True,
@@ -398,7 +413,7 @@ mac1045_max_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread .578x28', ],  # TODO - add more
                                    # attachments compatible with this barrel thread
-                                   velocity_modifier=1.07,
+                                   velocity_modifier=1.093,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.07,
                                    compatible_bullet_type='.45 ACP',
@@ -417,7 +432,7 @@ mac1045_carbine_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread .578x28', ],
                                    additional_required_parts=('M10/45 Carbine Handguard',),
-                                   velocity_modifier=1.11,
+                                   velocity_modifier=1.154,
                                    target_acquisition_ap=1.1,
                                    equip_time=1.2,
                                    compatible_bullet_type='.45 ACP',
@@ -437,7 +452,7 @@ mac109_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 3/4x10', 'M10 Barrel'],
-                                   velocity_modifier=1.066,
+                                   velocity_modifier=1.049,
                                    compatible_bullet_type='9mm',
                                    accuracy_part=True,
                                    short_barrel=True,
@@ -454,7 +469,7 @@ mac109_max_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
-                                   velocity_modifier=1.14,
+                                   velocity_modifier=1.131,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.07,
                                    compatible_bullet_type='9mm',
@@ -476,7 +491,7 @@ mac109_carbine_barrel = Item(
                                    additional_required_parts=('M10/45 Carbine Handguard',),
                                    equip_time=1.2,
                                    target_acquisition_ap=1.1,
-                                   velocity_modifier=1.17,
+                                   velocity_modifier=1.183,
                                    compatible_bullet_type='9mm',
                                    suffix="Carbine",
                                    accuracy_part=True,
@@ -494,9 +509,9 @@ max1031_barrel_1228 = Item(
     usable_properties=GunComponent(part_type="M10 Barrel",
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31k Upper Receiver (M10/9)"]},
-                                   velocity_modifier=1.17,
+                                   velocity_modifier=1.127,
                                    target_acquisition_ap=1.03,
-                                   equip_time=1.07,
+                                   equip_time=1.03,
                                    accuracy_part=True,
                                    short_barrel=True,
                                    ),
@@ -514,8 +529,7 @@ max1031k_barrel_1228 = Item(
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31 Upper Receiver (M10/9)",
                                                                    "MAX-10/31k Upper Receiver (M10/9)"]},
-                                   velocity_modifier=1.1,
-                                   target_acquisition_ap=1.01,
+                                   velocity_modifier=1.049,
                                    accuracy_part=True,
                                    short_barrel=True,
                                    ),
@@ -532,10 +546,10 @@ max1031_barrel_3410 = Item(
     usable_properties=GunComponent(part_type="M10 Barrel",
                                    is_attachment_point_types=['Barrel Thread 3/4x10', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31k Upper Receiver (M10/9)"]},
-                                   velocity_modifier=1.17,
+                                   velocity_modifier=1.127,
                                    compatible_bullet_type='9mm',
                                    target_acquisition_ap=1.03,
-                                   equip_time=1.07,
+                                   equip_time=1.03,
                                    accuracy_part=True,
                                    short_barrel=True,
                                    ),
@@ -553,9 +567,8 @@ max1031k_barrel_3410 = Item(
                                    is_attachment_point_types=['Barrel Thread 3/4x10', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31 Upper Receiver (M10/9)",
                                                                    "MAX-10/31k Upper Receiver (M10/9)"]},
-                                   velocity_modifier=1.1,
+                                   velocity_modifier=1.049,
                                    compatible_bullet_type='9mm',
-                                   target_acquisition_ap=1.01,
                                    accuracy_part=True,
                                    short_barrel=True,
                                    ),
@@ -873,9 +886,9 @@ mac10 = Item(
     name="",
     weight=1,
     stacking=None,
-    description='An American straight blowback machine pistol, commonly known as the MAC-10. Originally designed by '
-                'Gordon Ingram in 1964 and manufactured by Military Armament Corporation and since by a multitude of '
-                'companies. Known for its blistering rate of fire and compact form factor.',
+    description='The M10, also known as the MAC-10, is a compact submachine gun that was developed by Gordon Ingram '
+                'in the 1960s. A simple open bolt blowback design, it is known for its compact size and blisteringly '
+                'high rate of fire. Models were produced chambered in both 9mm parabellum and .45 ACP. ',
     usable_properties=GunMagFed(
         compatible_magazine_type='M10/45',
         chambered_bullet=None,

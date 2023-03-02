@@ -25,6 +25,7 @@ reciever_akm = Item(
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.04,
                                                      'spread_modifier': 1.02, },
+                                   suffix='47',
                                    is_optic=True,
                                    functional_part=True,
                                    ),
@@ -43,6 +44,7 @@ reciever_ak74 = Item(
                                    is_attachment_point_types=['AK Side Mount', ],
                                    compatible_magazine_type='AK 5.45x39',
                                    compatible_bullet_type='5.45x39',
+                                   suffix='74',
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.45x39', 'RPK-74 Barrel - 5.45x39',
                                                                    'AK Carbine Barrel - 5.45x39',
                                                                    'AK Pistol Barrel - 5.45x39']},
@@ -51,6 +53,10 @@ reciever_ak74 = Item(
                                                      'spread_modifier': 1.02, },
                                    is_optic=True,
                                    functional_part=True,
+                                   description="The AK-74 is an assault rifle developed by Mikhail Kalashnikov in the "
+                                               "1970s as the successor to the AK-47. It is the is chambered for the "
+                                               "5.45x39mm cartridge, which is lighter and faster than the AK-47's "
+                                               "7.62x39mm cartridge.",
                                    ),
     description='AK-74 stamped kalashnikov type reciever'
 )
@@ -75,6 +81,11 @@ reciever_100556 = Item(
                                                      'spread_modifier': 1.02, },
                                    is_optic=True,
                                    functional_part=True,
+                                   description="The AK-101 and AK-102 rifles are modern versions of the AK-47, "
+                                               "designed by Russian firearms manufacturer Kalashnikov Concern. "
+                                               "Introduced in the 1990s, these rifles use the NATO standard 5.56x45mm "
+                                               "cartridge and have a modular design, allowing for easy customization "
+                                               "and maintenance."
                                    ),
     description='AK 101/102 series reciever for 5.56x45 AK rifles'
 )
@@ -472,6 +483,7 @@ barrel_ak762 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   velocity_modifier=0.937,
                                    sound_radius=1.1,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
@@ -527,6 +539,7 @@ barrel_ak556 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   suffix='101',
                                    velocity_modifier=1.082,
                                    sound_radius=1.1,
                                    target_acquisition_ap=0.96,
@@ -555,7 +568,6 @@ barrel_rpk762 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   velocity_modifier=1.066,
                                    sound_radius=0.9,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.13,
@@ -611,7 +623,7 @@ barrel_ak762_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   velocity_modifier=0.91,
+                                   velocity_modifier=0.87,
                                    sound_radius=1.2,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
@@ -671,6 +683,7 @@ barrel_ak556_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   suffix='102',
                                    velocity_modifier=0.95,
                                    sound_radius=1.2,
                                    target_acquisition_ap=0.95,
@@ -1029,11 +1042,12 @@ ak = Item(
     x=0, y=0,
     char="r",
     fg_colour=colour.LIGHT_GRAY,
-    name="Kalashnikov Assualt Rifle",
+    name="AK",
     weight=1,
     stacking=None,
-    description='The classic Russian assault rifle first produced in 1947 and used in almost every global '
-                'conflict since.',
+    description='The Kalashnikov is a selective-fire assault rifle designed by Soviet engineer Mikhail Kalashnikov in '
+                'the late 1940s. It was first adopted by the Soviet military in 1949 and has since become one of the '
+                'most widely used firearms in the world. It is renowned for its durability and ease of use.',
     usable_properties=GunMagFed(
         compatible_magazine_type='AK 7.62x39',
         chambered_bullet=None,

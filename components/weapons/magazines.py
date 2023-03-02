@@ -86,6 +86,146 @@ glock_mag_9mm_100 = Item(
 )
 
 """
+1911 45
+"""
+
+m1911_mag_45_8 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="1911 .45 ACP Magazine - Standard Capacity",
+    weight=0.0907,
+    stacking=None,
+    description='Steel 1911 .45 ACP magazine - 8 round standard capacity',
+    usable_properties=Magazine(
+        magazine_type='1911 .45 ACP',
+        compatible_bullet_type=['.45 ACP', ],
+        mag_capacity=8,
+        magazine_size='small',
+        ap_to_load=300,
+    )
+)
+
+m1911_mag_45_10 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="1911 .45 ACP Magazine - 10 Rounds",
+    weight=0.1,
+    stacking=None,
+    description='Extended 10 round capacity steel .45 ACP magazine for 1911 pistols designed by Wilson Combat. '
+                'The polymer base plate has been extended such that it sits flush seamlessly with the magazine well.',
+    usable_properties=Magazine(
+        magazine_type='1911 .45 ACP',
+        compatible_bullet_type=['.45 ACP', ],
+        mag_capacity=10,
+        magazine_size='small',
+        ap_to_load=300,
+    )
+)
+
+m1911_mag_45_15 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="1911 .45 ACP Extended Magazine - 15 Rounds",
+    weight=0.17,
+    stacking=None,
+    description='Steel 1911 15 round extended magazine designed by ProMag',
+    usable_properties=Magazine(
+        magazine_type='1911 .45 ACP',
+        compatible_bullet_type=['.45 ACP', ],
+        mag_capacity=15,
+        magazine_size='medium',
+        ap_to_load=330,
+    )
+)
+
+m1911_mag_45_40 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="1911 .45 ACP Drum Magazine - 40 Rounds",
+    weight=0.85,
+    stacking=None,
+    description='Polymer .45 ACP 40 round drum magazine designed by ProMag.',
+    usable_properties=Magazine(
+        magazine_type='1911 .45 ACP',
+        compatible_bullet_type=['.45 ACP', ],
+        mag_capacity=40,
+        magazine_size='large',
+        ap_to_load=500,
+        target_acquisition_ap_mod=1.13,
+        ap_distance_cost_mod=1.15,
+        equip_ap_mod=1.18,
+        failure_chance=2,
+    )
+)
+
+"""
+1911 9
+"""
+
+m1911_mag_9_10 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="1911 9mm Magazine - Standard Capacity",
+    weight=0.075,
+    stacking=None,
+    description='Steel 1911 9mm magazine - 10 round standard capacity',
+    usable_properties=Magazine(
+        magazine_type='1911 9mm',
+        compatible_bullet_type=['9mm', ],
+        mag_capacity=10,
+        magazine_size='small',
+        ap_to_load=300,
+    )
+)
+
+"""
+1911 10mm
+"""
+
+m1911_mag_10_8 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="1911 10mm Magazine - Standard Capacity",
+    weight=0.073,
+    stacking=None,
+    description='Steel 1911 9mm magazine - 8 round standard capacity',
+    usable_properties=Magazine(
+        magazine_type='1911 10mm',
+        compatible_bullet_type=['10mm', ],
+        mag_capacity=8,
+        magazine_size='small',
+        ap_to_load=300,
+    )
+)
+
+"""
+1911 10mm
+"""
+
+m1911_mag_40sw_8 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="1911 40 S&W Magazine - Standard Capacity",
+    weight=0.073,
+    stacking=None,
+    description='Steel 1911 9mm magazine - 8 round standard capacity',
+    usable_properties=Magazine(
+        magazine_type='1911 40 S&W',
+        compatible_bullet_type=['40 S&W', ],
+        mag_capacity=8,
+        magazine_size='small',
+        ap_to_load=300,
+    )
+)
+
+"""
 MAC 10 45
 """
 

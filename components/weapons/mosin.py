@@ -258,8 +258,11 @@ mosin_nagant = Item(
     name="Mosin-Nagant",
     weight=0.7,
     stacking=None,
-    description='A classic Russian bolt-action rifle invented in 1891 and used in hundreds of conflicts world wide '
-                'since. It is renowned as much for its durability and reliability as for its ubiquitousness.',
+    description='The Mosin-Nagant is a bolt-action rifle that was developed by Russian and Belgian engineers in the '
+                'late 19th century. It was adopted by the Russian military in 1891 and has since been used in '
+                'countless conflicts to this day. It is chambered for the 7.62x54mmR cartridge and has a five-round '
+                'internal magazine. Its reliability, as well as affordability on the surplus market, '
+                'make it a popular choice among collectors and shooters.',
     usable_properties=GunIntegratedMag(
         chambered_bullet=None,
         keep_round_chambered=False,

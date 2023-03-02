@@ -134,6 +134,10 @@ class Parts:
             if hasattr(part.usable_properties, 'suffix'):
                 suffixes += f"{part.usable_properties.suffix}"
 
+            # updates description
+            if hasattr(part.usable_properties, 'description'):
+                item.description = part.usable_properties.description
+
             # true if part is secondary gripping surface e.g. vertical grip or handguard
             if hasattr(part.usable_properties, 'grip_properties'):
                 grip_properties = part.usable_properties.grip_properties

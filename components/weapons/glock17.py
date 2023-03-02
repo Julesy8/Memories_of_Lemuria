@@ -35,11 +35,12 @@ glock17_barrel = Item(
                                    compatible_parts={
                                        'Glock 17 Slide': ['Glock 17 Slide', "Glock 17 Slide w/ Optics Cut",
                                                           'Glock 17 Custom Slide']},
+                                   velocity_modifier=1.033,
                                    functional_part=True,
                                    accuracy_part=True,
                                    short_barrel=True
                                    ),
-    description='Standard Glock 17 barrel'
+    description='Standard 4.49 inch Glock 17 barrel'
 )
 
 glock17l_barrel = Item(
@@ -50,19 +51,18 @@ glock17l_barrel = Item(
     weight=0.11,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
-                                   velocity_modifier=1.035,
+                                   velocity_modifier=1.0859,
                                    is_attachment_point_types=['Barrel Thread M13.5x1 LH', ],
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Slide', 'Glock 17L Custom Slide',
                                                                         'Glock 17 Slide', 'Glock 17 Custom Slide',
                                                                         "Glock 17 Slide w/ Optics Cut",
                                                                         "Glock 17L Slide w/ Optics Cut"]},
-                                   target_acquisition_ap=1.05,
-                                   equip_time=1.05,
+                                   target_acquisition_ap=1.03,
                                    functional_part=True,
                                    accuracy_part=True,
                                    short_barrel=True
                                    ),
-    description='Glock 17L barrel. Longer than the standard Glock 17 barrel'
+    description='Glock 17L barrel. Longer than the standard Glock 17 barrel, at 6.02 inches.'
 )
 
 glock_9in_barrel = Item(
@@ -73,14 +73,14 @@ glock_9in_barrel = Item(
     weight=0.2,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
-                                   velocity_modifier=1.08,
+                                   velocity_modifier=1.131,
                                    is_attachment_point_types=['Barrel Thread M13.5x1 LH', ],
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Slide', 'Glock 17L Custom Slide',
                                                                         'Glock 17 Slide', 'Glock 17 Custom Slide',
                                                                         "Glock 17 Slide w/ Optics Cut",
                                                                         "Glock 17L Slide w/ Optics Cut"]},
-                                   target_acquisition_ap=1.11,
-                                   equip_time=1.11,
+                                   target_acquisition_ap=1.05,
+                                   equip_time=1.05,
                                    functional_part=True,
                                    accuracy_part=True,
                                    short_barrel=True
@@ -100,6 +100,7 @@ glock17_barrel_ported = Item(
     weight=0.1,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
+                                   velocity_modifier=1.033,
                                    compatible_parts={'Glock 17 Slide': ['Glock 17 Custom Slide']},
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.4,
@@ -118,13 +119,12 @@ glock17l_barrel_ported = Item(
     weight=0.1,
     stacking=None,
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
-                                   velocity_modifier=1.035,
+                                   velocity_modifier=1.0859,
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Custom Slide', 'Glock 17 Slide',
                                                                         'Glock 17 Custom Slide']},
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.4,
-                                   target_acquisition_ap=1.05,
-                                   equip_time=1.05,
+                                   target_acquisition_ap=1.03,
                                    functional_part=True,
                                    accuracy_part=True,
                                    short_barrel=True
@@ -223,7 +223,6 @@ glock17_slide_custom = Item(
                                    optic_properties={'target_acquisition_ap': 0.92,
                                                      'ap_distance_cost_modifier': 1.08,
                                                      'spread_modifier': 1.1, },
-                                   target_acquisition_ap=0.95,
                                    is_optic=True,
                                    accuracy_part=True,
                                    functional_part=True
@@ -244,7 +243,6 @@ glock17l_slide_custom = Item(
                                    optic_properties={'target_acquisition_ap': 0.93,
                                                      'ap_distance_cost_modifier': 1.07,
                                                      'spread_modifier': 1.09, },
-                                   target_acquisition_ap=0.95,
                                    is_optic=True,
                                    accuracy_part=True,
                                    functional_part=True
@@ -365,7 +363,9 @@ glock_17 = Item(
     name="Glock 17",
     weight=0.62,
     stacking=None,
-    description='The classic Glock 9mm handgun, famous for its simplicity and reliability ',
+    description='The Glock is a striker fired handgun that was designed in the early 1980s by Austrian engineer '
+                'Gaston Glock. It was originally developed for military use, but quickly gained popularity in the '
+                'civilian market due to its lightweight and reliable design.',
     usable_properties=GunMagFed(
         compatible_magazine_type='Glock 9mm',
         chambered_bullet=None,
@@ -384,7 +384,7 @@ glock_17 = Item(
         sound_modifier=1.0,
         zero_range=25,
         target_acquisition_ap=30,
-        firing_ap_cost=50,
+        firing_ap_cost=60,
         ap_distance_cost_modifier=1.0,
         spread_modifier=0.055,
         gun_type='pistol',
@@ -402,7 +402,6 @@ glock17dict = {
                 },
                 "compatible parts": {
                     "Glock Stock": 1,
-                    "Attachment Adapter": 1,
                     "Glock Optics Mount": 1,
                     "Glock Base Plate": 1,
                     "Side Mounted Accessory": 1,

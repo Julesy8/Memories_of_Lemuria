@@ -4,6 +4,7 @@ import components.weapons.kalashnikov as ak
 import components.weapons.mac10 as m10
 import components.weapons.sks as sks
 import components.weapons.mosin as mosin
+import components.weapons.m1911 as m1911
 import components.weapons.attachments as attachments
 import components.weapons.gun_parts_weighted as gun_parts
 
@@ -805,3 +806,25 @@ mosin_weapon = PremadeWeapon(gun_item=mosin.mosindict,
                                  },
                              },
                              )
+
+"""
+1911
+"""
+
+# TODO - fill this out
+
+m1911_45 = PremadeWeapon(gun_item=m1911.m1911,
+                         bullet=gun_parts.bullets_45_weighted,
+                         magazine={},
+                         optics=optics_test,
+                         part_dict={
+                             "M1911 Frame": 1,
+                             "M1911 Barrel": 1,
+                             "M1911 Slide": 1,
+                             "M1911 Grip Panels": 1,
+                             "M1911 Optics Mount": 1,
+                             "Muzzle Device": 1,
+                         },
+                         )
+
+

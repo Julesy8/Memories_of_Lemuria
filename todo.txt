@@ -5,7 +5,12 @@ TO DO
 -multple sizes of icon, can add new sizes in main.spec
 -unique enemies which spawn once per game
 -in the dungeon you find enemies using your looted equipment from previous runs
+TODO - name and class select on menu screen
+TODO - better level progression - alternative levels
 TODO - way to see player stats including skills
+TODO - try reducing exe size - use UPX
+TODO - better damage messages
+TODO - trigger mods
 
 - TODO - add armour
 - TODO - instead of using randint, use int(128 * random.random()) - https://eli.thegreenplace.net/2018/slow-and-fast-methods-for-generating-random-integers-in-python/
