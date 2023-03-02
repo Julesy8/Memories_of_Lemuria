@@ -897,7 +897,3 @@ m31_9mm_71rd = Item(
         failure_chance=2,
     )
 )
-
-magazine_dict = {
-    "Glock 9mm": ((glock_mag_9mm, 2), (glock_mag_9mm_33, 1))
-}

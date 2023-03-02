@@ -144,6 +144,21 @@ bullets_9mm_weighted = {
     bullets.round_9mm_147_jhp_pp: 20,
 }
 
+bullets_10mm_weighted = {
+    bullets.round_10mm_155_jhp: 100,
+    bullets.round_10mm_180_fmj: 70,
+    bullets.round_10mm_190_jhp: 20,
+    bullets.round_10mm_220_fp: 10,
+}
+
+bullets_40sw_weighted = {
+    bullets.round_40sw_155_jhp: 100,
+    bullets.round_40sw_165_fmj: 80,
+    bullets.round_40sw_180_fmj: 70,
+    bullets.round_40sw_180_jhp: 30,
+    bullets.round_40sw_220_fp: 20,
+}
+
 bullets_45_weighted = {
     bullets.round_45_185_swc: 80,
     bullets.round_45_200_swc: 50,
