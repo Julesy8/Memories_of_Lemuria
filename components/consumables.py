@@ -146,14 +146,15 @@ class Weapon(Usable):
 
             total_weight = self.parent.weight
 
+            # magazine fed gun
             if hasattr(self, 'loaded_magazine'):
                 if self.loaded_magazine is not None:
                     magazine = self.loaded_magazine.magazine
-                    total_weight += self.loaded_magazine.weight
-            else:
-                magazine = self
-
-            total_weight += len(magazine) * magazine[0].weight
+                    total_weight += len(magazine) * magazine[0].weight + self.loaded_magazine.weight
+            # integrated magazine gun
+            elif isinstance(self, GunIntegratedMag):
+                magazine = self.magazine
+                total_weight += len(magazine) * magazine[0].weight
 
             # calculates AP modifier based on weight and weapon type
             if self.gun_type == 'pistol':
@@ -230,9 +231,14 @@ class Bullet(Usable):
                  velocity: int,  # feet per second
                  proj_config: float,  # corresponds to form factor, e.g. JHP, FMJ
                  drag_coefficient: float,  # drag coeficient in 10% ballistic gel for different projectil types
-                 sound_modifier: float,  # alters amount of noise the gun makes - relative to muzzle energy
                  spread_modifier: float,  # range penalty per tile to account for spread
                  ballistic_coefficient: float,
+                 bullet_length: float,  # inches
+                 max_expansion: float = 1.0,  # multiplier of diameter
+                 max_expansion_velocity: int = 2000,  # velocity at which bullet expands to maximum diameter
+                 bullet_expands=False,  # whether bullet expands (hollow point / soft point)
+                 bullet_yaws=False,  # whether bullet tumbles
+                 bullet_fragments=False,  # whether bullet fragments
                  load_time_modifier: int = 200,
                  projectile_no: int = 1,
                  ):
@@ -243,8 +249,13 @@ class Bullet(Usable):
         self.velocity = velocity
         self.proj_config = proj_config
         self.drag_coefficient = drag_coefficient
-        self.sound_modifier = sound_modifier
         self.ballistic_coefficient = ballistic_coefficient
+        self.bullet_length = bullet_length
+        self.max_expansion = max_expansion
+        self.max_expansion_velocity = max_expansion_velocity
+        self.bullet_expands =bullet_expands
+        self.bullet_yaws = bullet_yaws
+        self.bullet_fragments = bullet_fragments
         self.load_time_modifier = load_time_modifier
         self.projectile_no = projectile_no
         self.spread_modifier = spread_modifier
@@ -377,6 +388,7 @@ class Gun(Weapon):
                  sound_modifier: float,
                  felt_recoil: float,  # 1.0 = regular M4
                  zero_range: int,  # yards
+                 barrel_length: float, # inches
                  sight_height_above_bore: float,  # inches
                  receiver_height_above_bore: float,  # inches
                  target_acquisition_ap: int,  # ap cost for acquiring new target
@@ -421,6 +433,7 @@ class Gun(Weapon):
         self.zero_range = zero_range
         self.receiver_height_above_bore = receiver_height_above_bore
         self.sight_height_above_bore = sight_height_above_bore
+        self.barrel_length = barrel_length
         self.spread_modifier = spread_modifier  # MoA / 100
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
@@ -519,11 +532,17 @@ class Gun(Weapon):
                         self.jammed = True
                         return
 
-                # if the sound radius of the fired round is not already in the list, appends it to the list for
-                sound_radius = self.sound_modifier * self.chambered_bullet.usable_properties.sound_modifier
-                sound_radius_list.append(sound_radius)
 
                 muzzle_velocity = self.chambered_bullet.usable_properties.velocity * self.velocity_modifier
+
+                # calculates 'sound radius' based on barrel pressure relative to that of a glock 17 firing 115 gr
+                # bullets, which has an arbitrary sound radius of 20 when unsuppressed
+                sound_radius = ((self.chambered_bullet.usable_properties.mass * muzzle_velocity ** 2) /
+                                (2 * (pi * (self.chambered_bullet.usable_properties.diameter / 2) ** 2)
+                                 * self.barrel_length) / 181039271) * 20 * self.sound_modifier
+
+                # if the sound radius of the fired round is not already in the list, appends it to the list for
+                sound_radius_list.append(sound_radius)
 
                 # calculates AP modifier based on weight and weapon type
                 if self.gun_type == 'pistol':
@@ -580,6 +599,12 @@ class Gun(Weapon):
                             velocity_bullet=velocity_at_distance,
                             drag_bullet=self.chambered_bullet.usable_properties.drag_coefficient,
                             config_bullet=self.chambered_bullet.usable_properties.proj_config,
+                            bullet_length=self.chambered_bullet.usable_properties.bullet_length,
+                            bullet_expands=self.chambered_bullet.usable_properties.bullet_expands,
+                            bullet_yaws=self.chambered_bullet.usable_properties.bullet_yaws,
+                            bullet_fragments=self.chambered_bullet.usable_properties.bullet_fragments,
+                            bullet_max_expansion=self.chambered_bullet.usable_properties.max_expansion,
+                            bullet_expansion_velocity=self.chambered_bullet.usable_properties.max_expansion_velocity,
                             attacker=attacker
                         )
 
@@ -617,7 +642,7 @@ class Gun(Weapon):
                             ((1 - muzzle_break) ** (1 / sqrt(e)))
                         self.momentum_gun = bullet_momentum + gas_momentum + momentum_jet
 
-                    # TODO - potentailly better equation found in ADA561571 equation 7 - 8
+                    # potentailly better equation found in ADA561571 equation 7 - 8
                     velocity_gun = (self.momentum_gun / total_weight)
                     # recoil spread (MoA) based assuming M4 recoil spread is 2 MoA with stock, handguard,
                     # and pistol grip reducing felt recoil by 70% shooting 55gr bullets.
@@ -646,7 +671,7 @@ class Gun(Weapon):
         self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
 
     def shot_sound_activation(self, sound_radius: float, attacker: Actor) -> None:
-        # shot sound alert enemies in the vacinity of where the shot was fired from
+        # shot sound alert enemies in the vicinity of where the shot was fired from
         # only needs to be computed once for the 'loudest' shot fired
 
         for x in set(self.gamemap.actors) - {attacker}:
@@ -806,6 +831,7 @@ class GunMagFed(Gun):
                  keep_round_chambered: bool,
                  sound_modifier: float,
                  zero_range: int,
+                 barrel_length: float,
                  sight_height_above_bore: float,
                  receiver_height_above_bore: float,
                  felt_recoil: float,
@@ -861,7 +887,8 @@ class GunMagFed(Gun):
             compatible_clip=compatible_clip,
             gun_type=gun_type,
             has_stock=has_stock,
-            short_barrel=short_barrel
+            short_barrel=short_barrel,
+            barrel_length=barrel_length
         )
 
     def load_gun(self, magazine: Item):
@@ -939,7 +966,7 @@ class GunMagFed(Gun):
 
         if self.loaded_magazine is not None:
             if len(self.loaded_magazine.usable_properties.magazine) > 0:
-                if self.loaded_magazine.usable_properties.magazine[-1].usable_properties.bullet_type == \
+                if self.loaded_magazine.usable_properties.magazine[-1].usable_properties.bullet_type in \
                         self.compatible_bullet_type:
                     self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
                 else:
@@ -960,6 +987,7 @@ class GunIntegratedMag(Gun, Magazine):
                  sound_modifier: float,
                  felt_recoil: float,
                  zero_range: int,
+                 barrel_length: float,
                  sight_height_above_bore: float,
                  receiver_height_above_bore: float,
                  target_acquisition_ap: int,
@@ -1013,11 +1041,11 @@ class GunIntegratedMag(Gun, Magazine):
             compatible_clip=compatible_clip,
             gun_type=gun_type,
             has_stock=has_stock,
-            short_barrel=short_barrel
+            short_barrel=short_barrel,
+            barrel_length=barrel_length
         )
 
     def chamber_round(self):
-
         if len(self.magazine) > 0:
             self.chambered_bullet = self.magazine.pop()
 

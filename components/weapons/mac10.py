@@ -398,6 +398,7 @@ mac1045_barrel = Item(
                                    is_attachment_point_types=['Barrel Thread 7/8x9', 'M10 Barrel'],
                                    velocity_modifier=1.036,
                                    compatible_bullet_type='.45 ACP',
+                                   barrel_length=5.75,
                                    accuracy_part=True,
                                    short_barrel=True,
                                    ),
@@ -413,6 +414,7 @@ mac1045_max_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread .578x28', ],  # TODO - add more
                                    # attachments compatible with this barrel thread
+                                   barrel_length=9,
                                    velocity_modifier=1.093,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.07,
@@ -432,6 +434,7 @@ mac1045_carbine_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread .578x28', ],
                                    additional_required_parts=('M10/45 Carbine Handguard',),
+                                   barrel_length=16,
                                    velocity_modifier=1.154,
                                    target_acquisition_ap=1.1,
                                    equip_time=1.2,
@@ -452,6 +455,7 @@ mac109_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 3/4x10', 'M10 Barrel'],
+                                   barrel_length=5.75,
                                    velocity_modifier=1.049,
                                    compatible_bullet_type='9mm',
                                    accuracy_part=True,
@@ -469,6 +473,7 @@ mac109_max_barrel = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   barrel_length=9,
                                    velocity_modifier=1.131,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.07,
@@ -489,6 +494,7 @@ mac109_carbine_barrel = Item(
     usable_properties=GunComponent(part_type='M10 Barrel',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    additional_required_parts=('M10/45 Carbine Handguard',),
+                                   barrel_length=16,
                                    equip_time=1.2,
                                    target_acquisition_ap=1.1,
                                    velocity_modifier=1.183,
@@ -509,6 +515,7 @@ max1031_barrel_1228 = Item(
     usable_properties=GunComponent(part_type="M10 Barrel",
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31k Upper Receiver (M10/9)"]},
+                                   barrel_length=8.375,
                                    velocity_modifier=1.127,
                                    target_acquisition_ap=1.03,
                                    equip_time=1.03,
@@ -529,6 +536,7 @@ max1031k_barrel_1228 = Item(
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31 Upper Receiver (M10/9)",
                                                                    "MAX-10/31k Upper Receiver (M10/9)"]},
+                                   barrel_length=5.75,
                                    velocity_modifier=1.049,
                                    accuracy_part=True,
                                    short_barrel=True,
@@ -546,6 +554,7 @@ max1031_barrel_3410 = Item(
     usable_properties=GunComponent(part_type="M10 Barrel",
                                    is_attachment_point_types=['Barrel Thread 3/4x10', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31k Upper Receiver (M10/9)"]},
+                                   barrel_length=8.375,
                                    velocity_modifier=1.127,
                                    compatible_bullet_type='9mm',
                                    target_acquisition_ap=1.03,
@@ -567,6 +576,7 @@ max1031k_barrel_3410 = Item(
                                    is_attachment_point_types=['Barrel Thread 3/4x10', ],
                                    compatible_parts={'M10 Upper': ["MAX-10/31 Upper Receiver (M10/9)",
                                                                    "MAX-10/31k Upper Receiver (M10/9)"]},
+                                   barrel_length=5.75,
                                    velocity_modifier=1.049,
                                    compatible_bullet_type='9mm',
                                    accuracy_part=True,
@@ -911,6 +921,7 @@ mac10 = Item(
         zero_range=25,
         spread_modifier=0.06,
         gun_type='pistol',
+        barrel_length=4
     )
 )
 

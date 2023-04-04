@@ -85,7 +85,8 @@ class Parts:
                                                    firing_ap_cost=self.parent.firing_ap_cost,
                                                    condition_accuracy=self.parent.condition_accuracy,
                                                    condition_function=self.parent.condition_function,
-                                                   compatible_clip=self.parent.compatible_clip
+                                                   compatible_clip=self.parent.compatible_clip,
+                                                   barrel_length=self.parent.barrel_length
                                                    )
 
                     self.parent.parent = item
@@ -119,7 +120,8 @@ class Parts:
                                             firing_ap_cost=self.parent.firing_ap_cost,
                                             condition_accuracy=self.parent.condition_accuracy,
                                             condition_function=self.parent.condition_function,
-                                            compatible_clip=self.parent.compatible_clip
+                                            compatible_clip=self.parent.compatible_clip,
+                                            barrel_length=self.parent.barrel_length
                                             )
 
                     self.parent.parent = item
@@ -175,6 +177,7 @@ class Parts:
             self.set_property(part_properties=optic_properties)
 
         # assigns type to weapon
+        # TODO - this needs some work, e.g. short barreled AK should probably not be classified as a PDW
         if self.parent.gun_type == 'rifle':
             if self.parent.short_barrel:
                 self.parent.gun_type = 'pdw'

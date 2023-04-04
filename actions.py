@@ -9,6 +9,7 @@ import numpy.random
 
 import colour
 import exceptions
+from random import choices
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -111,8 +112,14 @@ class AttackAction(Action):
         if self.entity.player:
             self.attack_colour = colour.LIGHT_GREEN
 
+        # selects random body part to target
         if not self.targeted_bodypart:
-            self.part_index = randint(0, len(target.bodyparts) - 1)
+            no_parts = len(target.bodyparts)
+            indices = list(range(0, no_parts))
+            # first body part in part list weighted higher - should be main body part i.e. torso
+            weights = [no_parts * 5]
+            weights.extend([1 for i in range(no_parts - 1)])
+            self.part_index = choices(indices, weights)[0]
             self.targeted_bodypart = target.bodyparts[self.part_index]
 
     def attack(self) -> None:
@@ -553,6 +560,7 @@ class MovementAction(ActionWithDirection):
                     while trying_to_move:
                         if random.uniform(0, 1) < fighter.move_success_chance:
                             self.entity.move(self.dx, self.dy)
+                            TryToMove(self.entity, self.dx, self.dy).perform()
                             trying_to_move = False
                         else:
                             self.engine.handle_enemy_turns()
@@ -574,6 +582,12 @@ class MovementAction(ActionWithDirection):
 
                 self.perform()
 
+class TryToMove(ActionWithDirection):
+    def perform(self) -> None:
+        if self.blocking_entity:
+            self.engine.message_log.add_message("Movement interrupted - an enemy is in the way", colour.RED)
+        else:
+            return MovementAction(self.entity, self.dx, self.dy).perform()
 
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:

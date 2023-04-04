@@ -1,7 +1,6 @@
 ---------------------------
 MEMORIES OF LEMURIA V. 1.0
 ---------------------------
-
 As this game is in active development, you may encounter bugs throughout the course of gameplay. Please submit bug
 reports and suggestions to EMAIL@EMAIL.COM.
 
@@ -46,6 +45,7 @@ Q: Interact with Held Weapon
 C: Crafting
 S: Change Attack Style
 P: Bestiary
+Z: View Skills
 Space: Attack Mode
 Escape: Save and Exit
 
@@ -78,6 +78,28 @@ SE - Numpad 3 or N
 SW - Numpad 1 or B
 NW - Numpad 7 or Y
 
+----
+GUNS
+----
+
+Guns are made up of weapon parts. Each weapon part has unique properties which influence how the gun behaves. A guns
+component parts can be viewed from the inspect menu. Weapons can be disassembled into their component parts through
+the interaction menu. Weapons and their parts can be found in different conditions. Accuracy condition indicates
+the condition of the parts as it pertains to accuracy of the weapon, for example condition of the bore. Guns with a
+worse accuracy condition will be less accurate in combat. Function condition indicates the condition of the parts as it
+pertains to the cycling of the action and jamming. Guns with a worse functional condition will be more prone to
+jamming. Gun parts can be repaired through the use of weapon part repair kits, which can be found throughout the map
+and are dropped by enemies.
+
+To create a gun from parts, enter the crafting menu by pressing (C). Before you can craft a new type of weapon, you
+first have to collect and activate a PDA containing its schematics. PDAs can be found throughout the map and are
+dropped by enemies. Note that not all parts will be compatible with one another for a given gun.
+
+Skills govern performance when using certain weapon types, including accuracy, recoil control, reloading speed, and
+equip speed. Skills can be trained by using the associated weapon type. The weapons type is influenced by its parts,
+and can be viewed by inspecting it. You can see your proficiency with different weapon types by using the skill menu,
+which is accessed by pressing (Z).
+
 ---------
 EQUIPMENT
 ---------
@@ -95,14 +117,6 @@ The player has a limited amount of small, medium and large magazine equipment sl
 amount of slots for each can be altered by wearing different clothing. To reload a magazine-fed gun, an appropriate
 magazine must be equipped to the magazine load out, which can be viewed by pressing (R). Magazines can be reloaded by
 interacting with them.
-
---------
-CRAFTING
---------
-
-Guns can be crafted from weapon parts. Parts can be found throughout the map, and weapons can be disassembled into
-their component parts.To create a gun from parts, enter the crafting menu by pressing (C). Before you can craft a new
-type of weapon, you first have to collect and activate a PDA containing its schematics. PDAs are dropped by enemies.
 
 ------
 COMBAT

@@ -595,6 +595,8 @@ suppressor_saker_762 = Item(
     description='A rifle suppressor intended for 7.62mm rifles compatible with 1/2x28 barrel threading'
 )
 
+# TODO - 10mm/40sw suppressors
+
 """
 Accessories
 """

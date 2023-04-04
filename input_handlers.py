@@ -189,8 +189,12 @@ class MainMenu(BaseEventHandler):
         console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
                       fg=self.fg_colour)
 
+        console.print(x=console.width // 2 - 19, y=53,
+                      string='PRE-ALPHA - READ MANUAL BEFORE PLAYING',
+                      fg=self.fg_colour)
+
         if music:
-            console.print(x=console.width // 2 - 26, y=54,
+            console.print(x=console.width // 2 - 26, y=48,
                           string='MUSIC BY BLAVATSKY -- HTTPS://BLAVATSKY.BANDCAMP.COM',
                           fg=self.fg_colour)
 
@@ -371,18 +375,18 @@ class MainGameEventHandler(EventHandler):
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine)
-
         elif key == tcod.event.K_c:
             return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting')
-
         elif key == tcod.event.K_i:
-            return InventoryEventHandler(self.engine)
+            return InventoryEventHandler(self.engine) # TODO - less confusing control scheme
         elif key == tcod.event.K_e:
             return EquipmentEventHandler(self.engine)
         elif key == tcod.event.K_s:
             return AttackStyleMenu(self.engine)
         elif key == tcod.event.K_p:
             return Bestiary(self.engine)
+        elif key == tcod.event.K_z:
+            return ViewPlayerStats(self.engine)
         # No valid key was pressed
         return action
 
@@ -868,7 +872,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         else:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-
+"""
 class AmountToScrap(TypeAmountEventHandler):
     def __init__(self, engine: Engine, item: Item):
         super().__init__(engine=engine, item=item, prompt_string="amount to scrap (leave blank for all):")
@@ -907,7 +911,7 @@ class AmountToScrap(TypeAmountEventHandler):
 
         else:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
-
+"""
 
 class EquipmentEventHandler(AskUserEventHandler):
     # used for equipment screen
@@ -1122,14 +1126,22 @@ class ChangeTargetActor(AskUserEventHandler):
             target_str = f"Targeting: {player.fighter.target_actor.name} - {self.selected_bodypart.name}".upper()
             ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
 
-            console.print(x=1, y=console.height - 8, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
+            offset = 0
 
-            console.print(x=1, y=console.height - 7, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
+            # if wearing armour, shows what body armour the enemy is wearing
+            # if displaying armour, offsets other display information
+            if self.selected_bodypart.equipped is not None:
+                console.print(x=1, y=console.height - 6, string=f"ARMOUR: {self.selected_bodypart.equipped.name}",
+                              fg=colour.WHITE, bg=(0, 0, 0))
+                offset = 1
 
-            console.print(x=1, y=console.height - 6, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
-
-            console.print(x=17, y=console.height - 6, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
+            # displays AP and enemy information
+            console.print(x=1, y=console.height - 8 + offset, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=1, y=console.height - 7 + offset, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=1, y=console.height - 6 + offset, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=17, y=console.height - 6 + offset, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
                           bg=(0, 0, 0))
+            console.print(x=1, y=2, string="PRESS [K] FOR ENEMY INFO", fg=colour.LIGHT_RED, bg=(0, 0, 0))
 
         else:
             console.print(x=1, y=2, string="NO TARGET", fg=colour.LIGHT_RED, bg=(0, 0, 0))
@@ -1137,6 +1149,8 @@ class ChangeTargetActor(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
         key = event.sym
+
+        # TODO - additional AP cost for changing target limb
 
         if key == tcod.event.K_SPACE:  # change target
 
@@ -1194,6 +1208,14 @@ class ChangeTargetActor(AskUserEventHandler):
                                                targeted_actor=player.fighter.target_actor,
                                                targeted_bodypart=self.selected_bodypart).attack()
 
+                    # prints splatter message
+                    if self.selected_bodypart.show_splatter_message:
+                        self.engine.message_log.add_message(self.selected_bodypart.splatter_message,
+                                                            colour.GREEN)
+
+                        self.selected_bodypart.show_splatter_message = False
+                        self.selected_bodypart.splatter_message_shown = True
+
                 # unarmed attack
                 else:
                     actions.UnarmedAttackAction(distance=distance_target, entity=player,
@@ -1205,6 +1227,11 @@ class ChangeTargetActor(AskUserEventHandler):
 
             else:
                 return MainGameEventHandler(self.engine)
+
+        # displays enemy info
+        elif key == tcod.event.K_k and player.fighter.target_actor is not None:
+            # TODO - implement
+            pass
 
         elif key in WAIT_KEYS:
             self.engine.handle_enemy_turns()
@@ -2277,6 +2304,74 @@ class InspectItemViewer(AskUserEventHandler):
 
         elif key == tcod.event.K_ESCAPE:
             return MainGameEventHandler(self.engine)
+
+
+def skill_proficiency(skill_level, skill_max) -> str:
+    if skill_level == 0:
+        return f'Untrained'
+    elif skill_level <= (skill_max * 0.1):
+        return 'Novice'
+    elif (skill_max * 0.1) < skill_level <= (skill_max * 0.2):
+        return 'Adequate'
+    elif (skill_max * 0.2) < skill_level <= (skill_max * 0.3):
+        return 'Competent'
+    elif (skill_max * 0.4) < skill_level <= (skill_max * 0.5):
+        return 'Skilled'
+    elif (skill_max * 0.5) < skill_level <= (skill_max * 0.6):
+        return 'Talented'
+    elif (skill_max * 0.6) < skill_level <= (skill_max * 0.7):
+        return 'Professional'
+    elif (skill_max * 0.7) < skill_level <= (skill_max * 0.8):
+        return 'Expert'
+    elif (skill_max * 0.8) < skill_level <= (skill_max * 0.9):
+        return 'Great'
+    elif (skill_max * 0.9) < skill_level <= skill_max:
+        return 'Master'
+
+
+class ViewPlayerStats(EventHandler):
+
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+        self.title = f'Skills - {engine.player.name}'
+        self.options = {
+            "Ranged Marksmanship": skill_proficiency(engine.player.fighter.skill_marksmanship, 1000),
+            "Pistol Proficiency": skill_proficiency(engine.player.fighter.skill_pistol_proficiency, 1000),
+            "PDW & SMG Proficiency": skill_proficiency(engine.player.fighter.skill_pistol_proficiency, 1000),
+            "Rifle Proficiency": skill_proficiency(engine.player.fighter.skill_rifle_proficiency, 1000),
+            "Bolt Gun Proficiency": skill_proficiency(engine.player.fighter.skill_bolt_action_proficiency, 1000),
+        }
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        width = len(self.title)
+
+        for key, value in self.options.items():
+            total_len = (len(key) + len(value) + 1)
+            if total_len > width:
+                width = total_len
+
+        x = console.width // 2 - ((width + 8) // 2)
+        y = console.height // 2 - (len(self.options) // 2)
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 8,
+            height=len(self.options) + 2,
+            title=self.title,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        for i, key in enumerate(self.options.keys()):
+            console.print(x + 1, y + i + 1, f"{key} - {self.options[key]}")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        if event.sym == tcod.event.K_ESCAPE:
+            return MainGameEventHandler(engine=self.engine)
 
 
 class ShowParts(UserOptionsWithPages):

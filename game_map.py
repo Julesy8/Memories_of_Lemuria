@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
@@ -8,7 +9,7 @@ from tcod.console import Console
 import colour
 import tile_types
 from colours_and_chars import MapColoursChars
-from entity import Actor, Item
+from entity import Actor, AIActor, Item
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -171,8 +172,18 @@ class GameMap:
                 obj_x, obj_y = entity.x - cam_x, entity.y - cam_y
                 if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
                     console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
-                    if isinstance(entity, Actor):
-                        entity.active = True
+                    if isinstance(entity, AIActor):
+                        # chance of enemy becoming active from 'seeing' player is dependent on range and distance
+                        if not entity.active:
+                            dx = entity.x - self.engine.player.x
+                            dy = entity.y - self.engine.player.y
+                            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+                            # at 10 metres distance there's an equal chance of the enemy noticing you as not noticing
+                            # you
+                            # TODO - this should be affected by a stealth skill
+                            sees_player = random.choices((True, False), weights=(10, distance))
+                            if sees_player:
+                                entity.active = True
 
             elif entity.seen:
 

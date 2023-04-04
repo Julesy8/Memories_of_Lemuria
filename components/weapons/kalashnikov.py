@@ -483,8 +483,8 @@ barrel_ak762 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   barrel_length=16.3,
                                    velocity_modifier=0.937,
-                                   sound_radius=1.1,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    functional_part=True,
@@ -511,8 +511,8 @@ barrel_ak545 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   barrel_length=16.3,
                                    velocity_modifier=1.082,
-                                   sound_radius=1.1,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    functional_part=True,
@@ -539,9 +539,9 @@ barrel_ak556 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   barrel_length=16.3,
                                    suffix='101',
                                    velocity_modifier=1.082,
-                                   sound_radius=1.1,
                                    target_acquisition_ap=0.96,
                                    equip_time=0.9,
                                    functional_part=True,
@@ -568,7 +568,7 @@ barrel_rpk762 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
-                                   sound_radius=0.9,
+                                   barrel_length=23.2,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.13,
                                    functional_part=True,
@@ -595,8 +595,8 @@ barrel_rpk545 = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   barrel_length=23.2,
                                    velocity_modifier=1.056,
-                                   sound_radius=0.9,
                                    target_acquisition_ap=1.04,
                                    equip_time=1.13,
                                    functional_part=True,
@@ -623,8 +623,8 @@ barrel_ak762_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   barrel_length=12.4,
                                    velocity_modifier=0.87,
-                                   sound_radius=1.2,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
                                    functional_part=True,
@@ -653,8 +653,8 @@ barrel_ak545_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   barrel_length=12.4,
                                    velocity_modifier=0.81,
-                                   sound_radius=1.2,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
                                    functional_part=True,
@@ -683,9 +683,9 @@ barrel_ak556_short = Item(
                                                                       "Leader AK Handguard",
                                                                       "MOE AK Handguard"
                                                                       ]},
+                                   barrel_length=12.4,
                                    suffix='102',
                                    velocity_modifier=0.95,
-                                   sound_radius=1.2,
                                    target_acquisition_ap=0.95,
                                    equip_time=0.79,
                                    functional_part=True,
@@ -866,7 +866,7 @@ muzzle_dtk = Item(
                                    muzzle_break_efficiency=0.46,
                                    target_acquisition_ap=1.04,
                                    spread_modifier=1.03,
-                                   sound_radius=1.2,
+                                   sound_radius=1.13,
                                    ),
     description="A muzzle brake/compensator fitting 5.45x49 AK rifles by Zenitco"
 )
@@ -883,7 +883,7 @@ muzzle_amd65 = Item(
                                    muzzle_break_efficiency=0.47,
                                    target_acquisition_ap=1.05,
                                    spread_modifier=1.04,
-                                   sound_radius=1.23,
+                                   sound_radius=1.16,
                                    ),
     description="A muzzle brake/compensator fitting 7.62x39 AK type rifles made for the AMD-65"
 )
@@ -915,7 +915,7 @@ muzzle_akml = Item(
                                    muzzle_break_efficiency=0.12,
                                    target_acquisition_ap=1.02,
                                    spread_modifier=1.01,
-                                   sound_radius=1.09,
+                                   sound_radius=1.08,
                                    ),
     description="Flash hider and muzzle brake for 7.62x39 AK rifles"
 )
@@ -932,7 +932,7 @@ muzzle_lantac = Item(
                                    muzzle_break_efficiency=0.48,
                                    target_acquisition_ap=1.05,
                                    spread_modifier=1.05,
-                                   sound_radius=1.14,
+                                   sound_radius=1.12,
                                    ),
     description="Compensator and muzzle brake fitting 7.62x39 AK rifles manufactured by Lantac"
 )
@@ -1071,6 +1071,7 @@ ak = Item(
         sight_height_above_bore=0.31,
         spread_modifier=0.052,
         gun_type='rifle',
+        barrel_length=16
     )
 )
 

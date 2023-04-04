@@ -30,10 +30,14 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
                     if entity.inventory.held is not None:
                         weapon_name = entity.inventory.held.name
 
-                if weapon_name is None:
-                    names.append(entity.name)
+                if entity.ai:
+                    if weapon_name is None:
+                        names.append(f"{entity.name} - Condition: {give_entity_condition(entity)}")
+                    else:
+                        names.append(f"{entity.name} - Condition: {give_entity_condition(entity)} Held: {weapon_name}")
+
                 else:
-                    names.append(f"{entity.name} - {weapon_name}")
+                    names.append(entity.name)
 
             except AttributeError:
                 names.append(entity.name)
@@ -59,6 +63,32 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
                 names.append(f"{entity.name} x {name_count}")
 
     return ', '.join(map(str, names))
+
+
+def give_entity_condition(entity):
+
+    total_hp_max = 0
+    total_hp = 0
+
+    for part in entity.bodyparts:
+        if part.vital:
+            total_hp += part.hp
+            total_hp_max += part.max_hp
+
+    if total_hp == total_hp_max:
+        return "Unscathed"
+
+    elif total_hp_max * 0.75 <= total_hp <= total_hp_max:
+        return "Damaged"
+
+    elif total_hp_max * 0.5 <= total_hp <= total_hp_max * 0.75:
+        return "Injured"
+
+    elif total_hp_max * 0.15 <= total_hp <= total_hp_max * 0.50:
+        return "Severely Injured"
+
+    elif 0 < total_hp <= total_hp_max * 0.15:
+        return "Critically Injured"
 
 
 def render_names_at_mouse_location(

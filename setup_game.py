@@ -39,7 +39,7 @@ def new_game() -> Engine:
     # initialises player entity
     fighter_component = PlayerFighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
 
-    Head_part = Head(hp=40, protection_ballistic=0, protection_physical=50, depth=20, width=20, height=26)
+    Head_part = Head(hp=60, protection_ballistic=0, protection_physical=50, depth=20, width=20, height=26)
     Body_part = Body(hp=100, protection_ballistic=0, protection_physical=50, depth=20, width=35, height=56)
     R_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=50, name='right arm', depth=10, width=10, height=78)
     L_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=50, name='left arm', depth=10, width=10, height=78)
@@ -141,7 +141,7 @@ def generate_subtext() -> str:
                      'Cursed', 'Hegelian', 'Occult', 'Banned', 'Experimental', 'Reviled', '"Fictional"', 'CIA',
                      'Timeless', 'Theoretical', 'Runic', 'Spiritual', 'Soulful', 'Historical', 'Symbolic',
                      'Intuitive', 'Weaponized', 'Primal', 'Subconscious', 'Arthurian', 'Goetic', 'Wagnerian',
-                     'Tantric'))
+                     'Taoist', 'Dharmic', 'Practical', 'Factual'))
 
     verb_2 = choice(('Deep Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',
@@ -150,7 +150,8 @@ def generate_subtext() -> str:
                      'Post-Industrial', 'Post-Fall', 'Hollow Earth', 'Pre-Modern', 'Introductory', 'Ritual',
                      'Cautionary', 'Transcendental', 'Chaotic', 'Perennial', 'Secret', 'Revisionist', 'Pseudo',
                      'Military', 'Sensory', 'Planetary', 'Radical', 'Chakra', 'Compassionate', 'Archaic', 'Arcane',
-                     'Lawful', 'Royal', 'Sacrificial', 'Cubic', 'Elite', 'Satirical', 'Polemical'))
+                     'Lawful', 'Royal', 'Sacrificial', 'Cubic', 'Elite', 'Satirical', 'Polemical', 'Sci-Fi',
+                     'Fantasy'))
 
     verb_3 = choice(('Combat', 'Gun Smithing', 'UFO-ology', 'Warfare', 'Conspiracy', 'CQC', 'Harm Prevention',
                      'Self Defense', 'Horror', 'Action', 'Time-War', 'Numerology', 'Sacred Geometry',

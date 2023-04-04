@@ -167,13 +167,14 @@ barrel_sks = Item(
                                                      'ap_distance_cost_modifier': 0.94,
                                                      'spread_modifier': 0.95, },
                                    compatible_magazine_type='SKS Magazine',
+                                   barrel_length=20,
                                    is_optic=True,
                                    equip_time=1.1,
                                    velocity_modifier=0.96,
                                    accuracy_part=True,
                                    functional_part=True,
                                    ),
-    description="An SKS receiver with a standard length SKS barrel"
+    description="An SKS receiver with a standard 20 inch SKS barrel"
 )
 
 barrel_sks_shortened = Item(
@@ -190,6 +191,7 @@ barrel_sks_shortened = Item(
                                                      'ap_distance_cost_modifier': 0.95,
                                                      'spread_modifier': 0.96, },
                                    compatible_magazine_type='SKS Magazine',
+                                   barrel_length=17.5,
                                    is_optic=True,
                                    velocity_modifier=0.939,
                                    equip_time=0.9,
@@ -212,6 +214,7 @@ barrel_sks_auto = Item(
                                    optic_properties={'target_acquisition_ap': 1.09,
                                                      'ap_distance_cost_modifier': 0.94,
                                                      'spread_modifier': 0.95, },
+                                   barrel_length=20,
                                    compatible_magazine_type='SKS Magazine',
                                    is_optic=True,
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
@@ -220,7 +223,7 @@ barrel_sks_auto = Item(
                                    accuracy_part=True,
                                    functional_part=True,
                                    ),
-    description="An SKS receiver with a standard length SKS barrel converted to be capable of fully automatic fire"
+    description="An SKS receiver with a standard 20 inch SKS barrel converted to be capable of fully automatic fire"
 )
 
 barrel_sks_shortened_auto = Item(
@@ -237,6 +240,7 @@ barrel_sks_shortened_auto = Item(
                                                      'ap_distance_cost_modifier': 0.95,
                                                      'spread_modifier': 0.96, },
                                    compatible_magazine_type='SKS Magazine',
+                                   barrel_length=17.5,
                                    is_optic=True,
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
                                    equip_time=0.9,
@@ -263,12 +267,13 @@ barrel_sks_akmag = Item(
                                                      'spread_modifier': 0.95, },
                                    compatible_magazine='AK 7.62x39',
                                    is_optic=True,
+                                   barrel_length=20,
                                    equip_time=1.1,
                                    velocity_modifier=0.96,
                                    accuracy_part=True,
                                    functional_part=True,
                                    ),
-    description="An SKS receiver with a standard length SKS barrel. The magazine well has been converted to accept "
+    description="An SKS receiver with a standard 20 inch SKS barrel. The magazine well has been converted to accept "
                 "7.62x39 Kalashnikov type magazines."
 )
 
@@ -288,6 +293,7 @@ barrel_sks_shortened_akmag = Item(
                                                      'spread_modifier': 0.96, },
                                    compatible_magazine_type='AK 7.62x39',
                                    is_optic=True,
+                                   barrel_length=17.5,
                                    velocity_modifier=0.939,
                                    equip_time=0.9,
                                    accuracy_part=True,
@@ -314,12 +320,13 @@ barrel_sks_auto_akmag = Item(
                                    compatible_magazine_type='AK 7.62x39',
                                    is_optic=True,
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
+                                   barrel_length=20,
                                    equip_time=1.1,
                                    velocity_modifier=0.96,
                                    accuracy_part=True,
                                    functional_part=True,
                                    ),
-    description="An SKS receiver with a standard length SKS barrel converted to be capable of fully automatic fire. "
+    description="An SKS receiver with a standard 20 inch SKS barrel converted to be capable of fully automatic fire. "
                 "The magazine well has been converted to accept 7.62x39 Kalashnikov type magazines."
 )
 
@@ -340,6 +347,7 @@ barrel_sks_shortened_auto_akmag = Item(
                                    compatible_magazine_type='AK 7.62x39',
                                    is_optic=True,
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
+                                   barrel_length=17.5,
                                    equip_time=0.9,
                                    velocity_modifier=0.939,
                                    accuracy_part=True,
@@ -414,6 +422,7 @@ sks = Item(
         spread_modifier=0.05,
         compatible_magazine_type='SKS Magazine',
         gun_type='rifle',
+        barrel_length=20
     )
 )
 

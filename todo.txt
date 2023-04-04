@@ -3,20 +3,33 @@ TO DO
 -----
 
 -multple sizes of icon, can add new sizes in main.spec
--unique enemies which spawn once per game
--in the dungeon you find enemies using your looted equipment from previous runs
+
 TODO - name and class select on menu screen
 TODO - better level progression - alternative levels
-TODO - way to see player stats including skills
 TODO - try reducing exe size - use UPX
-TODO - better damage messages
 TODO - trigger mods
+TODO - armour weight changes dexterity and walk speed
+TODO - way to repair weapon parts using kits
+TODO - blood loss
+TODO - add armour
+TODO - player cannot use melee weapons, can melee but no weapons
 
-- TODO - add armour
-- TODO - instead of using randint, use int(128 * random.random()) - https://eli.thegreenplace.net/2018/slow-and-fast-methods-for-generating-random-integers-in-python/
+Extended Goals
+-Attack queue for player in attack mode, VATS style
+-Full mouse controls
+-Squad members
+-unique enemies which spawn once per game
+-in the dungeon you find enemies using your looted equipment from previous runs
+-more room shapes on level generation
+-weapon graphics
 
-17) more room shapes on level generation
-19) weapon graphics
+- instead of using randint, use int(128 * random.random()) - https://eli.thegreenplace.net/2018/slow-and-fast-methods-for-generating-random-integers-in-python/
+
+# this equation is not even slightly realistic, but it works as a gamified stat since actually
+# calculating stability would require lots of data I don't have
+yaw_depth = max(0, (0.28/projectile config) * (velocity (fps) /2600) * (bullet length (inches) / 2.26) * 12 * randrange(0.3))
+
+
 
 -save guns to look at in main menu
 -grave yard

@@ -93,8 +93,8 @@ class Engine:
                     maximum_value=self.player.bodyparts[3].max_hp)
         # body lower
         render_part(console=console, x=2, y=console.height - 2, character="│",
-                    current_value=self.player.bodyparts[1].hp,
-                    maximum_value=self.player.bodyparts[1].max_hp)
+                    current_value=self.player.bodyparts[0].hp,
+                    maximum_value=self.player.bodyparts[0].max_hp)
         # right leg
         render_part(console=console, x=1, y=console.height - 1, character="/",
                     current_value=self.player.bodyparts[4].hp,

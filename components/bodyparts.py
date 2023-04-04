@@ -5,7 +5,8 @@ from math import floor, sqrt, pi
 from numpy import log
 from typing import Optional, TYPE_CHECKING
 from copy import deepcopy
-from random import choices
+from random import choices, uniform, choice
+from math import sin, asin
 
 from render_order import RenderOrder
 from components.consumables import RecipeUnlock
@@ -29,6 +30,7 @@ class Bodypart:
                  height: int,
                  depth: int,  # tissue depth (cm)
                  part_type: Optional[str],
+                 # tissue strength and density probably don't need to be variables
                  strength_tissue: int = 1000000,  # tissue tensile strength, newtons per square metre
                  density_tissue: int = 1040,  # density of tissue, kg/m^3
                  vital: bool = False,
@@ -37,6 +39,7 @@ class Bodypart:
         self.max_hp = hp
         self.hp_last_turn = hp
         self._hp = hp
+        self.total_damage_taken = 0  # damage taken below 0 HP
         self._protection_ballistic = protection_ballistic
         self._protection_physical = protection_physical
         self.width = width
@@ -45,6 +48,9 @@ class Bodypart:
         self.vital = vital  # whether when the body part gets destroyed, the entity should die
         self.strength_tissue = strength_tissue
         self.density_tissue = density_tissue
+        self.show_splatter_message = False # whether a splatter should show for this limb
+        self.splatter_message_shown = False # whether a splatter message has been shown for this limb. Can be set to
+        self.splatter_message = None
         self.equipped = None  # equipped armour item
         self.name = name
 
@@ -77,6 +83,36 @@ class Bodypart:
 
     @hp.setter
     def hp(self, value: int) -> None:
+
+        # TODO - removing limbs from enemies
+
+        show_cripple_message = True
+
+        # sets splatter message
+        if value <= 0 and not self.parent.player and not self.splatter_message_shown:
+            self.total_damage_taken += abs(value)
+            thickness = min(self.width, self.height)
+            limb_size = thickness * self.depth
+
+            if self.total_damage_taken/limb_size >= 0.1:
+                show_cripple_message = False
+                self.show_splatter_message = True
+                self.splatter_message = choice([f"The {self.parent.name}'s {self.name} is split open",
+                                                f"The {self.parent.name}'s {self.name} splits into gore",
+                                               ])
+
+            if self.total_damage_taken / limb_size >= 0.2:
+                self.splatter_message = choice([f"The {self.parent.name}'s {self.name} is blown into pieces",
+                                                f"The {self.parent.name}'s {self.name} is mangled beyond recognition",
+                                                f"Bits of {self.parent.name}'s {self.name} splatter on the floor",
+                                               ])
+
+            elif self.total_damage_taken / limb_size >= 0.3:
+                self.splatter_message = choice([f"The {self.parent.name}'s {self.name} explodes into gore",
+                                                f"The {self.parent.name}'s {self.name} is destroyed in a bloody mess",
+                                                f"The {self.parent.name}'s {self.name} erupts into a fine red mist",
+                                                ])
+
         self._hp = max(0, min(value, self.max_hp))
 
         if self._hp <= self.max_hp * 0.70 and self.parent.bleeds:
@@ -94,8 +130,9 @@ class Bodypart:
                 self.engine.message_log.add_message(f"Your {self.name} is crippled", fg=colour.RED)
 
             else:
-                self.engine.message_log.add_message(f"The {self.parent.name}'s {self.name} is crippled!",
-                                                    fg=colour.GREEN)
+                if show_cripple_message:
+                    self.engine.message_log.add_message(f"The {self.parent.name}'s {self.name} is crippled!",
+                                                        fg=colour.GREEN)
 
                 # causes AI to flee
                 if self.vital:
@@ -159,13 +196,11 @@ class Bodypart:
 
     def deal_damage_melee(self, meat_damage: int, armour_damage: int, attacker: Actor):
 
-        fail_colour = colour.LIGHT_BLUE
-
-        if attacker == self.engine.player:
-            fail_colour = colour.YELLOW
-
         armour_protection = 0
+
         if self.equipped:
+            # whether attack hits armour or not
+            # TODO - refactor with separate value armour coverage
             if choices(population=(True, False),
                        weights=(self.equipped.usable_properties.protection_physical,
                                 100 - self.equipped.usable_properties.protection_physical))[0]:
@@ -183,39 +218,67 @@ class Bodypart:
 
         # hit, no damage dealt
         else:
-            self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
+            if attacker.player:
+                self.engine.message_log.add_message(f"Your attack deals no damage.", colour.YELLOW)
+            else:
+                self.engine.message_log.add_message(f"{attacker.name}'s attack deals no damage.", colour.LIGHT_BLUE)
 
     def deal_damage_gun(self, diameter_bullet: float, mass_bullet: int, velocity_bullet: int,
-                        drag_bullet: float, config_bullet: float, attacker: Actor):
+                        drag_bullet: float, config_bullet: float, bullet_length: float, bullet_expands: bool,
+                        bullet_yaws: bool, bullet_fragments: bool, bullet_max_expansion: float,
+                        bullet_expansion_velocity: int, attacker: Actor):
 
         diameter_bullet_metric = diameter_bullet * 25.4  # millimitres
         mass_bullet_metric = mass_bullet * 0.0647989  # grams
         velocity_bullet_metric = velocity_bullet * 0.3048  # metres per second
 
-        fail_colour = colour.LIGHT_BLUE
-
-        if attacker == self.engine.player:
-            fail_colour = colour.YELLOW
-
         armour_protection = self.protection_ballistic
 
+        # TODO - factoring in armour coverage here too
         if self.equipped:
             armour_protection += self.equipped.usable_properties.protection_ballistic
 
         if armour_protection > 0:
+
+            # barrier effects prevent bullet from expanding in target
+            # bullet_expands = False
+
             ballistic_limit = sqrt(((diameter_bullet ** 3) / mass_bullet) *
                                    ((armour_protection / (9.35 * 10 ** -9 * diameter_bullet)) ** 1.25))
-            residual_velocity = 0
             try:
                 residual_velocity = sqrt((velocity_bullet ** 2) - (ballistic_limit ** 2))
             except ValueError:
-                pass
+                residual_velocity = 0
+            velocity_bullet = residual_velocity
             velocity_bullet_metric = residual_velocity * 0.3048
 
         if velocity_bullet_metric > 0:
 
+            wound_mass = 0
+
             # uniaxial strain proportionality
             strain_prop = (diameter_bullet_metric ** (1.0 / 3)) * sqrt(self.strength_tissue / self.density_tissue)
+
+            # whether or not bullet has expanded i.e. in the case of a hollow point
+            bullet_expanded = False
+
+            # changes damage based on bullet expansion
+            if bullet_expands:
+
+                bullet_expanded = True
+
+                # bullet expansion changes the drag and bullet config to that of an expanded hollow point
+                drag_bullet = 0.441511
+                config_bullet = 0.819152
+
+                # bullet begins expansion at 1 / bullet_max_expansion times velocity required for maximum expansion
+                if velocity_bullet > bullet_expansion_velocity * (1 / bullet_max_expansion):
+
+                    # expansion increases linearly with velocity between min and max expansion velocity
+                    diameter_bullet_metric *= bullet_max_expansion * (velocity_bullet / bullet_expansion_velocity)
+
+                elif velocity_bullet >= bullet_expansion_velocity:
+                    diameter_bullet_metric *= bullet_max_expansion
 
             pen_depth = log(((velocity_bullet_metric / strain_prop) ** 2 + 1)) * \
                         (mass_bullet_metric / (pi * ((0.5 * (diameter_bullet_metric / 10)) ** 2)
@@ -224,19 +287,136 @@ class Bodypart:
             if pen_depth > self.depth:
                 pen_depth = self.depth
 
-            wound_mass = round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * pen_depth *
+            # print(pen_depth)
+            # print(diameter_bullet)
+
+            # bullet expands over 5 cm distance, so only calculates wound channel mass of area that it passed through
+            # while expanded
+            if bullet_expanded and pen_depth > 5:
+                # wound channel mass pre expansion
+                wound_mass += round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * 5 *
+                                   (self.density_tissue / 1000) * config_bullet)
+                pen_depth -= 5
+
+            wound_mass += round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * pen_depth *
                                (self.density_tissue / 1000) * config_bullet)
 
+            # print('wound mass from channel', wound_mass)
+
+            if not bullet_expanded and bullet_yaws:
+
+                # arbitrary calculation based on 5.56 bullet yaw
+                # depth at which bullet yaws in body part
+                yaw_depth = (0.28 / config_bullet) * (2600 / velocity_bullet) * (0.810 / bullet_length) * 12 * \
+                            uniform(0.75, 1.25)
+
+                # print('yaw depth ', yaw_depth)
+
+                # only proceeds if bullet yaws within the body part
+                if not yaw_depth > self.depth:
+
+                    # bullets will only fragment at velocities above 3000
+                    # bullet fragments
+                    if bullet_fragments and velocity_bullet > 3000:
+
+                        # these are completely arbitrary
+                        # proportional to kinetic energy of the projectile, based on 5.56
+                        multiplier = ((mass_bullet * velocity_bullet ** 2) / 526165695) * uniform(0.75, 1.25)
+
+                        wound_len = 11.72 * multiplier
+                        wound_width = 2.77 * multiplier
+                        wound_len_in_body = wound_len
+
+                        # print('wound len ', wound_len)
+                        # print('wound width ', wound_width)
+
+                        if (wound_len + yaw_depth) > self.depth:
+                            wound_len_in_body = self.depth - yaw_depth
+
+                        # print('wound len in body ', wound_len_in_body)
+
+
+                        # volume calculations for an ellipsoid
+                        # the entirety of the wound is contained within the body
+                        if wound_len_in_body == wound_len:
+                            vol = 1.3333 * pi * (wound_len / 2) * wound_width ** 2
+
+                        # more than half the wound is contained within the body
+                        elif wound_len_in_body > (wound_len / 2):
+                            vol = 1.3333 * pi * (wound_len / 2) * wound_width ** 2
+                            vol -= 0.6666 *pi * (wound_len - wound_len_in_body) * wound_width ** 2
+
+                        # less than half the wound is contained within the body
+                        else:
+                            vol = 0.6666 * pi * wound_len_in_body * wound_width ** 2
+
+                        # print('frag damage ', vol)
+
+                        # this is an arbitrary representation of bullet fragmentation damage. Bullet fragmentation
+                        # wounds cannot be accurately modeled.
+                        wound_mass += round(vol / 4)
+
+                        # subtracts damage that would have occurred normally without fragmentation in that length of
+                        # the wound channel
+                        wound_mass -= round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * wound_len_in_body *
+                                           (self.density_tissue / 1000) * config_bullet)
+
+                    # bullet yaws
+                    else:
+
+                        # print('bullet yawed')
+
+                        # calculates cross sectional area of a bullet (spitzer type) based on an ogive shape
+                        chord = bullet_length * 1.12282  # inches
+                        bearing_len = bullet_length - chord  # inches
+                        radius = diameter_bullet * 6
+                        theta = 2 * asin(chord / (diameter_bullet * 12))
+                        area_ogive = 0.5 * (theta - sin(theta)) * radius ** 2
+                        bullet_area = (area_ogive + (bearing_len * diameter_bullet)) * 6.4516  # converted to cm
+                        wound_len = 11.72 * (velocity_bullet / 2800)
+
+                        if (wound_len + yaw_depth) > self.depth:
+                            wound_len = self.depth - yaw_depth
+
+                        # this is not a realistic representation of yaw wounding, but its better to make an arbitrary
+                        # representation than leaving it out entirely as this would cause rifle bullets to be woefully
+                        # underpowered. Bullet yaw wounds cannot be accurately modeled. Based on 5.56 yaw.
+                        wound_mass += round(wound_len * bullet_area * 0.6)
+
+                        # subtracts damage that would have occurred normally without yawing in that length of
+                        # the wound channel
+                        wound_mass -= round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * wound_len *
+                                           (self.density_tissue / 1000) * config_bullet)
+
             if wound_mass > 0:
-                self.hp -= wound_mass * 0.875
+
+                damage = wound_mass * 0.875
+
+                self.hp -= damage
+                if attacker.player:
+                    self.engine.message_log.add_message(f"You shoot {attacker.name} in the {self.name}",
+                                                        colour.GREEN)
+                else:
+                    self.engine.message_log.add_message(f"{attacker.name} shoots you in the {self.name}",
+                                                        colour.RED)
 
             # hit, no damage dealt
             else:
-                self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
+                if attacker.player:
+                    self.engine.message_log.add_message(f"Your shot fails to penetrate {self.parent.name}",
+                                                        colour.YELLOW)
+                else:
+                    self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by your armour!",
+                                                        colour.LIGHT_BLUE)
 
         # failed to penetrate armour
         else:
-            self.engine.message_log.add_message(f"The attack deals no damage.", fail_colour)
+            if attacker.player:
+                self.engine.message_log.add_message(f"Your shot fails to penetrate {self.parent.name}",
+                                                    colour.YELLOW)
+            else:
+                self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by your armour!",
+                                                    colour.LIGHT_BLUE)
 
     def cripple(self) -> None:
         self.functional = False

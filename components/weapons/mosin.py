@@ -142,8 +142,8 @@ mosin_barrel = Item(
                                    optic_properties={'target_acquisition_ap': 1.15,
                                                      'ap_distance_cost_modifier': 0.9,
                                                      'spread_modifier': 0.92, },
+                                   barrel_length=29,
                                    is_optic=True,
-                                   sound_radius=0.8,
                                    target_acquisition_ap=1.3,
                                    accuracy_part=True,
                                    functional_part=True,
@@ -166,8 +166,8 @@ mosin_carbine_barrel = Item(
                                    optic_properties={'target_acquisition_ap': 1.11,
                                                      'ap_distance_cost_modifier': 0.93,
                                                      'spread_modifier': 0.93, },
+                                   barrel_length=20.2,
                                    is_optic=True,
-                                   sound_radius=0.9,
                                    target_acquisition_ap=1.15,
                                    accuracy_part=True,
                                    functional_part=True,
@@ -185,17 +185,17 @@ mosin_obrez_barrel = Item(
     usable_properties=GunComponent(part_type='Mosin-Nagant Barrel',
                                    incompatibilities=(("Iron Sight",),),
                                    suffix="Obrez",
+                                   barrel_length=5,
                                    velocity_modifier=0.79,
                                    is_attachment_point_types=['Mosin-Nagant Barrel', ],
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.1,
                                                      'spread_modifier': 1.05, },
                                    is_optic=True,
-                                   sound_radius=1.3,
                                    accuracy_part=True,
                                    functional_part=True,
                                    ),
-    description='A pistol length barrel assembly for the Mosin-Nagant'
+    description='A 5 inch pistol length barrel assembly for the Mosin-Nagant'
 )
 
 """
@@ -286,6 +286,7 @@ mosin_nagant = Item(
         sight_height_above_bore=0.5,
         spread_modifier=0.05,
         gun_type='bolt action',
+        barrel_length=30
     )
 )
 

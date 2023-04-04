@@ -4,7 +4,7 @@ from components.consumables import Bullet
 
 # drag coefficients by projectile type
 cd_wadcutter = 0.8333
-cd_jhp = 0.441511
+cd_jhp = 0.441511  # assumes expansion, if not expanded default to different value
 cd_fmj_round_nose = 0.573576
 cd_cruciform_flat_nose = 0.597175
 cd_truncated_cone = 0.551937
@@ -12,7 +12,7 @@ cd_sem_wadcutter = 0.551937
 cd_60_degree_conical = 0.5
 cd_round_ball = 0.414214
 
-cd_spitzer = 0.24
+cd_spitzer = 0.53
 
 # Cf = Cd / 0.83333
 
@@ -25,10 +25,7 @@ cf_truncated_cone = 0.662324
 cf_sem_wadcutter = 0.662324
 cf_60_degree_conical = 0.6
 cf_round_ball = 0.497056
-
-cf_spitzer = 0.28
-
-# sound modifier = 0.00017784 * mass * velocity
+cf_spitzer = 0.6385
 
 """
 9MM
@@ -56,8 +53,8 @@ round_9mm_115_fmj = Item(
         proj_config=cf_fmj_round_nose,
         drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.0,
-        sound_modifier=23.54,
-        ballistic_coefficient=0.155
+        ballistic_coefficient=0.155,
+        bullet_length=0.55,
     )
 )
 
@@ -78,8 +75,8 @@ round_9mm_124_fmj = Item(
         proj_config=cf_fmj_round_nose,
         drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.0,
-        sound_modifier=24.02,
-        ballistic_coefficient=0.192
+        ballistic_coefficient=0.192,
+        bullet_length=0.55,
     )
 )
 
@@ -100,8 +97,8 @@ round_9mm_147_fp = Item(
         proj_config=cf_truncated_cone,
         drag_coefficient=cd_truncated_cone,
         spread_modifier=0.0,
-        sound_modifier=23.27,
-        ballistic_coefficient=0.2
+        ballistic_coefficient=0.2,
+        bullet_length=0.55,
     )
 )
 
@@ -123,8 +120,8 @@ round_9mm_115_fmj_pp = Item(
         proj_config=cf_fmj_round_nose,
         drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.0,
-        sound_modifier=24.54,
-        ballistic_coefficient=0.155
+        ballistic_coefficient=0.155,
+        bullet_length=0.55,
     )
 )
 
@@ -145,8 +142,8 @@ round_9mm_124_fmj_pp = Item(
         proj_config=cf_fmj_round_nose,
         drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.0,
-        sound_modifier=25.14,
-        ballistic_coefficient=0.22
+        ballistic_coefficient=0.22,
+        bullet_length=0.55,
     )
 )
 
@@ -167,12 +164,12 @@ round_9mm_147_fp_pp = Item(
         proj_config=cf_truncated_cone,
         drag_coefficient=cd_truncated_cone,
         spread_modifier=0.0,
-        sound_modifier=24.99,
-        ballistic_coefficient=0.2
+        ballistic_coefficient=0.2,
+        bullet_length=0.55,
     )
 )
 
-#HP
+# HP
 
 round_9mm_115_jhp = Item(
     x=0, y=0,
@@ -188,11 +185,14 @@ round_9mm_115_jhp = Item(
         charge_mass=4.7,
         diameter=0.355,
         velocity=1147,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=23.46,
-        ballistic_coefficient=0.13
+        ballistic_coefficient=0.13,
+        bullet_length=0.55,
+        bullet_expands=True,
+        max_expansion=1.57,
+        max_expansion_velocity=1489,
     )
 )
 
@@ -210,11 +210,14 @@ round_9mm_124_jhp = Item(
         charge_mass=4.4,
         diameter=0.355,
         velocity=1087,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=23.97,
-        ballistic_coefficient=0.17
+        ballistic_coefficient=0.17,
+        bullet_length=0.55,
+        bullet_expands=True,
+        max_expansion=1.57,
+        max_expansion_velocity=1489,
     )
 )
 
@@ -232,15 +235,18 @@ round_9mm_147_jhp = Item(
         charge_mass=3.6,
         diameter=0.355,
         velocity=894,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=23.37,
-        ballistic_coefficient=0.197
+        ballistic_coefficient=0.197,
+        bullet_length=0.55,
+        bullet_expands=True,
+        max_expansion=1.57,
+        max_expansion_velocity=1489,
     )
 )
 
-#HP +P
+# HP +P
 
 round_9mm_115_jhp_pp = Item(
     x=0, y=0,
@@ -256,11 +262,14 @@ round_9mm_115_jhp_pp = Item(
         charge_mass=5.1,
         diameter=0.355,
         velocity=1208,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=24.71,
-        ballistic_coefficient=0.13
+        ballistic_coefficient=0.13,
+        bullet_length=0.55,
+        bullet_expands=True,
+        max_expansion=1.57,
+        max_expansion_velocity=1489,
     )
 )
 
@@ -278,11 +287,14 @@ round_9mm_124_jhp_pp = Item(
         charge_mass=4.7,
         diameter=0.355,
         velocity=1140,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=25.14,
-        ballistic_coefficient=0.17
+        ballistic_coefficient=0.17,
+        bullet_length=0.55,
+        bullet_expands=True,
+        max_expansion=1.57,
+        max_expansion_velocity=1489,
     )
 )
 
@@ -300,14 +312,16 @@ round_9mm_147_jhp_pp = Item(
         charge_mass=3.8,
         diameter=0.355,
         velocity=934,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=24.42,
-        ballistic_coefficient=0.197
+        ballistic_coefficient=0.197,
+        bullet_length=0.55,
+        bullet_expands=True,
+        max_expansion=1.57,
+        max_expansion_velocity=1489,
     )
 )
-
 
 """
 45 
@@ -336,8 +350,8 @@ round_45_185_swc = Item(
         proj_config=cf_sem_wadcutter,
         drag_coefficient=cd_sem_wadcutter,
         spread_modifier=0.0,
-        sound_modifier=34.15,
-        ballistic_coefficient=0.09
+        ballistic_coefficient=0.09,
+        bullet_length=0.602,
     )
 )
 
@@ -358,8 +372,8 @@ round_45_200_swc = Item(
         proj_config=cf_sem_wadcutter,
         drag_coefficient=cd_sem_wadcutter,
         spread_modifier=0.0,
-        sound_modifier=34.0,
-        ballistic_coefficient=0.07
+        ballistic_coefficient=0.07,
+        bullet_length=0.602,
     )
 )
 
@@ -379,11 +393,14 @@ round_45_185_jhp = Item(
         charge_mass=6.7,
         diameter=0.452,
         velocity=1071,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=35.24,
-        ballistic_coefficient=0.1
+        ballistic_coefficient=0.1,
+        bullet_length=0.602,
+        bullet_expands=True,
+        max_expansion=1.55,
+        max_expansion_velocity=1150,
     )
 )
 
@@ -401,11 +418,14 @@ round_45_200_jhp = Item(
         charge_mass=6.2,
         diameter=0.452,
         velocity=980,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=34.86,
-        ballistic_coefficient=0.15
+        ballistic_coefficient=0.15,
+        bullet_length=0.602,
+        bullet_expands=True,
+        max_expansion=1.55,
+        max_expansion_velocity=1150,
     )
 )
 
@@ -423,11 +443,14 @@ round_45_230_jhp = Item(
         charge_mass=5.3,
         diameter=0.452,
         velocity=867,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=35.46,
-        ballistic_coefficient=0.205
+        ballistic_coefficient=0.205,
+        bullet_length=0.602,
+        bullet_expands=True,
+        max_expansion=1.55,
+        max_expansion_velocity=1150,
     )
 )
 
@@ -450,8 +473,8 @@ round_45_200_fmj = Item(
         proj_config=0.688292,
         drag_coefficient=0.573576,
         spread_modifier=0.0,
-        sound_modifier=35.07,
-        ballistic_coefficient=0.15
+        ballistic_coefficient=0.15,
+        bullet_length=0.602,
     )
 )
 
@@ -472,8 +495,8 @@ round_45_230_fmj = Item(
         proj_config=0.688292,
         drag_coefficient=0.573576,
         spread_modifier=0.0,
-        sound_modifier=37.39,
-        ballistic_coefficient=0.205
+        ballistic_coefficient=0.205,
+        bullet_length=0.602,
     )
 )
 
@@ -496,8 +519,8 @@ round_45_185_swc_pp = Item(
         proj_config=cf_sem_wadcutter,
         drag_coefficient=cd_sem_wadcutter,
         spread_modifier=0.0,
-        sound_modifier=33.72,
-        ballistic_coefficient=0.09
+        ballistic_coefficient=0.09,
+        bullet_length=0.602,
     )
 )
 
@@ -518,11 +541,10 @@ round_45_200_swc_pp = Item(
         proj_config=cf_sem_wadcutter,
         drag_coefficient=cd_sem_wadcutter,
         spread_modifier=0.0,
-        sound_modifier=34.96,
-        ballistic_coefficient=0.07
+        ballistic_coefficient=0.07,
+        bullet_length=0.602,
     )
 )
-
 
 # JHP +P
 
@@ -540,11 +562,14 @@ round_45_185_jhp_pp = Item(
         charge_mass=7.0,
         diameter=0.452,
         velocity=1111,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=36.55,
-        ballistic_coefficient=0.1
+        ballistic_coefficient=0.1,
+        bullet_length=0.602,
+        bullet_expands=True,
+        max_expansion=1.55,
+        max_expansion_velocity=1150,
     )
 )
 
@@ -562,11 +587,14 @@ round_45_230_jhp_pp = Item(
         charge_mass=5.6,
         diameter=0.452,
         velocity=910,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=37.22,
-        ballistic_coefficient=0.205
+        ballistic_coefficient=0.205,
+        bullet_length=0.602,
+        bullet_expands=True,
+        max_expansion=1.55,
+        max_expansion_velocity=1150,
     )
 )
 
@@ -586,11 +614,11 @@ round_45_200_fmj_pp = Item(
         charge_mass=6.7,
         diameter=0.355,
         velocity=1035,
-        proj_config=0.688292,
-        drag_coefficient=0.573576,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=36.81,
-        ballistic_coefficient=0.15
+        ballistic_coefficient=0.15,
+        bullet_length=0.602,
     )
 )
 
@@ -608,11 +636,11 @@ round_45_230_fmj_pp = Item(
         charge_mass=6.2,
         diameter=0.355,
         velocity=958,
-        proj_config=0.688292,
-        drag_coefficient=0.573576,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=39.19,
-        ballistic_coefficient=0.205
+        ballistic_coefficient=0.205,
+        bullet_length=0.602,
     )
 )
 
@@ -638,11 +666,14 @@ round_10mm_155_jhp = Item(
         charge_mass=8.5,
         diameter=0.4,
         velocity=1246,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=34.34,
-        ballistic_coefficient=0.137
+        ballistic_coefficient=0.137,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.64,
+        max_expansion_velocity=1155,
     )
 )
 
@@ -663,8 +694,8 @@ round_10mm_180_fmj = Item(
         proj_config=cf_fmj_round_nose,
         drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.0,
-        sound_modifier=40.49,
-        ballistic_coefficient=0.138
+        ballistic_coefficient=0.138,
+        bullet_length=0.525,
     )
 )
 
@@ -682,11 +713,14 @@ round_10mm_190_jhp = Item(
         charge_mass=7.4,
         diameter=0.4,
         velocity=1182,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=39.94,
-        ballistic_coefficient=0.138
+        ballistic_coefficient=0.138,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.64,
+        max_expansion_velocity=1155,
     )
 )
 
@@ -707,8 +741,8 @@ round_10mm_220_fp = Item(
         proj_config=cf_truncated_cone,
         drag_coefficient=cd_truncated_cone,
         spread_modifier=0.0,
-        sound_modifier=36.34,
-        ballistic_coefficient=0.137
+        ballistic_coefficient=0.137,
+        bullet_length=0.525,
     )
 )
 
@@ -734,11 +768,14 @@ round_40sw_155_jhp = Item(
         charge_mass=5.6,
         diameter=0.4,
         velocity=1101,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=30.34,
-        ballistic_coefficient=0.137
+        ballistic_coefficient=0.137,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.64,
+        max_expansion_velocity=1155,
     )
 )
 
@@ -756,11 +793,11 @@ round_40sw_165_fmj = Item(
         charge_mass=5.6,
         diameter=0.4,
         velocity=1070,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=31.4,
-        ballistic_coefficient=0.138
+        ballistic_coefficient=0.138,
+        bullet_length=0.525,
     )
 )
 
@@ -781,8 +818,8 @@ round_40sw_180_fmj = Item(
         proj_config=cf_fmj_round_nose,
         drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.0,
-        sound_modifier=31.3,
-        ballistic_coefficient=0.138
+        ballistic_coefficient=0.138,
+        bullet_length=0.525,
     )
 )
 
@@ -800,11 +837,14 @@ round_40sw_180_jhp = Item(
         charge_mass=4.6,
         diameter=0.4,
         velocity=958,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_round_ball,
+        drag_coefficient=cd_round_ball,
         spread_modifier=0.0,
-        sound_modifier=30.67,
-        ballistic_coefficient=0.138
+        ballistic_coefficient=0.138,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.64,
+        max_expansion_velocity=1155,
     )
 )
 
@@ -825,8 +865,8 @@ round_40sw_220_fp = Item(
         proj_config=cf_truncated_cone,
         drag_coefficient=cd_truncated_cone,
         spread_modifier=0.0,
-        sound_modifier=28.48,
-        ballistic_coefficient=0.137
+        ballistic_coefficient=0.137,
+        bullet_length=0.525,
     )
 )
 
@@ -837,7 +877,7 @@ round_40sw_220_fp = Item(
 # test barrel length: 24 inches
 # powder: 1680 Accurate (Closest to N130)
 
-#FMJ
+# FMJ
 
 round_76239_123_fmj = Item(
     x=0, y=0,
@@ -856,8 +896,10 @@ round_76239_123_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=51.65,
-        ballistic_coefficient=0.282
+        ballistic_coefficient=0.282,
+        bullet_length=0.796,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -878,8 +920,10 @@ round_76239_150_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=58.29,
-        ballistic_coefficient=0.341
+        ballistic_coefficient=0.341,
+        bullet_length=0.796,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -897,11 +941,16 @@ round_76239_123_sst = Item(
         charge_mass=27.3,
         diameter=0.311,
         velocity=2445,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=51.65,
-        ballistic_coefficient=0.295
+        ballistic_coefficient=0.295,
+        bullet_length=0.796,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1800,
     )
 )
 
@@ -919,11 +968,16 @@ round_76239_150_sp = Item(
         charge_mass=23.6,
         diameter=0.311,
         velocity=2109,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=58.29,
-        ballistic_coefficient=0.341
+        ballistic_coefficient=0.341,
+        bullet_length=0.796,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=2000,
     )
 )
 
@@ -948,11 +1002,16 @@ round_556_55_sp = Item(
         charge_mass=21.7,
         diameter=0.224,
         velocity=3067,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=30.0,
-        ballistic_coefficient=0.204
+        ballistic_coefficient=0.204,
+        bullet_length=0.810,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=2000,
     )
 )
 
@@ -973,8 +1032,13 @@ round_556_60_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=34.33,
-        ballistic_coefficient=0.323
+        ballistic_coefficient=0.323,
+        bullet_length=0.810,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1800,
     )
 )
 
@@ -995,8 +1059,13 @@ round_556_75_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=37.32,
-        ballistic_coefficient=0.435
+        ballistic_coefficient=0.435,
+        bullet_length=0.810,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1800,
     )
 )
 
@@ -1014,11 +1083,16 @@ round_556_69_jhp = Item(
         charge_mass=24.0,
         diameter=0.224,
         velocity=2936,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=36.03,
-        ballistic_coefficient=0.301
+        ballistic_coefficient=0.301,
+        bullet_length=0.810,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1900,
     )
 )
 
@@ -1036,14 +1110,18 @@ round_556_80_jhp = Item(
         charge_mass=22.2,
         diameter=0.224,
         velocity=2742,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=39.01,
-        ballistic_coefficient=0.461
+        ballistic_coefficient=0.461,
+        bullet_length=0.810,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1900,
     )
 )
-
 
 """
 300 blackout
@@ -1066,11 +1144,16 @@ round_300aac_150_jhp = Item(
         charge_mass=21.6,
         diameter=0.308,
         velocity=2086,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=55.65,
-        ballistic_coefficient=0.397
+        ballistic_coefficient=0.397,
+        bullet_length=1.013,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1900,
     )
 )
 
@@ -1091,8 +1174,10 @@ round_300aac_150_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=54.87,
-        ballistic_coefficient=0.397
+        ballistic_coefficient=0.397,
+        bullet_length=1.013,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -1113,8 +1198,10 @@ round_300aac_210_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=59.08,
-        ballistic_coefficient=0.65
+        ballistic_coefficient=0.65,
+        bullet_length=1.013,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -1132,11 +1219,16 @@ round_300aac_210_jhp = Item(
         charge_mass=12,
         diameter=0.308,
         velocity=1263,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=47.17,
-        ballistic_coefficient=0.65
+        ballistic_coefficient=0.65,
+        bullet_length=1.013,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1900,
     )
 )
 
@@ -1166,8 +1258,10 @@ round_545_56_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=29.68,
-        ballistic_coefficient=0.209
+        ballistic_coefficient=0.209,
+        bullet_length=1.0,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -1188,8 +1282,10 @@ round_545_63_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=31.35,
-        ballistic_coefficient=0.235
+        ballistic_coefficient=0.235,
+        bullet_length=1.0,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -1207,11 +1303,16 @@ round_545_60_jhp = Item(
         charge_mass=18.5,
         diameter=0.22,
         velocity=2787,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=29.74,
-        ballistic_coefficient=0.240
+        ballistic_coefficient=0.240,
+        bullet_length=1.0,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1900,
     )
 )
 
@@ -1240,8 +1341,13 @@ round_308_130_jhp = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=73.57,
-        ballistic_coefficient=0.263
+        ballistic_coefficient=0.263,
+        bullet_length=1.4,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=1900,
     )
 )
 
@@ -1262,8 +1368,10 @@ round_308_150_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=78.14,
-        ballistic_coefficient=0.38
+        ballistic_coefficient=0.38,
+        bullet_length=1.4,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -1281,11 +1389,16 @@ round_308_165_sp = Item(
         charge_mass=42.1,
         diameter=0.308,
         velocity=2751,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=73.39,
-        ballistic_coefficient=0.404
+        ballistic_coefficient=0.404,
+        bullet_length=1.4,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=2000,
     )
 )
 
@@ -1306,11 +1419,11 @@ round_308_180_tsx = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=82.34,
-        ballistic_coefficient=0.484
+        ballistic_coefficient=0.484,
+        bullet_length=1.4,
+        bullet_yaws=True,
     )
 )
-
 
 """
 7.62x54R
@@ -1338,8 +1451,10 @@ round_54r_174_jrn = Item(
         proj_config=cf_fmj_round_nose,
         drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.0,
-        sound_modifier=77.24,
-        ballistic_coefficient=0.262
+        ballistic_coefficient=0.262,
+        bullet_length=1.4,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -1357,11 +1472,16 @@ round_54r_180_jsp = Item(
         charge_mass=45.5,
         diameter=0.3105,
         velocity=2488,
-        proj_config=cd_jhp,
+        proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=79.65,
-        ballistic_coefficient=0.411
+        ballistic_coefficient=0.411,
+        bullet_length=1.4,
+        bullet_yaws=True,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.5,
+        max_expansion_velocity=2000,
     )
 )
 
@@ -1382,8 +1502,10 @@ round_54r_200_fmj = Item(
         proj_config=cf_spitzer,
         drag_coefficient=cd_spitzer,
         spread_modifier=0.0,
-        sound_modifier=74.98,
-        ballistic_coefficient=0.344
+        ballistic_coefficient=0.344,
+        bullet_length=1.4,
+        bullet_yaws=True,
+        bullet_fragments=True,
     )
 )
 
@@ -1437,17 +1559,15 @@ round_slug_12 = Item(
 )
 """
 
-bullet_list = (round_9mm_115_fmj, round_9mm_124_fmj, round_9mm_147_fp, round_9mm_115_fmj_pp,
-               round_9mm_124_fmj_pp, round_9mm_147_fp_pp, round_9mm_115_jhp, round_9mm_124_jhp,
-               round_9mm_147_jhp, round_9mm_115_jhp_pp, round_9mm_124_jhp_pp, round_9mm_147_jhp_pp, round_45_185_swc,
-               round_45_200_swc, round_45_185_jhp, round_45_200_jhp, round_45_230_jhp, round_45_200_fmj,
-               round_45_230_fmj, round_45_185_swc_pp, round_45_200_swc_pp, round_45_185_jhp_pp, round_45_230_jhp_pp,
-               round_45_200_fmj_pp, round_45_230_fmj_pp, round_76239_123_fmj, round_76239_150_fmj,
-               round_76239_123_sst, round_76239_150_sp, round_556_55_sp, round_556_60_fmj,
-               round_556_75_fmj, round_556_69_jhp, round_556_80_jhp, round_300aac_150_jhp, round_300aac_150_fmj,
-               round_300aac_210_fmj, round_300aac_210_jhp, round_545_56_fmj, round_545_63_fmj, round_545_60_jhp,
-               round_308_130_jhp, round_308_150_fmj, round_308_165_sp, round_308_180_tsx, round_54r_174_jrn,
-               round_54r_180_jsp, round_54r_200_fmj
-               )
-
-
+# bullet_list = (round_9mm_115_fmj, round_9mm_124_fmj, round_9mm_147_fp, round_9mm_115_fmj_pp,
+#                round_9mm_124_fmj_pp, round_9mm_147_fp_pp, round_9mm_115_jhp, round_9mm_124_jhp,
+#                round_9mm_147_jhp, round_9mm_115_jhp_pp, round_9mm_124_jhp_pp, round_9mm_147_jhp_pp, round_45_185_swc,
+#                round_45_200_swc, round_45_185_jhp, round_45_200_jhp, round_45_230_jhp, round_45_200_fmj,
+#                round_45_230_fmj, round_45_185_swc_pp, round_45_200_swc_pp, round_45_185_jhp_pp, round_45_230_jhp_pp,
+#                round_45_200_fmj_pp, round_45_230_fmj_pp, round_76239_123_fmj, round_76239_150_fmj,
+#                round_76239_123_sst, round_76239_150_sp, round_556_55_sp, round_556_60_fmj,
+#                round_556_75_fmj, round_556_69_jhp, round_556_80_jhp, round_300aac_150_jhp, round_300aac_150_fmj,
+#                round_300aac_210_fmj, round_300aac_210_jhp, round_545_56_fmj, round_545_63_fmj, round_545_60_jhp,
+#                round_308_130_jhp, round_308_150_fmj, round_308_165_sp, round_308_180_tsx, round_54r_174_jrn,
+#                round_54r_180_jsp, round_54r_200_fmj
+#                )

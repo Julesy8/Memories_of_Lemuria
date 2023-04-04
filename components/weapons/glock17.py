@@ -35,6 +35,7 @@ glock17_barrel = Item(
                                    compatible_parts={
                                        'Glock 17 Slide': ['Glock 17 Slide', "Glock 17 Slide w/ Optics Cut",
                                                           'Glock 17 Custom Slide']},
+                                   barrel_length=4.49,
                                    velocity_modifier=1.033,
                                    functional_part=True,
                                    accuracy_part=True,
@@ -57,6 +58,7 @@ glock17l_barrel = Item(
                                                                         'Glock 17 Slide', 'Glock 17 Custom Slide',
                                                                         "Glock 17 Slide w/ Optics Cut",
                                                                         "Glock 17L Slide w/ Optics Cut"]},
+                                   barrel_length=6.02,
                                    target_acquisition_ap=1.03,
                                    functional_part=True,
                                    accuracy_part=True,
@@ -79,6 +81,7 @@ glock_9in_barrel = Item(
                                                                         'Glock 17 Slide', 'Glock 17 Custom Slide',
                                                                         "Glock 17 Slide w/ Optics Cut",
                                                                         "Glock 17L Slide w/ Optics Cut"]},
+                                   barrel_length=9,
                                    target_acquisition_ap=1.05,
                                    equip_time=1.05,
                                    functional_part=True,
@@ -102,6 +105,7 @@ glock17_barrel_ported = Item(
     usable_properties=GunComponent(part_type='Glock 17 Barrel',
                                    velocity_modifier=1.033,
                                    compatible_parts={'Glock 17 Slide': ['Glock 17 Custom Slide']},
+                                   barrel_length=4.49,
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.4,
                                    functional_part=True,
@@ -122,6 +126,7 @@ glock17l_barrel_ported = Item(
                                    velocity_modifier=1.0859,
                                    compatible_parts={'Glock 17 Slide': ['Glock 17L Custom Slide', 'Glock 17 Slide',
                                                                         'Glock 17 Custom Slide']},
+                                   barrel_length=6.02,
                                    prevents_suppression=True,
                                    muzzle_break_efficiency=0.4,
                                    target_acquisition_ap=1.03,
@@ -388,6 +393,7 @@ glock_17 = Item(
         ap_distance_cost_modifier=1.0,
         spread_modifier=0.055,
         gun_type='pistol',
+        barrel_length=4.49
     )
 )
 
