@@ -4,17 +4,17 @@ TO DO
 
 -multple sizes of icon, can add new sizes in main.spec
 
-TODO - name and class select on menu screen
-TODO - better level progression - alternative levels
-TODO - try reducing exe size - use UPX
-TODO - trigger mods
+TODO - calling input handlers from consumable and more generally actually using the consumable class properly - top priority
+TODO - add armour
 TODO - armour weight changes dexterity and walk speed
 TODO - way to repair weapon parts using kits
-TODO - blood loss
-TODO - add armour
-TODO - player cannot use melee weapons, can melee but no weapons
 
 Extended Goals
+-Blood loss
+-Less confusing control scheme
+-Name and class select on menu screen
+-Better level progression - alternative levels
+-Trigger mods
 -Attack queue for player in attack mode, VATS style
 -Full mouse controls
 -Squad members
@@ -22,6 +22,7 @@ Extended Goals
 -in the dungeon you find enemies using your looted equipment from previous runs
 -more room shapes on level generation
 -weapon graphics
+-try reducing exe size - use UPX
 
 - instead of using randint, use int(128 * random.random()) - https://eli.thegreenplace.net/2018/slow-and-fast-methods-for-generating-random-integers-in-python/
 

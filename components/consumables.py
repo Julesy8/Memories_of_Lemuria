@@ -404,6 +404,7 @@ class Gun(Weapon):
                  load_time_modifier: float = 1.0,
                  compatible_clip: str = None,
                  chambered_bullet: Optional[Item] = None,
+                 pdw_stock: bool = False,
                  has_stock: bool = False,
                  short_barrel: bool = False,
                  ):
@@ -448,6 +449,7 @@ class Gun(Weapon):
         self.condition_accuracy = condition_accuracy
         self.condition_function = condition_function
         self.compatible_clip = compatible_clip
+        self.pdw_stock = pdw_stock
         self.jammed = False
 
         self.manual_action = manual_action
@@ -850,6 +852,7 @@ class GunMagFed(Gun):
                  loaded_magazine: Optional[Item] = None,
                  compatible_clip: str = None,
                  has_stock: bool = False,
+                 pdw_stock: bool = False,
                  short_barrel: bool = False,
                  ):
 
@@ -888,7 +891,8 @@ class GunMagFed(Gun):
             gun_type=gun_type,
             has_stock=has_stock,
             short_barrel=short_barrel,
-            barrel_length=barrel_length
+            barrel_length=barrel_length,
+            pdw_stock=pdw_stock
         )
 
     def load_gun(self, magazine: Item):
@@ -1004,6 +1008,7 @@ class GunIntegratedMag(Gun, Magazine):
                  compatible_clip: str = None,
                  chambered_bullet: Optional[Item] = None,
                  has_stock: bool = False,
+                 pdw_stock: bool = False,
                  short_barrel: bool = False,
                  ):
         self.mag_capacity = mag_capacity
@@ -1042,7 +1047,8 @@ class GunIntegratedMag(Gun, Magazine):
             gun_type=gun_type,
             has_stock=has_stock,
             short_barrel=short_barrel,
-            barrel_length=barrel_length
+            barrel_length=barrel_length,
+            pdw_stock=pdw_stock
         )
 
     def chamber_round(self):

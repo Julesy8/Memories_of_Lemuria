@@ -349,6 +349,7 @@ stock_ak_underfolder = Item(
                                    equip_time=1.09,
                                    target_acquisition_ap=0.69,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A metal underfolding stock for AK type rifles such as the AKM-S'
 )
@@ -367,6 +368,7 @@ stock_ak_triangle = Item(
                                    equip_time=1.1,
                                    target_acquisition_ap=0.71,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='An almuninium ZPAP style side folding stock for AK type rifles'
 )
@@ -403,6 +405,7 @@ stock_amd65 = Item(
                                    equip_time=1.02,
                                    target_acquisition_ap=0.69,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A wire sidefolding stock for the AMD-65'
 )
@@ -421,6 +424,7 @@ stock_pt1 = Item(
                                    spread_modifier=0.84,
                                    target_acquisition_ap=0.76,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='An aftermarket telescopic sidefolding stock for AK rifles manufactured by Zenitco'
 )

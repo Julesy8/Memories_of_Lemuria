@@ -165,30 +165,24 @@ class GameMap:
 
         for entity in entities_sorted_for_rendering:
 
+            # entity is visible
             if self.visible[entity.x, entity.y]:
                 entity.seen = True
+                # sets 'ghost position' at last seen location
                 entity.ghost_x = entity.x
                 entity.ghost_y = entity.y
                 obj_x, obj_y = entity.x - cam_x, entity.y - cam_y
+                # prints entity to console
                 if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
                     console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
-                    if isinstance(entity, AIActor):
-                        # chance of enemy becoming active from 'seeing' player is dependent on range and distance
-                        if not entity.active:
-                            dx = entity.x - self.engine.player.x
-                            dy = entity.y - self.engine.player.y
-                            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-                            # at 10 metres distance there's an equal chance of the enemy noticing you as not noticing
-                            # you
-                            # TODO - this should be affected by a stealth skill
-                            sees_player = random.choices((True, False), weights=(10, distance))
-                            if sees_player:
-                                entity.active = True
 
+            # entity has been seen before
             elif entity.seen:
 
+                # if ghost position visible, sets seen to false
                 if self.visible[entity.ghost_x, entity.ghost_y]:
                     entity.seen = False
+                # ghost position not visible, prints ghost to console
                 else:
                     obj_x, obj_y = entity.ghost_x - cam_x, entity.ghost_y - cam_y
                     if 0 <= obj_x < console.width and 0 <= obj_y < console.height:

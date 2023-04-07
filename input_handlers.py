@@ -378,7 +378,7 @@ class MainGameEventHandler(EventHandler):
         elif key == tcod.event.K_c:
             return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting')
         elif key == tcod.event.K_i:
-            return InventoryEventHandler(self.engine) # TODO - less confusing control scheme
+            return InventoryEventHandler(self.engine)
         elif key == tcod.event.K_e:
             return EquipmentEventHandler(self.engine)
         elif key == tcod.event.K_s:
@@ -1547,7 +1547,7 @@ class LoadoutEventHandler(UserOptionsWithPages):
         if isinstance(item.usable_properties, Magazine):
             return MagazineOptionsHandler(engine=self.engine, magazine=item)
 
-        elif isinstance(item.usable_properties, Weapon):
+        elif isinstance(item.usable_properties, Gun):
             options = ['Equip', 'Unequip', 'Use', 'Inspect']
             return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
@@ -2048,7 +2048,7 @@ class InspectItemViewer(AskUserEventHandler):
 
         self.item_info = {
             "-- Description --": ('description', item.description),
-            "-- Weight --": ('weight', item.weight),
+            "-- Weight (kg)--": ('weight', round(item.weight, 2)),
 
             # healing consumable
             "-- Healing Amount --": ('amount', getattr(self.item.usable_properties, 'amount', 1)),
@@ -2256,9 +2256,9 @@ class InspectItemViewer(AskUserEventHandler):
                 break
 
         if self.inspect_parts_option:
-            console.print(x=2, y=height + 3, string="(i) show parts", bg=(0, 0, 0))
+            console.print(x=2, y=height + 3, string="(I) SHOW PARTS", bg=(0, 0, 0))
 
-        console.print(x=2, y=height + 2, string="use arrow keys to scroll", bg=(0, 0, 0))
+        console.print(x=2, y=height + 2, string="USE ARROW KEYS TO SCROLL", bg=(0, 0, 0))
 
         if not self.scroll_position == 0:
             console.print(x=1, y=2, string="▲")

@@ -603,6 +603,7 @@ mac1045_full_stock = Item(
                                    equip_time=1.1,
                                    target_acquisition_ap=0.71,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A sturdy fixed polymer buttstock for the M10 submachinegun by Lage Manufacturing, designed for use '
                 'with their MAX-10 series of upper receivers'
@@ -622,6 +623,7 @@ mac1045_folding_stock = Item(
                                    equip_time=1.03,
                                    target_acquisition_ap=0.69,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A folding aluminium and polymer buttstock for the M10 submachinegun by Lage Manufacturing, '
                 'designed for use with their "K" series of upper receivers'
@@ -640,6 +642,7 @@ mac1045_stock = Item(
                                    spread_modifier=0.74,
                                    target_acquisition_ap=0.78,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='The original collapsing wire buttstock for the M10 submachinegun'
 )

@@ -684,6 +684,7 @@ ar_stock_moe = Item(
                                    equip_time=1.08,
                                    target_acquisition_ap=0.7,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A light weight collapsing stock carbine by Magpul'
 )
@@ -720,6 +721,7 @@ ar_stock_danieldefense = Item(
                                    equip_time=1.1,
                                    target_acquisition_ap=0.73,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A collapsing stock by Daniel Defense, light weight and providing a solid cheek rest'
 )
@@ -756,6 +758,7 @@ ar_stock_maxim_cqb = Item(
                                    target_acquisition_ap=0.68,
                                    equip_time=1.03,
                                    has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A compact, PDW-style adjustable stock for AR rifles by Maxim Defense. As the name suggests, ideal for '
                 'close quarters gunfighting'

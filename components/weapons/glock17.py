@@ -303,7 +303,8 @@ glock_stock = Item(
                                    ap_distance_cost_modifier=0.71,
                                    spread_modifier=0.9,
                                    target_acquisition_ap=0.76,
-                                   has_stock=True
+                                   has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='A folding stock for Glock pistols'
 )
@@ -337,7 +338,8 @@ glock_pistol_brace = Item(
                                    ap_distance_cost_modifier=0.76,
                                    spread_modifier=0.94,
                                    target_acquisition_ap=0.71,
-                                   has_stock=True
+                                   has_stock=True,
+                                   pdw_stock=True,
                                    ),
     description='Collapsing pistol brace "not a stock" for Glock handguns designed by Flux Defense'
 )

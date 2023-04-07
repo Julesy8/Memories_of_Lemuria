@@ -62,6 +62,7 @@ class Parts:
                     self.parent = GunIntegratedMag(parts=self,
                                                    gun_type=self.parent.gun_type,
                                                    has_stock=self.parent.has_stock,
+                                                   pdw_stock=self.parent.pdw_stock,
                                                    short_barrel=self.parent.short_barrel,
                                                    velocity_modifier=self.parent.velocity_modifier,
                                                    muzzle_break_efficiency=self.parent.muzzle_break_efficiency,
@@ -97,6 +98,7 @@ class Parts:
                     self.parent = GunMagFed(parts=self,
                                             gun_type=self.parent.gun_type,
                                             has_stock=self.parent.has_stock,
+                                            pdw_stock=self.parent.pdw_stock,
                                             short_barrel=self.parent.short_barrel,
                                             velocity_modifier=self.parent.velocity_modifier,
                                             muzzle_break_efficiency=self.parent.muzzle_break_efficiency,
@@ -177,18 +179,25 @@ class Parts:
             self.set_property(part_properties=optic_properties)
 
         # assigns type to weapon
-        # TODO - this needs some work, e.g. short barreled AK should probably not be classified as a PDW
+
+        # if a gun was previously classified as a rifle, but now has a short barrel and PDW type stock, is now a PDW
         if self.parent.gun_type == 'rifle':
-            if self.parent.short_barrel:
+            if self.parent.short_barrel and self.parent.pdw_stock:
                 self.parent.gun_type = 'pdw'
 
         elif self.parent.gun_type == 'pdw':
-            if not self.parent.short_barrel:
+            # if gun was a PDW but now has a long barrel and stock, is now a rifle
+            if not self.parent.short_barrel and not self.parent.pdw_stock:
                 self.parent.gun_type = 'rifle'
+            # if gun was a PDW but has a short barrel and no stock, is now a pistol
+            if self.parent.short_barrel and not self.parent.has_stock:
+                self.parent.gun_type = 'pistol'
 
         elif self.parent.gun_type == 'pistol':
+            # if pistol has a stock is now a PDW
             if self.parent.has_stock:
                 self.parent.gun_type = 'pdw'
+            # if pistol has a long barrel is now a rifle
             if not self.parent.short_barrel:
                 self.parent.gun_type = 'rifle'
 

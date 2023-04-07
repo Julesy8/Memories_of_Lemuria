@@ -2,6 +2,7 @@ from __future__ import annotations
 import lzma
 import pickle
 from typing import TYPE_CHECKING
+from random import choices
 
 from tcod import tileset
 
@@ -66,6 +67,21 @@ class Engine:
         )
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
+
+        # activates entity when seen by player
+        for entity in self.game_map.entities:
+            if hasattr(entity, 'active'):
+
+                if self.game_map.visible[entity.x, entity.y] and not entity.active:
+
+                    dx = entity.x - self.player.x
+                    dy = entity.y - self.player.y
+                    distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+                    # at 10 metres distance there's an equal chance of the enemy noticing you as not noticing you
+                    # TODO - this should be affected by a stealth skill and perception
+                    sees_player = choices((True, False), weights=(10, distance))
+                    if sees_player:
+                        entity.active = True
 
     def render(self, console: Console) -> None:
         self.game_map.render(console)

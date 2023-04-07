@@ -84,8 +84,6 @@ class Bodypart:
     @hp.setter
     def hp(self, value: int) -> None:
 
-        # TODO - removing limbs from enemies
-
         show_cripple_message = True
 
         # sets splatter message
@@ -196,14 +194,18 @@ class Bodypart:
 
     def deal_damage_melee(self, meat_damage: int, armour_damage: int, attacker: Actor):
 
-        armour_protection = 0
+        armour_protection = self.protection_physical
 
         if self.equipped:
             # whether attack hits armour or not
-            # TODO - refactor with separate value armour coverage
-            if choices(population=(True, False),
-                       weights=(self.equipped.usable_properties.protection_physical,
-                                100 - self.equipped.usable_properties.protection_physical))[0]:
+            if self.equipped.usable_properties.armour_coverage < 100:
+                # random chance whether attack hits armour based on armour coverage
+                if choices(population=(True, False),
+                           weights=(self.equipped.usable_properties.armour_coverage,
+                                    100 - self.equipped.usable_properties.armour_coverage))[0]:
+                    armour_protection = self.equipped.usable_properties.protection_physical
+            else:
+                # armour covers 100% of part
                 armour_protection = self.equipped.usable_properties.protection_physical
 
         if armour_damage < self.protection_physical + armour_protection:
@@ -234,9 +236,17 @@ class Bodypart:
 
         armour_protection = self.protection_ballistic
 
-        # TODO - factoring in armour coverage here too
         if self.equipped:
-            armour_protection += self.equipped.usable_properties.protection_ballistic
+            # whether attack hits armour or not
+            if self.equipped.usable_properties.armour_coverage < 100:
+                # random chance whether attack hits armour based on armour coverage
+                if choices(population=(True, False),
+                           weights=(self.equipped.usable_properties.armour_coverage,
+                                    100 - self.equipped.usable_properties.armour_coverage))[0]:
+                    armour_protection += self.equipped.usable_properties.protection_ballistic
+            else:
+                # armour covers 100% of part
+                armour_protection += self.equipped.usable_properties.protection_ballistic
 
         if armour_protection > 0:
 
