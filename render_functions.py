@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import tcod
+from entity import Item
 
 import colour
 
@@ -43,12 +44,10 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
                 names.append(entity.name)
 
             # shows stack size for stackable items
-            try:
-                if entity.stacking:
+            if isinstance(entity, Item):
+                if entity.stacking is not None:
                     if entity.stacking.stack_size > 1:
                         names[-1].join(f"({entity.stacking.stack_size})")
-            except AttributeError:
-                pass
 
             # finds duplicate names and replaces them with a since string denoting the amount present
             name_count = 0

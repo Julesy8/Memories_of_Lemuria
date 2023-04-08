@@ -8,7 +8,7 @@ import tcod
 import textwrap
 import tcod.event
 
-from entity import Item
+from entity import Item, Actor
 import actions
 from actions import (
     Action,
@@ -766,10 +766,6 @@ class EquipmentEventHandler(AskUserEventHandler):
         self.equipped_list = []  # equipped items
 
     def on_render(self, console: tcod.Console) -> None:
-        """Render an inventory menu, which displays the items in the inventory, and the letter to select them.
-        Will move to a different position based on where the player is located, so the player can always see where
-        they are.
-        """
         super().on_render(console)
 
         equipment_dictionary = {}  # dictionary containing bodypart associated with the item equipped
@@ -1074,8 +1070,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
         # displays enemy info
         elif key == tcod.event.K_k and player.fighter.target_actor is not None:
-            # TODO - implement
-            pass
+            return ShowEnemyInfo(self.engine, entity=player.fighter.target_actor, parent_handler=self)
 
         elif key in WAIT_KEYS:
             self.engine.handle_enemy_turns()
@@ -1127,6 +1122,98 @@ class ChangeTargetActor(AskUserEventHandler):
 
         self.part_cond_str = string
         self.part_cond_colour = str_colour
+
+class ShowEnemyInfo(EventHandler):
+
+    def __init__(self, engine: Engine, entity: Actor, parent_handler: BaseEventHandler):
+        super().__init__(engine)
+        self.parent_handler = parent_handler
+        self.entity = entity
+        self.title = f"Info - {entity.name}"
+        self.strings = []
+
+        if entity.inventory.held is not None:
+            self.strings.append(f"Held Weapon: {entity.inventory.held.name}")
+
+        equipped_armour = []
+
+        for part in entity.bodyparts:
+            string: str = "UNHARMED"
+
+            current_value = getattr(part, "hp")
+            maximum_value = getattr(part, "max_hp")
+
+            if maximum_value == current_value:
+                pass
+
+            elif maximum_value * 0.75 <= current_value <= maximum_value:
+                string = "Minor Damage"
+
+            elif maximum_value * 0.5 <= current_value <= maximum_value * 0.75:
+                string = "Injured"
+
+            elif maximum_value * 0.15 <= current_value <= maximum_value * 0.50:
+                string = "Critically Injured"
+
+            elif 0 < current_value <= maximum_value * 0.15:
+                string = "Mangled"
+
+            elif current_value == 0:
+                string = "Destroyed"
+
+            self.strings.append(f"{part.name}: {string}")
+
+            if part.equipped is not None:
+                if part.equipped.name not in equipped_armour:
+                    equipped_armour.append(f"Worn - {part.equipped.name}")
+
+            self.strings += equipped_armour
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Render the parent and dim the result, then print the message on top."""
+        super().on_render(console)
+
+        longest_str_len = 0
+
+        for string in self.strings:
+            if len(string) > longest_str_len:
+                longest_str_len = len(string)
+
+        width = len(self.title)
+        height = len(self.strings) + 2
+
+        if longest_str_len > width:
+            width = longest_str_len
+
+        x = 1
+        y = 2
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 7,
+            height=height,
+            title=self.title,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        for i, string in enumerate(self.strings):
+            console.print(x + 1, y + i + 1, string)
+
+        if hasattr(self.entity, 'description'):
+            console.print(x, height + 2, "PRESS [D] FOR DESCRIPTION")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+
+        if key == tcod.event.K_d:
+            if hasattr(self.entity, 'description'):
+                return PopupMessage(text=self.entity.description, parent_handler=self, title=self.entity.name)
+
+        elif key == tcod.event.K_ESCAPE:
+            return self.parent_handler
 
 
 class QuitEventHandler(AskUserEventHandler):
