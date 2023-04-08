@@ -3,11 +3,20 @@ from __future__ import annotations
 
 import lzma
 import pickle
+from random import randint, choices
+from playsound import playsound
+from typing import Optional
+from configparser import ConfigParser
+import numpy as np
+import traceback
+from multiprocessing import Process
+import tcod
 
 import colour
 from engine import Engine
 from entity import Actor
 from level_generator import MessyBSPTree
+from input_handlers import BaseEventHandler, MainGameEventHandler, PopupMessage
 from level_parameters import level_params
 from components.inventory import Inventory
 from components.ai import BaseAI
@@ -19,7 +28,7 @@ from copy import deepcopy
 
 from components.weapons.glock17 import glock_17
 
-from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide, glock17_slide_optic, \
+from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide_optic, \
     glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm
 
 # for crafting testing
@@ -30,6 +39,161 @@ from components.weapons.glock17 import glock17dict
 #    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, \
 #    mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak, mosin_nagant
 
+config = ConfigParser()
+config.read('settings.ini')
+
+music = config.getboolean('settings', 'music')
+
+def playmusic():
+    while True:
+        playsound('stepinside.mp3')
+
+class MainMenu(BaseEventHandler):
+    """Handle the main menu rendering and input."""
+
+    def __init__(self):
+        self.option_selected = 0
+        self.colour_mode_forward = [True, True, True]
+        self.fg_colour = [randint(60, 249), randint(60, 249), randint(60, 249)]
+        self.subtext = generate_subtext()
+
+        if music:
+            self.music = Process(target=playmusic)
+            self.music.start()
+
+    def change_fg_colour(self):
+
+        for i in range(3):
+            reverse_direction = choices(population=(True, False), weights=(1, 600))[0]
+
+            if self.colour_mode_forward[i - 1]:
+                if reverse_direction:
+                    self.colour_mode_forward[i - 1] = False
+                else:
+                    self.fg_colour[i - 1] += 1
+                    if self.fg_colour[i - 1] >= 250:
+                        self.colour_mode_forward[i - 1] = False
+
+            else:
+                if reverse_direction:
+                    self.colour_mode_forward[i - 1] = True
+                else:
+                    self.fg_colour[i - 1] -= 1
+                    if self.fg_colour[i - 1] <= 25:
+                        self.colour_mode_forward[i - 1] = True
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Render the main menu on a background image."""
+
+        path = "newmenu1.xp"  # REXPaint file with one layer.
+        # Load a REXPaint file with a single layer.
+        # The comma after console is used to unpack a single item tuple.
+        console2, = tcod.console.load_xp(path, order="F")
+
+        # Convert tcod's Code Page 437 character mapping into a NumPy array.
+        CP437_TO_UNICODE = np.asarray(tcod.tileset.CHARMAP_CP437)
+
+        # Convert from REXPaint's CP437 encoding to Unicode in-place.
+        console2.ch[:] = CP437_TO_UNICODE[console2.ch]
+
+        # Apply REXPaint's alpha key color.
+        KEY_COLOR = (255, 0, 255)
+        is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
+        console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
+
+        self.change_fg_colour()
+        console2.rgb["fg"] = self.fg_colour
+
+        console2.blit(dest=console, dest_x=console.width // 2 - 40, dest_y=console.height // 2 - 25, src_x=0, src_y=0,
+                      width=80,
+                      height=50)
+
+        # noinspection PyTypeChecker
+        console.print(
+            console.width // 2,
+            console.height // 2 + 18,
+            self.subtext,
+            fg=self.fg_colour,
+            alignment=tcod.CENTER,
+        )
+
+        menu_width = 8
+        for i, text in enumerate(
+                ["New Game", "Continue", "  Quit"]
+        ):
+            # noinspection PyTypeChecker
+            console.print(
+                console.width // 2,
+                console.height // 2 - 2 + i,
+                text.ljust(menu_width),
+                fg=self.fg_colour,
+                alignment=tcod.CENTER,
+                bg_blend=tcod.BKGND_ALPHA(64),
+            )
+
+        # noinspection PyTypeChecker
+        console.print(x=console.width // 2 - 6, y=console.height // 2 - 2 + self.option_selected, string='►',
+                      fg=self.fg_colour)
+
+        # noinspection PyTypeChecker
+        console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
+                      fg=self.fg_colour)
+
+        # noinspection PyTypeChecker
+        console.print(x=console.width // 2 - 19, y=53,
+                      string='PRE-ALPHA - READ MANUAL BEFORE PLAYING',
+                      fg=self.fg_colour)
+
+        if music:
+            # noinspection PyTypeChecker
+            console.print(x=console.width // 2 - 26, y=54,
+                          string='MUSIC BY BLAVATSKY -- HTTPS://BLAVATSKY.BANDCAMP.COM',
+                          fg=self.fg_colour)
+
+    def ev_keydown(
+            self, event: tcod.event.KeyDown
+    ) -> Optional[BaseEventHandler]:
+        if event.sym == tcod.event.K_ESCAPE:
+            if music:
+                self.music.terminate()
+            raise SystemExit()
+
+        elif event.sym == tcod.event.K_DOWN:
+            if self.option_selected < 2:
+                self.option_selected += 1
+            else:
+                self.option_selected = 0
+
+        elif event.sym == tcod.event.K_UP:
+            if self.option_selected > 0:
+                self.option_selected -= 1
+            else:
+                self.option_selected = 2
+
+        elif event.sym == tcod.event.K_F1:
+            self.subtext = generate_subtext()
+
+        elif event.sym == tcod.event.K_RETURN:
+            if self.option_selected == 0:
+                if music:
+                    self.music.terminate()
+                return MainGameEventHandler(new_game())
+            elif self.option_selected == 1:
+                try:
+                    self.music.terminate()
+                    return MainGameEventHandler(load_game("savegame.sav"))
+                except FileNotFoundError:
+                    return PopupMessage(self, "No saved game to load.", title='Error')
+                except Exception as exc:
+                    traceback.print_exc()  # Print to stderr.
+                    return PopupMessage(self, f"Failed to load save:\n{exc}", title='Error')
+                pass
+            elif self.option_selected == 2:
+                if music:
+                    self.music.terminate()
+                raise SystemExit()
+
+        return None
 
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance."""
@@ -109,7 +273,7 @@ def new_game() -> Engine:
                                    fov_radius=level_params[current_level][7],
                                    engine=engine,
                                    current_level=current_level,
-                                   ).generateLevel()
+                                   ).generate_level()
 
     engine.game_map.camera_xy = (engine.player.x, engine.player.y)
 

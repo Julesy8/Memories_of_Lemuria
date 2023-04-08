@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import random
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
@@ -212,4 +211,4 @@ class GameMap:
             engine=self.engine,
             current_level=self.engine.current_level,
             fov_radius=level_params[self.engine.current_level][7]
-            ).generateLevel()
+            ).generate_level()

@@ -3,6 +3,7 @@ from configparser import ConfigParser
 from multiprocessing import active_children, freeze_support
 import exceptions
 import input_handlers
+from setup_game import MainMenu
 import colour
 
 import tcod
@@ -57,7 +58,7 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
 
 
 def main() -> None:
-    handler: input_handlers.BaseEventHandler = input_handlers.MainMenu()
+    handler: input_handlers.BaseEventHandler = MainMenu()
 
     screen_width = screen_pix_width
     screen_height = screen_pix_height

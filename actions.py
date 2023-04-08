@@ -746,5 +746,23 @@ class ItemAction(Action):
 
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
-        if self.item.usable_properties:  # test
-            self.item.usable_properties.activate(self)
+        # if self.item.usable_properties:  # test
+        self.item.usable_properties.activate(self)
+
+class RepairItem(Action):
+    def __init__(self, entity: Actor, item_to_repair: Item, repair_kit_item: Item) -> None:
+        super().__init__(entity)
+        self.item_to_repair = item_to_repair
+        self.repair_kit_item = repair_kit_item
+
+    def perform(self) -> None:
+        self.repair_kit_item.usable_properties.activate(self)
+
+class HealPart(Action):
+    def __init__(self, entity: Actor, part_to_heal: Bodypart, healing_item: Item) -> None:
+        super().__init__(entity)
+        self.part_to_heal = part_to_heal
+        self.healing_item = healing_item
+
+    def perform(self) -> None:
+        self.healing_item.usable_properties.activate(self)

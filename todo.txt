@@ -4,12 +4,11 @@ TO DO
 
 -multple sizes of icon, can add new sizes in main.spec
 
-TODO - calling input handlers from consumable and more generally actually using the consumable class properly - top priority
 TODO - add armour
 TODO - armour weight changes dexterity and walk speed
-TODO - way to repair weapon parts using kits
 
 Extended Goals
+-calling input handlers from consumable and more generally actually using the consumable class properly
 -Blood loss
 -Less confusing control scheme
 -Name and class select on menu screen

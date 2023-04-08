@@ -12,6 +12,7 @@ from pydantic.utils import deep_update
 import actions
 import colour
 import components.inventory
+from input_handlers import SelectPartToRepair, MainGameEventHandler, BaseEventHandler, SelectPartToHeal
 from components.npc_templates import BaseComponent
 
 if TYPE_CHECKING:
@@ -27,7 +28,7 @@ class Usable(BaseComponent):
         """Try to return the action for this item."""
         return actions.ItemAction(user, self.parent)
 
-    def activate(self, action: actions.ItemAction) -> None:
+    def activate(self, action: ActionOrHandler) -> None:
         """Invoke this items ability.
 
         `action` is the context for this activation.
@@ -47,20 +48,76 @@ class HealingConsumable(Usable):
     def __init__(self, amount: int):
         self.amount = amount
 
-    def activate(self, action: actions.ItemAction) -> None:
-        consumer = action.entity
+    def get_action(self, user: Actor) -> Optional[ActionOrHandler]:
+        options = []
 
-        for bodypart in consumer.bodyparts:
-            bodypart.heal(self.amount)
+        # appends injured body parts to options
+        for bodypart in user.bodyparts:
+            if bodypart.hp < bodypart.max_hp:
+                options.append(bodypart)
 
-        self.engine.message_log.add_message(
-            f"You use the {self.parent.name}",
-            colour.GREEN,
-        )
+        # returns part selection menu
+        return SelectPartToHeal(engine=self.engine,
+                                options=options,
+                                callback = lambda part_to_heal:
+                                actions.HealPart(entity=user,
+                                                 part_to_heal=part_to_heal,
+                                                 healing_item=self.parent))
+
+    def activate(self, action: actions.HealPart) -> BaseEventHandler:
+        bodypart = action.part_to_heal
+        bodypart.heal(self.amount)
+
         self.parent.stacking.stack_size -= 1
+
+        self.engine.message_log.add_message(f"{self.parent.name}'s remaining: {self.parent.stacking.stack_size}",
+                                            colour.WHITE,)
+
         if self.parent.stacking.stack_size <= 0:
             self.consume()
+            return MainGameEventHandler(self.engine)
 
+class RepairKit(Usable):
+
+    def get_action(self, user: Actor) -> SelectPartToRepair:
+
+        options = []
+
+        # appends repairable items to options list
+        for item in self.engine.player.inventory.items:
+            if isinstance(item.usable_properties, GunComponent):
+                if item.usable_properties.condition_accuracy < 5 or item.usable_properties.condition_function < 5:
+                    options.append(item)
+
+        # returns part selection menu
+        return SelectPartToRepair(engine=self.engine,
+                                  options=options,
+                                  callback = lambda item_to_repair:
+                                  actions.RepairItem(entity=user,
+                                                     item_to_repair=item_to_repair,
+                                                     repair_kit_item=self.parent))
+
+    def activate(self, action: actions.RepairItem) -> BaseEventHandler:
+        item = action.item_to_repair
+
+        assert isinstance(item.usable_properties, GunComponent)
+
+        # adds to part condition
+        if item.usable_properties.accuracy_part:
+            if item.usable_properties.condition_accuracy < 5:
+                item.usable_properties.condition_accuracy += 1
+
+        if item.usable_properties.functional_part:
+            if item.usable_properties.condition_function < 5:
+                item.usable_properties.condition_function += 1
+
+        self.parent.stacking.stack_size -= 1
+
+        self.engine.message_log.add_message(f"Repair kits remaining: {self.parent.stacking.stack_size}", colour.WHITE,)
+
+        if self.parent.stacking.stack_size <= 0:
+            self.consume()
+            return MainGameEventHandler(self.engine)
 
 class Weapon(Usable):
 
@@ -291,7 +348,7 @@ class Magazine(Usable):
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
 
-    def load_magazine(self, ammo: Item, load_amount: int) -> None:
+    def load_magazine(self, ammo: Bullet, load_amount: int) -> None:
         # loads bullets into magazine
 
         entity = self.parent
@@ -303,27 +360,27 @@ class Magazine(Usable):
                 if not self.keep_round_chambered:
                     actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
 
-            if load_amount > ammo.stacking.stack_size or load_amount < 1:
+            if load_amount > ammo.parent.stacking.stack_size or load_amount < 1:
                 raise Impossible("Invalid entry.")
 
             # amount to be loaded is greater than no. of rounds available
-            if load_amount > ammo.stacking.stack_size:
-                load_amount = ammo.stacking.stack_size
+            if load_amount > ammo.parent.stacking.stack_size:
+                load_amount = ammo.parent.stacking.stack_size
 
             # amount to be loaded is greater than the magazine capacity
             if load_amount > self.mag_capacity - len(self.magazine):
                 load_amount = self.mag_capacity - len(self.magazine)
 
             # 1 or more stack left in inventory after loading
-            if ammo.stacking.stack_size - load_amount > 1:
-                ammo.stacking.stack_size -= load_amount
+            if ammo.parent.stacking.stack_size - load_amount > 1:
+                ammo.parent.stacking.stack_size -= load_amount
 
             # no stacks left after loading
-            elif ammo.stacking.stack_size - load_amount <= 0:
+            elif ammo.parent.stacking.stack_size - load_amount <= 0:
                 if self.engine.player == entity:
-                    inventory.items.remove(ammo)
+                    inventory.items.remove(ammo.parent)
 
-            single_round = deepcopy(ammo)
+            single_round = deepcopy(ammo.parent)
             single_round.stacking.stack_size = 1
 
             for i in range(load_amount):
@@ -335,7 +392,7 @@ class Magazine(Usable):
             # 1 turn = 1 second
             if self.engine.player == inventory.parent:
                 for i in range(round(load_amount * inventory.parent.fighter.action_ap_modifier *
-                                     ammo.usable_properties.load_time_modifier)):
+                                     ammo.load_time_modifier)):
                     self.engine.handle_enemy_turns()
 
             if isinstance(self, GunIntegratedMag):
@@ -505,18 +562,18 @@ class Gun(Weapon):
         # adds weight of the magazine and loaded bullets to total weight for recoil calculations
         if isinstance(self, GunMagFed):
             if self.loaded_magazine is not None:
-                magazine = self.loaded_magazine
+                magazine = self.loaded_magazine.usable_properties.magazine
                 mag_weight = self.loaded_magazine.weight
 
         elif isinstance(self, GunIntegratedMag):
-            magazine = self
+            magazine = self.magazine
 
         # fires rounds
         while rounds_to_fire > 0:
 
             if self.chambered_bullet is not None:
 
-                ammo_weight = len(magazine.usable_properties.magazine) * self.chambered_bullet.weight
+                ammo_weight = len(magazine) * self.chambered_bullet.weight
                 total_weight = self.parent.weight + mag_weight + ammo_weight
 
                 # if attacker is player, jams the gun depending on its functional condition
@@ -526,7 +583,7 @@ class Gun(Weapon):
 
                     if hasattr(self, 'loaded_magazine'):
                         if self.loaded_magazine is not None:
-                            mag_fail_chance = self.loaded_magazine.fail_chance
+                            mag_fail_chance = self.loaded_magazine.usable_properties.fail_chance
 
                     if choices(population=(True, False), weights=(round(25 - ((self.condition_function / 5) * 25) +
                                                                         mag_fail_chance), 100))[0]:

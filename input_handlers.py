@@ -1,23 +1,15 @@
 from __future__ import annotations
 
 import os
-from multiprocessing import Process
-from configparser import ConfigParser
-from playsound import playsound
 from copy import deepcopy
-from typing import Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, Union, Callable
 from math import ceil
-from random import randint, choices
-from setup_game import generate_subtext, new_game, load_game
-import traceback
 import tcod
-import numpy as np
 import textwrap
 import tcod.event
 
 from entity import Item
 import actions
-from components.consumables import Gun, GunIntegratedMag, GunMagFed, Bullet, Magazine, GunComponent, Wearable, Weapon
 from actions import (
     Action,
     BumpAction,
@@ -30,11 +22,8 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
+    from components.bodyparts import Bodypart
 
-config = ConfigParser()
-config.read('settings.ini')
-
-music = config.getboolean('settings', 'music')
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -95,153 +84,6 @@ class BaseEventHandler(tcod.event.EventDispatch[ActionOrHandler]):
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
-
-
-def playmusic():
-    while True:
-        playsound('stepinside.mp3')
-
-
-class MainMenu(BaseEventHandler):
-    """Handle the main menu rendering and input."""
-
-    def __init__(self):
-        self.option_selected = 0
-        self.colour_mode_forward = [True, True, True]
-        self.fg_colour = [randint(60, 249), randint(60, 249), randint(60, 249)]
-        self.subtext = generate_subtext()
-
-        if music:
-            self.music = Process(target=playmusic)
-            self.music.start()
-
-    def change_fg_colour(self):
-
-        for i in range(3):
-            reverse_direction = choices(population=(True, False), weights=(1, 600))[0]
-
-            if self.colour_mode_forward[i - 1]:
-                if reverse_direction:
-                    self.colour_mode_forward[i - 1] = False
-                else:
-                    self.fg_colour[i - 1] += 1
-                    if self.fg_colour[i - 1] >= 250:
-                        self.colour_mode_forward[i - 1] = False
-
-            else:
-                if reverse_direction:
-                    self.colour_mode_forward[i - 1] = True
-                else:
-                    self.fg_colour[i - 1] -= 1
-                    if self.fg_colour[i - 1] <= 25:
-                        self.colour_mode_forward[i - 1] = True
-
-    def on_render(self, console: tcod.Console) -> None:
-        """Render the main menu on a background image."""
-
-        path = "newmenu1.xp"  # REXPaint file with one layer.
-        # Load a REXPaint file with a single layer.
-        # The comma after console is used to unpack a single item tuple.
-        console2, = tcod.console.load_xp(path, order="F")
-
-        # Convert tcod's Code Page 437 character mapping into a NumPy array.
-        CP437_TO_UNICODE = np.asarray(tcod.tileset.CHARMAP_CP437)
-
-        # Convert from REXPaint's CP437 encoding to Unicode in-place.
-        console2.ch[:] = CP437_TO_UNICODE[console2.ch]
-
-        # Apply REXPaint's alpha key color.
-        KEY_COLOR = (255, 0, 255)
-        is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
-        console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
-
-        self.change_fg_colour()
-        console2.rgb["fg"] = self.fg_colour
-
-        console2.blit(dest=console, dest_x=console.width // 2 - 40, dest_y=console.height // 2 - 25, src_x=0, src_y=0,
-                      width=80,
-                      height=50)
-
-        console.print(
-            console.width // 2,
-            console.height // 2 + 18,
-            self.subtext,
-            fg=self.fg_colour,
-            alignment=tcod.CENTER,
-        )
-
-        menu_width = 8
-        for i, text in enumerate(
-                ["New Game", "Continue", "  Quit"]
-        ):
-            console.print(
-                console.width // 2,
-                console.height // 2 - 2 + i,
-                text.ljust(menu_width),
-                fg=self.fg_colour,
-                alignment=tcod.CENTER,
-                bg_blend=tcod.BKGND_ALPHA(64),
-            )
-
-        console.print(x=console.width // 2 - 6, y=console.height // 2 - 2 + self.option_selected, string='►',
-                      fg=self.fg_colour)
-
-        console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
-                      fg=self.fg_colour)
-
-        console.print(x=console.width // 2 - 19, y=53,
-                      string='PRE-ALPHA - READ MANUAL BEFORE PLAYING',
-                      fg=self.fg_colour)
-
-        if music:
-            console.print(x=console.width // 2 - 26, y=48,
-                          string='MUSIC BY BLAVATSKY -- HTTPS://BLAVATSKY.BANDCAMP.COM',
-                          fg=self.fg_colour)
-
-    def ev_keydown(
-            self, event: tcod.event.KeyDown
-    ) -> Optional[BaseEventHandler]:
-        if event.sym == tcod.event.K_ESCAPE:
-            if music:
-                self.music.terminate()
-            raise SystemExit()
-
-        elif event.sym == tcod.event.K_DOWN:
-            if self.option_selected < 2:
-                self.option_selected += 1
-            else:
-                self.option_selected = 0
-
-        elif event.sym == tcod.event.K_UP:
-            if self.option_selected > 0:
-                self.option_selected -= 1
-            else:
-                self.option_selected = 2
-
-        elif event.sym == tcod.event.K_F1:
-            self.subtext = generate_subtext()
-
-        elif event.sym == tcod.event.K_RETURN:
-            if self.option_selected == 0:
-                if music:
-                    self.music.terminate()
-                return MainGameEventHandler(new_game())
-            elif self.option_selected == 1:
-                try:
-                    self.music.terminate()
-                    return MainGameEventHandler(load_game("savegame.sav"))
-                except FileNotFoundError:
-                    return PopupMessage(self, "No saved game to load.", title='Error')
-                except Exception as exc:
-                    traceback.print_exc()  # Print to stderr.
-                    return PopupMessage(self, f"Failed to load save:\n{exc}", title='Error')
-                pass
-            elif self.option_selected == 2:
-                if music:
-                    self.music.terminate()
-                raise SystemExit()
-
-        return None
 
 
 class PopupMessage(BaseEventHandler):
@@ -776,15 +618,17 @@ class InventoryEventHandler(UserOptionsWithPages):
     def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
-        options = ['Drop', 'Inspect']
+        options = []
 
         if hasattr(item, 'usable_properties'):
             options.append('Use')
 
-        if isinstance(item.usable_properties, Wearable):
+        options += ['Drop', 'Inspect']
+
+        if hasattr(item.usable_properties, 'fits_bodypart_type'):
             options.append('Equip')
 
-        if isinstance(item.usable_properties, Gun):
+        if hasattr(item.usable_properties, 'gun_type'):
             options += ['Equip to Primary', 'Equip to Secondary', 'Disassemble', 'Rename']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine)
@@ -800,9 +644,9 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         """Called when the user selects a valid item."""
         if option == 'Use':
             try:
-                if isinstance(self.item.usable_properties, Magazine):
+                if hasattr(self.item.usable_properties, 'mag_capacity'):
                     return MagazineOptionsHandler(engine=self.engine, magazine=self.item)
-                elif isinstance(self.item.usable_properties, Gun):
+                elif hasattr(self.item.usable_properties, 'gun_type'):
                     return GunOptionsHandler(engine=self.engine, gun=self.item)
                 else:
                     return self.item.usable_properties.get_action(self.engine.player)
@@ -1193,7 +1037,7 @@ class ChangeTargetActor(AskUserEventHandler):
         elif key == tcod.event.K_RETURN:  # atttack selected target
 
             if self.item is not None:
-                if isinstance(self.item.usable_properties, Gun):
+                if hasattr(self.item.usable_properties, 'jammed'):
                     if self.item.usable_properties.jammed:
                         return actions.ClearJam(entity=player, gun=self.item).perform()
 
@@ -1293,22 +1137,22 @@ class QuitEventHandler(AskUserEventHandler):
         console.draw_frame(
             x=console.width // 2 - 11,
             y=console.height // 2 - 4,
-            width=19,
+            width=18,
             height=5,
             clear=True,
             fg=colour.WHITE,
             bg=(0, 0, 0),
         )
 
-        console.print(x=console.width // 2 - 8, y=console.height // 2 - 3, string="Quit to Menu?",
+        console.print(x=console.width // 2 - 10, y=console.height // 2 - 3, string="Quit to Desktop?",
                       fg=colour.WHITE, bg=(0, 0, 0))
-        console.print(x=console.width // 2 - 10, y=console.height // 2 - 1, string="(Y) Yes    (N) No",
+        console.print(x=console.width // 2 - 9, y=console.height // 2 - 1, string="(Y) Yes (N) No",
                       fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
         if key == tcod.event.K_y:
-            return MainMenu()
+            raise SystemExit()
 
         elif key == tcod.event.K_n:
             return MainGameEventHandler(self.engine)
@@ -1366,14 +1210,14 @@ class GunOptionsHandler(UserOptionsEventHandler):
         if self.gun.usable_properties.jammed:
             options.append('clear jam')
 
-        if type(self.gun.usable_properties) is GunMagFed:
+        if hasattr(self.gun.usable_properties, 'loaded_magazine'):
             options += ["load magazine", "unload magazine"]
 
-        elif type(self.gun.usable_properties) is GunIntegratedMag:
+        elif hasattr(self.gun.usable_properties, 'mag_capacity'):
             options += ["load rounds", "unload rounds"]
 
         if self.gun.usable_properties.compatible_clip is not None:
-            if isinstance(self.gun.usable_properties, GunMagFed):
+            if hasattr(self.gun.usable_properties, 'loaded_magazine'):
                 if self.gun.usable_properties.loaded_magazine is not None:
                     options.append("load from clip")
             else:
@@ -1474,7 +1318,7 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
     def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         # gun is mag fed
-        if isinstance(self.gun.usable_properties, GunMagFed):
+        if hasattr(self.gun.usable_properties, 'loaded_magazine'):
             self.gun.usable_properties.\
                 load_from_clip(clip=item.usable_properties,
                                magazine=self.gun.usable_properties.loaded_magazine.usable_properties)
@@ -1485,6 +1329,145 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
 
         return MainGameEventHandler(engine=self.engine)
 
+class SelectPartToRepair(UserOptionsWithPages):
+
+    def __init__(self, engine: Engine, options: list, callback: Callable[[Item], Optional[Action]]):
+
+        self.callback = callback
+
+        title = 'Select Part to Repair'
+
+        super().__init__(engine=engine, options=options, page=0, title=title)
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        number_of_options = len(self.options)
+
+        width = len(self.TITLE)
+        height = number_of_options + 2
+
+        if number_of_options > self.max_list_length:
+            height = self.max_list_length + 2
+
+        x = 1
+        y = 2
+
+        index_range = self.page * self.max_list_length
+
+        longest_name_len = 0
+
+        for item in self.options[index_range:index_range + self.max_list_length]:
+
+            if len(item.name) > longest_name_len:
+                longest_name_len = len(item.name)
+
+        if longest_name_len:
+            if longest_name_len > width:
+                width = longest_name_len + 7
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 8,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        if number_of_options > 0:
+            console.print(x + 1, y + height - 1,
+                          f"Page {self.page + 1}/{ceil(len(self.options) / self.max_list_length)}")
+
+            for i, item in enumerate(self.options[index_range:index_range + self.max_list_length]):
+                item_key = chr(ord("a") + i)
+                if item.usable_properties.accuracy_part and not item.usable_properties.functional_part:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - "
+                                                    f"{round(item.usable_properties.condition_accuracy/5 * 100)}%")
+
+                elif item.usable_properties.functional_part and not item.usable_properties.accuracy_part:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - "
+                                                    f"{round(item.usable_properties.condition_function/5 * 100)}%")
+
+                elif item.usable_properties.functional_part and item.usable_properties.accuracy_part:
+                    condition = round(item.usable_properties.condition_function +
+                                      item.usable_properties.condition_accuracy/10 * 100)
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - {condition}%")
+
+        else:
+            console.print(x + 1, y + 1, "No Repairable Parts")
+
+    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+        return self.callback(item)
+
+class SelectPartToHeal(UserOptionsEventHandler):
+    def __init__(self, engine: Engine, options: list[Bodypart], callback: Callable[[Bodypart], Optional[Action]]):
+
+        self.callback = callback
+
+        title = 'Select Body Part to Heal'
+
+        super().__init__(engine=engine, options=options, title=title)
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        longest_option_name = 0
+
+        for option in self.options:
+
+            if len(option.name) > longest_option_name:
+                longest_option_name = len(option.name)
+
+        width = len(self.TITLE)
+
+        if longest_option_name > width:
+            width = longest_option_name
+
+        x = 1
+        y = 2
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 29,
+            height=len(self.options) + 2,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        for i, option in enumerate(self.options):
+            option_key = chr(ord("a") + i)
+
+            maximum_value = option.max_hp
+            current_value = option.hp
+
+            damage_str = ''
+            str_colour = colour.YELLOW
+
+            if maximum_value * 0.75 <= current_value <= maximum_value:
+                damage_str = "Minor Damage"
+
+            elif maximum_value * 0.5 <= current_value <= maximum_value * 0.75:
+                damage_str = "Injured"
+                str_colour = colour.ORANGE
+
+            elif maximum_value * 0.15 <= current_value <= maximum_value * 0.50:
+                damage_str = "Critically Injured"
+                str_colour = colour.LIGHT_RED
+
+            elif 0 < current_value <= maximum_value * 0.15:
+                damage_str = "Mangled"
+                str_colour = colour.RED
+
+            console.print(x + 1, y + i + 1, f"({option_key}) {option.name} - {damage_str}", fg=str_colour)
+
+    def ev_on_option_selected(self, bodypart: Bodypart) -> Optional[ActionOrHandler]:
+        return self.callback(bodypart)
 
 class SelectBulletsToLoadHandler(UserOptionsWithPages):
     TITLE = "Select Bullets"
@@ -1494,7 +1477,7 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
         ammo_list = []
 
         for item in engine.player.inventory.items:
-            if isinstance(item.usable_properties, Bullet):
+            if hasattr(item.usable_properties, 'bullet_type'):
                 if item.usable_properties.bullet_type == self.magazine.usable_properties.compatible_bullet_type:
                     ammo_list.append(item)
 
@@ -1544,10 +1527,10 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
     def ev_on_option_selected(self, item: Item):
 
-        if isinstance(item.usable_properties, Magazine):
+        if hasattr(item.usable_properties, 'mag_capacity'):
             return MagazineOptionsHandler(engine=self.engine, magazine=item)
 
-        elif isinstance(item.usable_properties, Gun):
+        elif hasattr(item.usable_properties, 'gun_type'):
             options = ['Equip', 'Unequip', 'Use', 'Inspect']
             return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
@@ -1573,7 +1556,7 @@ class SelectItemToCraft(UserOptionsWithPages):
             for part in parts:
                 part_dict[part] = None
 
-            if isinstance(self.item_dict[option]["item"].usable_properties, Gun):
+            if hasattr(self.item_dict[option]["item"].usable_properties, 'gun_type'):
                 return CraftGun(engine=self.engine, item_to_craft=option, current_part_index=0,
                                 item_dict=self.item_dict,
                                 compatible_parts={},
@@ -1668,7 +1651,8 @@ class CraftGun(CraftItem):
                 break
 
         for item in self.engine.player.inventory.items:
-            if isinstance(item.usable_properties, GunComponent):
+            # is gun part
+            if hasattr(item.usable_properties, 'prevents_suppression'):
 
                 if item.usable_properties.part_type == self.parts[self.current_part_selection]:
 
@@ -2051,7 +2035,7 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Weight (kg)--": ('weight', round(item.weight, 2)),
 
             # healing consumable
-            "-- Healing Amount --": ('amount', getattr(self.item.usable_properties, 'amount', 1)),
+            # "-- Healing Amount --": ('amount', getattr(self.item.usable_properties, 'amount', 1)),
 
             # weapon
             "-- AP to Equip --": ('ap_to_equip', round(getattr(self.item.usable_properties, 'ap_to_equip', 1), 3)),
