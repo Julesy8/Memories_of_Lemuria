@@ -59,7 +59,7 @@ class HealingConsumable(Usable):
         # returns part selection menu
         return SelectPartToHeal(engine=self.engine,
                                 options=options,
-                                callback = lambda part_to_heal:
+                                callback=lambda part_to_heal:
                                 actions.HealPart(entity=user,
                                                  part_to_heal=part_to_heal,
                                                  healing_item=self.parent))
@@ -71,11 +71,12 @@ class HealingConsumable(Usable):
         self.parent.stacking.stack_size -= 1
 
         self.engine.message_log.add_message(f"{self.parent.name}'s remaining: {self.parent.stacking.stack_size}",
-                                            colour.WHITE,)
+                                            colour.WHITE, )
 
         if self.parent.stacking.stack_size <= 0:
             self.consume()
             return MainGameEventHandler(self.engine)
+
 
 class RepairKit(Usable):
 
@@ -92,7 +93,7 @@ class RepairKit(Usable):
         # returns part selection menu
         return SelectPartToRepair(engine=self.engine,
                                   options=options,
-                                  callback = lambda item_to_repair:
+                                  callback=lambda item_to_repair:
                                   actions.RepairItem(entity=user,
                                                      item_to_repair=item_to_repair,
                                                      repair_kit_item=self.parent))
@@ -113,11 +114,12 @@ class RepairKit(Usable):
 
         self.parent.stacking.stack_size -= 1
 
-        self.engine.message_log.add_message(f"Repair kits remaining: {self.parent.stacking.stack_size}", colour.WHITE,)
+        self.engine.message_log.add_message(f"Repair kits remaining: {self.parent.stacking.stack_size}", colour.WHITE, )
 
         if self.parent.stacking.stack_size <= 0:
             self.consume()
             return MainGameEventHandler(self.engine)
+
 
 class Weapon(Usable):
 
@@ -183,14 +185,14 @@ class Weapon(Usable):
 
         if isinstance(inventory, components.inventory.Inventory):
 
-            if inventory.held == self:
-                inventory.held = None
-            if inventory.primary_weapon == self:
-                inventory.primary_weapon = None
-            elif inventory.secondary_weapon == self:
-                inventory.secondary_weapon = None
-
             inventory.items.append(entity)
+
+            if inventory.held == entity:
+                inventory.held = None
+            if inventory.primary_weapon == entity:
+                inventory.primary_weapon = None
+            elif inventory.secondary_weapon == entity:
+                inventory.secondary_weapon = None
 
     def consume_equip_ap(self) -> None:
 
@@ -207,11 +209,11 @@ class Weapon(Usable):
             if hasattr(self, 'loaded_magazine'):
                 if self.loaded_magazine is not None:
                     magazine = self.loaded_magazine.magazine
-                    total_weight += len(magazine) * magazine[0].weight + self.loaded_magazine.weight
+                    total_weight += len(magazine) * magazine[0].parent.weight + self.loaded_magazine.parent.weight
             # integrated magazine gun
             elif isinstance(self, GunIntegratedMag):
                 magazine = self.magazine
-                total_weight += len(magazine) * magazine[0].weight
+                total_weight += len(magazine) * magazine[0].parent.weight
 
             # calculates AP modifier based on weight and weapon type
             if self.gun_type == 'pistol':
@@ -224,7 +226,7 @@ class Weapon(Usable):
 
         if hasattr(self, 'loaded_magazine'):
             if self.loaded_magazine is not None:
-                equip_time *= self.loaded_magazine.usable_properties.equip_ap_mod
+                equip_time *= self.loaded_magazine.equip_ap_mod
 
         if inventory.parent == self.engine.player:
             if self.ap_to_equip >= 100:
@@ -310,7 +312,7 @@ class Bullet(Usable):
         self.bullet_length = bullet_length
         self.max_expansion = max_expansion
         self.max_expansion_velocity = max_expansion_velocity
-        self.bullet_expands =bullet_expands
+        self.bullet_expands = bullet_expands
         self.bullet_yaws = bullet_yaws
         self.bullet_fragments = bullet_fragments
         self.load_time_modifier = load_time_modifier
@@ -343,60 +345,24 @@ class Magazine(Usable):
         self.target_acquisition_ap_mod = target_acquisition_ap_mod
         self.ap_distance_cost_mod = ap_distance_cost_mod
         self.equip_ap_mod = equip_ap_mod
-        self.magazine = []
+        self.magazine: list[Bullet] = []
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
 
     def load_magazine(self, ammo: Bullet, load_amount: int) -> None:
+
         # loads bullets into magazine
+        single_round = deepcopy(ammo)
 
-        entity = self.parent
-        inventory = entity.parent
+        for i in range(load_amount):
+            self.magazine.append(single_round)
+            if len(self.magazine) == \
+                    self.mag_capacity:
+                break
 
-        if isinstance(inventory, components.inventory.Inventory):
-
-            if isinstance(self, GunIntegratedMag):
-                if not self.keep_round_chambered:
-                    actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
-
-            if load_amount > ammo.parent.stacking.stack_size or load_amount < 1:
-                raise Impossible("Invalid entry.")
-
-            # amount to be loaded is greater than no. of rounds available
-            if load_amount > ammo.parent.stacking.stack_size:
-                load_amount = ammo.parent.stacking.stack_size
-
-            # amount to be loaded is greater than the magazine capacity
-            if load_amount > self.mag_capacity - len(self.magazine):
-                load_amount = self.mag_capacity - len(self.magazine)
-
-            # 1 or more stack left in inventory after loading
-            if ammo.parent.stacking.stack_size - load_amount > 1:
-                ammo.parent.stacking.stack_size -= load_amount
-
-            # no stacks left after loading
-            elif ammo.parent.stacking.stack_size - load_amount <= 0:
-                if self.engine.player == entity:
-                    inventory.items.remove(ammo.parent)
-
-            single_round = deepcopy(ammo.parent)
-            single_round.stacking.stack_size = 1
-
-            for i in range(load_amount):
-                self.magazine.append(single_round)
-                if len(self.magazine) == \
-                        self.mag_capacity:
-                    break
-
-            # 1 turn = 1 second
-            if self.engine.player == inventory.parent:
-                for i in range(round(load_amount * inventory.parent.fighter.action_ap_modifier *
-                                     ammo.load_time_modifier)):
-                    self.engine.handle_enemy_turns()
-
-            if isinstance(self, GunIntegratedMag):
-                self.chamber_round()
+        if isinstance(self, GunIntegratedMag):
+            self.chamber_round()
 
     def unload_magazine(self) -> None:
         # unloads bullets from magazine
@@ -417,15 +383,16 @@ class Magazine(Usable):
                 for bullet in self.magazine:
 
                     if bullet not in bullets_unloaded:
-                        bullets_unloaded.append(bullet)
+                        bullets_unloaded.append(bullet.parent)
                         bullet_counter = 0
                         for i in self.magazine:
-                            if i.name == bullet.name:
+                            if i.parent.name == bullet.parent.name:
                                 bullet_counter += 1
 
-                        bullet.stacking.stack_size = bullet_counter
+                        bullet.parent.stacking.stack_size = bullet_counter
 
-                        actions.AddToInventory(item=bullet, amount=bullet_counter, entity=inventory.parent).perform()
+                        actions.AddToInventory(item=bullet.parent, amount=bullet_counter,
+                                               entity=inventory.parent).perform()
                 self.magazine = []
 
             else:
@@ -445,7 +412,7 @@ class Gun(Weapon):
                  sound_modifier: float,
                  felt_recoil: float,  # 1.0 = regular M4
                  zero_range: int,  # yards
-                 barrel_length: float, # inches
+                 barrel_length: float,  # inches
                  sight_height_above_bore: float,  # inches
                  receiver_height_above_bore: float,  # inches
                  target_acquisition_ap: int,  # ap cost for acquiring new target
@@ -460,7 +427,7 @@ class Gun(Weapon):
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  compatible_clip: str = None,
-                 chambered_bullet: Optional[Item] = None,
+                 chambered_bullet: Optional[Bullet] = None,
                  pdw_stock: bool = False,
                  has_stock: bool = False,
                  short_barrel: bool = False,
@@ -562,8 +529,8 @@ class Gun(Weapon):
         # adds weight of the magazine and loaded bullets to total weight for recoil calculations
         if isinstance(self, GunMagFed):
             if self.loaded_magazine is not None:
-                magazine = self.loaded_magazine.usable_properties.magazine
-                mag_weight = self.loaded_magazine.weight
+                magazine = self.loaded_magazine.magazine
+                mag_weight = self.loaded_magazine.parent.weight
 
         elif isinstance(self, GunIntegratedMag):
             magazine = self.magazine
@@ -573,7 +540,7 @@ class Gun(Weapon):
 
             if self.chambered_bullet is not None:
 
-                ammo_weight = len(magazine) * self.chambered_bullet.weight
+                ammo_weight = len(magazine) * self.chambered_bullet.parent.weight
                 total_weight = self.parent.weight + mag_weight + ammo_weight
 
                 # if attacker is player, jams the gun depending on its functional condition
@@ -581,9 +548,10 @@ class Gun(Weapon):
 
                     mag_fail_chance = 0
 
-                    if hasattr(self, 'loaded_magazine'):
-                        if self.loaded_magazine is not None:
-                            mag_fail_chance = self.loaded_magazine.usable_properties.fail_chance
+                    if isinstance(self, GunMagFed):
+                        if self.loaded_magazine:
+                            if isinstance(self.loaded_magazine, Magazine):
+                                mag_fail_chance = self.loaded_magazine.failure_chance
 
                     if choices(population=(True, False), weights=(round(25 - ((self.condition_function / 5) * 25) +
                                                                         mag_fail_chance), 100))[0]:
@@ -591,13 +559,12 @@ class Gun(Weapon):
                         self.jammed = True
                         return
 
-
-                muzzle_velocity = self.chambered_bullet.usable_properties.velocity * self.velocity_modifier
+                muzzle_velocity = self.chambered_bullet.velocity * self.velocity_modifier
 
                 # calculates 'sound radius' based on barrel pressure relative to that of a glock 17 firing 115 gr
                 # bullets, which has an arbitrary sound radius of 20 when unsuppressed
-                sound_radius = ((self.chambered_bullet.usable_properties.mass * muzzle_velocity ** 2) /
-                                (2 * (pi * (self.chambered_bullet.usable_properties.diameter / 2) ** 2)
+                sound_radius = ((self.chambered_bullet.mass * muzzle_velocity ** 2) /
+                                (2 * (pi * (self.chambered_bullet.diameter / 2) ** 2)
                                  * self.barrel_length) / 181039271) * 20 * self.sound_modifier
 
                 # if the sound radius of the fired round is not already in the list, appends it to the list for
@@ -612,7 +579,7 @@ class Gun(Weapon):
 
                 # gives projectile spread in MoA
                 spread_diameter = \
-                    self.chambered_bullet.usable_properties.spread_modifier * self.spread_modifier * \
+                    self.chambered_bullet.spread_modifier * self.spread_modifier * \
                     dist_yards * attacker.fighter.ranged_accuracy * min((5 / self.condition_accuracy), 2) \
                     * proficiency * skill_range_modifier * weight_handling_modifier
 
@@ -624,7 +591,7 @@ class Gun(Weapon):
                 # Pejsa's projectile drop formula
 
                 retardation_coefficient = \
-                    self.chambered_bullet.usable_properties.ballistic_coefficient * 246 * muzzle_velocity ** 0.45
+                    self.chambered_bullet.ballistic_coefficient * 246 * muzzle_velocity ** 0.45
 
                 projectile_drop = ((41.68 / muzzle_velocity) / ((1 / dist_yards) -
                                                                 (1 / (retardation_coefficient -
@@ -643,7 +610,7 @@ class Gun(Weapon):
                 velocity_at_distance = muzzle_velocity * (1 - 3 * 0.5 * dist_yards / retardation_coefficient) ** (
                         1 / 0.5)
 
-                for i in range(self.chambered_bullet.usable_properties.projectile_no):
+                for i in range(self.chambered_bullet.projectile_no):
 
                     # checks if hit
                     hit_location_x += spread_x
@@ -653,17 +620,17 @@ class Gun(Weapon):
                             hit_location_y > (target.bodyparts[part_index].height * 0.3937 / 2) or hit_location_y < 0:
                         # does damage to given bodypart
                         target.bodyparts[part_index].deal_damage_gun(
-                            diameter_bullet=self.chambered_bullet.usable_properties.diameter,
-                            mass_bullet=self.chambered_bullet.usable_properties.mass,
+                            diameter_bullet=self.chambered_bullet.diameter,
+                            mass_bullet=self.chambered_bullet.mass,
                             velocity_bullet=velocity_at_distance,
-                            drag_bullet=self.chambered_bullet.usable_properties.drag_coefficient,
-                            config_bullet=self.chambered_bullet.usable_properties.proj_config,
-                            bullet_length=self.chambered_bullet.usable_properties.bullet_length,
-                            bullet_expands=self.chambered_bullet.usable_properties.bullet_expands,
-                            bullet_yaws=self.chambered_bullet.usable_properties.bullet_yaws,
-                            bullet_fragments=self.chambered_bullet.usable_properties.bullet_fragments,
-                            bullet_max_expansion=self.chambered_bullet.usable_properties.max_expansion,
-                            bullet_expansion_velocity=self.chambered_bullet.usable_properties.max_expansion_velocity,
+                            drag_bullet=self.chambered_bullet.drag_coefficient,
+                            config_bullet=self.chambered_bullet.proj_config,
+                            bullet_length=self.chambered_bullet.bullet_length,
+                            bullet_expands=self.chambered_bullet.bullet_expands,
+                            bullet_yaws=self.chambered_bullet.bullet_yaws,
+                            bullet_fragments=self.chambered_bullet.bullet_fragments,
+                            bullet_max_expansion=self.chambered_bullet.max_expansion,
+                            bullet_expansion_velocity=self.chambered_bullet.max_expansion_velocity,
                             attacker=attacker
                         )
 
@@ -693,11 +660,11 @@ class Gun(Weapon):
                             muzzle_break = self.muzzle_break_efficiency
 
                         gas_velocity = muzzle_velocity * 1.7
-                        bullet_momentum = self.chambered_bullet.usable_properties.mass * 0.000142857 * muzzle_velocity
+                        bullet_momentum = self.chambered_bullet.mass * 0.000142857 * muzzle_velocity
                         gas_momentum = \
-                            self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * muzzle_velocity / 2
+                            self.chambered_bullet.charge_mass * 0.000142857 * muzzle_velocity / 2
                         momentum_jet = \
-                            self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * gas_velocity * \
+                            self.chambered_bullet.charge_mass * 0.000142857 * gas_velocity * \
                             ((1 - muzzle_break) ** (1 / sqrt(e)))
                         self.momentum_gun = bullet_momentum + gas_momentum + momentum_jet
 
@@ -712,8 +679,8 @@ class Gun(Weapon):
                     recoil_spread_list.append(recoil_spread)
 
                     rounds_per_quarter_sec = \
-                        round((self.fire_modes[self.current_fire_mode]['fire rate'] / 60 * self.fire_rate_modifier) * \
-                              0.25)
+                        round((self.fire_modes[self.current_fire_mode]['fire rate'] /
+                               60 * self.fire_rate_modifier) * 0.25)
 
                     if rounds_fired > rounds_per_quarter_sec:
                         rounds = recoil_spread_list[-rounds_per_quarter_sec:]
@@ -771,12 +738,24 @@ class Gun(Weapon):
                     self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
                                                         colour.WHITE)
 
-    def load_from_clip(self, clip: Magazine, magazine: Magazine):
+    # todo - the handling of adding rounds to magazine should be handled by magazine class,
+    def load_from_clip(self, clip: Magazine):
 
         entity = self.parent
         inventory = entity.parent
 
-        if isinstance(inventory, components.inventory.Inventory) and len(clip.magazine) > 0:
+        magazine = None
+
+        if isinstance(self, GunIntegratedMag):
+            magazine = self
+
+        if isinstance(self, GunMagFed):
+            if self.loaded_magazine:
+                magazine = self.loaded_magazine
+            else:
+                raise Impossible("Cannot reload from clip: no magazine")
+
+        if isinstance(inventory, components.inventory.Inventory) and len(clip.magazine) > 0 and magazine:
 
             if len(clip.magazine) <= magazine.mag_capacity - len(magazine.magazine):
                 actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
@@ -784,6 +763,7 @@ class Gun(Weapon):
                 clip.magazine = []
                 self.chambered_bullet = magazine.magazine.pop()
 
+                # Todo - handle non player loading from clips
                 if inventory.parent == self.engine.player:
 
                     reload_ap = \
@@ -905,8 +885,8 @@ class GunMagFed(Gun):
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
-                 chambered_bullet: Optional[Item] = None,
-                 loaded_magazine: Optional[Item] = None,
+                 chambered_bullet: Optional[Bullet] = None,
+                 loaded_magazine: Optional[Magazine] = None,
                  compatible_clip: str = None,
                  has_stock: bool = False,
                  pdw_stock: bool = False,
@@ -952,7 +932,7 @@ class GunMagFed(Gun):
             pdw_stock=pdw_stock
         )
 
-    def load_gun(self, magazine: Item):
+    def load_gun(self, magazine: Magazine):
 
         entity = self.parent
         inventory = entity.parent
@@ -960,11 +940,11 @@ class GunMagFed(Gun):
             if self.loaded_magazine is not None:
 
                 if not self.keep_round_chambered:
-                    self.loaded_magazine.usable_properties.magazine.append(self.chambered_bullet)
+                    self.loaded_magazine.magazine.append(self.chambered_bullet)
                     self.chambered_bullet = None
 
                 if inventory.parent == self.engine.player:
-                    inventory.items.append(self.loaded_magazine)
+                    inventory.items.append(self.loaded_magazine.parent)
 
                 self.loaded_magazine = deepcopy(magazine)
 
@@ -972,10 +952,10 @@ class GunMagFed(Gun):
                 self.loaded_magazine = deepcopy(magazine)
 
             if inventory.parent == self.engine.player:
-                inventory.items.remove(magazine)
+                inventory.items.remove(magazine.parent)
 
                 reload_ap = \
-                    magazine.usable_properties.ap_to_load * \
+                    magazine.ap_to_load * \
                     self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
 
                 if self.manual_action:
@@ -988,9 +968,9 @@ class GunMagFed(Gun):
                 else:
                     inventory.parent.fighter.ap -= reload_ap
 
-            if len(self.loaded_magazine.usable_properties.magazine) > 0:
+            if len(self.loaded_magazine.magazine) > 0:
                 if self.chambered_bullet is None:
-                    self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+                    self.chambered_bullet = self.loaded_magazine.magazine.pop()
 
     def unload_gun(self):
 
@@ -1002,10 +982,10 @@ class GunMagFed(Gun):
             if self.loaded_magazine is not None:
 
                 if not self.keep_round_chambered:
-                    self.loaded_magazine.usable_properties.magazine.append(self.chambered_bullet)
+                    self.loaded_magazine.magazine.append(self.chambered_bullet)
                     self.chambered_bullet = None
 
-                inventory.items.append(self.loaded_magazine)
+                inventory.items.append(self.loaded_magazine.parent)
                 self.loaded_magazine = None
 
             else:
@@ -1017,19 +997,27 @@ class GunMagFed(Gun):
 
         if isinstance(inventory, components.inventory.Inventory):
 
-            if self.loaded_magazine is not None:
-                self.engine.player.inventory.remove_from_magazines(self.loaded_magazine)
+            if isinstance(inventory, components.inventory.Inventory):
 
-            inventory.items.append(inventory.held)
-            inventory.held = None
+                inventory.items.append(entity)
+
+                if self.loaded_magazine:
+                    self.engine.player.inventory.remove_from_magazines(self.loaded_magazine)
+
+                if inventory.held == entity:
+                    inventory.held = None
+                if inventory.primary_weapon == entity:
+                    inventory.primary_weapon = None
+                elif inventory.secondary_weapon == entity:
+                    inventory.secondary_weapon = None
 
     def chamber_round(self):
 
         if self.loaded_magazine is not None:
-            if len(self.loaded_magazine.usable_properties.magazine) > 0:
-                if self.loaded_magazine.usable_properties.magazine[-1].usable_properties.bullet_type in \
+            if len(self.loaded_magazine.magazine) > 0:
+                if self.loaded_magazine.magazine[-1].bullet_type in \
                         self.compatible_bullet_type:
-                    self.chambered_bullet = self.loaded_magazine.usable_properties.magazine.pop()
+                    self.chambered_bullet = self.loaded_magazine.magazine.pop()
                 else:
                     self.engine.message_log.add_message(f"Failed to chamber a new round!", colour.RED)
 

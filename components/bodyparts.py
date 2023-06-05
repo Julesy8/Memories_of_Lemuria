@@ -48,8 +48,8 @@ class Bodypart:
         self.vital = vital  # whether when the body part gets destroyed, the entity should die
         self.strength_tissue = strength_tissue
         self.density_tissue = density_tissue
-        self.show_splatter_message = False # whether a splatter should show for this limb
-        self.splatter_message_shown = False # whether a splatter message has been shown for this limb. Can be set to
+        self.show_splatter_message = False  # whether a splatter should show for this limb
+        self.splatter_message_shown = False  # whether a splatter message has been shown for this limb. Can be set to
         self.splatter_message = None
         self.equipped = None  # equipped armour item
         self.name = name
@@ -92,18 +92,18 @@ class Bodypart:
             thickness = min(self.width, self.height)
             limb_size = thickness * self.depth
 
-            if self.total_damage_taken/limb_size >= 0.1:
+            if self.total_damage_taken / limb_size >= 0.1:
                 show_cripple_message = False
                 self.show_splatter_message = True
                 self.splatter_message = choice([f"The {self.parent.name}'s {self.name} is split open",
                                                 f"The {self.parent.name}'s {self.name} splits into gore",
-                                               ])
+                                                ])
 
             if self.total_damage_taken / limb_size >= 0.2:
                 self.splatter_message = choice([f"The {self.parent.name}'s {self.name} is blown into pieces",
                                                 f"The {self.parent.name}'s {self.name} is mangled beyond recognition",
                                                 f"Bits of {self.parent.name}'s {self.name} splatter on the floor",
-                                               ])
+                                                ])
 
             elif self.total_damage_taken / limb_size >= 0.3:
                 self.splatter_message = choice([f"The {self.parent.name}'s {self.name} explodes into gore",
@@ -305,11 +305,11 @@ class Bodypart:
             if bullet_expanded and pen_depth > 5:
                 # wound channel mass pre expansion
                 wound_mass += round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * 5 *
-                                   (self.density_tissue / 1000) * config_bullet)
+                                    (self.density_tissue / 1000) * config_bullet)
                 pen_depth -= 5
 
             wound_mass += round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * pen_depth *
-                               (self.density_tissue / 1000) * config_bullet)
+                                (self.density_tissue / 1000) * config_bullet)
 
             # print('wound mass from channel', wound_mass)
 
@@ -345,7 +345,6 @@ class Bodypart:
 
                         # print('wound len in body ', wound_len_in_body)
 
-
                         # volume calculations for an ellipsoid
                         # the entirety of the wound is contained within the body
                         if wound_len_in_body == wound_len:
@@ -354,7 +353,7 @@ class Bodypart:
                         # more than half the wound is contained within the body
                         elif wound_len_in_body > (wound_len / 2):
                             vol = 1.3333 * pi * (wound_len / 2) * wound_width ** 2
-                            vol -= 0.6666 *pi * (wound_len - wound_len_in_body) * wound_width ** 2
+                            vol -= 0.6666 * pi * (wound_len - wound_len_in_body) * wound_width ** 2
 
                         # less than half the wound is contained within the body
                         else:
@@ -369,7 +368,7 @@ class Bodypart:
                         # subtracts damage that would have occurred normally without fragmentation in that length of
                         # the wound channel
                         wound_mass -= round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * wound_len_in_body *
-                                           (self.density_tissue / 1000) * config_bullet)
+                                            (self.density_tissue / 1000) * config_bullet)
 
                     # bullet yaws
                     else:
@@ -396,7 +395,7 @@ class Bodypart:
                         # subtracts damage that would have occurred normally without yawing in that length of
                         # the wound channel
                         wound_mass -= round(pi * (0.5 * ((diameter_bullet_metric / 10) ** 2)) * wound_len *
-                                           (self.density_tissue / 1000) * config_bullet)
+                                            (self.density_tissue / 1000) * config_bullet)
 
             if wound_mass > 0:
 
@@ -404,7 +403,7 @@ class Bodypart:
 
                 self.hp -= damage
                 if attacker.player:
-                    self.engine.message_log.add_message(f"You shoot {attacker.name} in the {self.name}",
+                    self.engine.message_log.add_message(f"You shoot {self.parent.name} in the {self.name}",
                                                         colour.GREEN)
                 else:
                     self.engine.message_log.add_message(f"{attacker.name} shoots you in the {self.name}",
@@ -477,7 +476,6 @@ class Arm(Bodypart):
                  density_tissue: int = 1040,
                  part_type: Optional[str] = 'Arms',
                  ):
-
         super().__init__(
             hp=hp,
             protection_ballistic=protection_ballistic,
@@ -492,7 +490,6 @@ class Arm(Bodypart):
         )
 
     def cripple(self) -> None:
-
         self.functional = False
 
         # try:

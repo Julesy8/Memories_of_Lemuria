@@ -240,10 +240,11 @@ class Parts:
             if gun_item in inventory.items:
                 for part in self.part_list:
 
+                    # TODO - really don't know if this ever did anything
                     # resets all attachment points on parts to None
-                    if hasattr(part.usable_properties, 'is_attachment_point_types'):
-                        for attachment_points in part.usable_properties.is_attachment_point_types.keys():
-                            part.usable_properties.is_attachment_point_types[attachment_points] = None
+                    # if hasattr(part.usable_properties, 'is_attachment_point_types'):
+                    #     for attachment_points in part.usable_properties.is_attachment_point_types.keys():
+                    #         part.usable_properties.is_attachment_point_types[attachment_points] = None
 
                     inventory.items.append(part)
 

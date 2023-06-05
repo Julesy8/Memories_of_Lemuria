@@ -192,19 +192,22 @@ class PremadeWeapon:
                         del compatible_magazines[magazine]
 
                 # randomly selects magazine
-                self.magazine = choices(population=list(compatible_magazines.keys()),
-                                        weights=list(compatible_magazines.values()), k=1)[0]
+                magazine = choices(population=list(compatible_magazines.keys()),
+                                   weights=list(compatible_magazines.values()), k=1)[0]
+
+                self.magazine = magazine.usable_properties
+
         else:
             self.magazine = None
 
         # loads magazine with bullets
-        for i in range(self.magazine.usable_properties.mag_capacity):
-            self.magazine.usable_properties.magazine.append(self.bullet)
+        for i in range(self.magazine.mag_capacity):
+            self.magazine.magazine.append(self.bullet.usable_properties)
 
         # sets magazine if gun has internal magazine
         if self.magazine is None and hasattr(self.gun_item.usable_properties, 'magazine'):
             self.magazine = self.gun_item
-            self.gun_item.usable_properties.previously_loaded_round = self.bullet
+            self.gun_item.usable_properties.previously_loaded_round = self.bullet.usable_properties
 
         # sets magazine if gun if magazine fed
         if hasattr(self.gun_item.usable_properties, 'loaded_magazine'):
@@ -212,11 +215,11 @@ class PremadeWeapon:
             self.gun_item.usable_properties.previously_loaded_magazine = deepcopy(self.magazine)
 
         # sets chambered round
-        self.gun_item.usable_properties.chambered_bullet = self.bullet
+        self.gun_item.usable_properties.chambered_bullet = self.bullet.usable_properties
 
         # if not keep_round_chambered - i.e. gun is bolt action or open bolt, removes bullet from magazine
         if not self.gun_item.usable_properties.keep_round_chambered:
-            self.magazine.usable_properties.magazine.pop()
+            self.magazine.magazine.pop()
 
         # updates gun properties
         self.gun_item.usable_properties.parts.update_partlist(attachment_dict={})

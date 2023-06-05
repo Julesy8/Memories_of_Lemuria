@@ -35,7 +35,8 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
                     if weapon_name is None:
                         names.append(f"{entity.name} - Condition: {give_entity_condition(entity)}")
                     else:
-                        names.append(f"{entity.name} - Condition: {give_entity_condition(entity)} Held: {weapon_name}")
+                        names.append(f"{entity.name} - Condition: {give_entity_condition(entity)} | "
+                                     f"Held: {weapon_name}")
 
                 else:
                     names.append(entity.name)

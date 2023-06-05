@@ -7,6 +7,7 @@ from colour import RED
 from components.npc_templates import BaseComponent
 
 if TYPE_CHECKING:
+    from components.consumables import Magazine
     from entity import Actor, Item
 
 
@@ -77,8 +78,8 @@ class Inventory(BaseComponent):
                 current_weight += item.weight
 
         # adds held item weight
-        if self.held is not None:
-            current_weight += self.held.weight
+        # if self.held is not None:
+        #     current_weight += self.held.weight
 
         # adds equipment weight
         equipment_list = []
@@ -92,33 +93,33 @@ class Inventory(BaseComponent):
 
         return current_weight
 
-    def add_to_magazines(self, magazine: Item):
+    def add_to_magazines(self, magazine: Magazine):
 
-        if magazine.usable_properties.magazine_size == 'small':
+        if magazine.magazine_size == 'small':
             if magazine not in self.small_magazines:
                 if len(self.small_magazines) < self.small_mag_capacity:
-                    self.small_magazines.append(magazine)
+                    self.small_magazines.append(magazine.parent)
 
-        elif magazine.usable_properties.magazine_size == 'medium':
+        elif magazine.magazine_size == 'medium':
             if magazine not in self.medium_magazines:
                 if len(self.medium_magazines) < self.medium_mag_capacity:
-                    self.medium_magazines.append(magazine)
+                    self.medium_magazines.append(magazine.parent)
 
-        elif magazine.usable_properties.magazine_size == 'large':
+        elif magazine.magazine_size == 'large':
             if magazine not in self.large_magazines:
                 if len(self.large_magazines) < self.large_mag_capacity:
-                    self.large_magazines.append(magazine)
+                    self.large_magazines.append(magazine.parent)
 
-    def remove_from_magazines(self, magazine: Item):
+    def remove_from_magazines(self, magazine: Magazine):
 
         if magazine in self.small_magazines:
-            self.small_magazines.remove(magazine)
+            self.small_magazines.remove(magazine.parent)
 
         elif magazine in self.medium_magazines:
-            self.medium_magazines.remove(magazine)
+            self.medium_magazines.remove(magazine.parent)
 
         elif magazine in self.large_magazines:
-            self.large_magazines.remove(magazine)
+            self.large_magazines.remove(magazine.parent)
 
     def update_magazines(self):
 

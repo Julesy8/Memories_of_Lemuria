@@ -14,7 +14,9 @@ from actions import (
     Action,
     BumpAction,
     PickupAction,
-    WaitAction
+    WaitAction,
+    ReloadMagFed,
+    LoadBulletsIntoMagazine
 )
 
 import colour
@@ -22,8 +24,8 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
+    from components.consumables import Magazine, Bullet, Gun, GunMagFed, GunIntegratedMag
     from components.bodyparts import Bodypart
-
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -212,7 +214,12 @@ class MainGameEventHandler(EventHandler):
             return LoadoutEventHandler(engine=self.engine)
         elif key == tcod.event.K_q:
             try:
-                return GunOptionsHandler(engine=self.engine, gun=player.inventory.held)
+                # held gun is mag fed
+                if hasattr(player.inventory.held.usable_properties, 'loaded_magazine'):
+                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held)
+                # held gun is integrated magazine
+                elif hasattr(player.inventory.held.usable_properties, 'magazine'):
+                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
         elif key == tcod.event.K_ESCAPE:
@@ -645,9 +652,12 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         if option == 'Use':
             try:
                 if hasattr(self.item.usable_properties, 'mag_capacity'):
-                    return MagazineOptionsHandler(engine=self.engine, magazine=self.item)
-                elif hasattr(self.item.usable_properties, 'gun_type'):
-                    return GunOptionsHandler(engine=self.engine, gun=self.item)
+                    if hasattr(self.item.usable_properties, 'gun_type'):
+                        return GunOptionsIntegratedMag(engine=self.engine, gun=self.item.usable_properties)
+                    else:
+                        return MagazineOptionsHandler(engine=self.engine, magazine=self.item.usable_properties)
+                elif hasattr(self.item.usable_properties, 'loaded_magazine'):
+                    return GunOptionsMagFed(engine=self.engine, gun=self.item.usable_properties)
                 else:
                     return self.item.usable_properties.get_action(self.engine.player)
 
@@ -716,46 +726,6 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         else:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-"""
-class AmountToScrap(TypeAmountEventHandler):
-    def __init__(self, engine: Engine, item: Item):
-        super().__init__(engine=engine, item=item, prompt_string="amount to scrap (leave blank for all):")
-
-    def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
-
-        stack_size = 1
-        successful = True
-        if self.item.stacking:
-            stack_size = self.item.stacking.stack_size
-
-        if stack_size < int(self.buffer):
-            successful = False
-
-        scrap_dict = deepcopy(self.item.usable_properties.material)
-
-        if successful:
-
-            for key, value in scrap_dict.items():
-                scrap_item = key
-                scrap_item.stacking.stack_size = value
-                scrap_item.parent = self.engine.player.inventory
-                scrap_item.stacking.stack_size = stack_size * int(self.buffer)
-                self.engine.player.inventory.add_to_inventory(item=scrap_item, item_container=None, amount=1)
-
-            if stack_size == int(self.buffer):
-                self.engine.player.inventory.items.remove(self.item)
-
-            else:
-                stack_size -= int(self.buffer)
-
-            if self.item.stacking:
-                self.item.stacking.stack_size = stack_size
-
-            return MainGameEventHandler(self.engine)
-
-        else:
-            self.engine.message_log.add_message("Invalid entry", colour.RED)
-"""
 
 class EquipmentEventHandler(AskUserEventHandler):
     # used for equipment screen
@@ -1039,6 +1009,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
             if player.fighter.target_actor:
 
+                # TODO - I don't understand why there are warnings here but its annoying and I want to fix it
                 distance_target = round(player.distance(player.fighter.target_actor.x, player.fighter.target_actor.y))
 
                 # attack with weapon
@@ -1122,6 +1093,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
         self.part_cond_str = string
         self.part_cond_colour = str_colour
+
 
 class ShowEnemyInfo(EventHandler):
 
@@ -1247,19 +1219,19 @@ class QuitEventHandler(AskUserEventHandler):
 
 class MagazineOptionsHandler(UserOptionsEventHandler):
 
-    def __init__(self, engine: Engine, magazine: Item):
+    def __init__(self, engine: Engine, magazine: Magazine):
 
         self.magazine = magazine
 
-        title = f"{magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
-                f"{self.magazine.usable_properties.mag_capacity})"
+        title = f"{magazine.parent.name} - ({len(self.magazine.magazine)}/" \
+                f"{self.magazine.mag_capacity})"
 
         options = ['load bullets', 'unload bullets']
 
         inventory = engine.player.inventory
         loadout = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
 
-        if magazine in loadout:
+        if magazine.parent in loadout:
             options.append('remove from loadout')
         else:
             options.append('add to loadout')
@@ -1274,7 +1246,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine)
 
         elif option == 'unload bullets':
-            self.magazine.usable_properties.unload_magazine()
+            self.magazine.unload_magazine()
 
         elif option == 'add to loadout':
             player.inventory.add_to_magazines(magazine=self.magazine)
@@ -1285,33 +1257,29 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
         return MainGameEventHandler(engine=self.engine)
 
 
-class GunOptionsHandler(UserOptionsEventHandler):
-    def __init__(self, engine: Engine, gun: Item):
+class GunOptionsMagFed(UserOptionsEventHandler):
+    def __init__(self, engine: Engine, gun: GunMagFed):
         self.gun = gun
 
-        title = gun.name
+        title = gun.parent.name
+        # TODO settle on capitalization - capitalize all options
         options = ['Rename', ]
 
-        self.firemodes = self.gun.usable_properties.fire_modes
+        self.firemodes = self.gun.fire_modes
 
-        if self.gun.usable_properties.jammed:
+        if self.gun.jammed:
             options.append('clear jam')
 
-        if hasattr(self.gun.usable_properties, 'loaded_magazine'):
+        if self.gun.loaded_magazine:
             options += ["load magazine", "unload magazine"]
+        else:
+            options.append("load magazine")
 
-        elif hasattr(self.gun.usable_properties, 'mag_capacity'):
-            options += ["load rounds", "unload rounds"]
-
-        if self.gun.usable_properties.compatible_clip is not None:
-            if hasattr(self.gun.usable_properties, 'loaded_magazine'):
-                if self.gun.usable_properties.loaded_magazine is not None:
-                    options.append("load from clip")
-            else:
-                options.append("load from clip")
+        if self.gun.compatible_clip is not None:
+            options.append("load from clip")
 
         for firemode in self.firemodes:
-            if not firemode == self.gun.usable_properties.current_fire_mode:
+            if not firemode == self.gun.current_fire_mode:
                 options.append(firemode)
 
         super().__init__(engine=engine, options=options, title=title)
@@ -1323,25 +1291,64 @@ class GunOptionsHandler(UserOptionsEventHandler):
             return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun)
 
         elif option == 'unload magazine':
-            self.gun.usable_properties.unload_gun()
-
-        elif option == 'load rounds':
-            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun)
-
-        elif option == 'unload rounds':
-            self.gun.usable_properties.unload_magazine()
+            self.gun.unload_gun()
 
         elif option == 'load from clip':
             return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
 
         elif option == 'Rename':
-            return RenameItem(item=self.gun, prompt_string='New Name:', engine=self.engine)
+            return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
 
         elif option == 'clear jam':
             return actions.ClearJam(entity=self.engine.player, gun=self.gun).perform()
 
         elif option in self.firemodes:
-            self.gun.usable_properties.current_fire_mode = option
+            self.gun.current_fire_mode = option
+
+        return MainGameEventHandler(engine=self.engine)
+
+
+class GunOptionsIntegratedMag(UserOptionsEventHandler):
+    def __init__(self, engine: Engine, gun: GunIntegratedMag):
+        self.gun = gun
+
+        title = gun.parent.name
+        options = ['Rename', "load rounds", "unload rounds"]
+
+        self.firemodes = self.gun.fire_modes
+
+        if self.gun.jammed:
+            options.append('clear jam')
+
+        if self.gun.compatible_clip is not None:
+            options.append("load from clip")
+
+        for firemode in self.firemodes:
+            if not firemode == self.gun.current_fire_mode:
+                options.append(firemode)
+
+        super().__init__(engine=engine, options=options, title=title)
+
+    def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
+        """Called when the user selects a valid item."""
+
+        if option == 'load rounds':
+            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun)
+
+        elif option == 'unload rounds':
+            self.gun.unload_magazine()
+
+        elif option == 'load from clip':
+            return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
+
+        elif option == 'Rename':
+            return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
+
+        elif option == 'clear jam':
+            return actions.ClearJam(entity=self.engine.player, gun=self.gun).perform()
+
+        elif option in self.firemodes:
+            self.gun.current_fire_mode = option
 
         return MainGameEventHandler(engine=self.engine)
 
@@ -1352,7 +1359,6 @@ class RenameItem(TypeInputEventHandler):
         super().__init__(prompt_string=prompt_string, engine=engine, item=item)
 
     def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
-
         if not self.buffer == '':
             self.item.name = self.buffer
 
@@ -1361,60 +1367,82 @@ class RenameItem(TypeInputEventHandler):
 
 class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, gun: Item):
+    def __init__(self, engine: Engine, gun: GunMagFed):
         self.gun = gun
 
         mag_list = []
-        title = gun.name
+        title = gun.parent.name
 
-        loadout = self.engine.player.inventory.small_magazines + self.engine.player.inventory.medium_magazines \
-                  + self.engine.player.inventory.large_magazines
+        loadout = \
+            engine.player.inventory.small_magazines + engine.player.inventory.medium_magazines + \
+            engine.player.inventory.large_magazines
 
-        for item in self.engine.player.inventory.items:
-            if item in loadout:
-                if item.usable_properties.magazine_type == self.gun.usable_properties.compatible_magazine_type:
+        for item in loadout:
+            if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_magazine_type'):
+                if item.usable_properties.magazine_type == self.gun.compatible_magazine_type:
                     mag_list.append(item)
 
         super().__init__(engine=engine, options=mag_list, page=0, title=title)
 
     def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        """Called when the user selects a valid item."""
-
-        self.gun.usable_properties.load_gun(item)
+        ReloadMagFed(entity=self.engine.player, gun=self.gun, magazine_to_load=item.usable_properties).perform()
         return MainGameEventHandler(engine=self.engine)
 
 
 class SelectClipToLoadIntoGun(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, gun: Item):
+    def __init__(self, engine: Engine, gun: Gun):
         self.gun = gun
 
         mag_list = []
-        title = gun.name
+        title = gun.parent.name
 
-        loadout = self.engine.player.inventory.small_magazines + \
-                  self.engine.player.inventory.medium_magazines + self.engine.player.inventory.large_magazines
+        loadout = \
+            engine.player.inventory.small_magazines + engine.player.inventory.medium_magazines + \
+            engine.player.inventory.large_magazines
 
-        for item in self.engine.player.inventory.items:
-            if item in loadout:
-                if item.usable_properties.magazine_type == self.gun.usable_properties.compatible_clip:
+        for item in loadout:
+            if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_magazine_type'):
+                if item.usable_properties.magazine_type == self.gun.compatible_magazine_type:
                     mag_list.append(item)
 
         super().__init__(engine=engine, options=mag_list, page=0, title=title)
 
-    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if key == tcod.event.K_DOWN:
+            if len(self.options) > (self.page + 1) * self.max_list_length:
+                self.page += 1
+                return self
+
+        if key == tcod.event.K_UP:
+            if self.page > 0:
+                self.page -= 1
+                return self
+
+        if 0 <= index <= self.max_list_length - 1:
+            try:
+                selected_item = self.options[index + (self.page * self.max_list_length)]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.ev_on_option_selected(selected_item.usable_properties)
+        return super().ev_keydown(event)
+
+    def ev_on_option_selected(self, item: Magazine) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         # gun is mag fed
-        if hasattr(self.gun.usable_properties, 'loaded_magazine'):
-            self.gun.usable_properties.\
-                load_from_clip(clip=item.usable_properties,
-                               magazine=self.gun.usable_properties.loaded_magazine.usable_properties)
+        if hasattr(self.gun, 'loaded_magazine'):
+            self.gun.load_from_clip(clip=item)
 
         # gun has integrated magazine
         else:
-            self.gun.usable_properties.load_from_clip(clip=item.usable_properties, magazine=self.gun.usable_properties)
+            self.gun.load_from_clip(clip=item)
 
         return MainGameEventHandler(engine=self.engine)
+
 
 class SelectPartToRepair(UserOptionsWithPages):
 
@@ -1472,15 +1500,15 @@ class SelectPartToRepair(UserOptionsWithPages):
                 item_key = chr(ord("a") + i)
                 if item.usable_properties.accuracy_part and not item.usable_properties.functional_part:
                     console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - "
-                                                    f"{round(item.usable_properties.condition_accuracy/5 * 100)}%")
+                                                    f"{round(item.usable_properties.condition_accuracy / 5 * 100)}%")
 
                 elif item.usable_properties.functional_part and not item.usable_properties.accuracy_part:
                     console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - "
-                                                    f"{round(item.usable_properties.condition_function/5 * 100)}%")
+                                                    f"{round(item.usable_properties.condition_function / 5 * 100)}%")
 
                 elif item.usable_properties.functional_part and item.usable_properties.accuracy_part:
                     condition = round(item.usable_properties.condition_function +
-                                      item.usable_properties.condition_accuracy/10 * 100)
+                                      item.usable_properties.condition_accuracy / 10 * 100)
                     console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - {condition}%")
 
         else:
@@ -1488,6 +1516,7 @@ class SelectPartToRepair(UserOptionsWithPages):
 
     def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         return self.callback(item)
+
 
 class SelectPartToHeal(UserOptionsEventHandler):
     def __init__(self, engine: Engine, options: list[Bodypart], callback: Callable[[Bodypart], Optional[Action]]):
@@ -1556,37 +1585,62 @@ class SelectPartToHeal(UserOptionsEventHandler):
     def ev_on_option_selected(self, bodypart: Bodypart) -> Optional[ActionOrHandler]:
         return self.callback(bodypart)
 
+
 class SelectBulletsToLoadHandler(UserOptionsWithPages):
     TITLE = "Select Bullets"
 
-    def __init__(self, engine: Engine, magazine: Item):
+    def __init__(self, engine: Engine, magazine: Magazine):
         self.magazine = magazine
         ammo_list = []
 
         for item in engine.player.inventory.items:
             if hasattr(item.usable_properties, 'bullet_type'):
-                if item.usable_properties.bullet_type == self.magazine.usable_properties.compatible_bullet_type:
+                if item.usable_properties.bullet_type in self.magazine.compatible_bullet_type:
                     ammo_list.append(item)
 
-        title = f"Load {self.magazine.name} - ({len(self.magazine.usable_properties.magazine)}/" \
-                f"{self.magazine.usable_properties.mag_capacity})"
+        title = f"Load {self.magazine.parent.name} - ({len(self.magazine.magazine)}/" \
+                f"{self.magazine.mag_capacity})"
 
         super().__init__(engine=engine, page=0, title=title, options=ammo_list)
 
-    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if key == tcod.event.K_DOWN:
+            if len(self.options) > (self.page + 1) * self.max_list_length:
+                self.page += 1
+                return self
+
+        if key == tcod.event.K_UP:
+            if self.page > 0:
+                self.page -= 1
+                return self
+
+        if 0 <= index <= self.max_list_length - 1:
+            try:
+                selected_item = self.options[index + (self.page * self.max_list_length)]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.ev_on_option_selected(selected_item.usable_properties)
+        return super().ev_keydown(event)
+
+    def ev_on_option_selected(self, item: Bullet) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         return SelectNumberOfBulletsToLoadHandler(engine=self.engine, magazine=self.magazine, ammo=item)
 
 
 class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
 
-    def __init__(self, engine: Engine, magazine: Item, ammo: Item):
+    def __init__(self, engine: Engine, magazine: Magazine, ammo: Bullet):
         self.magazine = magazine
         self.ammo = ammo
-        super().__init__(engine=engine, item=ammo, prompt_string="amount to load (leave blank for maximum):")
+        super().__init__(engine=engine, item=ammo.parent, prompt_string="amount to load (leave blank for maximum):")
 
     def ev_on_option_selected(self):
-        self.magazine.usable_properties.load_magazine(ammo=self.ammo, load_amount=int(self.buffer))
+        LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo, bullets_to_load=int(self.buffer),
+                                magazine=self.magazine).perform()
         return MainGameEventHandler(self.engine)
 
 
@@ -1612,14 +1666,38 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
         super().__init__(engine=engine, options=loadout_items, page=0, title=title)
 
-    def ev_on_option_selected(self, item: Item):
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        key = event.sym
+        index = key - tcod.event.K_a
 
-        if hasattr(item.usable_properties, 'mag_capacity'):
+        if key == tcod.event.K_DOWN:
+            if len(self.options) > (self.page + 1) * self.max_list_length:
+                self.page += 1
+                return self
+
+        if key == tcod.event.K_UP:
+            if self.page > 0:
+                self.page -= 1
+                return self
+
+        if 0 <= index <= self.max_list_length - 1:
+            try:
+                selected_item = self.options[index + (self.page * self.max_list_length)]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.ev_on_option_selected(selected_item.usable_properties)
+        return super().ev_keydown(event)
+
+    def ev_on_option_selected(self, item: Magazine):
+
+        if hasattr(item, 'mag_capacity'):
             return MagazineOptionsHandler(engine=self.engine, magazine=item)
 
-        elif hasattr(item.usable_properties, 'gun_type'):
+        elif hasattr(item, 'gun_type'):
+
             options = ['Equip', 'Unequip', 'Use', 'Inspect']
-            return ItemInteractionHandler(item=item, options=options, engine=self.engine)
+            return ItemInteractionHandler(item=item.parent, options=options, engine=self.engine)
 
 
 class SelectItemToCraft(UserOptionsWithPages):
@@ -1635,8 +1713,9 @@ class SelectItemToCraft(UserOptionsWithPages):
             part_dict = {}
 
             # all required and compatible parts
-            parts = list(self.item_dict[option]["required parts"].keys()) + \
-                    list(self.item_dict[option]["compatible parts"].keys())
+            parts = \
+                list(self.item_dict[option]["required parts"].keys()) \
+                + list(self.item_dict[option]["compatible parts"].keys())
 
             # adds all required and compatible parts to the dictionary and sets
             # their value to None before player selects
@@ -1791,7 +1870,7 @@ class CraftGun(CraftItem):
                             tags.extend(getattr(item.usable_properties, 'tags'))
 
                         # commented out below line - appears depricated
-                        #for tag in getattr(item.usable_properties, 'tags'):
+                        # for tag in getattr(item.usable_properties, 'tags'):
                         for tag in tags:
                             if tag in self.compatible_parts[self.parts[self.current_part_selection]]:
                                 has_compatible_tag = True

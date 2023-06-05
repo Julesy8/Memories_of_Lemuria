@@ -26,16 +26,15 @@ from random import choice
 
 from copy import deepcopy
 
-from components.weapons.glock17 import glock_17
-
-from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide_optic, \
-    glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm
+from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide, glock_switch
+from components.weapons.magazines import glock_mag_9mm
+from components.weapons.bullets import round_9mm_124_jhp
 
 # for crafting testing
 from pydantic.utils import deep_update
 from components.weapons.glock17 import glock17dict
 
-#from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
+# from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
 #    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, \
 #    mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak, mosin_nagant
 
@@ -44,9 +43,11 @@ config.read('settings.ini')
 
 music = config.getboolean('settings', 'music')
 
+
 def playmusic():
     while True:
         playsound('stepinside.mp3')
+
 
 class MainMenu(BaseEventHandler):
     """Handle the main menu rendering and input."""
@@ -195,6 +196,7 @@ class MainMenu(BaseEventHandler):
 
         return None
 
+
 def new_game() -> Engine:
     """Return a brand new game session as an Engine instance."""
 
@@ -235,26 +237,29 @@ def new_game() -> Engine:
 
     engine = Engine(player=player)
 
-    #inventory_items = [mac1045,]
+    # inventory_items = [mac1045,]
 
-    #inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide, glock17_slide_optic,
+    # inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide, glock17_slide_optic,
     #                   glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm]
 
-    inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide_optic,
-                       glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm]
+    bullets = round_9mm_124_jhp
+    bullets.stacking.stack_size = 50
+
+    inventory_items = [glock17_frame, glock17_barrel,
+                       glock_switch, glock17_slide, glock_mag_9mm, bullets]
 
     engine.crafting_recipes = deep_update(engine.crafting_recipes, glock17dict)
 
-    #inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel,
+    # inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel,
     #                   glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide,
     #                   glock17_slide_custom, glock17l_slide_custom,
     #                   glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, glock_pistol_brace]
 
-    #inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
+    # inventory_items = [mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock,
     #                   mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount,
     #                   mosin_magazine_conversion, mosin_suppressor, mosin_muzzlebreak]
 
-    #inventory_items = [mac1045_lower, mac1045_upper, mac1045_upper_tactical, mac1045_upper_max,mac1045_barrel,
+    # inventory_items = [mac1045_lower, mac1045_upper, mac1045_upper_tactical, mac1045_upper_max,mac1045_barrel,
     #                   mac1045_extended_barrel, mac1045_carbine_barrel, mac10_full_stock, mac10_folding_stock,
     #                   mac1045_sionics_suppressor, mac109_max_barrel, mac1045_max_barrel, mac10_vertical_grip]
 
@@ -279,6 +284,7 @@ def new_game() -> Engine:
 
     engine.update_fov()
 
+    # todo - new start game message
     # engine.message_log.add_message(
     #     "You lose your footing and fall deep into the caverns below... You can't see any way to get back to the surface"
     #     , colour.LIGHT_MAGENTA
@@ -315,7 +321,7 @@ def generate_subtext() -> str:
                      'Cautionary', 'Transcendental', 'Chaotic', 'Perennial', 'Secret', 'Revisionist', 'Pseudo',
                      'Military', 'Sensory', 'Planetary', 'Radical', 'Chakra', 'Compassionate', 'Archaic', 'Arcane',
                      'Lawful', 'Royal', 'Sacrificial', 'Cubic', 'Elite', 'Satirical', 'Polemical', 'Sci-Fi',
-                     'Fantasy'))
+                     'Fantasy', 'Post-Truth'))
 
     verb_3 = choice(('Combat', 'Gun Smithing', 'UFO-ology', 'Warfare', 'Conspiracy', 'CQC', 'Harm Prevention',
                      'Self Defense', 'Horror', 'Action', 'Time-War', 'Numerology', 'Sacred Geometry',
@@ -329,10 +335,9 @@ def generate_subtext() -> str:
     noun = choice(('Computer Role Playing Game', 'Simulation', 'Training Module', 'Course', 'Engine',
                    'RPG', 'Rogue Like', 'Rogue Lite', 'Program', 'Center', 'Game', 'Experience', 'Proof-of-Concept',
                    'Videogame Adaptation', 'Demonstration', 'Tutorial', 'Simulator', '(DO NOT RESEARCH)', 'LARP',
-                   'Survival Game', 'Shooter', '-Hack Like', 'Documentary', 'Temple', 'Metaphor', 'Parable',
+                   'Shooter', '-Hack Like', 'Documentary', 'Temple', 'Metaphor', 'Parable',
                    'Oracle', 'Thing', 'Infohazard', 'Psyop', 'Manual', 'Vision', 'Project', 'Transcript',
                    'In Silico', 'Matrix', 'Frequency', 'Glossary', 'Algorithm', 'Host', 'Gateway'))
 
     subtext_str = f"{verb_1} {verb_2} {verb_3} {noun}"
     return subtext_str
-
