@@ -15,7 +15,7 @@ from exceptions import Impossible
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
-    from components.consumables import Gun, GunMagFed, Magazine, Bullet
+    from components.consumables import Gun, GunMagFed, Magazine, Bullet, GunIntegratedMag, Weapon, MeleeWeapon
     from components.bodyparts import Bodypart
 
 
@@ -212,198 +212,247 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                 # how many turns entity has to wait until attack
                 self.entity.ai.turns_until_action = turns_to_skip
 
-
 class WeaponAttackAction(AttackAction):
-    # TODO - change item type to weapon
-    def __init__(self, distance: int, item: Item, entity: Actor, targeted_actor: Actor,
+    def __init__(self, distance: int, weapon: Weapon, entity: Actor, targeted_actor: Actor,
                  targeted_bodypart: Optional[Bodypart]):
         super().__init__(distance, entity, targeted_actor, targeted_bodypart)
-        self.item = item
+        self.weapon = weapon
 
-    # TODO - separate action classes for integrated mag and mag fed and melee
+    def attack(self):
+        raise NotImplementedError
+
+    def queue_attack(self):
+        turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
+                                                           self.entity.fighter.ap_per_turn_modifier)))
+
+        # attacker is player
+        if self.entity.player:
+
+            attack_viable = True
+            for i in range(turns_to_skip):
+                self.engine.handle_enemy_turns()
+                # check if action can still be performed
+                if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] and \
+                        self.weapon.parent == self.entity.inventory.held:
+                    continue
+                else:
+                    attack_viable = False
+                    self.engine.message_log.add_message("Your attack was interrupted", colour.RED)
+                    break
+
+            if attack_viable:
+                dx = self.targeted_actor.x - self.entity.x
+                dy = self.targeted_actor.y - self.entity.y
+                distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+
+                self.queued = True
+                self.distance = distance
+                self.attack()
+
+        # attacker is AI
+        else:
+            self.queued = True
+            self.entity.ai.queued_action = self
+
+            # how many turns entity has to wait until attack
+            self.entity.ai.turns_until_action = turns_to_skip
+
+
+
+class MeleeAttackAction(WeaponAttackAction):
+    def __init__(self, distance: int, weapon: MeleeWeapon, entity: Actor, targeted_actor: Actor,
+                 targeted_bodypart: Optional[Bodypart]):
+        super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
+                         targeted_bodypart=targeted_bodypart, weapon=weapon)
+        self.weapon = weapon
 
     def attack(self) -> None:
         self.perform()
 
         fighter = self.entity.fighter
-
-        weapon_type = type(self.item.usable_properties).__name__
-
-        ap_cost = 0
-
-        proficiency = 1.0
-        marksmanship = 1.0
-
-        # AP cost calculations
-        if weapon_type == 'GunMagFed' or weapon_type == 'GunIntegratedMag':
-
-            gun = self.item.usable_properties
-
-            target_acquisition_ap = gun.target_acquisition_ap * self.entity.fighter.target_acquisition_ap
-            ap_distance_cost_modifier = gun.ap_distance_cost_modifier * self.entity.fighter.ap_distance_cost_modifier
-
-            total_weight = self.item.weight
-
-            rounds_in_mag = 0
-
-            # gives XP and calculates proficiency multiplier based on gun type
-            if self.entity.player:
-                if self.item.usable_properties.gun_type == 'pistol':
-                    proficiency = copy(fighter.skill_pistol_proficiency)
-                    fighter.skill_pistol_proficiency += 1
-                elif self.item.usable_properties.gun_type == 'pdw':
-                    proficiency = copy(fighter.skill_smg_proficiency)
-                    fighter.skill_smg_proficiency += 1
-                elif self.item.usable_properties.gun_type == 'rifle':
-                    proficiency = copy(fighter.skill_rifle_proficiency)
-                    fighter.skill_rifle_proficiency += 1
-                elif self.item.usable_properties.gun_type == 'bolt action':
-                    proficiency = copy(fighter.skill_bolt_action_proficiency)
-                    fighter.skill_bolt_action_proficiency += 1
-
-                proficiency = 1 - (proficiency / 4000)
-
-                if self.distance > 15:
-                    marksmanship = fighter.skill_marksmanship
-                    fighter.skill_marksmanship += ((self.distance - 15) // 10) + 1
-
-            # alters attributes according to magazine properties
-            if weapon_type == 'GunMagFed':
-                if hasattr(gun, 'loaded_magazine'):
-                    rounds_in_mag = len(gun.loaded_magazine.magazine)
-                    magazine = gun.loaded_magazine.magazine
-
-                    target_acquisition_ap *= getattr(gun.loaded_magazine,
-                                                     'target_acquisition_ap_mod')
-                    ap_distance_cost_modifier *= getattr(gun.loaded_magazine,
-                                                         'ap_distance_cost_mod')
-
-                    # adds weight of magazine to total weight
-                    total_weight += gun.loaded_magazine.parent.weight
-
-            elif weapon_type == 'GunIntegratedMag':
-                rounds_in_mag = len(gun.magazine)
-                magazine = gun.magazine
-
-            # adds weight of rounds in magazine to total weight
-            if rounds_in_mag >= 1:
-                total_weight += (len(magazine) * magazine[0].parent.weight)
-
-            # calculates AP modifier based on weight and weapon type
-            if gun.gun_type == 'pistol':
-                weight_handling_modifier = 0.4 + 0.6 * total_weight
-
-            else:
-                weight_handling_modifier = 0.5 + 0.5 * (total_weight / 4)
-
-            # adds cost of firing (pulling trigger)
-            ap_cost += gun.firing_ap_cost * self.entity.fighter.firing_ap_cost * proficiency
-
-            # ap cost for the given distance to the target
-            ap_cost += ap_distance_cost_modifier * self.distance * proficiency * marksmanship * weight_handling_modifier
-
-            # if previous actor is different from the current target, adds cost of acquiring new target
-            if self.entity.fighter.previous_target_actor == self.entity.fighter.target_actor:
-                ap_cost += target_acquisition_ap * proficiency * weight_handling_modifier
-
-            # adds AP cost of manually cycling action e.g. for bolt action
-            if gun.manual_action:
-                if rounds_in_mag >= 1:
-                    ap_cost += gun.action_cycle_ap_cost * proficiency
-
-            # AP cost for the duration of fully automatic fire
-            if gun.fire_modes[gun.current_fire_mode]['automatic']:
-                rounds_to_fire = round(gun.fire_modes[gun.current_fire_mode]['fire rate'] / 60
-                                       * gun.fire_rate_modifier * fighter.automatic_fire_duration)
-
-                # if less rounds in magazine than rounds fired in the given duration of automatic fire, AP cost of
-                # firing adjusted to amount of time it takes to fire remaining rounds in magazine
-                if rounds_to_fire > rounds_in_mag:
-                    # time (and therefore AP) it takes to fire the given amount of rounds
-                    time_to_fire = fighter.automatic_fire_duration
-                else:
-                    time_to_fire = rounds_in_mag / round((gun.fire_modes[gun.current_fire_mode]['fire rate']
-                                                          / 60 * gun.fire_rate_modifier))
-
-                ap_cost += round(time_to_fire * 100)
-
-        # melee weapon
-        else:
-            ap_cost += self.item.usable_properties.base_ap_cost
-
-        ap_cost *= fighter.attack_ap_modifier
+        ap_cost = self.weapon.base_ap_cost * fighter.attack_ap_modifier
 
         if fighter.ap >= ap_cost or self.queued:
 
             if not self.queued:
                 fighter.ap -= ap_cost
 
-            # firearm attack
-            if weapon_type == 'GunMagFed' or weapon_type == 'GunIntegratedMag':
+            dx = self.targeted_actor.x - self.entity.x
+            dy = self.targeted_actor.y - self.entity.y
+            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-                # calculate hit location on body
-                standard_deviation = 0.1 * self.distance
-                hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
-                hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
+            if distance == 1:
+                part_area = self.targeted_actor.bodyparts[self.part_index].width * \
+                            self.targeted_actor.bodyparts[self.part_index].height
+                hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
 
-                self.item.usable_properties.attack_ranged(target=self.targeted_actor, attacker=self.entity,
-                                                          part_index=self.part_index, hit_location_x=hit_location_x,
-                                                          hit_location_y=hit_location_y, distance=self.distance,
-                                                          proficiency=proficiency, skill_range_modifier=marksmanship)
-
-            # melee
-            else:
-
-                dx = self.targeted_actor.x - self.entity.x
-                dy = self.targeted_actor.y - self.entity.y
-                distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-
-                if distance == 1:
-                    part_area = self.targeted_actor.bodyparts[self.part_index].width * \
-                                self.targeted_actor.bodyparts[self.part_index].height
-                    hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
-
-                    self.item.usable_properties.attack_melee(target=self.targeted_actor, attacker=self.entity,
-                                                             part_index=self.part_index, hit_chance=hit_chance)
+                self.weapon.attack_melee(target=self.targeted_actor, attacker=self.entity,
+                                         part_index=self.part_index, hitchance=hit_chance)
 
         # insufficient AP for action - queues action for later turn
         elif not self.queued:
             fighter.ap -= ap_cost
+            self.queue_attack()
 
-            turns_to_skip = ceil(abs(fighter.ap / (fighter.ap_per_turn * fighter.ap_per_turn_modifier)))
+class GunAttackAction(WeaponAttackAction):
+    def __init__(self, distance: int, gun: Gun, entity: Actor, targeted_actor: Actor,
+                 targeted_bodypart: Optional[Bodypart]):
+        super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
+                         targeted_bodypart=targeted_bodypart, weapon=gun)
+        self.weapon = gun
+        self.total_weight = self.weapon.parent.weight
+        self.proficiency = 1.0
+        self.marksmanship = 1.0
+        self.rounds_in_mag = 0
+        self.target_acquisition_ap = self.weapon.target_acquisition_ap * self.entity.fighter.target_acquisition_ap
+        self.ap_distance_cost_modifier = self.weapon.ap_distance_cost_modifier * \
+                                       self.entity.fighter.ap_distance_cost_modifier
 
-            # attacker is player
-            if self.entity.player:
+    # gives XP and calculates proficiency multiplier based on gun type
+    def give_proficiency(self) -> None:
 
-                attack_viable = True
-                for i in range(turns_to_skip):
-                    self.engine.handle_enemy_turns()
-                    # check if action can still be performed
-                    if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] and \
-                            self.item == self.entity.inventory.held:
-                        continue
-                    else:
-                        attack_viable = False
-                        self.engine.message_log.add_message("Your attack was interrupted", colour.RED)
-                        break
+        fighter = self.entity.fighter
+        proficiency = 1.0
 
-                if attack_viable:
-                    dx = self.targeted_actor.x - self.entity.x
-                    dy = self.targeted_actor.y - self.entity.y
-                    distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+        if self.entity.player:
+            if self.weapon.gun_type == 'pistol':
+                proficiency = fighter.skill_pistol_proficiency
+                proficiency += 1
+            elif self.weapon.gun_type == 'pdw':
+                proficiency = fighter.skill_smg_proficiency
+                proficiency += 1
+            elif self.weapon.gun_type == 'rifle':
+                proficiency = fighter.skill_rifle_proficiency
+                proficiency += 1
+            elif self.weapon.gun_type == 'bolt action':
+                proficiency = fighter.skill_bolt_action_proficiency
+                proficiency += 1
 
-                    self.queued = True
-                    self.distance = distance
-                    self.attack()
+            self.proficiency = 1 - (proficiency / 4000)
 
-            # attacker is AI
+            if self.distance > 15:
+                self.marksmanship = fighter.skill_marksmanship
+                fighter.skill_marksmanship += ((self.distance - 15) // 10) + 1
+
+    def handle_ap(self) -> None:
+        ap_cost = 0
+
+        # calculates AP modifier based on weight and weapon type
+        if self.weapon.gun_type == 'pistol':
+            weight_handling_modifier = 0.4 + 0.6 * self.total_weight
+
+        else:
+            weight_handling_modifier = 0.5 + 0.5 * (self.total_weight / 4)
+
+        # adds cost of firing (pulling trigger)
+        ap_cost += self.weapon.firing_ap_cost * self.entity.fighter.firing_ap_cost * self.proficiency
+
+        # ap cost for the given distance to the target
+        ap_cost += self.ap_distance_cost_modifier * self.distance * self.proficiency * self.marksmanship * \
+                   weight_handling_modifier
+
+        # if previous actor is different from the current target, adds cost of acquiring new target
+        if self.entity.fighter.previous_target_actor == self.entity.fighter.target_actor:
+            ap_cost += self.target_acquisition_ap * self.proficiency * weight_handling_modifier
+
+        # adds AP cost of manually cycling action e.g. for bolt action
+        if self.weapon.manual_action:
+            if self.rounds_in_mag >= 1:
+                ap_cost += self.weapon.action_cycle_ap_cost * self.proficiency
+
+        # AP cost for the duration of fully automatic fire
+        if self.weapon.fire_modes[self.weapon.current_fire_mode]['automatic']:
+            rounds_to_fire = round(self.weapon.fire_modes[self.weapon.current_fire_mode]['fire rate'] / 60
+                                   * self.weapon.fire_rate_modifier * self.entity.fighter.automatic_fire_duration)
+
+            # if less rounds in magazine than rounds fired in the given duration of automatic fire, AP cost of
+            # firing adjusted to amount of time it takes to fire remaining rounds in magazine
+            if rounds_to_fire > self.rounds_in_mag:
+                # time (and therefore AP) it takes to fire the given amount of rounds
+                time_to_fire = self.entity.fighter.automatic_fire_duration
             else:
-                self.queued = True
-                self.entity.ai.queued_action = self
+                time_to_fire = self.rounds_in_mag / round((self.weapon.fire_modes[self.weapon.current_fire_mode]['fire rate']
+                                                      / 60 * self.weapon.fire_rate_modifier))
 
-                # how many turns entity has to wait until attack
-                self.entity.ai.turns_until_action = turns_to_skip
+            ap_cost += round(time_to_fire * 100)
 
+        ap_cost *= self.entity.fighter.attack_ap_modifier
+
+        # sufficient AP for attack, proceeds
+        if self.entity.fighter.ap >= ap_cost or self.queued:
+
+            if not self.queued:
+                self.entity.fighter.ap -= ap_cost
+
+            # calculate hit location on body
+            standard_deviation = 0.1 * self.distance
+            hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
+            hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
+
+            self.weapon.attack_ranged(target=self.targeted_actor, attacker=self.entity,
+                                      part_index=self.part_index, hit_location_x=hit_location_x,
+                                      hit_location_y=hit_location_y, distance=self.distance,
+                                      proficiency=self.proficiency, skill_range_modifier=self.marksmanship)
+
+        # insufficient AP for action - queues action for later turn
+        elif not self.queued:
+            self.entity.fighter.ap -= ap_cost
+            self.queue_attack()
+
+class GunMagFedAttack(GunAttackAction):
+    def __init__(self, distance: int, gun: GunMagFed, entity: Actor, targeted_actor: Actor,
+                 targeted_bodypart: Optional[Bodypart]):
+        super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart)
+        self.weapon = gun
+        self.total_weight = self.weapon.parent.weight
+
+    def attack(self) -> None:
+        self.perform()
+
+        # gives XP and calculates proficiency multiplier based on gun type
+        if self.entity.player:
+            self.give_proficiency()
+
+        # alters attributes according to magazine properties
+        if self.weapon.loaded_magazine is not None:
+            rounds_in_mag = len(self.weapon.loaded_magazine.magazine)
+            magazine = self.weapon.loaded_magazine.magazine
+
+            self.target_acquisition_ap *= self.weapon.loaded_magazine.target_acquisition_ap_mod
+
+            self.ap_distance_cost_modifier *= self.weapon.loaded_magazine.ap_distance_cost_mod
+
+            # adds weight of magazine to total weight
+            self.total_weight += self.weapon.loaded_magazine.parent.weight
+
+            # adds weight of rounds in magazine to total weight
+            if rounds_in_mag >= 1:
+                self.total_weight += (len(magazine) * magazine[0].parent.weight)
+
+        self.handle_ap()
+
+class GunIntegratedMagAttack(GunAttackAction):
+
+    def __init__(self, distance: int, gun: GunIntegratedMag, entity: Actor, targeted_actor: Actor,
+                 targeted_bodypart: Optional[Bodypart]):
+        super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart)
+        self.weapon = gun
+
+    def attack(self) -> None:
+        self.perform()
+
+        # gives XP and calculates proficiency multiplier based on gun type
+        if self.entity.player:
+            self.give_proficiency()
+
+        rounds_in_mag = len(self.weapon.magazine)
+        magazine = self.weapon.magazine
+
+        # adds weight of rounds in magazine to total weight
+        if rounds_in_mag >= 1:
+            self.total_weight += (len(magazine) * magazine[0].parent.weight)
+
+        self.handle_ap()
 
 class ClearJam(Action):
 
@@ -517,8 +566,7 @@ class ReloadMagFed(Action):
                 self.queued = True
                 self.entity.ai.queued_action = self
                 self.entity.ai.turns_until_action = turns_cost
-                self.entity.ai.fleeing_turns = turns_cost
-
+                self.entity.fighter.fleeing_turns = turns_cost
 
 class LoadBulletsIntoMagazine(Action):
     def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Bullet):
@@ -557,39 +605,11 @@ class LoadBulletsIntoMagazine(Action):
 
     def perform(self) -> None:
 
-        mag_class_type = type(self.magazine).__name__
-
-        ap_cost = 0
-
-        proficiency = 1.0
-
         ap_cost_modifier = self.entity.fighter.action_ap_modifier * self.bullet_type.load_time_modifier
 
-        # loading integrated magazine gun
-        if mag_class_type == "GunIntegratedMag":
-
-            # TODO this should probably be handled by the consumables class
-
-            if not self.magazine.keep_round_chambered and self.magazine.chambered_bullet is not None:
-                AddToInventory(item=self.magazine.chambered_bullet.parent, amount=1, entity=self.entity)
-
-            if self.entity.player:
-                if self.magazine.gun_type == 'pistol':
-                    proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
-                elif self.magazine.gun_type == 'pdw':
-                    proficiency = copy(self.entity.fighter.skill_smg_proficiency)
-                elif self.magazine.gun_type == 'rifle':
-                    proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
-                elif self.magazine.gun_type == 'bolt action':
-                    proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
-
-                proficiency = 1 - (proficiency / 4000)
-
-            # adds cost of cycling manual action
-            if self.magazine.manual_action:
-                ap_cost += proficiency * self.magazine.action_cycle_ap_cost
-
-            ap_cost_modifier *= self.magazine.load_time_modifier
+        # loading ap calculated
+        ap_cost, mag_load_time_modifier, proficiency = self.magazine.loading_ap()
+        ap_cost_modifier *= mag_load_time_modifier
 
         # adds cost of loading each bullet
         ap_cost += proficiency * self.bullets_to_load * ap_cost_modifier
@@ -626,7 +646,7 @@ class LoadBulletsIntoMagazine(Action):
                 self.queued = True
                 self.entity.ai.queued_action = self
                 self.entity.ai.turns_until_action = turns_cost
-                self.entity.ai.fleeing_turns = turns_cost
+                self.entity.fighter.fleeing_turns = turns_cost
 
 
 class MovementAction(ActionWithDirection):
@@ -694,19 +714,19 @@ class TryToMove(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
 
-        if self.blocking_entity:
+        if self.target_actor:
 
             try:
 
                 item_held = self.engine.player.inventory.held
 
                 if item_held is not None:
-                    return WeaponAttackAction(distance=1, item=item_held, entity=self.entity,
-                                              targeted_actor=self.blocking_entity,
-                                              targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+                    return item_held.usable_properties.get_attack_action(distance=1, entity=self.entity,
+                                                                          targeted_actor=self.target_actor,
+                                                                         targeted_bodypart=self.target_actor.bodyparts[0])
 
                 else:
-                    return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.blocking_entity,
+                    return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
                                                targeted_bodypart=self.target_actor.bodyparts[0]).attack()
 
             except AttributeError:

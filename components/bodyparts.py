@@ -134,9 +134,9 @@ class Bodypart:
 
                 # causes AI to flee
                 if self.vital:
-                    if self.parent.fears_death and not self.parent.has_fled_death:
-                        self.parent.fleeing_turns = 5
-                        self.parent.has_fled_death = True
+                    if self.parent.fighter.fears_death and not self.parent.fighter.has_fled_death:
+                        self.parent.fighter.fleeing_turns = 5
+                        self.parent.fighter.has_fled_death = True
 
                         # changes fight style to less accurate and more frantic
                         try:
@@ -147,20 +147,12 @@ class Bodypart:
 
     def die(self) -> None:
 
-        self.parent.ai = None
-        self.parent.name = f"{self.parent.name} remains"
-        self.parent.char = '%'
-        self.parent.fg_colour = colour.WHITE
-        self.parent.render_order = RenderOrder.CORPSE
-        self.parent.blocks_movement = False
-
-        if self.parent.player:
-            return self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
+        # TODO - add proper death screen with score etc
 
         # drops random item from list and held item
-        if len(self.parent.item_drops.keys()) > 0:
-            drops = list(self.parent.item_drops.keys())
-            drop_weight = list(self.parent.item_drops.values())
+        if len(self.parent.ai.item_drops.keys()) > 0:
+            drops = list(self.parent.fighter.item_drops.keys())
+            drop_weight = list(self.parent.fighter.item_drops.values())
 
             # chooses item to drop from list
             item_drop = deepcopy(choices(population=drops, weights=drop_weight, k=1)[0])
@@ -189,8 +181,19 @@ class Bodypart:
             self.parent.inventory.held = None
 
         if self.parent.name not in self.engine.bestiary.keys():
-            if not self.parent.description == '':
-                self.engine.bestiary[self.parent.name] = self.parent.description
+            if not self.parent.ai.description == '':
+                self.engine.bestiary[self.parent.name] = self.parent.ai.description
+
+        self.parent.ai = None
+        self.parent.name = f"{self.parent.name} remains"
+        self.parent.char = '%'
+        self.parent.fg_colour = colour.WHITE
+        self.parent.render_order = RenderOrder.CORPSE
+        self.parent.blocks_movement = False
+
+        # prints death message
+        if self.parent.player:
+            return self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
 
     def deal_damage_melee(self, meat_damage: int, armour_damage: int, attacker: Actor):
 
@@ -595,8 +598,8 @@ class Head(Bodypart):
             self.functional = False
 
             turns_inactive = randint(3, 6)
-            self.parent.turns_move_inactive = turns_inactive
-            self.parent.turns_attack_inactive = turns_inactive
+            self.parent.fighter.turns_move_inactive = turns_inactive
+            self.parent.fighter.turns_attack_inactive = turns_inactive
             self.parent.fighter.ap_per_turn_modifier = 0.7
 
         self.parent.fighter.action_ap_modifier *= 1.4

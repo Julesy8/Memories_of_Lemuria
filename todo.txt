@@ -4,6 +4,17 @@ TO DO
 
 -multple sizes of icon, can add new sizes in main.spec
 
+Ideal item action handling:
+
+Event handler --> consumable.get_action -> Action -> consumable.activate
+      ^        |             |
+      |        V             V
+      ------------------------
+
+input handler: reload (consumables class) -> calls action -> reloads
+
+TODO - new weapon property - needs_mag_to_fire
+TODO - ability to single load rounds into guns for emergencies
 TODO - add armour
 TODO - armour weight changes dexterity and walk speed
 

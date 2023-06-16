@@ -29,6 +29,9 @@ class Fighter(BaseComponent):
                  unarmed_meat_damage,
                  unarmed_armour_damage,
                  #faction_allegiance: tuple,
+                 item_drops: dict,
+                 weapons: dict,
+                 spawn_group_amount: int,
                  unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
                  ap: int = 100,
@@ -37,9 +40,13 @@ class Fighter(BaseComponent):
                  ranged_accuracy: float = 1.0,  # less = more accurate
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
+                 fears_death=True,
+                 description: str = ''
                  ):
 
         self.target_actor = None
+
+        # TODO - should be previously targeted limb
         self.previous_target_actor = None
 
         self.max_ap = ap
@@ -74,6 +81,17 @@ class Fighter(BaseComponent):
 
         # whether entity paths towards gunshot sounds
         self.responds_to_sound = responds_to_sound
+
+        self.active = False
+        self.item_drops = item_drops
+        self.weapons = weapons
+        self.spawn_group_amount = spawn_group_amount
+        self.fears_death = fears_death
+        self.fleeing_turns = 0
+        self.has_fled_death = False
+        self.description = description
+        self.turns_attack_inactive = 0
+        self.turns_move_inactive = 0
 
         # allegiance of the entity. hostile to entities of different factions.
         #self.faction_allegiance = faction_allegiance
@@ -111,6 +129,9 @@ class GunFighter(Fighter):
     def __init__(self,
                  unarmed_meat_damage,
                  unarmed_armour_damage,
+                 item_drops: dict,
+                 weapons: dict,
+                 spawn_group_amount: int,
                  unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
                  ap: int = 100,
@@ -124,6 +145,8 @@ class GunFighter(Fighter):
                  target_acquisition_ap: float = 1.0,
                  firing_ap_cost: float = 1.0,
                  ap_distance_cost_modifier: float = 1.0,
+                 fears_death=True,
+                 description: str = ''
                  ):
 
         # how long (in seconds) an automatic burst of fire should last
@@ -138,8 +161,9 @@ class GunFighter(Fighter):
         self.firing_ap_cost_original = firing_ap_cost
         self.ap_distance_cost_modifier_original = ap_distance_cost_modifier
 
-        super().__init__(unarmed_meat_damage, unarmed_armour_damage, unarmed_ap_cost, move_ap_cost, ap, ap_per_turn,
-                         melee_accuracy, ranged_accuracy, move_success_chance, responds_to_sound,)
+        super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
+                         unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
+                         move_success_chance, responds_to_sound, fears_death, description)
 
     @property
     def felt_recoil(self):
@@ -193,6 +217,9 @@ class PlayerFighter(GunFighter):
     def __init__(self,
                  unarmed_meat_damage,
                  unarmed_armour_damage,
+                 item_drops: dict,
+                 weapons: dict,
+                 spawn_group_amount: int,
                  unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
                  ap: int = 100,
@@ -211,6 +238,8 @@ class PlayerFighter(GunFighter):
                  skill_smg_proficiency: int = 0,
                  skill_rifle_proficiency: int = 0,
                  skill_bolt_action_proficiency: int = 0,
+                 fears_death=True,
+                 description: str = ''
                  ):
 
         self._skill_marksmanship = skill_marksmanship
@@ -219,10 +248,10 @@ class PlayerFighter(GunFighter):
         self._skill_rifle_proficiency = skill_rifle_proficiency
         self._skill_bolt_action_proficiency = skill_bolt_action_proficiency
 
-        super().__init__(unarmed_meat_damage, unarmed_armour_damage, unarmed_ap_cost, move_ap_cost, ap, ap_per_turn,
-                         melee_accuracy, ranged_accuracy, move_success_chance, responds_to_sound,
-                         automatic_fire_duration, felt_recoil, target_acquisition_ap, firing_ap_cost,
-                         ap_distance_cost_modifier)
+        super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
+                         unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
+                         move_success_chance, responds_to_sound, automatic_fire_duration, felt_recoil,
+                         target_acquisition_ap, firing_ap_cost, ap_distance_cost_modifier, fears_death, description)
 
     @property
     def skill_marksmanship(self):

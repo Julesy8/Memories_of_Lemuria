@@ -203,7 +203,7 @@ class MessyBSPTree:
         enemy = copy.deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
                                       k=1)[0])
 
-        number_of_monsters = randint(0, enemy.spawn_group_amount)
+        number_of_monsters = randint(0, enemy.fighter.spawn_group_amount)
         number_of_items = randint(0, self.max_items_per_room)
 
         for i in range(number_of_monsters):
@@ -214,9 +214,10 @@ class MessyBSPTree:
                 # place enemy
                 enemy.place(x, y, self.dungeon)
 
-                if len(enemy.weapons.keys()) > 0:
-                    held_weapon = deepcopy(choices(population=list(enemy.weapons.keys()),
-                                                   weights=list(enemy.weapons.values()), k=1)[0]).update_properties()
+                if len(enemy.fighter.weapons.keys()) > 0:
+                    held_weapon = deepcopy(choices(population=list(enemy.fighter.weapons.keys()),
+                                                   weights=list(enemy.fighter.weapons.values()),
+                                                   k=1)[0]).update_properties()
 
                     enemy.inventory.held = held_weapon
                     enemy.inventory.held.usable_properties.parent = enemy.inventory.held

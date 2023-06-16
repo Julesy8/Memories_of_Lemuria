@@ -53,7 +53,7 @@ class Engine:
         for entity in set(self.game_map.actors) - {self.player}:
             if entity.ai:
                 try:
-                    if entity.active:
+                    if entity.fighter.active:
                         entity.ai.perform()
                 except exceptions.Impossible:
                     pass  # Ignore impossible action exceptions from AI.
@@ -69,10 +69,9 @@ class Engine:
         self.game_map.explored |= self.game_map.visible
 
         # activates entity when seen by player
-        for entity in self.game_map.entities:
-            if hasattr(entity, 'active'):
-
-                if self.game_map.visible[entity.x, entity.y] and not entity.active:
+        for entity in self.game_map.actors:
+            if entity.ai:
+                if self.game_map.visible[entity.x, entity.y] and not entity.fighter.active:
 
                     dx = entity.x - self.player.x
                     dy = entity.y - self.player.y
@@ -81,7 +80,7 @@ class Engine:
                     # TODO - this should be affected by a stealth skill and perception
                     sees_player = choices((True, False), weights=(10, distance))
                     if sees_player:
-                        entity.active = True
+                        entity.fighter.active = True
 
     def render(self, console: Console) -> None:
         self.game_map.render(console)

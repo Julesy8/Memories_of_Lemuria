@@ -203,7 +203,8 @@ def new_game() -> Engine:
     current_level = 0
 
     # initialises player entity
-    fighter_component = PlayerFighter(unarmed_meat_damage=10, unarmed_armour_damage=5)
+    fighter_component = PlayerFighter(unarmed_meat_damage=10, unarmed_armour_damage=5, item_drops={},
+                                      spawn_group_amount=1, weapons={})
 
     Head_part = Head(hp=60, protection_ballistic=0, protection_physical=50, depth=20, width=20, height=26)
     Body_part = Body(hp=100, protection_ballistic=0, protection_physical=50, depth=20, width=35, height=56)
@@ -311,9 +312,9 @@ def generate_subtext() -> str:
                      'Cursed', 'Hegelian', 'Occult', 'Banned', 'Experimental', 'Reviled', '"Fictional"', 'CIA',
                      'Timeless', 'Theoretical', 'Runic', 'Spiritual', 'Soulful', 'Historical', 'Symbolic',
                      'Intuitive', 'Weaponized', 'Primal', 'Subconscious', 'Arthurian', 'Goetic', 'Wagnerian',
-                     'Taoist', 'Dharmic', 'Practical', 'Factual'))
+                     'Taoist', 'Dharmic', 'Practical', 'Factual', 'Numinous'))
 
-    verb_2 = choice(('Deep Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
+    verb_2 = choice(('Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',
                      'Subversive', 'Covert', 'Magik', 'Chaos Magic', 'Solar', 'Lunar', 'Ideological', 'Cyclic',
                      'Meditative', 'Divine', 'Tactical', 'Forbidden', 'Psychedelic', 'Quantum', 'Etheric',

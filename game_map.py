@@ -8,7 +8,7 @@ from tcod.console import Console
 import colour
 import tile_types
 from colours_and_chars import MapColoursChars
-from entity import Actor, AIActor, Item
+from entity import Actor, Item
 
 if TYPE_CHECKING:
     from engine import Engine

@@ -6,15 +6,16 @@ from random import randint, choice
 import numpy as np  # type: ignore
 import tcod
 
-from components.consumables import GunMagFed, GunIntegratedMag, Gun, Weapon, MeleeWeapon
+from components.consumables import GunMagFed, GunIntegratedMag, Gun, Weapon, MeleeWeapon, Bullet
 from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction, AttackAction, \
     ReloadMagFed, LoadBulletsIntoMagazine
 from entity import Actor
 
+# TODO - make this more modular and clean
 
 class BaseAI(Action):
 
-    def __init__(self, entity: Actor):
+    def __init__(self,entity: Actor,):
         self.queued_action: Optional[Action] = None
         self.turns_until_action: int = 0
         super().__init__(entity)
@@ -54,7 +55,7 @@ class BaseAI(Action):
 
 
 class HostileEnemy(BaseAI):
-    def __init__(self, entity: Actor):
+    def __init__(self,entity: Actor,):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
@@ -70,10 +71,10 @@ class HostileEnemy(BaseAI):
         # AP regeneration
         fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
 
-        if self.entity.turns_attack_inactive >= 1:
-            self.entity.turns_attack_inactive -= 1
-        if self.entity.turns_move_inactive >= 1:
-            self.entity.turns_move_inactive -= 1
+        if self.entity.fighter.turns_attack_inactive >= 1:
+            self.entity.fighter.turns_attack_inactive -= 1
+        if self.entity.fighter.turns_move_inactive >= 1:
+            self.entity.fighter.turns_move_inactive -= 1
 
         attack_range = 1
 
@@ -87,22 +88,23 @@ class HostileEnemy(BaseAI):
 
         while fighter.ap > 0:
             # skips turn if both attack and move actions inactive for this turn
-            if self.entity.turns_attack_inactive > 0 and self.entity.turns_move_inactive > 0:
+            if self.entity.fighter.turns_attack_inactive > 0 and self.entity.fighter.turns_move_inactive > 0:
                 break
 
             # perform attack action
-            if fighter.ap > 0 >= self.entity.turns_attack_inactive and distance <= attack_range \
-                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            if fighter.ap > 0 >= self.entity.fighter.turns_attack_inactive and distance <= attack_range \
+                    and self.entity.fighter.fleeing_turns <= 0 and \
+                    self.engine.game_map.visible[self.entity.x, self.entity.y]:
 
                 if attack_range == 1:
                     UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
                                         targeted_bodypart=None).attack()
 
             # any kind of movement action occurring
-            elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
+            elif fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
 
                 # entity fleeing from target
-                if self.entity.fleeing_turns > 0:
+                if self.entity.fighter.fleeing_turns > 0:
 
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                     distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
@@ -116,10 +118,10 @@ class HostileEnemy(BaseAI):
                     tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
                     self.path = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
                                                       cardinal=True, diagonal=True)[1:].tolist()
-                    self.entity.fleeing_turns -= 1
+                    self.entity.fighter.fleeing_turns -= 1
 
                 # entity not fleeing and can see target, sets path to them
-                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fleeing_turns == 0:
+                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fighter.fleeing_turns == 0:
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
@@ -178,10 +180,10 @@ class HostileEnemy(BaseAI):
 
 
 class HostileAnimal(HostileEnemy):
-    def __init__(self, entity: Actor, attack_radius: int = 5):
-        self.attack_radius = attack_radius
-        self.attacking_target = False
+    def __init__(self, entity: Actor,):
         super().__init__(entity)
+        self.attack_radius = 5
+        self.attacking_target = False
 
     def perform(self) -> None:
         self.entity.fighter.target_actor = self.engine.player
@@ -200,17 +202,17 @@ class HostileAnimal(HostileEnemy):
 
         # if not attacking target, moves in random directions until coming into attack radius of player
         if not self.attacking_target:
-            if fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
+            if fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
                 if choice((True, False)):
                     MovementAction(
                         self.entity, randint(-1, 1), randint(-1, 1),
                     ).perform()
             return
 
-        if self.entity.turns_attack_inactive >= 1:
-            self.entity.turns_attack_inactive -= 1
-        if self.entity.turns_move_inactive >= 1:
-            self.entity.turns_move_inactive -= 1
+        if self.entity.fighter.turns_attack_inactive >= 1:
+            self.entity.fighter.turns_attack_inactive -= 1
+        if self.entity.fighter.turns_move_inactive >= 1:
+            self.entity.fighter.turns_move_inactive -= 1
 
         attack_range = 1
 
@@ -225,21 +227,22 @@ class HostileAnimal(HostileEnemy):
         while fighter.ap > 0:
 
             # skips turn if both attack and move actions inactive for this turn
-            if self.entity.turns_attack_inactive > 0 and self.entity.turns_move_inactive > 0:
+            if self.entity.fighter.turns_attack_inactive > 0 and self.entity.fighter.turns_move_inactive > 0:
                 break
 
             # perform attack action
-            if fighter.ap > 0 and self.entity.turns_attack_inactive <= 0 and distance <= attack_range \
-                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            if fighter.ap > 0 and self.entity.fighter.turns_attack_inactive <= 0 and distance <= attack_range \
+                    and self.entity.fighter.fleeing_turns <= 0 and \
+                    self.engine.game_map.visible[self.entity.x, self.entity.y]:
 
                 UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
                                     targeted_bodypart=None).attack()
 
             # any kind of movement action occurring
-            elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
+            elif fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
 
                 # entity fleeing from target
-                if self.entity.fleeing_turns > 0:
+                if self.entity.fighter.fleeing_turns > 0:
 
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                     distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
@@ -253,10 +256,10 @@ class HostileAnimal(HostileEnemy):
                     tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
                     self.path = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
                                                       cardinal=True, diagonal=True)[1:].tolist()
-                    self.entity.fleeing_turns -= 1
+                    self.entity.fighter.fleeing_turns -= 1
 
                 # entity not fleeing and can see target, sets path to them
-                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fleeing_turns == 0:
+                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fighter.fleeing_turns == 0:
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
@@ -275,7 +278,7 @@ class HostileAnimal(HostileEnemy):
 
 
 class HostileEnemyArmed(BaseAI):
-    def __init__(self, entity: Actor):
+    def __init__(self, entity: Actor,):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
@@ -291,10 +294,10 @@ class HostileEnemyArmed(BaseAI):
         # AP regeneration
         fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
 
-        if self.entity.turns_attack_inactive >= 1:
-            self.entity.turns_attack_inactive -= 1
-        if self.entity.turns_move_inactive >= 1:
-            self.entity.turns_move_inactive -= 1
+        if self.entity.fighter.turns_attack_inactive >= 1:
+            self.entity.fighter.turns_attack_inactive -= 1
+        if self.entity.fighter.turns_move_inactive >= 1:
+            self.entity.fighter.turns_move_inactive -= 1
 
         # check if holding weapon
         held_item = self.entity.inventory.held
@@ -319,13 +322,13 @@ class HostileEnemyArmed(BaseAI):
 
         while fighter.ap > 0:
             # skips turn if both attack and move actions inactive for this turn
-            if self.entity.turns_attack_inactive > 0 and self.entity.turns_move_inactive > 0:
+            if self.entity.fighter.turns_attack_inactive > 0 and self.entity.fighter.turns_move_inactive > 0:
                 break
 
             # perform attack action
-            if fighter.ap > 0 and self.entity.turns_attack_inactive <= 0 and distance <= attack_range \
-                    and self.entity.fleeing_turns <= 0 and self.engine.game_map.visible[self.entity.x, self.entity.y] \
-                    and self.queued_action is None:
+            if fighter.ap > 0 and self.entity.fighter.turns_attack_inactive <= 0 and distance <= attack_range \
+                    and self.entity.fighter.fleeing_turns <= 0 and \
+                    self.engine.game_map.visible[self.entity.x, self.entity.y] and self.queued_action is None:
 
                 if attack_range == 1:
 
@@ -336,8 +339,9 @@ class HostileEnemyArmed(BaseAI):
 
                     # melee weapon attack
                     else:
-                        WeaponAttackAction(distance=distance, item=held_item, entity=self.entity,
-                                           targeted_actor=target, targeted_bodypart=None).attack()
+                        if isinstance(held_item.usable_properties, Weapon):
+                            held_item.usable_properties.get_attack_action(distance=distance, entity=self.entity,
+                                                                          targeted_actor=target, targeted_bodypart=None)
 
                 # has gun equipped
                 else:
@@ -352,8 +356,8 @@ class HostileEnemyArmed(BaseAI):
 
                         # round in chamber, attacks
                         else:
-                            WeaponAttackAction(distance=distance, item=held_item, entity=self.entity,
-                                               targeted_actor=target, targeted_bodypart=None).attack()
+                            held_item.usable_properties.get_attack_action(distance=distance, entity=self.entity,
+                                                                          targeted_actor=target, targeted_bodypart=None)
 
                     # gun integrated mag
                     elif isinstance(held_item.usable_properties, GunIntegratedMag):
@@ -362,15 +366,16 @@ class HostileEnemyArmed(BaseAI):
                                              len(held_item.usable_properties.magazine)
 
                         # reload weapon
-                        if held_item.usable_properties.chambered_bullet is None:
+                        if held_item.usable_properties.chambered_bullet is None and isinstance(
+                                held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
                             LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
                                                     bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
                                                     bullets_to_load=no_bullets_to_load).perform()
 
                         # round in chamber, attacks
                         else:
-                            WeaponAttackAction(distance=distance, item=held_item, entity=self.entity,
-                                               targeted_actor=target, targeted_bodypart=None).attack()
+                            held_item.usable_properties.get_attack_action(distance=distance, entity=self.entity,
+                                                                          targeted_actor=target, targeted_bodypart=None)
 
             # reload if magazine below half capacity and player not visible, reloads
             elif not self.engine.game_map.visible[self.entity.x, self.entity.y] and has_weapon and reload_check:
@@ -379,9 +384,6 @@ class HostileEnemyArmed(BaseAI):
 
                 if isinstance(held_item.usable_properties, Gun):
 
-                    mag_capacity = 0
-                    mag_round_count = 0
-
                     # integrated magazine gun
                     if isinstance(held_item.usable_properties, GunIntegratedMag):
                         mag_capacity = getattr(held_item.usable_properties, 'mag_capacity')
@@ -389,9 +391,10 @@ class HostileEnemyArmed(BaseAI):
                         no_bullets_to_load = mag_capacity - mag_round_count
 
                         if mag_capacity < mag_round_count / 2:
-                            if not isinstance(self.queued_action, LoadBulletsIntoMagazine):
+                            if not isinstance(self.queued_action, LoadBulletsIntoMagazine) and isinstance(
+                                held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
                                 LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
-                                                        bullet_type=held_item.usable_properties.previously_loaded_round,
+                                                        bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
                                                         bullets_to_load=no_bullets_to_load).perform()
                                 pass
 
@@ -409,10 +412,10 @@ class HostileEnemyArmed(BaseAI):
                                 pass
 
             # any kind of movement action occurring
-            elif fighter.move_ap_cost <= fighter.ap and self.entity.turns_move_inactive <= 0:
+            elif fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
 
                 # entity fleeing from target
-                if self.entity.fleeing_turns > 0:
+                if self.entity.fighter.fleeing_turns > 0:
 
                     cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                     distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
@@ -426,10 +429,10 @@ class HostileEnemyArmed(BaseAI):
                     tcod.path.dijkstra2d(distance_dijkstra, cost, cardinal=2, diagonal=3)
                     self.path = tcod.path.hillclimb2d(distance_dijkstra, (self.entity.x, self.entity.y),
                                                       cardinal=True, diagonal=True)[1:].tolist()
-                    self.entity.fleeing_turns -= 1
+                    self.entity.fighter.fleeing_turns -= 1
 
                 # entity not fleeing and can see target, sets path to them
-                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fleeing_turns == 0:
+                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fighter.fleeing_turns == 0:
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
@@ -465,7 +468,7 @@ class HostileEnemyArmed(BaseAI):
                     # attack with a weapon
                     if isinstance(self.queued_action, WeaponAttackAction):
                         # check if still holding weapon
-                        if not self.queued_action.item == held_item:
+                        if not self.queued_action.weapon == held_item:
                             action_viable = False
 
                         # if melee weapon checks if in range

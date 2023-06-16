@@ -16,6 +16,7 @@ from input_handlers import SelectPartToRepair, MainGameEventHandler, BaseEventHa
 from components.npc_templates import BaseComponent
 
 if TYPE_CHECKING:
+    from components.bodyparts import Bodypart
     from components.gunparts import Parts
     from entity import Item, Actor
     from input_handlers import ActionOrHandler
@@ -27,6 +28,10 @@ class Usable(BaseComponent):
     def get_action(self, user: Actor) -> Optional[ActionOrHandler]:
         """Try to return the action for this item."""
         return actions.ItemAction(user, self.parent)
+
+    def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
+                          targeted_bodypart: Optional[Bodypart]):
+        raise NotImplementedError
 
     def activate(self, action: ActionOrHandler) -> None:
         """Invoke this items ability.
@@ -134,7 +139,7 @@ class Weapon(Usable):
         self.base_ap_cost = base_ap_cost
 
     def activate(self, action: actions.ItemAction):
-        return NotImplementedError
+        raise NotImplementedError
 
     # equip to held
     def equip(self) -> None:
@@ -257,6 +262,11 @@ class MeleeWeapon(Weapon):
             ap_to_equip=ap_to_equip
         )
 
+    def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
+                          targeted_bodypart: Optional[Bodypart]):
+        return actions.MeleeAttackAction(distance=distance, entity=entity, targeted_actor=targeted_actor,
+                                         weapon=self, targeted_bodypart=targeted_bodypart)
+
     def attack_melee(self, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
         weapon_accuracy_type = attacker.fighter.melee_accuracy
@@ -320,7 +330,7 @@ class Bullet(Usable):
         self.spread_modifier = spread_modifier
 
     def activate(self, action: actions.ItemAction):
-        return NotImplementedError
+        raise NotImplementedError
 
 
 class Magazine(Usable):
@@ -349,6 +359,9 @@ class Magazine(Usable):
 
     def activate(self, action: actions.ItemAction):
         return NotImplementedError
+
+    def loading_ap(self):
+        return 0, 1.0, 1.0
 
     def load_magazine(self, ammo: Bullet, load_amount: int) -> None:
 
@@ -487,6 +500,11 @@ class Gun(Weapon):
             ranged=True,
             ap_to_equip=ap_to_equip,
         )
+
+    def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
+                          targeted_bodypart: Optional[Bodypart]):
+        raise NotImplementedError
+
 
     def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
                       hit_location_y: int, proficiency: float, skill_range_modifier: float) -> None:
@@ -1021,6 +1039,10 @@ class GunMagFed(Gun):
                 else:
                     self.engine.message_log.add_message(f"Failed to chamber a new round!", colour.RED)
 
+    def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
+                          targeted_bodypart: Optional[Bodypart]):
+        return actions.GunMagFedAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
+                                       gun=self, targeted_bodypart=targeted_bodypart).attack()
 
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
@@ -1100,6 +1122,44 @@ class GunIntegratedMag(Gun, Magazine):
         if len(self.magazine) > 0:
             self.chambered_bullet = self.magazine.pop()
 
+    def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
+                          targeted_bodypart: Optional[Bodypart]):
+        return actions.GunIntegratedMagAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
+                                              gun=self, targeted_bodypart=targeted_bodypart).attack()
+
+    def loading_ap(self):
+
+        ap_cost = 0
+
+        entity = self.parent
+        inventory = entity.parent
+
+        proficiency = 1.0
+
+        if not self.keep_round_chambered and self.chambered_bullet is not None:
+            if isinstance(inventory, components.inventory.Inventory):
+                # TODO - add to inventory action should take inventory as an argument, not entity
+                actions.AddToInventory(item=self.chambered_bullet.parent, amount=1, entity=inventory.parent)
+
+                if inventory.parent.player:
+                    if self.gun_type == 'pistol':
+                        proficiency = inventory.parent.fighter.skill_pistol_proficiency
+                    elif self.gun_type == 'pdw':
+                        proficiency = inventory.parent.fighter.skill_smg_proficiency
+                    elif self.gun_type == 'rifle':
+                        proficiency = inventory.parent.fighter.skill_rifle_proficiency
+                    elif self.gun_type == 'bolt action':
+                        proficiency = inventory.parent.fighter.skill_bolt_action_proficiency
+
+            proficiency = 1 - (proficiency / 4000)
+
+        # adds cost of cycling manual action
+        if self.manual_action:
+            ap_cost += proficiency * self.action_cycle_ap_cost
+
+        load_time_modifier = self.load_time_modifier
+
+        return ap_cost, load_time_modifier, proficiency
 
 class ComponentPart(Usable):
     def __init__(self,

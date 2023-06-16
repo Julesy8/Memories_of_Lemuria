@@ -240,20 +240,21 @@ class MainGameEventHandler(EventHandler):
         return action
 
 
+def on_quit() -> None:
+    """Handle exiting out of a finished game."""
+    if os.path.exists("savegame.sav"):
+        os.remove("savegame.sav")  # Deletes the active save file.
+    raise exceptions.QuitWithoutSaving()  # Avoid saving a finished game.
+
+
 class GameOverEventHandler(EventHandler):
 
-    def on_quit(self) -> None:
-        """Handle exiting out of a finished game."""
-        if os.path.exists("savegame.sav"):
-            os.remove("savegame.sav")  # Deletes the active save file.
-        raise exceptions.QuitWithoutSaving()  # Avoid saving a finished game.
-
     def ev_quit(self, event: tcod.event.Quit) -> None:
-        self.on_quit()
+        on_quit()
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.K_ESCAPE:
-            self.on_quit()
+            on_quit()
 
 
 CURSOR_Y_KEYS = {
@@ -965,7 +966,8 @@ class ChangeTargetActor(AskUserEventHandler):
         if key == tcod.event.K_SPACE:  # change target
 
             try:
-                player.fighter.target_actor = self.targets[self.target_index + 1]
+                player.fighter.target_actor = self.targets[self.target_index + 1]  # TODO - this is where target
+                # actor becomes a list somehow according to the IDE, want to fix
                 self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index += 1
@@ -1009,15 +1011,12 @@ class ChangeTargetActor(AskUserEventHandler):
 
             if player.fighter.target_actor:
 
-                # TODO - I don't understand why there are warnings here but its annoying and I want to fix it
                 distance_target = round(player.distance(player.fighter.target_actor.x, player.fighter.target_actor.y))
 
                 # attack with weapon
                 if self.item is not None:
 
-                    actions.WeaponAttackAction(distance=distance_target, item=self.item, entity=player,
-                                               targeted_actor=player.fighter.target_actor,
-                                               targeted_bodypart=self.selected_bodypart).attack()
+                    self.item.usable_properties.get_attack_action()
 
                     # prints splatter message
                     if self.selected_bodypart.show_splatter_message:
@@ -1807,6 +1806,8 @@ class CraftGun(CraftItem):
                          )
 
     def add_options(self):
+
+        # TODO - all this should be handled by an action / consumable method
 
         # checks if current part selection is the same as the type as item in the prerequisite parts
         # if it is, only adds parts to options that are in prerequisites
