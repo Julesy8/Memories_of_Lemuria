@@ -1510,6 +1510,65 @@ round_54r_200_fmj = Item(
 )
 
 """
+.30 Carbine
+"""
+
+# velocity - https://shootersreference.com/reloadingdata/30-carbine/
+# powder loading - https://shootersreference.com/reloadingdata/30-carbine/
+# powder: accurate 1680
+
+round_30carb_110_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='.30 Carbine - 110gr Critical Defense',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description=".30 Carbine 110gr 'Critical Defense' jacketed hollow-point ammunition",
+    usable_properties=Bullet(
+        bullet_type='.30 Carbine',
+        mass=110,
+        charge_mass=16,
+        diameter=0.3078,
+        velocity=1963,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0,
+        ballistic_coefficient=0.178,
+        bullet_length=0.55,  # this is not correct, couldn't find any data on .30 carbine bullet lengths
+        bullet_yaws=False,
+        bullet_fragments=True,
+        bullet_expands=True,
+        max_expansion=1.55,
+        max_expansion_velocity=2000,
+    )
+)
+
+round_30carb_110_fmj = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='.30 Carbine - 110gr FMJ',
+    weight=0.024,
+    stacking=Stacking(stack_size=10),
+    description=".30 Carbine 110gr full metal jacket ammunition",
+    usable_properties=Bullet(
+        bullet_type='.30 Carbine',
+        mass=110,
+        charge_mass=16,
+        diameter=0.3078,
+        velocity=1980,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.0,
+        ballistic_coefficient=0.154,
+        bullet_length=0.55,
+        bullet_yaws=False,
+        bullet_fragments=True,
+    )
+)
+
+"""
 12 guage
 """
 """

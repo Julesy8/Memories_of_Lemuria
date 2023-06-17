@@ -1589,7 +1589,8 @@ ar15 = Item(
         loaded_magazine=None,
         ap_to_equip=80,
         current_fire_mode='single shot',
-        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
+        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},  # TODO - not all recievers should be fully
+                    # auto, this should be a more rare feature
                     'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False},
                     'automatic': {'fire rate': 700, 'automatic': True}},
         parts=Parts(),

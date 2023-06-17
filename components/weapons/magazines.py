@@ -897,3 +897,47 @@ m31_9mm_71rd = Item(
         failure_chance=2,
     )
 )
+
+"""
+M1 Carbine
+"""
+
+m1_carbine_15rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="M1/M2 Carbine 15 Round Magazine",
+    weight=0.0765,
+    stacking=None,
+    description='15 round capacity .30 carbine magazine designed for the M1 and M2 carbine',
+    usable_properties=Magazine(
+        magazine_type='M1/M2 Carbine',
+        compatible_bullet_type=['.30 Carbine', ],
+        mag_capacity=15,
+        magazine_size='small',
+        ap_to_load=300,
+        target_acquisition_ap_mod=1.02,
+        ap_distance_cost_mod=1.03,
+        equip_ap_mod=1.03,
+    )
+)
+
+m1_carbine_30rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="M1/M2 Carbine 30 Round Magazine",
+    weight=0.09,
+    stacking=None,
+    description='30 round capacity .30 carbine magazine designed for the M1 and M2 carbine',
+    usable_properties=Magazine(
+        magazine_type='M1/M2 Carbine',
+        compatible_bullet_type=['.30 Carbine', ],
+        mag_capacity=30,
+        magazine_size='medium',
+        ap_to_load=330,
+        target_acquisition_ap_mod=1.03,
+        ap_distance_cost_mod=1.02,
+        equip_ap_mod=1.03,
+    )
+)

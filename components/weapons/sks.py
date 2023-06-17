@@ -15,7 +15,7 @@ stock_sks = Item(
     weight=0.70,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   felt_recoil=0.5,
+                                   felt_recoil=0.53,
                                    ap_distance_cost_modifier=0.73,
                                    spread_modifier=0.88,
                                    target_acquisition_ap=0.83,

@@ -114,7 +114,7 @@ mosin_obrez_stock = Item(
                                    felt_recoil=0.85,
                                    ap_distance_cost_modifier=0.93,
                                    spread_modifier=0.9,
-                                   target_acquisition_ap=71,
+                                   target_acquisition_ap=0.71,
                                    grip_properties={
                                        'felt_recoil': 0.83,
                                        'ap_distance_cost_modifier': 0.93,
