@@ -681,6 +681,9 @@ mac10_carbine_handguard_picatinny = Item(
                                    is_attachment_point_types=['Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Long',
                                                               'Picrail Underbarrel - Long'],
+                                   optic_mount_properties={'receiver_height_above_bore': 1.59,
+                                                           'spread_modifier': 1.04,
+                                                           'target_acquisition_ap': 0.93},
                                    grip_properties={
                                        'spread_modifier': 0.92,
                                        'felt_recoil': 0.86,
@@ -720,6 +723,9 @@ mac109_carbine_handguard_picatinny = Item(
                                    is_attachment_point_types=['Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Long',
                                                               'Picrail Underbarrel - Long'],
+                                   optic_mount_properties={'receiver_height_above_bore': 1.59,
+                                                           'spread_modifier': 1.04,
+                                                           'target_acquisition_ap': 0.93},
                                    grip_properties={
                                        'spread_modifier': 0.92,
                                        'felt_recoil': 0.86,
@@ -939,6 +945,7 @@ mac10dict = {
                 "compatible parts": {
                     "Stock Adapter M10": 1,
                     "Attachment Adapter": 1,
+                    "Muzzle Adapter": 1,
                     "M10 Stock": 1,
                     "M10 Optics Mount": 1,
                     "Muzzle Device": 1,

@@ -123,7 +123,6 @@ attachments_weighted = {
     attachments.suppressor_obsidian_45: 10,
     attachments.suppressor_wolfman_9mm: 10,
     attachments.suppressor_obsidian_9: 10,
-    attachments.suppressor_saker_762: 10,
 
     attachments.adapter_mlok_picrail: 50,
     attachments.adapter_mlok_picrail_short: 50,

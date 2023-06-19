@@ -1516,6 +1516,7 @@ round_54r_200_fmj = Item(
 # velocity - https://shootersreference.com/reloadingdata/30-carbine/
 # powder loading - https://shootersreference.com/reloadingdata/30-carbine/
 # powder: accurate 1680
+# TODO - adjust weight of these bullets
 
 round_30carb_110_jhp = Item(
     x=0, y=0,
@@ -1524,7 +1525,7 @@ round_30carb_110_jhp = Item(
     name='.30 Carbine - 110gr Critical Defense',
     weight=0.024,
     stacking=Stacking(stack_size=10),
-    description=".30 Carbine 110gr 'Critical Defense' jacketed hollow-point ammunition",
+    description=".30 Carbine 110gr 'Critical Defense' polymer tipped ammunition",
     usable_properties=Bullet(
         bullet_type='.30 Carbine',
         mass=110,

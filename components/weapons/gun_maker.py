@@ -5,9 +5,12 @@ import components.weapons.mac10 as m10
 import components.weapons.sks as sks
 import components.weapons.mosin as mosin
 import components.weapons.m1911 as m1911
+import components.weapons.m1_carbine as m1_carbine
+import components.weapons.m14 as m14
 import components.weapons.attachments as attachments
 import components.weapons.gun_parts_weighted as gun_parts
 
+import components.weapons.bullets as bullets
 import components.weapons.magazines as magazines
 from copy import deepcopy, copy
 from random import choices, randint
@@ -339,11 +342,15 @@ ar15_weapon = PremadeWeapon(gun_item=ar15.ar15,
                                     ar15.ar15_muzzle_st6012: 8,
                                     ar15.ar15_muzzle_mi_mb4: 5,
                                     ar15.ar15_muzzle_cobra: 3,
+                                    attachments.suppressor_obsidian_9: 1,
+                                    attachments.suppressor_wolfman_9mm: 1,
                                     ar15.ar15_300_muzzle_flashhider: 100,
                                     ar15.ar15_300_muzzle_cobra: 8,
                                     ar15.ar15_300_muzzle_pegasus: 5,
                                     ar15.ar15_300_muzzle_strike: 3,
                                 },
+                                "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                       attachments.adapter_mlok_picrail_short: 1},
                                 "Underbarrel Accessory": {
                                     None: 200,
                                     attachments.grip_hera_cqr: 6,
@@ -418,6 +425,8 @@ ar10_weapon = PremadeWeapon(gun_item=ar15.ar15,
                                     ar15.ar15_300_muzzle_pegasus: 5,
                                     ar15.ar15_300_muzzle_strike: 3,
                                 },
+                                "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                       attachments.adapter_mlok_picrail_short: 1},
                                 "Underbarrel Accessory": {
                                     None: 200,
                                     attachments.grip_hera_cqr: 6,
@@ -444,6 +453,8 @@ ak47_weapon = PremadeWeapon(gun_item=ak.ak,
                             part_dict={
                                 "AK Reciever": ak.reciever_akm,
                                 "AK Barrel": {ak.barrel_ak762: 100, ak.barrel_rpk762: 5, ak.barrel_ak762_short: 10},
+                                "Thread Adapter": {None: 20,
+                                                   attachments.thread_adapter_141_24mm: 1},
                                 "AK Handguard": {
                                     ak.handguard_akm: 100,
                                     ak.handguard_amd65: 30,
@@ -491,6 +502,8 @@ ak47_weapon = PremadeWeapon(gun_item=ak.ak,
                                     ak.muzzle_pbs1: 10,
                                     ak.muzzle_dynacomp: 12,
                                 },
+                                "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                       attachments.adapter_mlok_picrail_short: 1},
                                 "Underbarrel Accessory": {
                                     None: 200,
                                     attachments.grip_hera_cqr: 6,
@@ -513,6 +526,8 @@ ak74_weapon = PremadeWeapon(gun_item=ak.ak,
                             part_dict={
                                 "AK Reciever": ak.reciever_ak74,
                                 "AK Barrel": {ak.barrel_ak545: 100, ak.barrel_rpk545: 5, ak.barrel_ak545_short: 10},
+                                "Thread Adapter": {None: 20,
+                                                   attachments.thread_adapter_2415_5824: 1},
                                 "AK Handguard": {
                                     ak.handguard_akm: 100,
                                     ak.handguard_amd65: 30,
@@ -560,7 +575,13 @@ ak74_weapon = PremadeWeapon(gun_item=ak.ak,
                                     ak.muzzle_pbs4: 10,
                                     ak.muzzle_pbs1: 10,
                                     ak.muzzle_dynacomp: 12,
+                                    ar15.ar15_300_muzzle_flashhider: 100,
+                                    ar15.ar15_300_muzzle_cobra: 8,
+                                    ar15.ar15_300_muzzle_pegasus: 5,
+                                    ar15.ar15_300_muzzle_strike: 3,
                                 },
+                                "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                       attachments.adapter_mlok_picrail_short: 1},
                                 "Underbarrel Accessory": {
                                     None: 200,
                                     attachments.grip_hera_cqr: 6,
@@ -582,6 +603,8 @@ ak556_weapon = PremadeWeapon(gun_item=ak.ak,
                              part_dict={
                                  "AK Reciever": ak.reciever_100556,
                                  "AK Barrel": {ak.barrel_ak556: 100, ak.barrel_ak556_short: 10},
+                                 "Thread Adapter": {None: 20,
+                                                    attachments.thread_adapter_2415_5824: 1},
                                  "AK Handguard": {
                                      ak.handguard_akm: 100,
                                      ak.handguard_amd65: 30,
@@ -629,7 +652,13 @@ ak556_weapon = PremadeWeapon(gun_item=ak.ak,
                                      ak.muzzle_pbs4: 10,
                                      ak.muzzle_pbs1: 10,
                                      ak.muzzle_dynacomp: 12,
+                                     ar15.ar15_300_muzzle_flashhider: 100,
+                                     ar15.ar15_300_muzzle_cobra: 8,
+                                     ar15.ar15_300_muzzle_pegasus: 5,
+                                     ar15.ar15_300_muzzle_strike: 3,
                                  },
+                                 "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                        attachments.adapter_mlok_picrail_short: 1},
                                  "Underbarrel Accessory": {
                                      None: 200,
                                      attachments.grip_hera_cqr: 6,
@@ -753,6 +782,8 @@ sks_weapon = PremadeWeapon(gun_item=sks.sks,
                                    sks.barrel_sks_auto_akmag: 10,
                                    sks.barrel_sks_shortened_auto_akmag: 5,
                                },
+                               "Thread Adapter": {None: 20,
+                                                  attachments.thread_adapter_sks: 1},
                                "SKS Stock": {
                                    sks.stock_sks: 200,
                                    sks.stock_sks_tapco: 20,
@@ -763,6 +794,8 @@ sks_weapon = PremadeWeapon(gun_item=sks.sks,
                                },
                                "SKS Internal Magazine": {sks.sks_integrated_mag: 1, None: 1},
                                "SKS Optics Mount": {None: 20, sks.sks_optics_mount: 1},
+                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                      attachments.adapter_mlok_picrail_short: 1},
                                "Underbarrel Accessory": {
                                    None: 200,
                                    attachments.grip_hera_cqr: 6,
@@ -775,12 +808,15 @@ sks_weapon = PremadeWeapon(gun_item=sks.sks,
                                    attachments.grip_hipoint_folding: 5,
                                },
                                "Muzzle Device": {
-                                   None: 450,
+                                   ak.muzzle_ak74: 150,
                                    ak.muzzle_dtk: 15,
+                                   ak.muzzle_amd65: 30,
+                                   ak.muzzle_akm: 300,
+                                   ak.muzzle_akml: 100,
                                    ak.muzzle_lantac: 15,
                                    ak.muzzle_pbs4: 10,
                                    ak.muzzle_pbs1: 10,
-                                   ak.muzzle_dynacomp: 12},
+                                   ak.muzzle_dynacomp: 12,},
                            },
                            )
 
@@ -805,11 +841,21 @@ mosin_weapon = PremadeWeapon(gun_item=mosin.mosindict,
                                      mosin.mosin_carbine_barrel: 50,
                                      mosin.mosin_obrez_barrel: 300,
                                  },
+                                 "Thread Adapter": {None: 20,
+                                                    attachments.thread_adapter_mosin: 1},
                                  "Mosin-Nagant Accessory Mount": {mosin.mosin_pic_scope_mount: 1, None: 20},
                                  "Muzzle Device": {
                                      None: 150,
                                      mosin.mosin_suppressor: 5,
                                      mosin.mosin_muzzlebreak: 10,
+                                     ar15.ar15_muzzle_flashhider: 100,
+                                     ar15.ar15_muzzle_st6012: 8,
+                                     ar15.ar15_muzzle_mi_mb4: 5,
+                                     ar15.ar15_muzzle_cobra: 3,
+                                     ar15.ar15_300_muzzle_flashhider: 100,
+                                     ar15.ar15_300_muzzle_cobra: 8,
+                                     ar15.ar15_300_muzzle_pegasus: 5,
+                                     ar15.ar15_300_muzzle_strike: 3,
                                  },
                              },
                              )
@@ -1031,5 +1077,158 @@ m1911_40sw = PremadeWeapon(gun_item=m1911.m1911,
                                    attachments.grip_aimtac_short: 5,
                                    attachments.grip_hipoint_folding: 5,
                                },
+                           },
+                           )
+
+""" 
+M1 Carbine
+"""
+
+m1_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m1_carbine,
+                           bullet={bullets.round_30carb_110_jhp: 1, bullets.round_30carb_110_fmj: 4},
+                           magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
+                           optics=optics_test,
+                           part_dict={
+                               "M1 Carbine Reciever": m1_carbine.m1_reciever,
+                               "M1/M2 Carbine Stock": {
+                                   m1_carbine.m1_stock: 100,
+                                   m1_carbine.m1_stock_ebr: 2,
+                                   m1_carbine.m1_stock_enforcer: 5,
+                                   m1_carbine.m1_stock_springfield: 15
+                               },
+                               "M1/M2 Carbine Barrel": {
+                                   m1_carbine.m1_barrel: 10,
+                                   m1_carbine.m1_barrel_enforcer: 10,
+                                   m1_carbine.m1_barrel_threaded: 1,
+                                   m1_carbine.m1_barrel_enforcer_threaded: 1,
+                               },
+                               "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
+                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                      attachments.adapter_mlok_picrail_short: 1},
+                               "Muzzle Device": {
+                                   attachments.suppressor_obsidian_9: 1,
+                                   attachments.suppressor_wolfman_9mm: 1,
+                                   ar15.ar15_muzzle_flashhider: 100,
+                                    ar15.ar15_muzzle_st6012: 8,
+                                    ar15.ar15_muzzle_mi_mb4: 5,
+                                    ar15.ar15_muzzle_cobra: 3,},
+                               "Underbarrel Accessory": {
+                                   None: 200,
+                                   attachments.grip_promag_vertical: 10,
+                                   attachments.grip_jem_vertical: 10,
+                                   attachments.grip_aimtac_short: 5,
+                                   attachments.grip_hipoint_folding: 5,
+                               },
+                           },
+                           )
+
+m2_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m2_carbine,
+                           bullet={bullets.round_30carb_110_jhp: 1, bullets.round_30carb_110_fmj: 4},
+                           magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
+                           optics=optics_test,
+                           part_dict={
+                               "M2 Carbine Reciever": m1_carbine.m2_reciever,
+                               "M1/M2 Carbine Stock": {
+                                   m1_carbine.m1_stock: 100,
+                                   m1_carbine.m1_stock_ebr: 2,
+                                   m1_carbine.m1_stock_enforcer: 5,
+                                   m1_carbine.m1_stock_springfield: 15
+                               },
+                               "M1/M2 Carbine Barrel": {
+                                   m1_carbine.m1_barrel: 10,
+                                   m1_carbine.m1_barrel_enforcer: 10,
+                                   m1_carbine.m1_barrel_threaded: 1,
+                                   m1_carbine.m1_barrel_enforcer_threaded: 1,
+                               },
+                               "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
+                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                      attachments.adapter_mlok_picrail_short: 1},
+                               "Muzzle Device": {
+                                   attachments.suppressor_obsidian_9: 1,
+                                   attachments.suppressor_wolfman_9mm: 1,
+                                   ar15.ar15_muzzle_flashhider: 100,
+                                    ar15.ar15_muzzle_st6012: 8,
+                                    ar15.ar15_muzzle_mi_mb4: 5,
+                                    ar15.ar15_muzzle_cobra: 3,},
+                               "Underbarrel Accessory": {
+                                   None: 200,
+                                   attachments.grip_promag_vertical: 10,
+                                   attachments.grip_jem_vertical: 10,
+                                   attachments.grip_aimtac_short: 5,
+                                   attachments.grip_hipoint_folding: 5,
+                               },
+                           },
+                           )
+
+""" 
+M14 / M1A
+"""
+
+m14_gun = PremadeWeapon(gun_item=m14.m14,
+                        bullet=gun_parts.bullets_308_weighted,
+                        magazine={magazines.m14_10rd: 20, magazines.m14_20rd: 10, magazines.m14_50rd: 1},
+                           optics=optics_test,
+                           part_dict={
+                               "M14 Reciever": m14.m14_reciever,
+                               "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
+                                                 m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
+                                                 m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
+                               "M14/M1A Barrel": {m14.m14_barrel: 10, m14.m14_barrel_18in: 3, m14.m14_barrel_socom: 1},
+                               "Thread Adapter": {None: 20,
+                                                  attachments.thread_adapter_m14_5824: 1},
+                               "M14/M1A Picatinny Rail Optic Mount": {None: 15, m14.m14_optic_mount: 1},
+                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                      attachments.adapter_mlok_picrail_short: 1},
+                               "Underbarrel Accessory": {
+                                   None: 200,
+                                   attachments.grip_promag_vertical: 10,
+                                   attachments.grip_jem_vertical: 10,
+                                   attachments.grip_aimtac_short: 5,
+                                   attachments.grip_hipoint_folding: 5,
+                               },
+                               "Muzzle Device": {m14.m14_muzzle_usgi: 100,
+                                                 m14.m14_muzzle_uscg_brake: 3,
+                                                 m14.m14_muzzle_vais_brake: 8,
+                                                 m14.m14_muzzle_synergy_brake: 4,
+                                                 ar15.ar15_300_muzzle_flashhider: 100,
+                                                 ar15.ar15_300_muzzle_cobra: 8,
+                                                 ar15.ar15_300_muzzle_pegasus: 5,
+                                                 ar15.ar15_300_muzzle_strike: 3,
+                                                 },
+                           },
+                           )
+
+
+m1a_gun = PremadeWeapon(gun_item=m14.m1a,
+                        bullet=gun_parts.bullets_308_weighted,
+                        magazine={magazines.m14_10rd: 20, magazines.m14_20rd: 10, magazines.m14_50rd: 1},
+                           optics=optics_test,
+                           part_dict={
+                               "M1A Reciever": m14.m14_reciever,
+                               "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
+                                                 m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
+                                                 m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
+                               "M14/M1A Barrel": {m14.m14_barrel: 10, m14.m14_barrel_18in: 3, m14.m14_barrel_socom: 1},
+                               "Thread Adapter": {None: 20,
+                                                  attachments.thread_adapter_m14_5824: 1},
+                               "M14/M1A Picatinny Rail Optic Mount": {None: 15, m14.m14_optic_mount: 1},
+                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                      attachments.adapter_mlok_picrail_short: 1},
+                               "Underbarrel Accessory": {
+                                   None: 200,
+                                   attachments.grip_promag_vertical: 10,
+                                   attachments.grip_jem_vertical: 10,
+                                   attachments.grip_aimtac_short: 5,
+                                   attachments.grip_hipoint_folding: 5,
+                               },
+                               "Muzzle Device": {m14.m14_muzzle_usgi: 100,
+                                                 m14.m14_muzzle_uscg_brake: 3,
+                                                 m14.m14_muzzle_vais_brake: 8,
+                                                 m14.m14_muzzle_synergy_brake: 4,
+                                                 ar15.ar15_300_muzzle_flashhider: 100,
+                                                 ar15.ar15_300_muzzle_cobra: 8,
+                                                 ar15.ar15_300_muzzle_pegasus: 5,
+                                                 ar15.ar15_300_muzzle_strike: 3,
+                                                 },
                            },
                            )

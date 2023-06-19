@@ -21,6 +21,7 @@ mosin_stock = Item(
                                    spread_modifier=0.9,
                                    target_acquisition_ap=0.91,
                                    equip_time=1.4,
+                                   has_stock=True,
                                    grip_properties={
                                        'felt_recoil': 0.88,
                                        'ap_distance_cost_modifier': 0.91,
@@ -44,6 +45,7 @@ mosin_stock_montecarlo = Item(
                                    spread_modifier=0.86,
                                    target_acquisition_ap=0.78,
                                    equip_time=1.2,
+                                   has_stock=True,
                                    grip_properties={
                                        'felt_recoil': 0.82,
                                        'ap_distance_cost_modifier': 0.89,
@@ -69,6 +71,7 @@ mosin_archangel_stock = Item(
                                    spread_modifier=0.89,
                                    target_acquisition_ap=0.75,
                                    equip_time=1.3,
+                                   has_stock=True,
                                    grip_properties={
                                        'felt_recoil': 0.86,
                                        'ap_distance_cost_modifier': 0.93,
@@ -93,6 +96,7 @@ mosin_carbine_stock = Item(
                                    spread_modifier=0.92,
                                    target_acquisition_ap=0.76,
                                    equip_time=1.2,
+                                   has_stock=True,
                                    grip_properties={
                                        'felt_recoil': 0.89,
                                        'ap_distance_cost_modifier': 0.86,
@@ -229,7 +233,7 @@ mosin_suppressor = Item(
                                    muzzle_break_efficiency=0.43,
                                    sound_radius=0.54,
                                    fire_rate_modifier=1.1,
-                                   target_acquisition_ap=1.13,
+                                   target_acquisition_ap=1.07,
                                    attachment_point_required=('Mosin-Nagant Barrel',),
                                    is_suppressor=True
                                    ),
@@ -245,7 +249,6 @@ mosin_muzzlebreak = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    muzzle_break_efficiency=0.71,
-                                   target_acquisition_ap=1.04,
                                    attachment_point_required=('Mosin-Nagant Barrel',)
                                    ),
     description='Muzzle break for 7.62x54R Mosin-Nagant rifles by Texas Precision'
@@ -300,6 +303,7 @@ mosindict = {
                 },
                 "compatible parts": {
                     "Attachment Adapter": 1,
+                    "Muzzle Adapter": 1,
                     "Mosin-Nagant Accessory Mount": 1,
                     "Muzzle Device": 1,
                     "Optic": 1,

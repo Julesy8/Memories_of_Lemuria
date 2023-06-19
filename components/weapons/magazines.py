@@ -941,3 +941,62 @@ m1_carbine_30rd = Item(
         equip_ap_mod=1.03,
     )
 )
+
+"""
+M14
+"""
+
+m14_10rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="M14/M1A 10 Round Magazine",
+    weight=0.159,
+    stacking=None,
+    description='10 round capacity 7.62x51 NATO magazine designed for the M14 and M1A rifles',
+    usable_properties=Magazine(
+        magazine_type='M14/M1A',
+        compatible_bullet_type=['7.62x51', ],
+        mag_capacity=10,
+        magazine_size='medium',
+        ap_to_load=300,
+    )
+)
+
+m14_20rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="M14/M1A 20 Round Magazine",
+    weight=0.233,
+    stacking=None,
+    description='20 round capacity 7.62x51 NATO magazine designed for the M14 and M1A rifles',
+    usable_properties=Magazine(
+        magazine_type='M14/M1A',
+        compatible_bullet_type=['7.62x51', ],
+        mag_capacity=20,
+        magazine_size='medium',
+        ap_to_load=300,
+    )
+)
+
+m14_50rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="M14/M1A ProMag 50 Round Drum Magazine",
+    weight=0.771,
+    stacking=None,
+    description='50 round capacity 7.62x51 NATO polymer drum magazine designed by ProMag for the M14 and M1A rifles',
+    usable_properties=Magazine(
+        magazine_type='M14/M1A',
+        compatible_bullet_type=['7.62x51', ],
+        mag_capacity=50,
+        magazine_size='large',
+        ap_to_load=500,
+        target_acquisition_ap_mod=1.07,
+        ap_distance_cost_mod=1.06,
+        equip_ap_mod=1.12,
+        failure_chance=2,
+    )
+)

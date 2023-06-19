@@ -1729,7 +1729,7 @@ m1911_comp_tj = Item(
                                                       ('10mm/40 S&W Long Slide', '40S&W Government Length Barrel'),),
                                    attachment_point_required=('Government Barrel Bushing',),
                                    muzzle_break_efficiency=0.4,
-                                   target_acquisition_ap=1.1,
+                                   target_acquisition_ap=1.03,
                                    sound_radius=1.11,
                                    ),
     description="A large, 3 inch steel muzzle brake for 1911 government and long slide type pistols designed by TJ's "

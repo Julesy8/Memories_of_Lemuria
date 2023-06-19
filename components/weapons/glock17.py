@@ -283,7 +283,7 @@ glock_9mm_compensator = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread M13.5x1 LH',),
                                    muzzle_break_efficiency=0.26,
-                                   target_acquisition_ap=1.03,
+                                   target_acquisition_ap=1.01,
                                    sound_radius=1.1,
                                    ),
     description='A large compensator for Glock 9mm pistols'
@@ -410,6 +410,7 @@ glock17dict = {
                 },
                 "compatible parts": {
                     "Glock Stock": 1,
+                    "Muzzle Adapter": 1,
                     "Glock Optics Mount": 1,
                     "Glock Base Plate": 1,
                     "Side Mounted Accessory": 1,

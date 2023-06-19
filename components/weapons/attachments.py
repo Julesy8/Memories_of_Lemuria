@@ -532,7 +532,7 @@ suppressor_obsidian_45 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    muzzle_break_efficiency=0.35,
-                                   target_acquisition_ap=1.13,
+                                   target_acquisition_ap=1.07,
                                    fire_rate_modifier=1.09,
                                    sound_radius=0.27,
                                    attachment_point_required=('Barrel Thread .578x28',),
@@ -550,7 +550,7 @@ suppressor_wolfman_9mm = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    muzzle_break_efficiency=0.38,
-                                   target_acquisition_ap=1.15,
+                                   target_acquisition_ap=1.08,
                                    fire_rate_modifier=1.11,
                                    sound_radius=0.24,
                                    attachment_point_required=('Barrel Thread 1/2x28',),
@@ -568,7 +568,7 @@ suppressor_obsidian_9 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    muzzle_break_efficiency=0.33,
-                                   target_acquisition_ap=1.12,
+                                   target_acquisition_ap=1.06,
                                    fire_rate_modifier=1.08,
                                    sound_radius=0.25,
                                    attachment_point_required=('Barrel Thread 1/2x28',),
@@ -577,29 +577,84 @@ suppressor_obsidian_9 = Item(
     description='A modular suppressor compatible with 1/2x28 barrel threading'
 )
 
-suppressor_saker_762 = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
-    name="SilencerCo Saker 762 Suppressor",
-    weight=0.663,
-    stacking=None,
-    usable_properties=GunComponent(part_type='Muzzle Device',
-                                   muzzle_break_efficiency=0.4,
-                                   target_acquisition_ap=1.16,
-                                   fire_rate_modifier=1.12,
-                                   sound_radius=0.27,
-                                   attachment_point_required=('Barrel Thread 5/8x24',),
-                                   is_suppressor=True,
-                                   ),
-    description='A rifle suppressor intended for 7.62mm rifles compatible with 1/2x28 barrel threading'
-)
 
 # TODO - 10mm/40sw suppressors
 
 """
 Accessories
 """
+
+# TODO - ability to select multiple accessory adapters
+
+thread_adapter_m14_5824 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='M14/M1A 5/8x24 Thread Adapter',
+    weight=0.071,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Adapter',
+                                   converts_attachment_points={'Barrel Thread .595"x32 tpi': "Barrel Thread 5/8x24"},
+                                   attachment_point_required=('Barrel Thread .595"x32 tpi',),
+                                   ),
+    description='Converts M14 and M1A barrels to 5/8x24 thread pitch for attachment of muzzle devices'
+)
+
+thread_adapter_sks = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='SKS 14x1 Thread Adapter',
+    weight=0.055,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Thread Adapter',
+                                   converts_attachment_points={'SKS Muzzle': 'Barrel Thread 14x1'},
+                                   attachment_point_required=('SKS Muzzle',),
+                                   ),
+    description='Converts SKS barrels to the standard 7.62x39 AK-type thread pitch for attachment of muzzle devices'
+)
+
+thread_adapter_mosin = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='Mosin-Nagant 5/8x24 Thread Adapter',
+    weight=0.175,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Thread Adapter',
+                                   converts_attachment_points={'Mosin-Nagant Barrel': 'Barrel Thread 5/8x24'},
+                                   attachment_point_required=('Mosin-Nagant Barrel',),
+                                   ),
+    description='Attaches to the muzzle of the Mosin-Nagant allowing attachment of 5/8x24 muzzle devices'
+)
+
+thread_adapter_141_24mm = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='14x1 to 24x1.5 Thread Adapter',
+    weight=0.04,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Thread Adapter',
+                                   converts_attachment_points={'Barrel Thread 14x1': 'Barrel Thread 24x1.5'},
+                                   attachment_point_required=('Barrel Thread 14x1',),
+                                   ),
+    description='Attaches to 14x1 threaded AK barrels, adapting it to 24x1.5 thread such as that of the AK-74'
+)
+
+thread_adapter_2415_5824 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='24x1.5 to 5/8×24 Thread Adapter',
+    weight=0.045,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Thread Adapter',
+                                   converts_attachment_points={'Barrel Thread 24x1.5': 'Barrel Thread 1/2x28'},
+                                   attachment_point_required=('Barrel Thread 24x1.5',),
+                                   ),
+    description='Attaches to 24x1.5 threaded AK barrels, adapting it to 5/8×24 threading'
+)
 
 adapter_mlok_picrail = Item(
     x=0, y=0,
@@ -609,12 +664,14 @@ adapter_mlok_picrail = Item(
     weight=0.09,
     stacking=None,
     usable_properties=GunComponent(part_type='Attachment Adapter',
-                                   tags=['Handguard', ],
+                                   optic_mount_properties={'receiver_height_above_bore': 0.12},
                                    converts_attachment_points={'MLOK Side Mount - Long': 'Picrail Side Mount - Long',
                                                                'MLOK Underbarrel - Long': 'Picrail Underbarrel - Long',
-                                                               'MLOK Top Mount - Long': 'Picrail Top Mount - Long'},
+                                                               'MLOK Top Mount - Long': 'Picrail Top Mount - Long',
+                                                               'MLOK Optics Mount - Long': 'Picrail Optics Mount - '
+                                                                                           'Long',},
                                    attachment_point_required=('MLOK Side Mount - Long', 'MLOK Underbarrel - Long',
-                                                              'MLOK Top Mount - Long'),
+                                                              'MLOK Top Mount - Long', 'MLOK Optics Mount - Long'),
                                    ),
     description='Picatinny rail adapters for MLOK attachment systems, allowing the attachment of picatinny rail '
                 'mounted accessories'
@@ -629,12 +686,21 @@ adapter_mlok_picrail_short = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Attachment Adapter',
                                    tags=['Handguard', ],
+                                   optic_mount_properties={'receiver_height_above_bore': 0.12},
                                    converts_attachment_points={
                                        'MLOK Side Mount - Short': 'Picrail Side Mount - Short',
                                        'MLOK Underbarrel - Short': 'Picrail Underbarrel - Short',
-                                       'MLOK Top Mount - Short': 'Picrail Top Mount - Short'},
+                                       'MLOK Top Mount - Short': 'Picrail Top Mount - Short',
+                                       'MLOK Side Mount - Long': 'Picrail Side Mount - Short',
+                                       'MLOK Underbarrel - Long': 'Picrail Underbarrel - Short',
+                                       'MLOK Top Mount - Long': 'Picrail Top Mount - Short',
+                                       'MLOK Optics Mount - Long': 'Picrail Optics Mount - '
+                                                                   'Short',
+                                   },
                                    attachment_point_required=('MLOK Side Mount - Short', 'MLOK Underbarrel - Short',
-                                                              'MLOK Top Mount - Short'),
+                                                              'MLOK Top Mount - Short', 'MLOK Optics Mount - Short',
+                                                              'MLOK Side Mount - Long', 'MLOK Underbarrel - Short',
+                                                              'MLOK Top Mount - Long', 'MLOK Optics Mount - Short'),
                                    ),
     description='Picatinny rail adapters for MLOK attachment systems, allowing the attachment of picatinny rail '
                 'mounted accessories'
