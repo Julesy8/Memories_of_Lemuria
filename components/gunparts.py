@@ -131,6 +131,9 @@ class Parts:
 
             # updates the item weight to be the total weight of all parts added so far
             item.weight = total_weight
+            
+            if hasattr(part.usable_properties, 'weight_reduction'):
+                total_weight -= part.usable_properties.weight_reduction
 
             # adds prefixes and suffixes
             if hasattr(part.usable_properties, 'prefix'):
@@ -260,7 +263,7 @@ class Parts:
             if gun_item in inventory.items:
                 for part in self.part_list:
 
-                    # TODO - really don't know if this ever did anything
+                    # really don't know if this ever did anything
                     # resets all attachment points on parts to None
                     # if hasattr(part.usable_properties, 'is_attachment_point_types'):
                     #     for attachment_points in part.usable_properties.is_attachment_point_types.keys():

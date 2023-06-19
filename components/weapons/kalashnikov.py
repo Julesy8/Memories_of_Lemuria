@@ -992,10 +992,10 @@ accessory_dustcoverrail = Item(
     char="!",
     fg_colour=colour.LIGHT_GRAY,
     name="AK Dust Cover W/ Picatinny Rail",
-    weight=0.01,  # TODO - new property for parts - weight reduction. That way can keep actual weight of item and
-    # have it appropriately alter weight
+    weight=0.195,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Optics Mount',
+                                   weight_reduction=0.107,
                                    is_attachment_point_types=['Picrail Optics Mount - Long', ],
                                    additional_required_parts=('Optic',),
                                    optic_mount_properties={'receiver_height_above_bore': 0.1},

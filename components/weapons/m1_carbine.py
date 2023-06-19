@@ -7,8 +7,6 @@ import colour
 Reciever
 """
 
-# TODO - non pistol grip butt stocks need extra recoil reduction, because grips reduce recoil
-
 m1_reciever = Item(
     x=0, y=0,
     char="!",
@@ -50,7 +48,7 @@ m1_stock = Item(
     usable_properties=GunComponent(part_type='M1/M2 Carbine Stock',
                                    compatible_parts={'M1/M2 Carbine Barrel': ['M1/M2 Carbine Barrel',
                                                                               'M1/M2 Carbine Barrel - Threaded'], },
-                                   felt_recoil=0.53,
+                                   felt_recoil=0.48,
                                    ap_distance_cost_modifier=0.7,
                                    spread_modifier=0.88,
                                    target_acquisition_ap=0.76,
@@ -74,9 +72,10 @@ m1_stock_springfield = Item(
     weight=1.021,
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Carbine Stock',
+                                   suffix='Tactical',
                                    compatible_parts={'M1/M2 Carbine Barrel': ['M1/M2 Carbine Barrel',
                                                                               'M1/M2 Carbine Barrel - Threaded'],},
-                                   felt_recoil=0.5,
+                                   felt_recoil=0.4,
                                    ap_distance_cost_modifier=0.73,
                                    spread_modifier=0.91,
                                    target_acquisition_ap=0.73,
@@ -100,6 +99,7 @@ m1_stock_ebr = Item(
     weight=0.7,
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Carbine Stock',
+                                   suffix='EBR',
                                    compatible_parts={'M1/M2 Carbine Barrel': ['M1/M2 Carbine Barrel',
                                                                               'M1/M2 Carbine Barrel - Threaded'],
                                                      "M1/M2 Carbine Optic Mount": ["M1/M2 Carbine S&K Optics Mount"]},
@@ -127,6 +127,7 @@ m1_stock_enforcer = Item(
     weight=0.473,
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Carbine Stock',
+                                   suffix="'Enforcer'",
                                    compatible_parts={'M1/M2 Carbine Barrel': ["M1/M2 Carbine 'Enforcer' Barrel",
                                                                               "M1/M2 Carbine 'Enforcer' Barrel - "
                                                                               "Threaded"]},

@@ -629,15 +629,15 @@ class InventoryEventHandler(UserOptionsWithPages):
         options = []
 
         if hasattr(item, 'usable_properties'):
-            options.append('Use')
+            options.append('use')
 
-        options += ['Drop', 'Inspect']
+        options += ['drop', 'inspect']
 
         if hasattr(item.usable_properties, 'fits_bodypart_type'):
-            options.append('Equip')
+            options.append('equip')
 
         if hasattr(item.usable_properties, 'gun_type'):
-            options += ['Equip to Primary', 'Equip to Secondary', 'Disassemble', 'Rename']
+            options += ['equip to primary', 'equip to secondary', 'disassemble', 'rename']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
@@ -650,7 +650,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
 
     def ev_on_option_selected(self, option) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        if option == 'Use':
+        if option == 'use':
             try:
                 if hasattr(self.item.usable_properties, 'mag_capacity'):
                     if hasattr(self.item.usable_properties, 'gun_type'):
@@ -665,7 +665,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        elif option == 'Pick Up':
+        elif option == 'pick up':
             if self.item.stacking:
                 if self.item.stacking.stack_size > 1:
                     return AmountToPickUpMenu(item=self.item, engine=self.engine)
@@ -674,10 +674,10 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             else:
                 return PickupAction(entity=self.engine.player, item=self.item, amount=1)
 
-        elif option == 'Rename':
+        elif option == 'rename':
             return RenameItem(item=self.item, prompt_string='New Name:', engine=self.engine)
 
-        elif option == 'Equip':
+        elif option == 'equip':
             try:
                 self.item.usable_properties.equip()
                 return MainGameEventHandler(self.engine)
@@ -685,7 +685,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        elif option == 'Equip to Primary':
+        elif option == 'equip to primary':
             try:
                 self.item.usable_properties.equip_to_primary()
                 return MainGameEventHandler(self.engine)
@@ -693,7 +693,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        elif option == 'Equip to Secondary':
+        elif option == 'equip to secondary':
             try:
                 self.item.usable_properties.equip_to_secondary()
                 return MainGameEventHandler(self.engine)
@@ -701,27 +701,27 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        elif option == 'Unequip':
+        elif option == 'unequip':
             try:
                 self.item.usable_properties.unequip()
                 return MainGameEventHandler(self.engine)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        elif option == 'Drop':
+        elif option == 'drop':
             try:
                 return DropItemEventHandler(item=self.item, engine=self.engine)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        elif option == 'Disassemble':
+        elif option == 'disassemble':
             if hasattr(self.item.usable_properties, 'parts'):
                 self.item.usable_properties.parts.disassemble(entity=self.engine.player)
                 for i in range(5):
                     self.engine.handle_enemy_turns()
                 return MainGameEventHandler(self.engine)
 
-        elif option == 'Inspect':
+        elif option == 'inspect':
             return InspectItemViewer(engine=self.engine, item=self.item)
 
         else:
@@ -805,7 +805,7 @@ class EquipmentEventHandler(AskUserEventHandler):
 
     def on_item_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        options = ['Unequip', 'Inspect']
+        options = ['unequip', 'inspect']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine)
 
@@ -834,7 +834,7 @@ class PickUpEventHandler(UserOptionsWithPages):
         super().__init__(engine=engine, page=0, options=items_at_location, title="Pick Up/Inspect Items")
 
     def ev_on_option_selected(self, item):
-        return ItemInteractionHandler(item=item, options=['Pick Up', 'Inspect'], engine=self.engine)
+        return ItemInteractionHandler(item=item, options=['pick up', 'inspect'], engine=self.engine)
 
 
 class AmountToPickUpMenu(TypeAmountEventHandler):
@@ -1261,8 +1261,7 @@ class GunOptionsMagFed(UserOptionsEventHandler):
         self.gun = gun
 
         title = gun.parent.name
-        # TODO settle on capitalization - capitalize all options
-        options = ['Rename', ]
+        options = ['rename', ]
 
         self.firemodes = self.gun.fire_modes
 
@@ -1295,7 +1294,7 @@ class GunOptionsMagFed(UserOptionsEventHandler):
         elif option == 'load from clip':
             return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
 
-        elif option == 'Rename':
+        elif option == 'rename':
             return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
 
         elif option == 'clear jam':
@@ -1312,7 +1311,7 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
         self.gun = gun
 
         title = gun.parent.name
-        options = ['Rename', "load rounds", "unload rounds"]
+        options = ['rename', "load rounds", "unload rounds"]
 
         self.firemodes = self.gun.fire_modes
 
@@ -1340,7 +1339,7 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
         elif option == 'load from clip':
             return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
 
-        elif option == 'Rename':
+        elif option == 'rename':
             return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
 
         elif option == 'clear jam':
@@ -1695,7 +1694,7 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
         elif hasattr(item, 'gun_type'):
 
-            options = ['Equip', 'Unequip', 'Use', 'Inspect']
+            options = ['equip', 'unequip', 'use', 'inspect']
             return ItemInteractionHandler(item=item.parent, options=options, engine=self.engine)
 
 
@@ -2543,7 +2542,7 @@ class AttackStyleMenu(UserOptionsEventHandler):
     def __init__(self, engine: Engine):
 
         title = "Change Attack Style"
-        options = ['Precise', 'Measured', 'Close Quarters']
+        options = ['precise', 'measured', 'close quarters']
 
         super().__init__(engine=engine, options=options, title=title)
 
@@ -2551,13 +2550,13 @@ class AttackStyleMenu(UserOptionsEventHandler):
         """Called when the user selects a valid item."""
         player = self.engine.player
 
-        if option == 'Precise':
+        if option == 'precise':
             player.fighter.attack_style_precision()
 
-        elif option == 'Measured':
+        elif option == 'measured':
             player.fighter.attack_style_measured()
 
-        elif option == 'Close Quarters':
+        elif option == 'close quarters':
             player.fighter.attack_style_cqc()
 
         return MainGameEventHandler(engine=self.engine)

@@ -15,7 +15,7 @@ stock_sks = Item(
     weight=0.70,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   felt_recoil=0.53,
+                                   felt_recoil=0.48,
                                    ap_distance_cost_modifier=0.73,
                                    spread_modifier=0.88,
                                    target_acquisition_ap=0.83,
@@ -43,18 +43,15 @@ stock_sks_tapco = Item(
                                                            'spread_modifier': 1.1,
                                                            'target_acquisition_ap': 0.86},
                                    additional_required_parts=('AR Stock',),
-                                   felt_recoil=0.46,
-                                   ap_distance_cost_modifier=0.75,
-                                   spread_modifier=0.85,
-                                   target_acquisition_ap=0.87,
+                                   felt_recoil=0.9,
                                    equip_time=1.3,
                                    has_stock=True,
                                    grip_properties={
-                                       'felt_recoil': 0.83,
-                                       'ap_distance_cost_modifier': 0.9,
-                                       'spread_modifier': 0.9,
-                                       'target_acquisition_ap': 0.77}),
-    description='A polymer rifle stock for the SKS by TAPCO, including a AR-15 stock adapter'
+                                       'felt_recoil': 0.85,
+                                       'ap_distance_cost_modifier': 0.87,
+                                       'spread_modifier': 0.89,
+                                       'target_acquisition_ap': 0.8}),
+    description='A polymer rifle stock for the SKS by TAPCO, including a AR-15 stock adapter and pistol grip'
 )
 
 stock_sks_dragunov = Item(
@@ -65,17 +62,14 @@ stock_sks_dragunov = Item(
     weight=1.01,
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Stock',
-                                   felt_recoil=0.48,
-                                   ap_distance_cost_modifier=0.69,
-                                   spread_modifier=0.83,
-                                   target_acquisition_ap=0.9,
+                                   felt_recoil=0.44,
                                    equip_time=1.3,
                                    has_stock=True,
                                    grip_properties={
                                        'felt_recoil': 0.85,
-                                       'ap_distance_cost_modifier': 0.89,
-                                       'spread_modifier': 0.88,
-                                       'target_acquisition_ap': 0.79}),
+                                       'ap_distance_cost_modifier': 0.87,
+                                       'spread_modifier': 0.89,
+                                       'target_acquisition_ap': 0.8}),
     description='A polymer Dragunov rifle style stock for the SKS'
 )
 
@@ -94,16 +88,12 @@ stock_sks_fab = Item(
                                    optic_mount_properties={'receiver_height_above_bore': 0.079,
                                                            'spread_modifier': 1.1,
                                                            'target_acquisition_ap': 0.86},
-                                   felt_recoil=0.52,
-                                   ap_distance_cost_modifier=0.72,
-                                   spread_modifier=0.81,
-                                   target_acquisition_ap=0.84,
-                                   equip_time=1.25,
+                                   equip_time=1.3,
                                    grip_properties={
                                        'felt_recoil': 0.84,
-                                       'ap_distance_cost_modifier': 0.92,
+                                       'ap_distance_cost_modifier': 0.87,
                                        'spread_modifier': 0.87,
-                                       'target_acquisition_ap': 0.78}),
+                                       'target_acquisition_ap': 0.8}),
     description='A light weight tactical polymer stock for the SKS, including a folding AR-15 stock adapter'
 )
 
@@ -125,9 +115,9 @@ stock_sks_sabertooth = Item(
                                    equip_time=1.1,
                                    grip_properties={
                                        'felt_recoil': 0.88,
-                                       'ap_distance_cost_modifier': 0.92,
+                                       'ap_distance_cost_modifier': 0.9,
                                        'spread_modifier': 0.88,
-                                       'target_acquisition_ap': 0.78}),
+                                       'target_acquisition_ap': 0.8}),
     description='A polymer assault rifle style stock for the SKS, including a AR-15 stock adapter'
 )
 
@@ -144,7 +134,7 @@ stock_sks_bullpup = Item(
                                                               'Picrail Side Mount - Long'],
                                    additional_required_parts=('Optic',),
                                    optic_mount_properties={'receiver_height_above_bore': 0.079},
-                                   felt_recoil=0.51,
+                                   felt_recoil=0.45,
                                    ap_distance_cost_modifier=0.71,
                                    load_time_modified=1.3,
                                    spread_modifier=0.79,

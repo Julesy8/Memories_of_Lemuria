@@ -13,10 +13,10 @@ Event handler --> consumable.get_action -> Action -> consumable.activate
 
 input handler: reload (consumables class) -> calls action -> reloads
 
-TODO - new weapon property - needs_mag_to_fire
-TODO - ability to single load rounds into guns for emergencies
-TODO - add armour
-TODO - armour weight changes dexterity and walk speed
+new weapon property - needs_mag_to_fire
+ability to single load rounds into guns for emergencies
+add armour
+armour weight changes dexterity and walk speed
 
 Extended Goals
 -calling input handlers from consumable and more generally actually using the consumable class properly

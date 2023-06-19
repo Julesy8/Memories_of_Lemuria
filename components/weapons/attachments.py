@@ -584,8 +584,6 @@ suppressor_obsidian_9 = Item(
 Accessories
 """
 
-# TODO - ability to select multiple accessory adapters
-
 thread_adapter_m14_5824 = Item(
     x=0, y=0,
     char="!",
