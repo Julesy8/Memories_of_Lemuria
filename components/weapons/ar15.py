@@ -3,7 +3,7 @@ from components.consumables import GunMagFed, GunComponent
 from components.gunparts import Parts
 import colour
 
-# TODO add belt fed upper, 7.62x39 parts, 9mm/45 acp parts, P90 mag conversion thing
+# add belt fed upper, 7.62x39 parts, 9mm/45 acp parts, P90 mag conversion thing
 
 """
 Lower Receivers
@@ -13,7 +13,7 @@ lower_ar15 = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    name="AR Lower Receiver",
+    name="AR-15 Lower Receiver",
     weight=0.28,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Lower Receiver',
@@ -21,7 +21,7 @@ lower_ar15 = Item(
                                                                            'M16A4 Upper Receiver']},
                                    functional_part=True,
                                    ),
-    description='A standard AR-15 type lower receiver capable of automatic fire'
+    description='A standard AR-15 type semi-automatic lower receiver'
 )
 
 lower_ar10 = Item(
@@ -41,6 +41,42 @@ lower_ar10 = Item(
                                                'for larger cartridges such as the 7.62x51mm NATO.',
                                    ),
     description='AR-10 receiver designed for rifle calibre AR rifles'
+)
+
+lower_ar15_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR-15 Select Fire Lower Receiver",
+    weight=0.28,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Lower Receiver',
+                                   compatible_parts={'AR Upper Receiver': ['M16A2 Upper Receiver',
+                                                                           'M16A4 Upper Receiver']},
+                                   fire_modes={'automatic': {'fire rate': 700, 'automatic': True}},
+                                   functional_part=True,
+                                   ),
+    description='An AR-15 type lower receiver with select fire capability'
+)
+
+lower_ar10_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AR-10 Lower Receiver",
+    weight=0.3,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AR Lower Receiver',
+                                   compatible_parts={'AR Upper Receiver': ['AR10 Upper Receiver', ]},
+                                   fire_modes={'automatic': {'fire rate': 700, 'automatic': True}},
+                                   functional_part=True,
+                                   description='Developed in the 1950s by Eugene Stoner, the AR-10 was designed as a '
+                                               'selective-fire rifle for military use and later gained popularity in '
+                                               'the civilian market. Unlike the AR-15, which is chambered for smaller '
+                                               'cartridges like the .223 Remington, the AR-10 is typically chambered '
+                                               'for larger cartridges such as the 7.62x51mm NATO.',
+                                   ),
+    description='AR-10 receiver designed for rifle calibre AR rifles with select fire capability'
 )
 
 """
@@ -1426,7 +1462,7 @@ ar15_muzzle_flashhider = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 1/2x28',),
                                    muzzle_break_efficiency=0.11,
-                                   spread_modifier=1.01,
+                                   spread_modifier=1.03,
                                    ),
     description="Flash hider designed for AR15 type 5.56x45 rifles"
 )
@@ -1488,7 +1524,7 @@ ar15_300_muzzle_flashhider = Item(
     usable_properties=GunComponent(part_type='Muzzle Device',
                                    attachment_point_required=('Barrel Thread 5/8x24',),
                                    muzzle_break_efficiency=0.11,
-                                   sound_radius=1.09,
+                                   sound_radius=1.03,
                                    ),
     description="Flash hider designed for AR15/AR10 type rifles designed by Diamondback Firearms"
 )
@@ -1615,10 +1651,8 @@ ar15 = Item(
         loaded_magazine=None,
         ap_to_equip=80,
         current_fire_mode='single shot',
-        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},  # TODO - not all recievers should be fully
-                    # auto, this should be a more rare feature
-                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False},
-                    'automatic': {'fire rate': 700, 'automatic': True}},
+        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
+                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}},
         parts=Parts(),
         compatible_bullet_type='5.56x45',
         velocity_modifier=1.0,

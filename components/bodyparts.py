@@ -150,7 +150,7 @@ class Bodypart:
         # TODO - add proper death screen with score etc
 
         # drops random item from list and held item
-        if len(self.parent.ai.item_drops.keys()) > 0:
+        if len(self.parent.fighter.item_drops.keys()) > 0:
             drops = list(self.parent.fighter.item_drops.keys())
             drop_weight = list(self.parent.fighter.item_drops.values())
 
@@ -181,8 +181,8 @@ class Bodypart:
             self.parent.inventory.held = None
 
         if self.parent.name not in self.engine.bestiary.keys():
-            if not self.parent.ai.description == '':
-                self.engine.bestiary[self.parent.name] = self.parent.ai.description
+            if not self.parent.fighter.description == '':
+                self.engine.bestiary[self.parent.name] = self.parent.fighter.description
 
         self.parent.ai = None
         self.parent.name = f"{self.parent.name} remains"

@@ -46,8 +46,8 @@ class Fighter(BaseComponent):
 
         self.target_actor = None
 
-        # TODO - should be previously targeted limb
         self.previous_target_actor = None
+        self.previously_targeted_part = None
 
         self.max_ap = ap
         self._ap = ap

@@ -15,7 +15,8 @@ from exceptions import Impossible
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
-    from components.consumables import Gun, GunMagFed, Magazine, Bullet, GunIntegratedMag, Weapon, MeleeWeapon
+    from components.consumables import Gun, GunMagFed, Magazine, Bullet, GunIntegratedMag, Weapon, MeleeWeapon, \
+        DetachableMagazine
     from components.bodyparts import Bodypart
 
 
@@ -352,8 +353,12 @@ class GunAttackAction(WeaponAttackAction):
                    weight_handling_modifier
 
         # if previous actor is different from the current target, adds cost of acquiring new target
-        if self.entity.fighter.previous_target_actor == self.entity.fighter.target_actor:
+        if self.entity.fighter.previous_target_actor != self.targeted_actor:
             ap_cost += self.target_acquisition_ap * self.proficiency * weight_handling_modifier
+
+        # if previously targeted limb is different from currently targeted limb, adds cost of changing target
+        elif self.entity.fighter.previously_targeted_part != self.targeted_bodypart:
+            ap_cost += 0.5 * self.target_acquisition_ap * self.proficiency * weight_handling_modifier
 
         # adds AP cost of manually cycling action e.g. for bolt action
         if self.weapon.manual_action:
@@ -398,6 +403,9 @@ class GunAttackAction(WeaponAttackAction):
         elif not self.queued:
             self.entity.fighter.ap -= ap_cost
             self.queue_attack()
+
+        self.entity.fighter.previously_targeted_part = self.targeted_bodypart
+        self.entity.fighter.previous_target_actor = self.targeted_actor
 
 class GunMagFedAttack(GunAttackAction):
     def __init__(self, distance: int, gun: GunMagFed, entity: Actor, targeted_actor: Actor,
@@ -497,7 +505,7 @@ class ClearJam(Action):
 
 
 class ReloadMagFed(Action):
-    def __init__(self, entity: Actor, gun: GunMagFed, magazine_to_load: Magazine):
+    def __init__(self, entity: Actor, gun: GunMagFed, magazine_to_load: DetachableMagazine):
         super().__init__(entity)
         self.gun = gun
         self.magazine_to_load = magazine_to_load
@@ -512,7 +520,6 @@ class ReloadMagFed(Action):
 
         proficiency = 1.0
 
-        # TODO - proficiencies for non-player characters eventually
         if self.entity.player:
             if self.gun.gun_type == 'pistol':
                 proficiency = copy(self.entity.fighter.skill_pistol_proficiency)

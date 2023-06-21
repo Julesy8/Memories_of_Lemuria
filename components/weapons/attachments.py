@@ -523,6 +523,8 @@ grip_hipoint_folding = Item(
 Suppressor
 """
 
+# .578x28
+
 suppressor_obsidian_45 = Item(
     x=0, y=0,
     char="!",
@@ -540,6 +542,53 @@ suppressor_obsidian_45 = Item(
                                    ),
     description='A modular suppressor compatible with .578x28 barrel threading'
 )
+
+muzzle_nullifier= Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Nullifier Muzzle Brake 0.578x28",
+    weight=0.081,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread .578x28',),
+                                   muzzle_break_efficiency=0.28,
+                                   sound_radius=1.1,
+                                   ),
+    description="A compensator/muzzle brake for 0.578x28 threaded barrels"
+)
+
+muzzle_kak_45= Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="KAK Compensator 0.578x28",
+    weight=0.084,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread .578x28',),
+                                   muzzle_break_efficiency=0.23,
+                                   sound_radius=1.05,
+                                   ),
+    description="A compensator for 0.578x28 threaded barrels manufactured by KAK industries"
+)
+
+muzzle_kak_a2= Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="KAK Flash Hider 0.578x28",
+    weight=0.084,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread .578x28',),
+                                   muzzle_break_efficiency=0.11,
+                                   sound_radius=1.03,
+                                   ),
+    description="A A2 style birdcage flash hider for 0.578x28 threaded barrels manufactured by KAK industries"
+)
+
+# 1/2x28
 
 suppressor_wolfman_9mm = Item(
     x=0, y=0,
@@ -577,8 +626,25 @@ suppressor_obsidian_9 = Item(
     description='A modular suppressor compatible with 1/2x28 barrel threading'
 )
 
+# 9/16x24
 
-# TODO - 10mm/40sw suppressors
+suppressor_octane45 = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Octane 45 2.0 Suppressor",
+    weight=0.34,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   muzzle_break_efficiency=0.35,
+                                   target_acquisition_ap=1.07,
+                                   fire_rate_modifier=1.08,
+                                   sound_radius=0.25,
+                                   attachment_point_required=('Barrel Thread 9/16x24',),
+                                   is_suppressor=True,
+                                   ),
+    description='A suppressor compatible with 9/16x24 barrel threading'
+)
 
 """
 Accessories
@@ -592,6 +658,7 @@ thread_adapter_m14_5824 = Item(
     weight=0.071,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Adapter',
+                                   additional_required_parts=('Muzzle Device',),
                                    converts_attachment_points={'Barrel Thread .595"x32 tpi': "Barrel Thread 5/8x24"},
                                    attachment_point_required=('Barrel Thread .595"x32 tpi',),
                                    ),
@@ -606,6 +673,7 @@ thread_adapter_sks = Item(
     weight=0.055,
     stacking=None,
     usable_properties=GunComponent(part_type='Thread Adapter',
+                                   additional_required_parts=('Muzzle Device',),
                                    converts_attachment_points={'SKS Muzzle': 'Barrel Thread 14x1'},
                                    attachment_point_required=('SKS Muzzle',),
                                    ),
@@ -620,6 +688,7 @@ thread_adapter_mosin = Item(
     weight=0.175,
     stacking=None,
     usable_properties=GunComponent(part_type='Thread Adapter',
+                                   additional_required_parts=('Muzzle Device',),
                                    converts_attachment_points={'Mosin-Nagant Barrel': 'Barrel Thread 5/8x24'},
                                    attachment_point_required=('Mosin-Nagant Barrel',),
                                    ),
@@ -634,6 +703,7 @@ thread_adapter_141_24mm = Item(
     weight=0.04,
     stacking=None,
     usable_properties=GunComponent(part_type='Thread Adapter',
+                                   additional_required_parts=('Muzzle Device',),
                                    converts_attachment_points={'Barrel Thread 14x1': 'Barrel Thread 24x1.5'},
                                    attachment_point_required=('Barrel Thread 14x1',),
                                    ),
@@ -648,6 +718,7 @@ thread_adapter_2415_5824 = Item(
     weight=0.045,
     stacking=None,
     usable_properties=GunComponent(part_type='Thread Adapter',
+                                   additional_required_parts=('Muzzle Device',),
                                    converts_attachment_points={'Barrel Thread 24x1.5': 'Barrel Thread 1/2x28'},
                                    attachment_point_required=('Barrel Thread 24x1.5',),
                                    ),

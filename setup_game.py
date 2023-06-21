@@ -285,7 +285,7 @@ def new_game() -> Engine:
 
     engine.update_fov()
 
-    # todo - new start game message
+    # TODO - new start game message
     # engine.message_log.add_message(
     #     "You lose your footing and fall deep into the caverns below... You can't see any way to get back to the surface"
     #     , colour.LIGHT_MAGENTA

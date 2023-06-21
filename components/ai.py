@@ -84,7 +84,8 @@ class HostileEnemy(BaseAI):
         if self.entity.fighter.previous_target_actor is not None:
             if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
             self.entity.fighter.previous_target_actor.y]:
-                self.entity.previous_target_actor = None
+                self.engine.player.fighter.previous_target_actor = None
+                self.engine.player.fighter.previously_targeted_part = None
 
         while fighter.ap > 0:
             # skips turn if both attack and move actions inactive for this turn
@@ -222,7 +223,8 @@ class HostileAnimal(HostileEnemy):
         if self.entity.fighter.previous_target_actor is not None:
             if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
             self.entity.fighter.previous_target_actor.y]:
-                self.entity.previous_target_actor = None
+                self.engine.player.fighter.previous_target_actor = None
+                self.engine.player.fighter.previously_targeted_part = None
 
         while fighter.ap > 0:
 
@@ -318,7 +320,8 @@ class HostileEnemyArmed(BaseAI):
         if self.entity.fighter.previous_target_actor is not None:
             if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
             self.entity.fighter.previous_target_actor.y]:
-                self.entity.previous_target_actor = None
+                self.engine.player.fighter.previous_target_actor = None
+                self.engine.player.fighter.previously_targeted_part = None
 
         while fighter.ap > 0:
             # skips turn if both attack and move actions inactive for this turn

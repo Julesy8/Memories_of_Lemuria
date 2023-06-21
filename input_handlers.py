@@ -16,7 +16,8 @@ from actions import (
     PickupAction,
     WaitAction,
     ReloadMagFed,
-    LoadBulletsIntoMagazine
+    LoadBulletsIntoMagazine,
+    GunAttackAction
 )
 
 import colour
@@ -24,7 +25,7 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
-    from components.consumables import Magazine, Bullet, Gun, GunMagFed, GunIntegratedMag
+    from components.consumables import Magazine, Bullet, Gun, GunMagFed, GunIntegratedMag, Clip, DetachableMagazine
     from components.bodyparts import Bodypart
 
 MOVE_KEYS = {
@@ -150,7 +151,12 @@ class EventHandler(BaseEventHandler):
             if self.engine.player.fighter.previous_target_actor is not None:
                 if not self.engine.game_map.visible[self.engine.player.fighter.previous_target_actor.x,
                 self.engine.player.fighter.previous_target_actor.y]:
-                    self.engine.player.previous_target_actor = None
+                    self.engine.player.fighter.previous_target_actor = None
+                    self.engine.player.fighter.previously_targeted_part = None
+
+                elif not isinstance(action_or_state, GunAttackAction) or not isinstance(action_or_state, BumpAction):
+                    self.engine.player.fighter.previous_target_actor = None
+                    self.engine.player.fighter.previously_targeted_part = None
 
             return MainGameEventHandler(self.engine)  # Return to the main handler.
         return self
@@ -881,7 +887,7 @@ class ChangeTargetActor(AskUserEventHandler):
         closest_distance = 1000
         closest_actor = None
 
-        self.targets = []
+        self.targets: list[Actor] = []
 
         for actor in set(self.engine.game_map.actors) - {player}:
             if self.engine.game_map.visible[actor.x, actor.y]:
@@ -911,7 +917,7 @@ class ChangeTargetActor(AskUserEventHandler):
             self.update_bodypart_list()
 
             # sets targets index in target list
-            self.target_index = self.targets.index(player.fighter.target_actor)
+            self.target_index: int = self.targets.index(player.fighter.target_actor)
 
             self.update_part_str_colour()
 
@@ -961,13 +967,10 @@ class ChangeTargetActor(AskUserEventHandler):
         player = self.engine.player
         key = event.sym
 
-        # TODO - additional AP cost for changing target limb
-
         if key == tcod.event.K_SPACE:  # change target
 
             try:
-                player.fighter.target_actor = self.targets[self.target_index + 1]  # TODO - this is where target
-                # actor becomes a list somehow according to the IDE, want to fix
+                player.fighter.target_actor = self.targets[self.target_index + 1]
                 self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index += 1
@@ -1218,7 +1221,7 @@ class QuitEventHandler(AskUserEventHandler):
 
 class MagazineOptionsHandler(UserOptionsEventHandler):
 
-    def __init__(self, engine: Engine, magazine: Magazine):
+    def __init__(self, engine: Engine, magazine: Union[DetachableMagazine, Clip]):
 
         self.magazine = magazine
 
@@ -1382,8 +1385,31 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
         super().__init__(engine=engine, options=mag_list, page=0, title=title)
 
-    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
-        ReloadMagFed(entity=self.engine.player, gun=self.gun, magazine_to_load=item.usable_properties).perform()
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if key == tcod.event.K_DOWN:
+            if len(self.options) > (self.page + 1) * self.max_list_length:
+                self.page += 1
+                return self
+
+        if key == tcod.event.K_UP:
+            if self.page > 0:
+                self.page -= 1
+                return self
+
+        if 0 <= index <= self.max_list_length - 1:
+            try:
+                selected_item = self.options[index + (self.page * self.max_list_length)]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                return None
+            return self.ev_on_option_selected(selected_item.usable_properties)
+        return super().ev_keydown(event)
+
+    def ev_on_option_selected(self, item: DetachableMagazine) -> Optional[ActionOrHandler]:
+        ReloadMagFed(entity=self.engine.player, gun=self.gun, magazine_to_load=item).perform()
         return MainGameEventHandler(engine=self.engine)
 
 
@@ -1400,8 +1426,8 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
             engine.player.inventory.large_magazines
 
         for item in loadout:
-            if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_magazine_type'):
-                if item.usable_properties.magazine_type == self.gun.compatible_magazine_type:
+            if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_clip'):
+                if item.usable_properties.magazine_type == self.gun.compatible_clip:
                     mag_list.append(item)
 
         super().__init__(engine=engine, options=mag_list, page=0, title=title)
@@ -1429,16 +1455,9 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
             return self.ev_on_option_selected(selected_item.usable_properties)
         return super().ev_keydown(event)
 
-    def ev_on_option_selected(self, item: Magazine) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, item: Clip) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        # gun is mag fed
-        if hasattr(self.gun, 'loaded_magazine'):
-            self.gun.load_from_clip(clip=item)
-
-        # gun has integrated magazine
-        else:
-            self.gun.load_from_clip(clip=item)
-
+        self.gun.load_from_clip(clip=item)
         return MainGameEventHandler(engine=self.engine)
 
 
@@ -1687,7 +1706,7 @@ class LoadoutEventHandler(UserOptionsWithPages):
             return self.ev_on_option_selected(selected_item.usable_properties)
         return super().ev_keydown(event)
 
-    def ev_on_option_selected(self, item: Magazine):
+    def ev_on_option_selected(self, item: Union[Clip, DetachableMagazine]):
 
         if hasattr(item, 'mag_capacity'):
             return MagazineOptionsHandler(engine=self.engine, magazine=item)

@@ -336,25 +336,11 @@ class Bullet(Usable):
 class Magazine(Usable):
 
     def __init__(self,
-                 magazine_type: str,  # type of weapon this magazine works with i.e. glock 9mm
                  compatible_bullet_type: list,  # compatible bullet i.e. 9mm
                  mag_capacity: int,
-                 magazine_size: str,  # small, medium or large
-                 ap_to_load: int,  # ap it takes to load magazine into gun
-                 failure_chance: int = 0,  # % chance to cause a jam
-                 target_acquisition_ap_mod: float = 1.0,
-                 ap_distance_cost_mod: float = 1.0,
-                 equip_ap_mod: float = 1.0,
                  ):
-        self.magazine_type = magazine_type
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
-        self.magazine_size = magazine_size
-        self.ap_to_load = ap_to_load
-        self.failure_chance = failure_chance
-        self.target_acquisition_ap_mod = target_acquisition_ap_mod
-        self.ap_distance_cost_mod = ap_distance_cost_mod
-        self.equip_ap_mod = equip_ap_mod
         self.magazine: list[Bullet] = []
 
     def activate(self, action: actions.ItemAction):
@@ -411,6 +397,43 @@ class Magazine(Usable):
             else:
                 return self.engine.message_log.add_message(f"{entity.name} is already empty", colour.RED)
 
+class DetachableMagazine(Magazine):
+    def __init__(self,
+                 magazine_type: str,  # type of weapon this magazine works with i.e. glock 9mm
+                 compatible_bullet_type: list,  # compatible bullet i.e. 9mm
+                 mag_capacity: int,
+                 magazine_size: str,  # small, medium or large
+                 ap_to_load: int,  # ap it takes to load magazine into gun
+                 failure_chance: int = 0,  # % chance to cause a jam
+                 target_acquisition_ap_mod: float = 1.0,
+                 ap_distance_cost_mod: float = 1.0,
+                 equip_ap_mod: float = 1.0,
+                 ):
+
+        super().__init__(compatible_bullet_type=compatible_bullet_type, mag_capacity=mag_capacity)
+
+        self.magazine_type = magazine_type
+        self.magazine_size = magazine_size
+        self.ap_to_load = ap_to_load
+        self.failure_chance = failure_chance
+        self.target_acquisition_ap_mod = target_acquisition_ap_mod
+        self.ap_distance_cost_mod = ap_distance_cost_mod
+        self.equip_ap_mod = equip_ap_mod
+
+class Clip(Magazine):
+    def __init__(self,
+                 magazine_type: str,
+                 compatible_bullet_type: list,
+                 mag_capacity: int,
+                 magazine_size: str,
+                 ap_to_load: int,
+                 ):
+
+        super().__init__(compatible_bullet_type=compatible_bullet_type, mag_capacity=mag_capacity)
+
+        self.magazine_type = magazine_type
+        self.magazine_size = magazine_size
+        self.ap_to_load = ap_to_load
 
 class Gun(Weapon):
     def __init__(self,
@@ -568,7 +591,7 @@ class Gun(Weapon):
 
                     if isinstance(self, GunMagFed):
                         if self.loaded_magazine:
-                            if isinstance(self.loaded_magazine, Magazine):
+                            if isinstance(self.loaded_magazine, DetachableMagazine):
                                 mag_fail_chance = self.loaded_magazine.failure_chance
 
                     if choices(population=(True, False), weights=(round(25 - ((self.condition_function / 5) * 25) +
@@ -756,8 +779,8 @@ class Gun(Weapon):
                     self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
                                                         colour.WHITE)
 
-    # todo - the handling of adding rounds to magazine should be handled by magazine class,
-    def load_from_clip(self, clip: Magazine):
+    # TODO - should be handled in actions
+    def load_from_clip(self, clip: Clip):
 
         entity = self.parent
         inventory = entity.parent
@@ -781,7 +804,7 @@ class Gun(Weapon):
                 clip.magazine = []
                 self.chambered_bullet = magazine.magazine.pop()
 
-                # Todo - handle non player loading from clips
+                # TODO - handle non player loading from clips
                 if inventory.parent == self.engine.player:
 
                     reload_ap = \
@@ -904,7 +927,7 @@ class GunMagFed(Gun):
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Bullet] = None,
-                 loaded_magazine: Optional[Magazine] = None,
+                 loaded_magazine: Optional[DetachableMagazine] = None,
                  compatible_clip: str = None,
                  has_stock: bool = False,
                  pdw_stock: bool = False,
@@ -950,7 +973,7 @@ class GunMagFed(Gun):
             pdw_stock=pdw_stock
         )
 
-    def load_gun(self, magazine: Magazine):
+    def load_gun(self, magazine: DetachableMagazine):
 
         entity = self.parent
         inventory = entity.parent
@@ -1028,6 +1051,9 @@ class GunMagFed(Gun):
                     inventory.primary_weapon = None
                 elif inventory.secondary_weapon == entity:
                     inventory.secondary_weapon = None
+
+    def get_magazine_loading_options(self):
+        pass
 
     def chamber_round(self):
 
@@ -1138,7 +1164,6 @@ class GunIntegratedMag(Gun, Magazine):
 
         if not self.keep_round_chambered and self.chambered_bullet is not None:
             if isinstance(inventory, components.inventory.Inventory):
-                # TODO - add to inventory action should take inventory as an argument, not entity
                 actions.AddToInventory(item=self.chambered_bullet.parent, amount=1, entity=inventory.parent)
 
                 if inventory.parent.player:

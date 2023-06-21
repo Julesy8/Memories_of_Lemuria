@@ -61,6 +61,7 @@ recoil reduction
     stock - 45%
     handguard - 15%
     pistol grip - 10%
+    additional 5-10% for rifle stocks with integrated pistol grip
 
 ap distance cost modifier
     stock - 0.7

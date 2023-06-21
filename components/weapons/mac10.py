@@ -412,8 +412,7 @@ mac1045_max_barrel = Item(
     weight=0.13,
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Barrel',
-                                   is_attachment_point_types=['Barrel Thread .578x28', ],  # TODO - add more
-                                   # attachments compatible with this barrel thread
+                                   is_attachment_point_types=['Barrel Thread .578x28', ],
                                    barrel_length=9,
                                    velocity_modifier=1.093,
                                    target_acquisition_ap=1.04,

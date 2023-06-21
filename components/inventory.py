@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Union
 from copy import deepcopy
 from colour import RED
 
 from components.npc_templates import BaseComponent
 
 if TYPE_CHECKING:
-    from components.consumables import Magazine
+    from components.consumables import DetachableMagazine, Clip
     from entity import Actor, Item
 
 
@@ -93,7 +93,7 @@ class Inventory(BaseComponent):
 
         return current_weight
 
-    def add_to_magazines(self, magazine: Magazine):
+    def add_to_magazines(self, magazine: Union[Clip, DetachableMagazine]):
 
         if magazine.magazine_size == 'small':
             if magazine not in self.small_magazines:
@@ -110,7 +110,7 @@ class Inventory(BaseComponent):
                 if len(self.large_magazines) < self.large_mag_capacity:
                     self.large_magazines.append(magazine.parent)
 
-    def remove_from_magazines(self, magazine: Magazine):
+    def remove_from_magazines(self, magazine: Union[Clip, DetachableMagazine]):
 
         if magazine in self.small_magazines:
             self.small_magazines.remove(magazine.parent)

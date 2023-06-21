@@ -530,7 +530,7 @@ m1911_barrel_gov_threaded_10mm = Item(
     weight=0.163,
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
-                                   is_attachment_point_types=['Barrel Thread 9/16x24', ],  # TODO - add attachments for this
+                                   is_attachment_point_types=['Barrel Thread 9/16x24', ],
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Government Length Slide']},
                                    tags=['10mm Government Length Barrel', ],
@@ -1865,7 +1865,7 @@ m1911 = Item(
         sight_height_above_bore=0.067,
         sound_modifier=1.0,
         zero_range=25,
-        target_acquisition_ap=30,  # TODO - maybe increase this, atleast as a modifier for enemies
+        target_acquisition_ap=30,  # TODO - maybe increase as a modifier for enemies
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         spread_modifier=0.055,

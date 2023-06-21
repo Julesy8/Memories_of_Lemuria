@@ -1,8 +1,6 @@
 from numpy import array
 from components.enemies.caverns import *
 from components.commonitems import medkit
-# from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide, glock_switch
-from components.weapons.bullets import round_9mm_124_fmj
 from components.weapons.magazines import glock_mag_9mm
 
 # this dictionary has the parameters for all the levels in the game

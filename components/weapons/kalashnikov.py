@@ -29,7 +29,7 @@ reciever_akm = Item(
                                    is_optic=True,
                                    functional_part=True,
                                    ),
-    description='AKM stamped kalashnikov type reciever'
+    description='Semi-automatic AKM stamped kalashnikov type reciever'
 )
 
 reciever_ak74 = Item(
@@ -58,14 +58,14 @@ reciever_ak74 = Item(
                                                "5.45x39mm cartridge, which is lighter and faster than the AK-47's "
                                                "7.62x39mm cartridge.",
                                    ),
-    description='AK-74 stamped kalashnikov type reciever'
+    description='Semi-automatic AK-74 stamped kalashnikov type reciever'
 )
 
 reciever_100556 = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
-    name="AK 100 series 5.56 Reciever",
+    name="AK 101/102 5.56 Reciever",
     weight=2.11,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Reciever',
@@ -87,7 +87,93 @@ reciever_100556 = Item(
                                                "cartridge and have a modular design, allowing for easy customization "
                                                "and maintenance."
                                    ),
-    description='AK 101/102 series reciever for 5.56x45 AK rifles'
+    description='Semi-automatic AK 101/102 series reciever for 5.56x45 AK rifles'
+)
+
+reciever_akm_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AKM Select Fire Reciever",
+    weight=2.34,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AK Reciever',
+                                   incompatibilities=(("Iron Sight",),),
+                                   is_attachment_point_types=['AK Side Mount', ],
+                                   fire_modes={'automatic': {'fire rate': 600, 'automatic': True}},
+                                   compatible_magazine_type='AK 7.62x39',
+                                   compatible_bullet_type='7.62x39',
+                                   compatible_parts={'AK Barrel': ['AK Barrel - 7.62x39', 'RPK Barrel - 7.62x39',
+                                                                   'AK Carbine Barrel - 7.62x39',
+                                                                   'AK Pistol Barrel - 7.62x39']},
+                                   optic_properties={'target_acquisition_ap': 0.95,
+                                                     'ap_distance_cost_modifier': 1.04,
+                                                     'spread_modifier': 1.02, },
+                                   suffix='47',
+                                   is_optic=True,
+                                   functional_part=True,
+                                   ),
+    description='AKM stamped kalashnikov type reciever capable of fully-automatic fire'
+)
+
+reciever_ak74_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AK-74 Select Fire Reciever",
+    weight=2.11,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AK Reciever',
+                                   incompatibilities=(("Iron Sight",),),
+                                   is_attachment_point_types=['AK Side Mount', ],
+                                   fire_modes={'automatic': {'fire rate': 600, 'automatic': True}},
+                                   compatible_magazine_type='AK 5.45x39',
+                                   compatible_bullet_type='5.45x39',
+                                   suffix='74',
+                                   compatible_parts={'AK Barrel': ['AK Barrel - 5.45x39', 'RPK-74 Barrel - 5.45x39',
+                                                                   'AK Carbine Barrel - 5.45x39',
+                                                                   'AK Pistol Barrel - 5.45x39']},
+                                   optic_properties={'target_acquisition_ap': 0.95,
+                                                     'ap_distance_cost_modifier': 1.04,
+                                                     'spread_modifier': 1.02, },
+                                   is_optic=True,
+                                   functional_part=True,
+                                   description="The AK-74 is an assault rifle developed by Mikhail Kalashnikov in the "
+                                               "1970s as the successor to the AK-47. It is the is chambered for the "
+                                               "5.45x39mm cartridge, which is lighter and faster than the AK-47's "
+                                               "7.62x39mm cartridge.",
+                                   ),
+    description='AK-74 stamped kalashnikov type reciever capable of fully-automatic fire'
+)
+
+reciever_100556_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="AK 101/102 5.56 Select Fire Reciever",
+    weight=2.11,
+    stacking=None,
+    usable_properties=GunComponent(part_type='AK Reciever',
+                                   incompatibilities=(("Iron Sight",),),
+                                   is_attachment_point_types=['AK Side Mount', ],
+                                   fire_modes={'automatic': {'fire rate': 600, 'automatic': True}},
+                                   compatible_magazine_type='AK 5.56x45',
+                                   compatible_bullet_type='5.56x45',
+                                   compatible_parts={'AK Barrel': ['AK Barrel - 5.56x45',
+                                                                   'AK Carbine Barrel - 5.56x45',
+                                                                   'AK Pistol Barrel - 5.56x45']},
+                                   optic_properties={'target_acquisition_ap': 0.95,
+                                                     'ap_distance_cost_modifier': 1.04,
+                                                     'spread_modifier': 1.02, },
+                                   is_optic=True,
+                                   functional_part=True,
+                                   description="The AK-101 and AK-102 rifles are modern versions of the AK-47, "
+                                               "designed by Russian firearms manufacturer Kalashnikov Concern. "
+                                               "Introduced in the 1990s, these rifles use the NATO standard 5.56x45mm "
+                                               "cartridge and have a modular design, allowing for easy customization "
+                                               "and maintenance."
+                                   ),
+    description='AK 101/102 series reciever for 5.56x45 AK rifles capable of fully-automatic fire'
 )
 
 """
@@ -1049,8 +1135,7 @@ ak = Item(
         loaded_magazine=None,
         ap_to_equip=80,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
-                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False},
-                    'automatic': {'fire rate': 600, 'automatic': True}},
+                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}},
         current_fire_mode='single shot',
         parts=Parts(),
         compatible_bullet_type='7.62x39',
