@@ -60,7 +60,6 @@ class HostileEnemy(BaseAI):
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        self.entity.fighter.target_actor = self.engine.player
         target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
@@ -82,7 +81,7 @@ class HostileEnemy(BaseAI):
 
         # checks if previous target actor is still visible, if not resets to None
         if self.entity.fighter.previous_target_actor is not None:
-            if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
+            if not target.fighter.visible_tiles[self.entity.fighter.previous_target_actor.x,
             self.entity.fighter.previous_target_actor.y]:
                 self.engine.player.fighter.previous_target_actor = None
                 self.engine.player.fighter.previously_targeted_part = None
@@ -95,7 +94,7 @@ class HostileEnemy(BaseAI):
             # perform attack action
             if fighter.ap > 0 >= self.entity.fighter.turns_attack_inactive and distance <= attack_range \
                     and self.entity.fighter.fleeing_turns <= 0 and \
-                    self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                    target.fighter.visible_tiles[self.entity.x, self.entity.y]:
 
                 if attack_range == 1:
                     UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
@@ -122,7 +121,8 @@ class HostileEnemy(BaseAI):
                     self.entity.fighter.fleeing_turns -= 1
 
                 # entity not fleeing and can see target, sets path to them
-                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fighter.fleeing_turns == 0:
+                elif target.fighter.visible_tiles[self.entity.x, self.entity.y] and \
+                        self.entity.fighter.fleeing_turns == 0:
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
@@ -149,7 +149,7 @@ class HostileEnemy(BaseAI):
             if isinstance(self.queued_action, AttackAction):
 
                 # target still visible
-                if self.engine.game_map.visible[target.x, target.y]:
+                if target.fighter.visible_tiles[self.entity.x, self.entity.y]:
 
                     # updates distance
                     self.queued_action.distance = distance
@@ -187,7 +187,6 @@ class HostileAnimal(HostileEnemy):
         self.attacking_target = False
 
     def perform(self) -> None:
-        self.entity.fighter.target_actor = self.engine.player
         target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
@@ -221,7 +220,7 @@ class HostileAnimal(HostileEnemy):
 
         # checks if previous target actor is still visible, if not resets to None
         if self.entity.fighter.previous_target_actor is not None:
-            if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
+            if not target.fighter.visible_tiles[self.entity.fighter.previous_target_actor.x,
             self.entity.fighter.previous_target_actor.y]:
                 self.engine.player.fighter.previous_target_actor = None
                 self.engine.player.fighter.previously_targeted_part = None
@@ -235,7 +234,7 @@ class HostileAnimal(HostileEnemy):
             # perform attack action
             if fighter.ap > 0 and self.entity.fighter.turns_attack_inactive <= 0 and distance <= attack_range \
                     and self.entity.fighter.fleeing_turns <= 0 and \
-                    self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                    target.fighter.visible_tiles[self.entity.x, self.entity.y]:
 
                 UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
                                     targeted_bodypart=None).attack()
@@ -261,7 +260,8 @@ class HostileAnimal(HostileEnemy):
                     self.entity.fighter.fleeing_turns -= 1
 
                 # entity not fleeing and can see target, sets path to them
-                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fighter.fleeing_turns == 0:
+                elif target.fighter.visible_tiles[self.entity.x, self.entity.y] and \
+                        self.entity.fighter.fleeing_turns == 0:
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
@@ -285,7 +285,6 @@ class HostileEnemyArmed(BaseAI):
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
-        self.entity.fighter.target_actor = self.engine.player
         target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
@@ -318,7 +317,7 @@ class HostileEnemyArmed(BaseAI):
 
         # checks if previous target actor is still visible, if not resets to None
         if self.entity.fighter.previous_target_actor is not None:
-            if not self.engine.game_map.visible[self.entity.fighter.previous_target_actor.x,
+            if not target.fighter.visible_tiles[self.entity.fighter.previous_target_actor.x,
             self.entity.fighter.previous_target_actor.y]:
                 self.engine.player.fighter.previous_target_actor = None
                 self.engine.player.fighter.previously_targeted_part = None
@@ -331,7 +330,7 @@ class HostileEnemyArmed(BaseAI):
             # perform attack action
             if fighter.ap > 0 and self.entity.fighter.turns_attack_inactive <= 0 and distance <= attack_range \
                     and self.entity.fighter.fleeing_turns <= 0 and \
-                    self.engine.game_map.visible[self.entity.x, self.entity.y] and self.queued_action is None:
+                    target.fighter.visible_tiles[self.entity.x, self.entity.y] and self.queued_action is None:
 
                 if attack_range == 1:
 
@@ -353,7 +352,7 @@ class HostileEnemyArmed(BaseAI):
 
                         # reload weapon
                         if held_item.usable_properties.chambered_bullet is None:
-                            ReloadMagFed(entity=self.entity, gun=held_item,
+                            ReloadMagFed(entity=self.entity, gun=held_item.usable_properties,
                                          magazine_to_load=held_item.usable_properties.previously_loaded_magazine). \
                                 perform()
 
@@ -381,7 +380,7 @@ class HostileEnemyArmed(BaseAI):
                                                                           targeted_actor=target, targeted_bodypart=None)
 
             # reload if magazine below half capacity and player not visible, reloads
-            elif not self.engine.game_map.visible[self.entity.x, self.entity.y] and has_weapon and reload_check:
+            elif not target.fighter.visible_tiles[self.entity.x, self.entity.y] and has_weapon and reload_check:
 
                 reload_check = False
 
@@ -435,7 +434,8 @@ class HostileEnemyArmed(BaseAI):
                     self.entity.fighter.fleeing_turns -= 1
 
                 # entity not fleeing and can see target, sets path to them
-                elif self.engine.game_map.visible[target.x, target.y] and self.entity.fighter.fleeing_turns == 0:
+                elif target.fighter.visible_tiles[self.entity.x, self.entity.y] and \
+                        self.entity.fighter.fleeing_turns == 0:
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
@@ -463,7 +463,7 @@ class HostileEnemyArmed(BaseAI):
             if isinstance(self.queued_action, AttackAction):
 
                 # target still visible
-                if self.engine.game_map.visible[target.x, target.y]:
+                if target.fighter.visible_tiles[self.entity.x, self.entity.y]:
 
                     # updates distance
                     self.queued_action.distance = distance
@@ -511,7 +511,7 @@ class HostileEnemyArmed(BaseAI):
             if isinstance(self.queued_action, LoadBulletsIntoMagazine) or isinstance(self.queued_action, ReloadMagFed):
 
                 # check if gun still held
-                if not self.queued_action.gun == held_item:
+                if not self.queued_action.gun == held_item.usable_properties:
                     action_viable = False
 
                 if action_viable:

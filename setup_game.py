@@ -206,13 +206,13 @@ def new_game() -> Engine:
     fighter_component = PlayerFighter(unarmed_meat_damage=10, unarmed_armour_damage=5, item_drops={},
                                       spawn_group_amount=1, weapons={})
 
-    Head_part = Head(hp=60, protection_ballistic=0, protection_physical=50, depth=20, width=20, height=26)
-    Body_part = Body(hp=100, protection_ballistic=0, protection_physical=50, depth=20, width=35, height=56)
-    R_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=50, name='right arm', depth=10, width=10, height=78)
-    L_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=50, name='left arm', depth=10, width=10, height=78)
-    R_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=50, name='right leg', depth=12, width=15,
+    Head_part = Head(hp=60, protection_ballistic=10, protection_physical=50, depth=20, width=20, height=26)
+    Body_part = Body(hp=100, protection_ballistic=10, protection_physical=50, depth=20, width=35, height=56)
+    R_Arm = Arm(hp=70, protection_ballistic=10, protection_physical=50, name='right arm', depth=10, width=10, height=78)
+    L_Arm = Arm(hp=70, protection_ballistic=10, protection_physical=50, name='left arm', depth=10, width=10, height=78)
+    R_Leg = Leg(hp=75, protection_ballistic=10, protection_physical=50, name='right leg', depth=12, width=15,
                 height=100)
-    L_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=50, name='left leg', depth=12, width=15, height=100)
+    L_Leg = Leg(hp=75, protection_ballistic=10, protection_physical=50, name='left leg', depth=12, width=15, height=100)
 
     # Head_part = Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26)
     # Body_part = Body(hp=100, protection_ballistic=0, protection_physical=0, depth=20, width=35, height=56)
@@ -224,11 +224,11 @@ def new_game() -> Engine:
 
     body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
-    player = Actor(0,
+    player_1 = Actor(0,
                    0,
                    '@',
                    colour.GREEN,
-                   'Player',
+                   'Player 1',
                    ai=BaseAI,
                    fighter=fighter_component,
                    bodyparts=body_parts,
@@ -236,7 +236,19 @@ def new_game() -> Engine:
                    inventory=Inventory(capacity=15),
                    )
 
-    engine = Engine(player=player)
+    player_2 = Actor(0,
+                   0,
+                   '@',
+                   colour.YELLOW,
+                   'Player 2',
+                   ai=BaseAI,
+                   fighter=deepcopy(fighter_component),
+                   bodyparts=deepcopy(body_parts),
+                   player=True,
+                   inventory=Inventory(capacity=15),
+                   )
+
+    engine = Engine(player=player_1)
 
     # inventory_items = [mac1045,]
 
@@ -266,8 +278,14 @@ def new_game() -> Engine:
 
     for item in inventory_items:
         itemcopy = deepcopy(item)
-        player.inventory.items.append(itemcopy)
-        itemcopy.parent = player.inventory
+        player_1.inventory.items.append(itemcopy)
+        itemcopy.parent = player_1.inventory
+
+        itemcopy = deepcopy(item)
+        player_2.inventory.items.append(itemcopy)
+        itemcopy.parent = player_2.inventory
+
+    engine.players.append(player_2)
 
     engine.game_map = MessyBSPTree(messy_tunnels=level_params[current_level][0],
                                    map_width=level_params[current_level][1],
@@ -338,7 +356,7 @@ def generate_subtext() -> str:
                    'Videogame Adaptation', 'Demonstration', 'Tutorial', 'Simulator', '(DO NOT RESEARCH)', 'LARP',
                    'Shooter', '-Hack Like', 'Documentary', 'Temple', 'Metaphor', 'Parable',
                    'Oracle', 'Thing', 'Infohazard', 'Psyop', 'Manual', 'Vision', 'Project', 'Transcript',
-                   'In Silico', 'Matrix', 'Frequency', 'Glossary', 'Algorithm', 'Host', 'Gateway'))
+                   'In Silico', 'Matrix', 'Frequency', 'Glossary', 'Algorithm', 'Host', 'Gateway', 'Sigil'))
 
     subtext_str = f"{verb_1} {verb_2} {verb_3} {noun}"
     return subtext_str

@@ -242,6 +242,8 @@ class MainGameEventHandler(EventHandler):
             return Bestiary(self.engine)
         elif key == tcod.event.K_z:
             return ViewPlayerStats(self.engine)
+        elif key == tcod.event.K_TAB:
+            return self.engine.switch_player()
         # No valid key was pressed
         return action
 
@@ -890,7 +892,7 @@ class ChangeTargetActor(AskUserEventHandler):
         self.targets: list[Actor] = []
 
         for actor in set(self.engine.game_map.actors) - {player}:
-            if self.engine.game_map.visible[actor.x, actor.y]:
+            if self.engine.player.fighter.visible_tiles[actor.x, actor.y] and actor.player:
                 self.targets.append(actor)
 
                 # checks if previous target is still visible

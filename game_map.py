@@ -86,9 +86,16 @@ class GameMap:
         self.width, self.height = width, height
         self.tiles = np.full((width, height), fill_value=self.wall, order="F")  # fills game map with wall tiles
 
+        self.zeros = np.zeros((width, height), dtype=bool)
+
         self.visible = np.full(
             (width, height), fill_value=False, order="F"
         )  # Tiles the player can currently see
+
+        for player in self.engine.players:
+            player.fighter.visible_tiles = np.full(
+                (width, height), fill_value=False, order="F"
+            )
 
         self.explored = np.full(
             (width, height), fill_value=False, order="F"
@@ -173,7 +180,15 @@ class GameMap:
                 obj_x, obj_y = entity.x - cam_x, entity.y - cam_y
                 # prints entity to console
                 if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
-                    console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
+                    # non-player characters that cannot be seen directly by the player character currently being
+                    # controlled by the player are printed in grey to indicate that they cannot be attacked
+                    if isinstance(entity, Actor) and entity not in self.engine.players:
+                        if self.engine.player.fighter.visible_tiles[entity.x, entity.y]:
+                            console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
+                        else:
+                            console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), colour.LIGHT_GRAY
+                    else:
+                        console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
 
             # entity has been seen before
             elif entity.seen:

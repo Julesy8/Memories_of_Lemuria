@@ -35,6 +35,7 @@ class MessyBSPTree:
         self.max_items_per_room = max_items_per_room
         self.fov_radius = fov_radius
         self.player = engine.player
+        self.engine = engine
         self._rooms = []
         self._leafs = []
 
@@ -64,7 +65,7 @@ class MessyBSPTree:
                                                         )
 
         # change debug_fov to True to disable fov, False to enable
-        self.dungeon = GameMap(engine=engine, width=map_width, height=map_height, entities=[self.player],
+        self.dungeon = GameMap(engine=engine, width=map_width, height=map_height, entities=[] + engine.players,
                                fov_radius=self.fov_radius)
 
     def generate_level(self):
@@ -100,8 +101,14 @@ class MessyBSPTree:
 
         for room in self._rooms:
             if room == self._rooms[player_spawn_room]:
-                room_centre_x, room_centre_y = room.centre()
-                self.player.place(room_centre_x, room_centre_y, self.dungeon)
+                for player in self.engine.players:
+                    player_placed = False
+                    while not player_placed:
+                        x = randint(room.x1 + 1, room.x2 - 1)
+                        y = randint(room.y1 + 1, room.y2 - 1)
+                        if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities):
+                            player.place(x, y, self.dungeon)
+                            player_placed = True
 
             else:
                 self.place_entities(room)

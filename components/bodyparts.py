@@ -125,7 +125,7 @@ class Bodypart:
             self.cripple()
 
             if self.parent.player:
-                self.engine.message_log.add_message(f"Your {self.name} is crippled", fg=colour.RED)
+                self.engine.message_log.add_message(f"{self.parent.name}'s {self.name} is crippled", fg=colour.RED)
 
             else:
                 if show_cripple_message:
@@ -193,7 +193,12 @@ class Bodypart:
 
         # prints death message
         if self.parent.player:
-            return self.engine.message_log.add_message("You died.", colour.LIGHT_MAGENTA)
+            self.engine.players.remove(self.parent)
+            if len(self.engine.players) > 0:
+                self.engine.player = self.engine.players[0]
+            else:
+                return self.engine.message_log.add_message(f"you lost", colour.LIGHT_MAGENTA)
+            return self.engine.message_log.add_message(f"{self.parent.name} is dead!", colour.LIGHT_MAGENTA)
 
     def deal_damage_melee(self, meat_damage: int, armour_damage: int, attacker: Actor):
 
@@ -224,7 +229,7 @@ class Bodypart:
         # hit, no damage dealt
         else:
             if attacker.player:
-                self.engine.message_log.add_message(f"Your attack deals no damage.", colour.YELLOW)
+                self.engine.message_log.add_message(f"{self.parent.name}'s attack deals no damage.", colour.YELLOW)
             else:
                 self.engine.message_log.add_message(f"{attacker.name}'s attack deals no damage.", colour.LIGHT_BLUE)
 
@@ -415,20 +420,20 @@ class Bodypart:
             # hit, no damage dealt
             else:
                 if attacker.player:
-                    self.engine.message_log.add_message(f"Your shot fails to penetrate {self.parent.name}",
-                                                        colour.YELLOW)
+                    self.engine.message_log.add_message(f"{self.parent.name}'s shot fails to penetrate "
+                                                        f"{self.parent.name}", colour.YELLOW)
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by your armour!",
-                                                        colour.LIGHT_BLUE)
+                    self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by {self.parent.name}'s "
+                                                        f"armour!", colour.LIGHT_BLUE)
 
         # failed to penetrate armour
         else:
             if attacker.player:
-                self.engine.message_log.add_message(f"Your shot fails to penetrate {self.parent.name}",
+                self.engine.message_log.add_message(f"{self.parent.name}'s shot fails to penetrate {self.parent.name}",
                                                     colour.YELLOW)
             else:
-                self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by your armour!",
-                                                    colour.LIGHT_BLUE)
+                self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by {self.parent.name}'s "
+                                                    f"armour!", colour.LIGHT_BLUE)
 
     def cripple(self) -> None:
         self.functional = False

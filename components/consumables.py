@@ -866,7 +866,7 @@ class Wearable(Usable):
                 if bodypart.part_type == self.fits_bodypart:
 
                     if bodypart.equipped is not None:
-                        self.engine.message_log.add_message(f"You are already wearing something there.", colour.RED)
+                        self.engine.message_log.add_message(f"Already wearing something there.", colour.RED)
 
                     else:
                         if not item_removed:
@@ -1057,13 +1057,17 @@ class GunMagFed(Gun):
 
     def chamber_round(self):
 
+        entity = self.parent
+        inventory = entity.parent
+
         if self.loaded_magazine is not None:
             if len(self.loaded_magazine.magazine) > 0:
                 if self.loaded_magazine.magazine[-1].bullet_type in \
                         self.compatible_bullet_type:
                     self.chambered_bullet = self.loaded_magazine.magazine.pop()
                 else:
-                    self.engine.message_log.add_message(f"Failed to chamber a new round!", colour.RED)
+                    self.engine.message_log.add_message(f"{inventory.parent.name} failed to chamber a new round!",
+                                                        colour.RED)
 
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):

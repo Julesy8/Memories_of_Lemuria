@@ -167,7 +167,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             # miss
             else:
                 if self.entity.player:
-                    return self.engine.message_log.add_message("You miss the attack", colour.YELLOW)
+                    return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
                 else:
                     return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
@@ -198,7 +198,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                         continue
                     else:
                         attack_viable = False
-                        self.engine.message_log.add_message("Your attack was interrupted", colour.RED)
+                        self.engine.message_log.add_message(f"{self.entity.name}'s attack was interrupted", colour.RED)
                         break
 
                 if attack_viable:
@@ -238,7 +238,7 @@ class WeaponAttackAction(AttackAction):
                     continue
                 else:
                     attack_viable = False
-                    self.engine.message_log.add_message("Your attack was interrupted", colour.RED)
+                    self.engine.message_log.add_message(f"{self.entity.name}'s attack was interrupted", colour.RED)
                     break
 
             if attack_viable:
@@ -491,7 +491,7 @@ class ClearJam(Action):
 
         # skips player turns while clearing jam
         # if self.entity.player:
-        self.engine.message_log.add_message(f"Cleared jam", colour.GREEN)
+        self.engine.message_log.add_message(f"{self.entity.name} cleared jam", colour.GREEN)
         if jam_ap >= 100:
             for i in range(round(jam_ap / 100)):
                 self.engine.handle_enemy_turns()
@@ -604,7 +604,7 @@ class LoadBulletsIntoMagazine(Action):
 
         # no stacks left after loading
         elif bullet_type.parent.stacking.stack_size - bullets_to_load <= 0:
-            if self.engine.player == entity:
+            if entity.player:
                 inventory.items.remove(bullet_type.parent)
 
         # resets previous target actor since need to reacquire target after reloading
@@ -682,7 +682,7 @@ class MovementAction(ActionWithDirection):
                 if random.uniform(0, 1) < fighter.move_success_chance:
                     self.entity.move(self.dx, self.dy)
                 elif self.entity.player:
-                    self.engine.message_log.add_message("You try to move but you stumble", colour.RED)
+                    self.engine.message_log.add_message(f"{self.entity.name} tries to move but stumbles", colour.RED)
                     trying_to_move = True
                     while trying_to_move:
                         if random.uniform(0, 1) < fighter.move_success_chance:
@@ -713,7 +713,8 @@ class MovementAction(ActionWithDirection):
 class TryToMove(ActionWithDirection):
     def perform(self) -> None:
         if self.blocking_entity:
-            self.engine.message_log.add_message("Movement interrupted - an enemy is in the way", colour.RED)
+            self.engine.message_log.add_message(f"{self.entity.name}'s movement was interrupted - an enemy is in the "
+                                                f"way", colour.RED)
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
 
@@ -721,11 +722,11 @@ class TryToMove(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
 
-        if self.target_actor:
+        if self.target_actor and not self.target_actor.player:
 
             try:
 
-                item_held = self.engine.player.inventory.held
+                item_held = self.entity.inventory.held
 
                 if item_held is not None:
                     return item_held.usable_properties.get_attack_action(distance=1, entity=self.entity,
@@ -758,7 +759,7 @@ class AddToInventory(Action):
             # checks if there is enough capacity for the item
             if self.entity.inventory.current_item_weight() + self.item.weight * self.item.stacking.stack_size > \
                     self.entity.inventory.capacity:
-                self.engine.message_log.add_message("Inventory full.", colour.RED)
+                self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
                 return
 
             if self.item.stacking.stack_size >= self.amount > 0:
@@ -789,7 +790,7 @@ class AddToInventory(Action):
         else:
 
             if self.entity.inventory.current_item_weight() + self.item.weight > self.entity.inventory.capacity:
-                self.engine.message_log.add_message("Inventory full.", colour.RED)
+                self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
 
             else:
                 self.entity.inventory.items.append(self.item_copy)

@@ -13,6 +13,8 @@ Event handler --> consumable.get_action -> Action -> consumable.activate
 
 input handler: reload (consumables class) -> calls action -> reloads
 
+next up - queueing player actions
+
 new weapon property - needs_mag_to_fire
 ability to single load rounds into guns for emergencies
 add armour
@@ -56,6 +58,20 @@ equip (rifle - from sling) - 100
 acquire target (pistol) - 50
 acquire target (rifle) - 30
 shoot (pistol and rifle) -
+
+How squad mechanics should work
+- new player characters are found at random between stages
+- use mouse drag/click to select units
+- can also use number keys to select inividual units
+- must select units individually to attack
+- upon entering combat, a new mode is activated where actions are queued, press another key to confirm all actions at
+once and advance one enemy turn. If character turn still in progress (no ap), can't do any moves
+- shows current character name and zooms in on them when selected
+- select characters, click where to move them to and then hit a button to confirm, move incrementally towards position.
+Movement is interupted when they enter combat
+- should be a menu from which you can access various squad options including having all player characters reload,
+reload magazines and weapons in loadout, heal and trade items between player characters when not in combat
+- way to preference ammo type for automatic reloading
 
 recoil reduction
     stock - 45%

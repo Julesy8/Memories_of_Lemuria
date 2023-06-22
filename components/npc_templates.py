@@ -247,6 +247,7 @@ class PlayerFighter(GunFighter):
         self._skill_smg_proficiency = skill_smg_proficiency
         self._skill_rifle_proficiency = skill_rifle_proficiency
         self._skill_bolt_action_proficiency = skill_bolt_action_proficiency
+        self.visible_tiles = None
 
         super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
                          unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
