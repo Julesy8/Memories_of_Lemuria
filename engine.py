@@ -19,8 +19,8 @@ from render_functions import render_names_at_mouse_location, render_part
 
 if TYPE_CHECKING:
     from entity import Actor
+    from actions import Action
     from game_map import GameMap
-
 
 class Engine:
     game_map: GameMap
@@ -38,7 +38,16 @@ class Engine:
 
         self.bestiary = {}
 
+        self.action_queue: list[Action] = []
+        self.squad_mode: bool = False
+
         self.floor_str = f"{level_names[self.current_level]} {self.current_floor + 1}"
+
+    def handle_queued_actions(self) -> None:
+        for action in self.action_queue:
+            action.handle_action()
+
+        self.handle_enemy_turns()
 
     def switch_player(self) -> None:
         player_index = self.players.index(self.player)
@@ -129,11 +138,22 @@ class Engine:
         self.game_map.render(console)
         console.draw_rect(0, console.height - 4, console.width, 4, 219, bg=(0, 0, 0))
 
-        console.print(x=1, y=0, string=self.player.name, fg=colour.WHITE)
+        if self.squad_mode:
+            console.print(x=0, y=0, string="MODE: SQUAD", fg=colour.WHITE)
+        else:
+            console.print(x=0, y=0, string="MODE: INDIVIDUAL", fg=colour.WHITE)
+
+        console.print(x=0, y=console.height - 5, string=self.player.name, fg=colour.WHITE)
+
+        if self.player.fighter.ap < 0:
+            console.print(x=2, y=0, string='PERFORMING ACTIONS', fg=colour.RED)
 
         # render message log
         self.message_log.render(console=console, x=6, y=console.height - 4,
                                 width=console.width - 16, height=4)
+
+        ap_str = f"AP: {self.player.fighter.ap}/{self.player.fighter.max_ap}"
+        console.print(x=len(self.player.name) + 1, y=console.height - 5, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
 
         # head
         render_part(console=console, x=2, y=console.height - 4, character="O",

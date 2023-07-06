@@ -141,65 +141,19 @@ class Weapon(Usable):
     def activate(self, action: actions.ItemAction):
         raise NotImplementedError
 
-    # equip to held
-    def equip(self) -> None:
+    def equip(self, user: Actor) -> None:
+        actions.EquipWeapon(entity=user, weapon=self).handle_action()
 
-        entity = self.parent
-        inventory = entity.parent
+    def equip_to_primary(self, user: Actor) -> None:
+        actions.EquipWeaponToPrimary(entity=user, weapon=self).handle_action()
 
-        if isinstance(inventory, components.inventory.Inventory):
-            self.consume_equip_ap()
-            inventory.held = entity
+    def equip_to_secondary(self, user: Actor) -> None:
+        actions.EquipWeaponToSecondary(entity=user, weapon=self).handle_action()
 
-    def equip_to_primary(self) -> None:
+    def unequip(self, user: Actor) -> None:
+        actions.UnequipWeapon(entity=user, weapon=self).handle_action()
 
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-
-            self.consume_equip_ap()
-            inventory.items.remove(entity)
-
-            if inventory.primary_weapon is not None:
-                inventory.add_to_inventory(item=inventory.primary_weapon, item_container=None, amount=1)
-
-            inventory.primary_weapon = entity
-
-    def equip_to_secondary(self) -> None:
-
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-
-            self.consume_equip_ap()
-            inventory.items.remove(entity)
-
-            if inventory.secondary_weapon is not None:
-                inventory.add_to_inventory(item=inventory.secondary_weapon, item_container=None, amount=1)
-
-            inventory.primary_weapon = entity
-
-    def unequip(self) -> None:
-
-        entity = self.parent
-        inventory = entity.parent
-
-        self.consume_equip_ap()
-
-        if isinstance(inventory, components.inventory.Inventory):
-
-            inventory.items.append(entity)
-
-            if inventory.held == entity:
-                inventory.held = None
-            if inventory.primary_weapon == entity:
-                inventory.primary_weapon = None
-            elif inventory.secondary_weapon == entity:
-                inventory.secondary_weapon = None
-
-    def consume_equip_ap(self) -> None:
+    def get_equip_ap(self) -> int:
 
         entity = self.parent
         inventory = entity.parent
@@ -233,14 +187,8 @@ class Weapon(Usable):
             if self.loaded_magazine is not None:
                 equip_time *= self.loaded_magazine.equip_ap_mod
 
-        if inventory.parent == self.engine.player:
-            if self.ap_to_equip >= 100:
-                for i in range(round(self.ap_to_equip / 100)):
-                    self.engine.handle_enemy_turns()
-                inventory.parent.fighter.ap -= self.ap_to_equip % 100
-            else:
-                inventory.parent.fighter.ap -= self.ap_to_equip
-
+        return self.ap_to_equip
+        # TODO - if weapon attack turns in full auto go over one turn, should be broken up into multiple turns
 
 class MeleeWeapon(Weapon):
 
@@ -265,7 +213,7 @@ class MeleeWeapon(Weapon):
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
         return actions.MeleeAttackAction(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                                         weapon=self, targeted_bodypart=targeted_bodypart)
+                                         weapon=self, targeted_bodypart=targeted_bodypart).handle_action()
 
     def attack_melee(self, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
@@ -329,10 +277,6 @@ class Bullet(Usable):
         self.projectile_no = projectile_no
         self.spread_modifier = spread_modifier
 
-    def activate(self, action: actions.ItemAction):
-        raise NotImplementedError
-
-
 class Magazine(Usable):
 
     def __init__(self,
@@ -342,9 +286,6 @@ class Magazine(Usable):
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
         self.magazine: list[Bullet] = []
-
-    def activate(self, action: actions.ItemAction):
-        return NotImplementedError
 
     def loading_ap(self):
         return 0, 1.0, 1.0
@@ -363,13 +304,12 @@ class Magazine(Usable):
         if isinstance(self, GunIntegratedMag):
             self.chamber_round()
 
-    def unload_magazine(self) -> None:
+    def unload_magazine(self, entity: Actor) -> None:
         # unloads bullets from magazine
 
         bullets_unloaded = []
 
-        entity = self.parent
-        inventory = entity.parent
+        inventory = entity.inventory
 
         if isinstance(inventory, components.inventory.Inventory):
 
@@ -779,9 +719,30 @@ class Gun(Weapon):
                     self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
                                                         colour.WHITE)
 
-    # TODO - should be handled in actions
+    # TODO - make it so that AI can reload from clips
     def load_from_clip(self, clip: Clip):
 
+        entity = self.parent
+        inventory = entity.parent
+
+        magazine = self
+
+        if isinstance(self, GunIntegratedMag):
+            magazine = self
+
+        if isinstance(self, GunMagFed):
+            magazine = self.loaded_magazine
+
+        if isinstance(inventory, components.inventory.Inventory) and len(clip.magazine) > 0 and magazine:
+
+            if len(clip.magazine) <= magazine.mag_capacity - len(magazine.magazine):
+                if self.chambered_bullet:
+                    actions.AddToInventory(item=self.chambered_bullet.parent, amount=1, entity=inventory.parent)
+                magazine.magazine += clip.magazine
+                clip.magazine = []
+                self.chambered_bullet = magazine.magazine.pop()
+
+    def clip_reload_check_viable(self, clip: Clip) -> bool:
         entity = self.parent
         inventory = entity.parent
 
@@ -794,33 +755,24 @@ class Gun(Weapon):
             if self.loaded_magazine:
                 magazine = self.loaded_magazine
             else:
-                raise Impossible("Cannot reload from clip: no magazine")
+                if inventory.parent.player:
+                    raise Impossible(f"{inventory.parent.name}: cannot reload from clip - no magazine")
+                else:
+                    return False
 
         if isinstance(inventory, components.inventory.Inventory) and len(clip.magazine) > 0 and magazine:
-
             if len(clip.magazine) <= magazine.mag_capacity - len(magazine.magazine):
-                actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
-                magazine.magazine += clip.magazine
-                clip.magazine = []
-                self.chambered_bullet = magazine.magazine.pop()
+                return True
 
-                # TODO - handle non player loading from clips
-                if inventory.parent == self.engine.player:
+            elif inventory.parent.player:
+                self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from stripper clip",
+                                                    colour.RED)
 
-                    reload_ap = \
-                        clip.ap_to_load * \
-                        self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
-
-                    if reload_ap >= 100:
-                        for i in range(round(reload_ap / 100)):
-                            self.engine.handle_enemy_turns()
-                        inventory.parent.fighter.ap -= reload_ap % 100
-                    else:
-                        inventory.parent.fighter.ap -= reload_ap
-
-        else:
-            self.engine.message_log.add_message(f"Cannot load from stripper clip: too many rounds in magazine",
+        elif inventory.parent.player:
+            self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from stripper clip",
                                                 colour.RED)
+
+        return False
 
     def chamber_round(self):
         return NotImplementedError
@@ -835,6 +787,7 @@ class Wearable(Usable):
                  small_mag_slots: int,
                  medium_mag_slots: int,
                  large_mag_slots: int,
+                 equip_ap_cost: int,
                  ):
 
         self.protection_ballistic = protection_ballistic
@@ -842,61 +795,18 @@ class Wearable(Usable):
         self.protection_physical = protection_physical
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
 
+        self.equip_ap_cost = equip_ap_cost
+
         # how much of an item type the armour can carry
         self.small_mag_slots = small_mag_slots
         self.medium_mag_slots = medium_mag_slots
         self.large_mag_slots = large_mag_slots
 
-    def activate(self, action: actions.ItemAction):
-        return NotImplementedError
+    def equip(self, user: Actor) -> None:
+        actions.EquipWearable(entity=user, wearable=self).handle_action()
 
-    def equip(self) -> None:
-
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-            item_removed = False
-
-            inventory.small_mag_capacity += self.small_mag_slots
-            inventory.medium_mag_capacity += self.medium_mag_slots
-            inventory.large_mag_capacity += self.large_mag_slots
-
-            for bodypart in inventory.parent.bodyparts:
-                if bodypart.part_type == self.fits_bodypart:
-
-                    if bodypart.equipped is not None:
-                        self.engine.message_log.add_message(f"Already wearing something there.", colour.RED)
-
-                    else:
-                        if not item_removed:
-                            inventory.items.remove(entity)
-                            item_removed = True
-                        bodypart.equipped = entity
-
-            self.engine.handle_enemy_turns()
-
-    def unequip(self) -> None:
-
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-
-            inventory.small_mag_capacity -= self.small_mag_slots
-            inventory.medium_mag_capacity -= self.medium_mag_slots
-            inventory.large_mag_capacity -= self.large_mag_slots
-
-            inventory.update_magazines()
-
-            for bodypart in inventory.parent.bodyparts:
-                if bodypart.part_type == self.fits_bodypart:
-                    bodypart.equipped = None
-
-            inventory.items.append(entity)
-
-            self.engine.handle_enemy_turns()
-
+    def unequip(self, user: Actor) -> None:
+        actions.UnequipWearable(entity=user, wearable=self).handle_action()
 
 class GunMagFed(Gun):
     def __init__(self,
@@ -973,45 +883,8 @@ class GunMagFed(Gun):
             pdw_stock=pdw_stock
         )
 
-    def load_gun(self, magazine: DetachableMagazine):
-
-        entity = self.parent
-        inventory = entity.parent
-        if isinstance(inventory, components.inventory.Inventory):
-            if self.loaded_magazine is not None:
-
-                if not self.keep_round_chambered:
-                    self.loaded_magazine.magazine.append(self.chambered_bullet)
-                    self.chambered_bullet = None
-
-                if inventory.parent == self.engine.player:
-                    inventory.items.append(self.loaded_magazine.parent)
-
-                self.loaded_magazine = deepcopy(magazine)
-
-            else:
-                self.loaded_magazine = deepcopy(magazine)
-
-            if inventory.parent == self.engine.player:
-                inventory.items.remove(magazine.parent)
-
-                reload_ap = \
-                    magazine.ap_to_load * \
-                    self.load_time_modifier * inventory.parent.fighter.action_ap_modifier
-
-                if self.manual_action:
-                    reload_ap += self.action_cycle_ap_cost
-
-                if reload_ap >= 100:
-                    for i in range(round(reload_ap / 100)):
-                        self.engine.handle_enemy_turns()
-                    inventory.parent.fighter.ap -= reload_ap % 100
-                else:
-                    inventory.parent.fighter.ap -= reload_ap
-
-            if len(self.loaded_magazine.magazine) > 0:
-                if self.chambered_bullet is None:
-                    self.chambered_bullet = self.loaded_magazine.magazine.pop()
+    def load_gun(self,  user: Actor, magazine: DetachableMagazine):
+        actions.ReloadMagFed(entity=user, magazine_to_load=magazine, gun=self).handle_action()
 
     def unload_gun(self):
 
@@ -1032,29 +905,6 @@ class GunMagFed(Gun):
             else:
                 self.engine.message_log.add_message(f"{entity.name} has no magazine loaded", colour.RED)
 
-    def unequip(self) -> None:
-        entity = self.parent
-        inventory = entity.parent
-
-        if isinstance(inventory, components.inventory.Inventory):
-
-            if isinstance(inventory, components.inventory.Inventory):
-
-                inventory.items.append(entity)
-
-                if self.loaded_magazine:
-                    self.engine.player.inventory.remove_from_magazines(self.loaded_magazine)
-
-                if inventory.held == entity:
-                    inventory.held = None
-                if inventory.primary_weapon == entity:
-                    inventory.primary_weapon = None
-                elif inventory.secondary_weapon == entity:
-                    inventory.secondary_weapon = None
-
-    def get_magazine_loading_options(self):
-        pass
-
     def chamber_round(self):
 
         entity = self.parent
@@ -1066,13 +916,13 @@ class GunMagFed(Gun):
                         self.compatible_bullet_type:
                     self.chambered_bullet = self.loaded_magazine.magazine.pop()
                 else:
-                    self.engine.message_log.add_message(f"{inventory.parent.name} failed to chamber a new round!",
+                    self.engine.message_log.add_message(f"{inventory.parent.name} failed to chamber a new round",
                                                         colour.RED)
 
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
         return actions.GunMagFedAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                                       gun=self, targeted_bodypart=targeted_bodypart).attack()
+                                       gun=self, targeted_bodypart=targeted_bodypart).handle_action()
 
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
@@ -1155,7 +1005,7 @@ class GunIntegratedMag(Gun, Magazine):
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
         return actions.GunIntegratedMagAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                                              gun=self, targeted_bodypart=targeted_bodypart).attack()
+                                              gun=self, targeted_bodypart=targeted_bodypart).handle_action()
 
     def loading_ap(self):
 
@@ -1190,19 +1040,7 @@ class GunIntegratedMag(Gun, Magazine):
 
         return ap_cost, load_time_modifier, proficiency
 
-class ComponentPart(Usable):
-    def __init__(self,
-                 part_type: str,
-                 **kwargs
-                 ):
-        self.part_type = part_type
-        self.__dict__.update(kwargs)
-
-    def activate(self, action: actions.ItemAction):
-        return NotImplementedError
-
-
-class GunComponent(ComponentPart):
+class GunComponent(Usable):
     def __init__(self,
                  part_type: str,
                  prevents_suppression=False,
@@ -1214,6 +1052,7 @@ class GunComponent(ComponentPart):
                  functional_part: bool = False,
                  **kwargs,
                  ):
+        self.part_type = part_type
         self.prevents_suppression = prevents_suppression
         self.is_suppressor = is_suppressor
         self.is_optic = is_optic
@@ -1226,11 +1065,6 @@ class GunComponent(ComponentPart):
             self.condition_function = condition_function
 
         self.__dict__.update(kwargs)
-
-        super().__init__(
-            part_type=part_type,
-        )
-
 
 class RecipeUnlock(Usable):
 

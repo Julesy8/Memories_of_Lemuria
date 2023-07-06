@@ -162,6 +162,7 @@ class EventHandler(BaseEventHandler):
         return self
 
     def handle_action(self, action: Optional[Action]) -> bool:
+        # TODO - this probably needs reworking, especially how enemy turns are handled
         """Handle actions returned from event methods.
 
         Returns True if the action will advance a turn.
@@ -171,7 +172,7 @@ class EventHandler(BaseEventHandler):
             return False
 
         try:
-            action.perform()
+            action.handle_action()
         except exceptions.Impossible as exc:
             if not exc.args[0] == "Silent":  # if error is "Silent" as arg, doesn't print error to message log
                 self.engine.message_log.add_message(exc.args[0], colour.RED)
@@ -191,6 +192,8 @@ class EventHandler(BaseEventHandler):
 
 
 class MainGameEventHandler(EventHandler):
+
+    # TODO - key to advance to handle queued actions
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
@@ -244,6 +247,13 @@ class MainGameEventHandler(EventHandler):
             return ViewPlayerStats(self.engine)
         elif key == tcod.event.K_TAB:
             return self.engine.switch_player()
+        elif key == tcod.event.K_QUESTION and self.engine.squad_mode:
+            return self.engine.handle_queued_actions()
+        elif key == tcod.event.K_LESS:
+            if self.engine.squad_mode:
+                self.engine.squad_mode = False
+            else:
+                self.engine.squad_mode = True
         # No valid key was pressed
         return action
 
@@ -892,7 +902,7 @@ class ChangeTargetActor(AskUserEventHandler):
         self.targets: list[Actor] = []
 
         for actor in set(self.engine.game_map.actors) - {player}:
-            if self.engine.player.fighter.visible_tiles[actor.x, actor.y] and actor.player:
+            if self.engine.player.fighter.visible_tiles[actor.x, actor.y] and not actor.player:
                 self.targets.append(actor)
 
                 # checks if previous target is still visible
@@ -933,7 +943,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
         player = self.engine.player
 
-        console.print(x=1, y=1, string="ATTACK MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=0, y=1, string="ATTACK MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
 
         if player.fighter.target_actor is not None:
 
@@ -943,27 +953,27 @@ class ChangeTargetActor(AskUserEventHandler):
                 console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('X'), colour.YELLOW
 
             target_str = f"Targeting: {player.fighter.target_actor.name} - {self.selected_bodypart.name}".upper()
-            ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
+            # ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
 
             offset = 0
 
             # if wearing armour, shows what body armour the enemy is wearing
             # if displaying armour, offsets other display information
             if self.selected_bodypart.equipped is not None:
-                console.print(x=1, y=console.height - 6, string=f"ARMOUR: {self.selected_bodypart.equipped.name}",
+                console.print(x=0, y=console.height - 6, string=f"ARMOUR: {self.selected_bodypart.equipped.name}",
                               fg=colour.WHITE, bg=(0, 0, 0))
                 offset = 1
 
             # displays AP and enemy information
-            console.print(x=1, y=console.height - 8 + offset, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
-            console.print(x=1, y=console.height - 7 + offset, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
-            console.print(x=1, y=console.height - 6 + offset, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
-            console.print(x=17, y=console.height - 6 + offset, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
+            # console.print(x=1, y=console.height - 8 + offset, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=0, y=console.height - 8 + offset, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=0, y=console.height - 7 + offset, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=17, y=console.height - 7 + offset, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
                           bg=(0, 0, 0))
-            console.print(x=1, y=2, string="PRESS [K] FOR ENEMY INFO", fg=colour.LIGHT_RED, bg=(0, 0, 0))
+            console.print(x=0, y=2, string="PRESS [K] FOR ENEMY INFO", fg=colour.WHITE, bg=(0, 0, 0))
 
         else:
-            console.print(x=1, y=2, string="NO TARGET", fg=colour.LIGHT_RED, bg=(0, 0, 0))
+            console.print(x=0, y=2, string="NO TARGET", fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
@@ -1012,7 +1022,7 @@ class ChangeTargetActor(AskUserEventHandler):
             if self.item is not None:
                 if hasattr(self.item.usable_properties, 'jammed'):
                     if self.item.usable_properties.jammed:
-                        return actions.ClearJam(entity=player, gun=self.item).perform()
+                        return actions.ClearJam(entity=player, gun=self.item).handle_action()
 
             if player.fighter.target_actor:
 
@@ -1035,7 +1045,7 @@ class ChangeTargetActor(AskUserEventHandler):
                 else:
                     actions.UnarmedAttackAction(distance=distance_target, entity=player,
                                                 targeted_actor=player.fighter.target_actor,
-                                                targeted_bodypart=self.selected_bodypart).attack()
+                                                targeted_bodypart=self.selected_bodypart).handle_action()
 
                 self.get_targets()
                 self.engine.render(console=self.console)
@@ -1250,7 +1260,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine)
 
         elif option == 'unload bullets':
-            self.magazine.unload_magazine()
+            self.magazine.unload_magazine(entity=self.engine.player)
 
         elif option == 'add to loadout':
             player.inventory.add_to_magazines(magazine=self.magazine)
@@ -1303,7 +1313,7 @@ class GunOptionsMagFed(UserOptionsEventHandler):
             return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
 
         elif option == 'clear jam':
-            return actions.ClearJam(entity=self.engine.player, gun=self.gun).perform()
+            return actions.ClearJam(entity=self.engine.player, gun=self.gun).handle_action()
 
         elif option in self.firemodes:
             self.gun.current_fire_mode = option
@@ -1339,7 +1349,7 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun)
 
         elif option == 'unload rounds':
-            self.gun.unload_magazine()
+            self.gun.unload_magazine(entity=self.engine.player)
 
         elif option == 'load from clip':
             return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
@@ -1348,7 +1358,7 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
             return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
 
         elif option == 'clear jam':
-            return actions.ClearJam(entity=self.engine.player, gun=self.gun).perform()
+            return actions.ClearJam(entity=self.engine.player, gun=self.gun).handle_action()
 
         elif option in self.firemodes:
             self.gun.current_fire_mode = option
@@ -1411,7 +1421,7 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
         return super().ev_keydown(event)
 
     def ev_on_option_selected(self, item: DetachableMagazine) -> Optional[ActionOrHandler]:
-        ReloadMagFed(entity=self.engine.player, gun=self.gun, magazine_to_load=item).perform()
+        ReloadMagFed(entity=self.engine.player, gun=self.gun, magazine_to_load=item).handle_action()
         return MainGameEventHandler(engine=self.engine)
 
 
@@ -1659,7 +1669,7 @@ class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
 
     def ev_on_option_selected(self):
         LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo, bullets_to_load=int(self.buffer),
-                                magazine=self.magazine).perform()
+                                magazine=self.magazine).handle_action()
         return MainGameEventHandler(self.engine)
 
 

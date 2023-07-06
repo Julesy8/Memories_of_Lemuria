@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from components.inventory import Inventory
-from components.consumables import GunMagFed, GunIntegratedMag, ComponentPart, Usable
+from components.consumables import GunMagFed, GunIntegratedMag, Usable, GunComponent
 from entity import Item
 
 
 class Parts:
+
     parent: Usable
 
     def __init__(self):
@@ -26,7 +27,7 @@ class Parts:
 
         for attribute in all_attributes:
             if isinstance(attribute, Item):
-                if isinstance(attribute.usable_properties, ComponentPart):
+                if isinstance(attribute.usable_properties, GunComponent):
                     self.part_list.append(attribute)
 
         self.update_gun_properties()
@@ -283,6 +284,6 @@ class Parts:
                         gun_item.usable_properties.unload_gun()
 
                 elif isinstance(gun_item.usable_properties, GunIntegratedMag):
-                    gun_item.usable_properties.unload_magazine()
+                    gun_item.usable_properties.unload_magazine(entity=entity)
 
                 inventory.items.remove(gun_item)

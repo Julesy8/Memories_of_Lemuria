@@ -946,8 +946,6 @@ m1_carbine_30rd = Item(
 M14
 """
 
-# TODO - add M14 clip
-
 m14_10rd = Item(
     x=0, y=0,
     char="!",

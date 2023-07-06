@@ -7,8 +7,8 @@ import numpy as np  # type: ignore
 import tcod
 
 from components.consumables import GunMagFed, GunIntegratedMag, Gun, Weapon, MeleeWeapon, Bullet
-from actions import Action, WeaponAttackAction, MovementAction, WaitAction, UnarmedAttackAction, AttackAction, \
-    ReloadMagFed, LoadBulletsIntoMagazine
+from actions import Action, MovementAction, WaitAction, UnarmedAttackAction, AttackAction, \
+    ReloadMagFed, LoadBulletsIntoMagazine, MeleeAttackAction, GunAttackAction
 from entity import Actor
 
 # TODO - make this more modular and clean
@@ -98,7 +98,7 @@ class HostileEnemy(BaseAI):
 
                 if attack_range == 1:
                     UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
-                                        targeted_bodypart=None).attack()
+                                        targeted_bodypart=None).handle_action()
 
             # any kind of movement action occurring
             elif fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
@@ -129,7 +129,7 @@ class HostileEnemy(BaseAI):
                     dest_x, dest_y = self.path.pop(0)
                     MovementAction(
                         self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                    ).perform()
+                    ).handle_action()
 
                 else:
                     break
@@ -164,7 +164,7 @@ class HostileEnemy(BaseAI):
 
                         # no more wait turns
                         if self.turns_until_action == 0:
-                            self.queued_action.attack()
+                            self.queued_action.handle_action()
                             self.queued_action = None
 
                     # attack not viable, cancels queued attack
@@ -206,7 +206,7 @@ class HostileAnimal(HostileEnemy):
                 if choice((True, False)):
                     MovementAction(
                         self.entity, randint(-1, 1), randint(-1, 1),
-                    ).perform()
+                    ).handle_action()
             return
 
         if self.entity.fighter.turns_attack_inactive >= 1:
@@ -237,7 +237,7 @@ class HostileAnimal(HostileEnemy):
                     target.fighter.visible_tiles[self.entity.x, self.entity.y]:
 
                 UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
-                                    targeted_bodypart=None).attack()
+                                    targeted_bodypart=None).handle_action()
 
             # any kind of movement action occurring
             elif fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
@@ -268,7 +268,7 @@ class HostileAnimal(HostileEnemy):
                     dest_x, dest_y = self.path.pop(0)
                     MovementAction(
                         self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                    ).perform()
+                    ).handle_action()
 
                 else:
                     break
@@ -285,6 +285,9 @@ class HostileEnemyArmed(BaseAI):
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
+
+        # print('performing AI method')
+
         target = self.entity.fighter.target_actor
         dx = target.x - self.entity.x
         dy = target.y - self.entity.y
@@ -323,6 +326,7 @@ class HostileEnemyArmed(BaseAI):
                 self.engine.player.fighter.previously_targeted_part = None
 
         while fighter.ap > 0:
+            # print('entered loop')
             # skips turn if both attack and move actions inactive for this turn
             if self.entity.fighter.turns_attack_inactive > 0 and self.entity.fighter.turns_move_inactive > 0:
                 break
@@ -332,12 +336,14 @@ class HostileEnemyArmed(BaseAI):
                     and self.entity.fighter.fleeing_turns <= 0 and \
                     target.fighter.visible_tiles[self.entity.x, self.entity.y] and self.queued_action is None:
 
+                self.path = self.get_path_to(target.x, target.y)
+
                 if attack_range == 1:
 
                     # unarmed attack
                     if not has_weapon:
                         UnarmedAttackAction(distance=distance, entity=self.entity, targeted_actor=target,
-                                            targeted_bodypart=None).attack()
+                                            targeted_bodypart=None).handle_action()
 
                     # melee weapon attack
                     else:
@@ -352,12 +358,14 @@ class HostileEnemyArmed(BaseAI):
 
                         # reload weapon
                         if held_item.usable_properties.chambered_bullet is None:
+                            # print('reloading')
                             ReloadMagFed(entity=self.entity, gun=held_item.usable_properties,
                                          magazine_to_load=held_item.usable_properties.previously_loaded_magazine). \
-                                perform()
+                                handle_action()
 
                         # round in chamber, attacks
                         else:
+                            # print('shooting')
                             held_item.usable_properties.get_attack_action(distance=distance, entity=self.entity,
                                                                           targeted_actor=target, targeted_bodypart=None)
 
@@ -372,7 +380,7 @@ class HostileEnemyArmed(BaseAI):
                                 held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
                             LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
                                                     bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
-                                                    bullets_to_load=no_bullets_to_load).perform()
+                                                    bullets_to_load=no_bullets_to_load).handle_action()
 
                         # round in chamber, attacks
                         else:
@@ -381,6 +389,8 @@ class HostileEnemyArmed(BaseAI):
 
             # reload if magazine below half capacity and player not visible, reloads
             elif not target.fighter.visible_tiles[self.entity.x, self.entity.y] and has_weapon and reload_check:
+
+                # print('reload check')
 
                 reload_check = False
 
@@ -397,7 +407,7 @@ class HostileEnemyArmed(BaseAI):
                                 held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
                                 LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
                                                         bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
-                                                        bullets_to_load=no_bullets_to_load).perform()
+                                                        bullets_to_load=no_bullets_to_load).handle_action()
                                 pass
 
                     # magazine fed gun
@@ -415,6 +425,8 @@ class HostileEnemyArmed(BaseAI):
 
             # any kind of movement action occurring
             elif fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
+
+                # print('moving')
 
                 # entity fleeing from target
                 if self.entity.fighter.fleeing_turns > 0:
@@ -436,13 +448,15 @@ class HostileEnemyArmed(BaseAI):
                 # entity not fleeing and can see target, sets path to them
                 elif target.fighter.visible_tiles[self.entity.x, self.entity.y] and \
                         self.entity.fighter.fleeing_turns == 0:
+                    # print('set path')
                     self.path = self.get_path_to(target.x, target.y)
 
                 if self.path:
+                    # print('pathing towards')
                     dest_x, dest_y = self.path.pop(0)
                     MovementAction(
                         self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                    ).perform()
+                    ).handle_action()
 
                 else:
                     break
@@ -453,8 +467,11 @@ class HostileEnemyArmed(BaseAI):
         return WaitAction(self.entity).perform()
 
     def execute_queued_action(self, distance, target):
+
         # checks if the queued action can still be performed
         if self.queued_action is not None:  # and self.entity.turns_attack_inactive == 0
+
+            # print('executing queued action: ', self.queued_action)
 
             held_item = self.entity.inventory.held
             action_viable = True
@@ -469,7 +486,7 @@ class HostileEnemyArmed(BaseAI):
                     self.queued_action.distance = distance
 
                     # attack with a weapon
-                    if isinstance(self.queued_action, WeaponAttackAction):
+                    if isinstance(self.queued_action, MeleeAttackAction) or isinstance(self.queued_action, GunAttackAction):
                         # check if still holding weapon
                         if not self.queued_action.weapon == held_item:
                             action_viable = False
@@ -488,11 +505,13 @@ class HostileEnemyArmed(BaseAI):
                     # attack still viable
                     if action_viable:
 
+                        # print('passed action viable check')
+
                         self.turns_until_action -= 1
 
                         # no more wait turns
                         if self.turns_until_action <= 0:
-                            self.queued_action.attack()
+                            self.queued_action.handle_action()
                             self.queued_action = None
 
                     # attack not viable, cancels queued attack
@@ -520,7 +539,7 @@ class HostileEnemyArmed(BaseAI):
 
                     # no more wait turns
                     if self.turns_until_action <= 0:
-                        self.queued_action.perform()
+                        self.queued_action.handle_action()
                         self.queued_action = None
 
                 # reload not viable, cancels queued reload

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import random
 from typing import Optional, Tuple, TYPE_CHECKING
 from math import ceil
 from random import randint
@@ -16,7 +15,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
     from components.consumables import Gun, GunMagFed, Magazine, Bullet, GunIntegratedMag, Weapon, MeleeWeapon, \
-        DetachableMagazine
+        DetachableMagazine, Clip, Wearable
     from components.bodyparts import Bodypart
 
 
@@ -24,11 +23,101 @@ class Action:
     def __init__(self, entity: Actor) -> None:
         super().__init__()
         self.entity = entity
+        self.queued = False
+        self.turns_until_action = 0
 
     @property
     def engine(self) -> Engine:
         """Return the engine this action belongs to."""
         return self.entity.gamemap.engine
+
+    def action_viable(self) -> bool:
+        return True
+
+    def handle_action(self) -> None:
+
+        ap_cost = self.calculate_ap_cost()
+
+        # checks if action is viable
+        if not self.action_viable():
+            self.entity.ai.queued_action = None
+            return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.RED)
+
+        # if action is queued
+        if self.queued:
+
+            if self.turns_until_action <= 0:
+                # no more turns left to wait, performs action
+                # TODO - execution of queued actions for players should probably be handled by individual AI instances
+                #   rather than by a queue list in engine
+                if self in self.engine.action_queue:
+                    self.engine.action_queue.remove(self)
+                return self.perform()
+            else:
+                # still turns left to wait, decreases turns_until_action
+                self.turns_until_action -= 1
+                return
+
+        # entity is player
+        if self.entity.player:
+
+            # if squad mode, will add action to engine action_queue
+            if self.engine.squad_mode:
+
+                # queues action if > 0 AP
+                if self.entity.fighter.ap > 0:
+                    self.entity.fighter.ap -= ap_cost
+                    self.queued = True
+                    self.engine.action_queue.append(self)
+
+                    # calculates and sets number of turns until action can take place if not enough AP is available
+                    if self.entity.fighter.ap < 0:
+                        turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
+                                                                           self.entity.fighter.ap_per_turn_modifier)))
+                        self.turns_until_action = turns_to_skip
+
+                # less than 0 AP, action cannot be queued
+                elif self.entity.player:
+                    self.engine.message_log.add_message(f"Cannot perform action: no AP", colour.RED)
+
+            # not in squad mode - actions are not queued
+            elif self.entity.fighter.ap >= ap_cost:
+                # performs action if enough AP is available
+                self.entity.fighter.ap -= ap_cost
+                if self in self.engine.action_queue:
+                    self.engine.action_queue.remove(self)
+                self.perform()
+
+            # not in squad mode and not enough AP to perform action - skips appropriate amount of turns
+            else:
+                self.queued = True
+                self.entity.fighter.ap -= ap_cost
+
+                # how many turns entity has to wait until attack
+                turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
+                                                                   self.entity.fighter.ap_per_turn_modifier)))
+                for i in range(turns_to_skip):
+                    self.engine.handle_enemy_turns()
+
+        # entity is AI and has enough AP, performs action
+        elif self.entity.fighter.ap >= ap_cost:
+            self.entity.fighter.ap -= ap_cost
+            self.perform()
+
+        # entity is AI and does not have enough AP to perform action
+        else:
+            # sets action to queued
+            self.entity.fighter.ap -= ap_cost
+            self.queued = True
+            self.entity.ai.queued_action = self
+
+            # how many turns entity has to wait until attack
+            turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
+                                                               self.entity.fighter.ap_per_turn_modifier)))
+            self.entity.ai.turns_until_action = turns_to_skip
+
+    def calculate_ap_cost(self) -> int:
+        return 0
 
     def perform(self) -> None:
         """Perform this action with the objects needed to determine its scope.
@@ -87,15 +176,13 @@ class ActionWithDirection(Action):
 
 
 class AttackAction(Action):
-    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart],
-                 queued: Optional[bool] = False):
+    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart]):
         super().__init__(entity)
 
         targeted_actor.active = True
 
         self.targeted_actor = targeted_actor
         self.targeted_bodypart = targeted_bodypart
-        self.queued = queued
         self.distance = distance
         self.attack_colour = colour.LIGHT_RED
 
@@ -107,7 +194,7 @@ class AttackAction(Action):
 
         entity.previous_target_actor = targeted_actor
 
-    def perform(self) -> None:
+    def get_target(self) -> None:
         target = self.targeted_actor
         if not target:
             raise exceptions.Impossible("Nothing to attack.")
@@ -125,181 +212,88 @@ class AttackAction(Action):
             self.part_index = choices(indices, weights)[0]
             self.targeted_bodypart = target.bodyparts[self.part_index]
 
-    def attack(self) -> None:
-        # attack method to be replaced by specific attack methods
-        raise NotImplementedError()
-
-
 class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
-    def attack(self) -> None:
+    def action_viable(self) -> bool:
+        dx = self.targeted_actor.x - self.entity.x
+        dy = self.targeted_actor.y - self.entity.y
+        distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-        # cant attack if outside range
-        if self.distance > 1:
-            return
+        if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] \
+                            and distance == 1:
+            return True
+        else:
+            return False
 
-        self.perform()
-
+    def calculate_ap_cost(self) -> int:
         fighter = self.entity.fighter
         ap_cost = round(fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
+        return ap_cost
 
-        # check if adequate AP
-        if fighter.ap >= ap_cost or self.queued:
+    def perform(self) -> None:
 
-            # subtracts AP cost
-            if not self.queued:
-                fighter.ap -= ap_cost
+        self.get_target()
 
-            # chance to hit calculation
-            part_area = \
-                self.targeted_actor.bodyparts[self.part_index].width * \
-                self.targeted_actor.bodyparts[self.part_index].height
+        # chance to hit calculation
+        part_area = \
+            self.targeted_actor.bodyparts[self.part_index].width * \
+            self.targeted_actor.bodyparts[self.part_index].height
 
-            hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
+        hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
 
-            # hit
-            if randint(0, 100) < hit_chance:
-                self.targeted_actor.bodyparts[self.part_index].deal_damage_melee(
-                    meat_damage=self.entity.fighter.unarmed_meat_damage,
-                    armour_damage=self.entity.fighter.unarmed_armour_damage,
-                    attacker=self.entity)
+        # hit
+        if randint(0, 100) < hit_chance:
+            self.targeted_actor.bodyparts[self.part_index].deal_damage_melee(
+                meat_damage=self.entity.fighter.unarmed_meat_damage,
+                armour_damage=self.entity.fighter.unarmed_armour_damage,
+                attacker=self.entity)
 
-            # miss
-            else:
-                if self.entity.player:
-                    return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
-
-                else:
-                    return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
-
-            if self.entity.player:
-                if fighter.ap <= 0:
-                    return
-
-        # insufficient AP for action - queues action for later turn
-        elif self.entity.ai.queued_action is None:
-            fighter.ap -= ap_cost
-
-            turns_to_skip = ceil(abs(fighter.ap / (fighter.ap_per_turn * fighter.ap_per_turn_modifier)))
-
-            # attacker is player
-            if self.entity.player:
-                attack_viable = True
-                for i in range(turns_to_skip):
-                    self.engine.handle_enemy_turns()
-
-                    dx = self.targeted_actor.x - self.entity.x
-                    dy = self.targeted_actor.y - self.entity.y
-                    distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-
-                    # check if action can still be performed
-                    if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] \
-                            and distance == 1:
-                        continue
-                    else:
-                        attack_viable = False
-                        self.engine.message_log.add_message(f"{self.entity.name}'s attack was interrupted", colour.RED)
-                        break
-
-                if attack_viable:
-                    self.queued = True
-                    self.attack()
-
-            # attacker is AI
-            else:
-                self.queued = True
-                self.entity.ai.queued_action = self
-
-                # how many turns entity has to wait until attack
-                self.entity.ai.turns_until_action = turns_to_skip
-
-class WeaponAttackAction(AttackAction):
-    def __init__(self, distance: int, weapon: Weapon, entity: Actor, targeted_actor: Actor,
-                 targeted_bodypart: Optional[Bodypart]):
-        super().__init__(distance, entity, targeted_actor, targeted_bodypart)
-        self.weapon = weapon
-
-    def attack(self):
-        raise NotImplementedError
-
-    def queue_attack(self):
-        turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
-                                                           self.entity.fighter.ap_per_turn_modifier)))
-
-        # attacker is player
-        if self.entity.player:
-
-            attack_viable = True
-            for i in range(turns_to_skip):
-                self.engine.handle_enemy_turns()
-                # check if action can still be performed
-                if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] and \
-                        self.weapon.parent == self.entity.inventory.held:
-                    continue
-                else:
-                    attack_viable = False
-                    self.engine.message_log.add_message(f"{self.entity.name}'s attack was interrupted", colour.RED)
-                    break
-
-            if attack_viable:
-                dx = self.targeted_actor.x - self.entity.x
-                dy = self.targeted_actor.y - self.entity.y
-                distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-
-                self.queued = True
-                self.distance = distance
-                self.attack()
-
-        # attacker is AI
+        # miss
         else:
-            self.queued = True
-            self.entity.ai.queued_action = self
+            if self.entity.player:
+                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
-            # how many turns entity has to wait until attack
-            self.entity.ai.turns_until_action = turns_to_skip
+            else:
+                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
-
-
-class MeleeAttackAction(WeaponAttackAction):
+class MeleeAttackAction(AttackAction):
     def __init__(self, distance: int, weapon: MeleeWeapon, entity: Actor, targeted_actor: Actor,
                  targeted_bodypart: Optional[Bodypart]):
         super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                         targeted_bodypart=targeted_bodypart, weapon=weapon)
+                         targeted_bodypart=targeted_bodypart)
         self.weapon = weapon
 
-    def attack(self) -> None:
-        self.perform()
+    def action_viable(self) -> bool:
+        dx = self.targeted_actor.x - self.entity.x
+        dy = self.targeted_actor.y - self.entity.y
+        distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
+        if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] \
+                            and distance == 1:
+            return True
+        else:
+            return False
+
+    def calculate_ap_cost(self) -> int:
         fighter = self.entity.fighter
-        ap_cost = self.weapon.base_ap_cost * fighter.attack_ap_modifier
+        ap_cost = round(self.weapon.base_ap_cost * fighter.attack_ap_modifier)
+        return ap_cost
 
-        if fighter.ap >= ap_cost or self.queued:
+    def perform(self) -> None:
+        self.get_target()
 
-            if not self.queued:
-                fighter.ap -= ap_cost
+        part_area = self.targeted_actor.bodyparts[self.part_index].width * \
+                    self.targeted_actor.bodyparts[self.part_index].height
+        hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
 
-            dx = self.targeted_actor.x - self.entity.x
-            dy = self.targeted_actor.y - self.entity.y
-            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
+        self.weapon.attack_melee(target=self.targeted_actor, attacker=self.entity,
+                                 part_index=self.part_index, hitchance=hit_chance)
 
-            if distance == 1:
-                part_area = self.targeted_actor.bodyparts[self.part_index].width * \
-                            self.targeted_actor.bodyparts[self.part_index].height
-                hit_chance = part_area / 200 * 100 * self.entity.fighter.melee_accuracy
-
-                self.weapon.attack_melee(target=self.targeted_actor, attacker=self.entity,
-                                         part_index=self.part_index, hitchance=hit_chance)
-
-        # insufficient AP for action - queues action for later turn
-        elif not self.queued:
-            fighter.ap -= ap_cost
-            self.queue_attack()
-
-class GunAttackAction(WeaponAttackAction):
+class GunAttackAction(AttackAction):
     def __init__(self, distance: int, gun: Gun, entity: Actor, targeted_actor: Actor,
                  targeted_bodypart: Optional[Bodypart]):
         super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                         targeted_bodypart=targeted_bodypart, weapon=gun)
+                         targeted_bodypart=targeted_bodypart)
         self.weapon = gun
         self.total_weight = self.weapon.parent.weight
         self.proficiency = 1.0
@@ -309,33 +303,29 @@ class GunAttackAction(WeaponAttackAction):
         self.ap_distance_cost_modifier = self.weapon.ap_distance_cost_modifier * \
                                        self.entity.fighter.ap_distance_cost_modifier
 
-    # gives XP and calculates proficiency multiplier based on gun type
-    def give_proficiency(self) -> None:
+    def action_viable(self) -> bool:
+        if self.entity.player and self.entity.fighter.visible_tiles[self.targeted_actor.x, self.targeted_actor.y] or \
+                self.targeted_actor.fighter.visible_tiles[self.entity.x, self.entity.y]:
+            return True
+        else:
+            return False
 
-        fighter = self.entity.fighter
-        proficiency = 1.0
+    def additional_ap_cost(self) -> int:
+        return 0
 
-        if self.entity.player:
-            if self.weapon.gun_type == 'pistol':
-                proficiency = fighter.skill_pistol_proficiency
-                proficiency += 1
-            elif self.weapon.gun_type == 'pdw':
-                proficiency = fighter.skill_smg_proficiency
-                proficiency += 1
-            elif self.weapon.gun_type == 'rifle':
-                proficiency = fighter.skill_rifle_proficiency
-                proficiency += 1
-            elif self.weapon.gun_type == 'bolt action':
-                proficiency = fighter.skill_bolt_action_proficiency
-                proficiency += 1
+    def calculate_ap_cost(self) -> int:
 
-            self.proficiency = 1 - (proficiency / 4000)
+        self.give_proficiency()
 
-            if self.distance > 15:
-                self.marksmanship = fighter.skill_marksmanship
-                fighter.skill_marksmanship += ((self.distance - 15) // 10) + 1
+        if self.queued:
+            dx = self.targeted_actor.x - self.entity.x
+            dy = self.targeted_actor.y - self.entity.y
+            distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
-    def handle_ap(self) -> None:
+            self.distance = distance
+
+        self.additional_ap_cost()
+
         ap_cost = 0
 
         # calculates AP modifier based on weight and weapon type
@@ -383,26 +373,47 @@ class GunAttackAction(WeaponAttackAction):
 
         ap_cost *= self.entity.fighter.attack_ap_modifier
 
-        # sufficient AP for attack, proceeds
-        if self.entity.fighter.ap >= ap_cost or self.queued:
+        return ap_cost
 
-            if not self.queued:
-                self.entity.fighter.ap -= ap_cost
+    # gives XP and calculates proficiency multiplier based on gun type
+    def give_proficiency(self) -> None:
 
-            # calculate hit location on body
-            standard_deviation = 0.1 * self.distance
-            hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
-            hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
+        fighter = self.entity.fighter
+        proficiency = 1.0
 
-            self.weapon.attack_ranged(target=self.targeted_actor, attacker=self.entity,
-                                      part_index=self.part_index, hit_location_x=hit_location_x,
-                                      hit_location_y=hit_location_y, distance=self.distance,
-                                      proficiency=self.proficiency, skill_range_modifier=self.marksmanship)
+        if self.entity.player:
+            if self.weapon.gun_type == 'pistol':
+                proficiency = fighter.skill_pistol_proficiency
+                proficiency += 1
+            elif self.weapon.gun_type == 'pdw':
+                proficiency = fighter.skill_smg_proficiency
+                proficiency += 1
+            elif self.weapon.gun_type == 'rifle':
+                proficiency = fighter.skill_rifle_proficiency
+                proficiency += 1
+            elif self.weapon.gun_type == 'bolt action':
+                proficiency = fighter.skill_bolt_action_proficiency
+                proficiency += 1
 
-        # insufficient AP for action - queues action for later turn
-        elif not self.queued:
-            self.entity.fighter.ap -= ap_cost
-            self.queue_attack()
+            self.proficiency = 1 - (proficiency / 4000)
+
+            if self.distance > 15:
+                self.marksmanship = fighter.skill_marksmanship
+                fighter.skill_marksmanship += ((self.distance - 15) // 10) + 1
+
+    def perform(self) -> None:
+
+        self.get_target()
+
+        # calculate hit location on body
+        standard_deviation = 0.1 * self.distance
+        hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
+        hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
+
+        self.weapon.attack_ranged(target=self.targeted_actor, attacker=self.entity,
+                                  part_index=self.part_index, hit_location_x=hit_location_x,
+                                  hit_location_y=hit_location_y, distance=self.distance,
+                                  proficiency=self.proficiency, skill_range_modifier=self.marksmanship)
 
         self.entity.fighter.previously_targeted_part = self.targeted_bodypart
         self.entity.fighter.previous_target_actor = self.targeted_actor
@@ -414,12 +425,7 @@ class GunMagFedAttack(GunAttackAction):
         self.weapon = gun
         self.total_weight = self.weapon.parent.weight
 
-    def attack(self) -> None:
-        self.perform()
-
-        # gives XP and calculates proficiency multiplier based on gun type
-        if self.entity.player:
-            self.give_proficiency()
+    def additional_ap_cost(self) -> None:
 
         # alters attributes according to magazine properties
         if self.weapon.loaded_magazine is not None:
@@ -437,8 +443,6 @@ class GunMagFedAttack(GunAttackAction):
             if rounds_in_mag >= 1:
                 self.total_weight += (len(magazine) * magazine[0].parent.weight)
 
-        self.handle_ap()
-
 class GunIntegratedMagAttack(GunAttackAction):
 
     def __init__(self, distance: int, gun: GunIntegratedMag, entity: Actor, targeted_actor: Actor,
@@ -446,12 +450,7 @@ class GunIntegratedMagAttack(GunAttackAction):
         super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart)
         self.weapon = gun
 
-    def attack(self) -> None:
-        self.perform()
-
-        # gives XP and calculates proficiency multiplier based on gun type
-        if self.entity.player:
-            self.give_proficiency()
+    def additional_ap_cost(self) -> None:
 
         rounds_in_mag = len(self.weapon.magazine)
         magazine = self.weapon.magazine
@@ -460,19 +459,15 @@ class GunIntegratedMagAttack(GunAttackAction):
         if rounds_in_mag >= 1:
             self.total_weight += (len(magazine) * magazine[0].parent.weight)
 
-        self.handle_ap()
-
 class ClearJam(Action):
 
     def __init__(self, entity: Actor, gun: Gun):
         self.gun = gun
         super().__init__(entity)
 
-    def perform(self):
+    def calculate_ap_cost(self):
 
         proficiency = 1.0
-
-        self.gun.jammed = False
 
         if self.entity.player:
             if self.gun.gun_type == 'pistol':
@@ -487,34 +482,19 @@ class ClearJam(Action):
             proficiency = 1 - (proficiency / 4000)
 
         # jam takes between 2 and 5 seconds to clear
-        jam_ap = randint(2, 5) * 100 * self.entity.fighter.action_ap_modifier * proficiency
+        return randint(2, 5) * 100 * self.entity.fighter.action_ap_modifier * proficiency
 
-        # skips player turns while clearing jam
-        # if self.entity.player:
+    def perform(self) -> None:
+        self.gun.jammed = False
         self.engine.message_log.add_message(f"{self.entity.name} cleared jam", colour.GREEN)
-        if jam_ap >= 100:
-            for i in range(round(jam_ap / 100)):
-                self.engine.handle_enemy_turns()
-            self.entity.fighter.ap -= jam_ap % 100
-        else:
-            self.entity.fighter.ap -= jam_ap
-        # else:
-        #     turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
-        #                                                        self.entity.fighter.ap_per_turn_modifier)))
-        #     self.entity.ai.turns_until_action = turns_to_skip
-
 
 class ReloadMagFed(Action):
     def __init__(self, entity: Actor, gun: GunMagFed, magazine_to_load: DetachableMagazine):
         super().__init__(entity)
         self.gun = gun
         self.magazine_to_load = magazine_to_load
-        self.queued = False
 
-        # resets previous target actor since need to reacquire target after reloading
-        entity.previous_target_actor = None
-
-    def perform(self) -> None:
+    def calculate_ap_cost(self):
 
         ap_cost = 0
 
@@ -541,46 +521,78 @@ class ReloadMagFed(Action):
             ap_cost += self.gun.action_cycle_ap_cost
 
         ap_cost *= proficiency
+        return  ap_cost
 
-        # sufficient AP cost or action queued
-        if self.entity.fighter.ap >= ap_cost or self.queued:
+    def perform(self) -> None:
 
-            if not self.queued:
-                self.entity.fighter.ap -= ap_cost
+        # TODO - make it so AI flees when reloading
+        # loads magazine into gun
+        if self.gun.loaded_magazine is not None:
 
-            # loads magazine into gun
-            self.gun.load_gun(magazine=self.magazine_to_load)
+            if not self.gun.keep_round_chambered:
+                self.gun.loaded_magazine.magazine.append(self.gun.chambered_bullet)
+                self.gun.chambered_bullet = None
 
-        # insufficient AP to reload and not queued
-        elif not self.queued:
-
-            self.entity.fighter.ap -= ap_cost
-
-            # calculates turns needed to regain AP
-            turns_cost = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
-                                                            self.entity.fighter.ap_per_turn_modifier)))
-
-            # player reloading, handles turns
             if self.entity.player:
+                self.entity.inventory.items.append(self.gun.loaded_magazine.parent)
+                self.entity.inventory.items.remove(self.magazine_to_load.parent)
 
-                self.gun.load_gun(magazine=self.magazine_to_load)
+        self.gun.loaded_magazine = deepcopy(self.magazine_to_load)
 
-                for i in range(turns_cost):
-                    self.engine.handle_enemy_turns()
+        if len(self.gun.loaded_magazine.magazine) > 0:
+            if self.gun.chambered_bullet is None:
+                self.gun.chambered_bullet = self.gun.loaded_magazine.magazine.pop()
 
-            # ai reloading
-            else:
-                self.queued = True
-                self.entity.ai.queued_action = self
-                self.entity.ai.turns_until_action = turns_cost
-                self.entity.fighter.fleeing_turns = turns_cost
+class ReloadFromClip(Action):
+    def __init__(self, entity: Actor, gun: Gun, clip: Clip):
+        super().__init__(entity)
+        self.gun = gun
+        self.clip = clip
+
+    def action_viable(self) -> bool:
+        if self.gun.clip_reload_check_viable(clip=self.clip):
+            return True
+
+        elif self.entity.inventory.held != self.gun:
+            return False
+
+    def calculate_ap_cost(self):
+
+        ap_cost = 0
+
+        proficiency = 1.0
+
+        if self.entity.player:
+            if self.gun.gun_type == 'pistol':
+                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
+            elif self.gun.gun_type == 'pdw':
+                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
+            elif self.gun.gun_type == 'rifle':
+                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
+            elif self.gun.gun_type == 'bolt action':
+                proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
+
+            proficiency = 1 - (proficiency / 4000)
+
+        # AP cost calculated
+        ap_cost += \
+            self.entity.fighter.action_ap_modifier * self.gun.load_time_modifier * self.clip.ap_to_load
+
+        # adds cost of cycling manual action
+        if self.gun.manual_action:
+            ap_cost += self.gun.action_cycle_ap_cost
+
+        ap_cost *= proficiency
+        return  ap_cost
+
+    def perform(self) -> None:
+        self.gun.load_from_clip(clip=self.clip)
 
 class LoadBulletsIntoMagazine(Action):
     def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Bullet):
         super().__init__(entity)
 
         self.magazine = magazine
-        self.queued = False
 
         self.bullets_to_load = bullets_to_load
         self.bullet_type = bullet_type
@@ -607,11 +619,7 @@ class LoadBulletsIntoMagazine(Action):
             if entity.player:
                 inventory.items.remove(bullet_type.parent)
 
-        # resets previous target actor since need to reacquire target after reloading
-        entity.previous_target_actor = None
-
-    def perform(self) -> None:
-
+    def calculate_ap_cost(self):
         ap_cost_modifier = self.entity.fighter.action_ap_modifier * self.bullet_type.load_time_modifier
 
         # loading ap calculated
@@ -620,108 +628,71 @@ class LoadBulletsIntoMagazine(Action):
 
         # adds cost of loading each bullet
         ap_cost += proficiency * self.bullets_to_load * ap_cost_modifier
+        return ap_cost
 
-        # sufficient AP cost or action queued
-        if self.entity.fighter.ap >= ap_cost or self.queued:
+    def perform(self) -> None:
 
-            if not self.queued:
-                self.entity.fighter.ap -= ap_cost
-
-            # loads bullets into gun
-            self.magazine.load_magazine(ammo=self.bullet_type,
-                                        load_amount=self.bullets_to_load)
-
-        # insufficient AP to reload and not queued
-        elif not self.queued:
-
-            self.entity.fighter.ap -= ap_cost
-
-            # calculates turns needed to regain AP
-            turns_cost = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
-                                                            self.entity.fighter.ap_per_turn_modifier)))
-
-            # player reloading, handles turns
-            if self.entity.player:
-                for i in range(turns_cost):
-                    self.engine.handle_enemy_turns()
-
-                self.magazine.load_magazine(ammo=self.bullet_type,
-                                            load_amount=self.bullets_to_load)
-
-            # ai reloading
-            else:
-                self.queued = True
-                self.entity.ai.queued_action = self
-                self.entity.ai.turns_until_action = turns_cost
-                self.entity.fighter.fleeing_turns = turns_cost
-
+        # loads bullets into gun
+        self.magazine.load_magazine(ammo=self.bullet_type, load_amount=self.bullets_to_load)
 
 class MovementAction(ActionWithDirection):
-    def perform(self) -> None:
 
-        fighter = self.entity.fighter
+    def calculate_ap_cost(self):
+        # TODO - remove move_success_chance from fighter, replace with just increasing AP cost probably
+        return self.entity.fighter.move_ap_cost
 
-        if fighter.ap >= fighter.move_ap_cost:
+    def action_viable(self) -> bool:
 
-            dest_x, dest_y = self.dest_xy
+        dest_x, dest_y = self.dest_xy
 
-            if not self.engine.game_map.in_bounds(dest_x, dest_y):
-                # Destination is out of bounds.
-                raise exceptions.Impossible("Silent")
+        if not self.engine.game_map.in_bounds(dest_x, dest_y):
+            # Destination is out of bounds.
+            raise exceptions.Impossible("Silent")
 
-            if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-                # Destination is blocked by a tile.
-                raise exceptions.Impossible("Silent")
+        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+            # Destination is blocked by a tile.
+            raise exceptions.Impossible("Silent")
 
-            if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-                # Destination is blocked by an entity.
-                raise exceptions.Impossible("Silent")
+        if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
+            # Destination is blocked by an entity.
+            raise exceptions.Impossible("Silent")
 
-            # if chance for move action to fail
-            if fighter.move_success_chance != 1.0:
-                if random.uniform(0, 1) < fighter.move_success_chance:
-                    self.entity.move(self.dx, self.dy)
-                elif self.entity.player:
-                    self.engine.message_log.add_message(f"{self.entity.name} tries to move but stumbles", colour.RED)
-                    trying_to_move = True
-                    while trying_to_move:
-                        if random.uniform(0, 1) < fighter.move_success_chance:
-                            self.entity.move(self.dx, self.dy)
-                            TryToMove(self.entity, self.dx, self.dy).perform()
-                            trying_to_move = False
-                        else:
-                            self.engine.handle_enemy_turns()
-
-                self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
-
-            else:
-                self.entity.move(self.dx, self.dy)
-                if self.entity.player:
-                    self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
-            fighter.ap -= fighter.move_ap_cost
-
-        else:
-            if self.entity.player:
-                fighter.ap -= fighter.move_ap_cost
-                turns_to_wait = ceil(abs(fighter.ap / (fighter.ap_per_turn * fighter.ap_per_turn_modifier))) + 1
-                for i in range(turns_to_wait):
-                    self.engine.handle_enemy_turns()
-
-                self.perform()
-
-
-class TryToMove(ActionWithDirection):
-    def perform(self) -> None:
         if self.blocking_entity:
-            self.engine.message_log.add_message(f"{self.entity.name}'s movement was interrupted - an enemy is in the "
-                                                f"way", colour.RED)
+            if self.entity.player:
+                self.engine.message_log.add_message(
+                    f"{self.entity.name}'s movement was interrupted - an enemy is in the "
+                    f"way", colour.RED)
+            return False
         else:
-            return MovementAction(self.entity, self.dx, self.dy).perform()
+            return True
 
+    def perform(self) -> None:
+
+        self.entity.move(self.dx, self.dy)
+
+        if self.entity.player:
+            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
+
+        # if chance for move action to fail
+        """
+        if fighter.move_success_chance != 1.0:
+            if random.uniform(0, 1) < fighter.move_success_chance:
+                self.entity.move(self.dx, self.dy)
+            elif self.entity.player:
+                self.engine.message_log.add_message(f"{self.entity.name} tries to move but stumbles", colour.RED)
+                trying_to_move = True
+                while trying_to_move:  # TODO - this needs to be redone for squad system
+                    if random.uniform(0, 1) < fighter.move_success_chance:
+                        self.entity.move(self.dx, self.dy)
+                        TryToMove(self.entity, self.dx, self.dy).perform()
+                        trying_to_move = False
+                    else:
+                        self.engine.handle_enemy_turns()
+        """
 
 class BumpAction(ActionWithDirection):
-    def perform(self) -> None:
 
+    def perform(self) -> None:
         if self.target_actor and not self.target_actor.player:
 
             try:
@@ -735,13 +706,13 @@ class BumpAction(ActionWithDirection):
 
                 else:
                     return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
-                                               targeted_bodypart=self.target_actor.bodyparts[0]).attack()
+                                               targeted_bodypart=self.target_actor.bodyparts[0]).handle_action()
 
             except AttributeError:
                 pass
 
         else:
-            return MovementAction(self.entity, self.dx, self.dy).perform()
+            return MovementAction(self.entity, self.dx, self.dy).handle_action()
 
 
 class AddToInventory(Action):
@@ -751,6 +722,9 @@ class AddToInventory(Action):
         self.item = item
         self.amount = amount
         self.item_copy = deepcopy(self.item)
+
+    def calculate_ap_cost(self) -> int:
+        return 0
 
     def perform(self) -> None:
 
@@ -808,6 +782,15 @@ class PickupAction(AddToInventory):
 
         entity.previous_target_actor = None
 
+    def calculate_ap_cost(self) -> int:
+        return 100
+
+    def action_viable(self) -> bool:
+        if self.entity.x == self.item.x and self.entity.y == self.item.y:
+            return True
+        else:
+            return False
+
     def remove_from_container(self):
         self.engine.game_map.entities.remove(self.item)
 
@@ -820,6 +803,9 @@ class DropAction(Action):
         self.drop_amount = drop_amount
 
         entity.previous_target_actor = None
+
+    def calculate_ap_cost(self) -> int:
+        return 100
 
     def perform(self) -> None:
         if self.item.stacking:
@@ -886,6 +872,9 @@ class RepairItem(Action):
         self.item_to_repair = item_to_repair
         self.repair_kit_item = repair_kit_item
 
+    def calculate_ap_cost(self) -> int:
+        return 500
+
     def perform(self) -> None:
         self.repair_kit_item.usable_properties.activate(self)
 
@@ -896,5 +885,103 @@ class HealPart(Action):
         self.part_to_heal = part_to_heal
         self.healing_item = healing_item
 
+    def calculate_ap_cost(self) -> int:
+        return 1000
+
     def perform(self) -> None:
         self.healing_item.usable_properties.activate(self)
+
+class EquipWeapon(Action):
+    def __init__(self, entity: Actor, weapon: Weapon):
+        super().__init__(entity)
+        self.weapon = weapon
+
+    def calculate_ap_cost(self) -> int:
+        return self.weapon.get_equip_ap()
+
+    def perform(self) -> None:
+        self.entity.inventory.held = self.weapon.parent
+
+class EquipWeaponToPrimary(EquipWeapon):
+    def __init__(self, entity: Actor, weapon: Weapon):
+        super().__init__(entity, weapon)
+
+    def perform(self) -> None:
+        self.entity.inventory.items.remove(self.weapon.parent)
+        if self.entity.inventory.primary_weapon:
+            self.entity.inventory.add_to_inventory(item=self.entity.inventory.primary_weapon,
+                                                   item_container=None, amount=1)
+        self.entity.inventory.primary_weapon = self.weapon.parent
+
+class EquipWeaponToSecondary(EquipWeapon):
+    def __init__(self, entity: Actor, weapon: Weapon):
+        super().__init__(entity, weapon)
+
+    def perform(self) -> None:
+        self.entity.inventory.items.remove(self.weapon.parent)
+        if self.entity.inventory.secondary_weapon:
+            self.entity.inventory.add_to_inventory(item=self.entity.inventory.secondary_weapon,
+                                                   item_container=None, amount=1)
+        self.entity.inventory.secondary_weapon = self.weapon.parent
+
+class UnequipWeapon(EquipWeapon):
+
+    def perform(self) -> None:
+
+        inventory = self.entity.inventory
+
+        inventory.items.append(self.weapon.parent)
+
+        if inventory.held == self.weapon.parent:
+            inventory.held = None
+        if inventory.primary_weapon == self.weapon.parent:
+            inventory.primary_weapon = None
+        elif inventory.secondary_weapon == self.weapon.parent:
+            inventory.secondary_weapon = None
+
+class EquipWearable(Action):
+
+    def __init__(self, entity: Actor, wearable: Wearable):
+        super().__init__(entity)
+        self.wearable = wearable
+
+    def calculate_ap_cost(self) -> int:
+        return self.wearable.equip_ap_cost
+
+    def perform(self) -> None:
+
+        item_removed = False
+
+        self.entity.inventory.small_mag_capacity += self.wearable.small_mag_slots
+        self.entity.inventory.medium_mag_capacity += self.wearable.medium_mag_slots
+        self.entity.inventory.large_mag_capacity += self.wearable.large_mag_slots
+
+        for bodypart in self.entity.bodyparts:
+            if bodypart.part_type == self.wearable.fits_bodypart:
+
+                if bodypart.equipped:
+                    self.engine.message_log.add_message(f"Already wearing something there.", colour.RED)
+
+                else:
+                    if not item_removed:
+                        self.entity.inventory.items.remove(self.wearable.parent)
+                        item_removed = True
+                    bodypart.equipped = self.wearable
+
+class UnequipWearable(EquipWearable):
+    def __init__(self, entity: Actor, wearable: Wearable):
+        super().__init__(entity, wearable)
+
+    def perform(self) -> None:
+
+        self.entity.inventory.small_mag_capacity -= self.wearable.small_mag_slots
+        self.entity.inventory.medium_mag_capacity -= self.wearable.medium_mag_slots
+        self.entity.inventory.large_mag_capacity -= self.wearable.large_mag_slots
+
+        self.entity.inventory.update_magazines()
+
+        for bodypart in self.entity.bodyparts:
+            if bodypart.part_type == self.wearable.fits_bodypart:
+                bodypart.equipped = None
+
+        self.entity.inventory.items.append(self.wearable.parent)

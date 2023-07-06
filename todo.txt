@@ -11,9 +11,32 @@ Event handler --> consumable.get_action -> Action -> consumable.activate
       |        V             V
       ------------------------
 
+New Model With Queue
+
+-> = calls
+
+Event handler --> consumable.get_action -> action.consume_ap / queue action -> Action.perform -> consumable.activate
+      ^        |             |                      |
+      |        V             V                      V
+      ------------------------            consumable.get_ap_cost
+
+SQUAD MODE
+
+event_handler.handle_events -> event_handler.handle_action -> action.handle_action -> engine.handle_queued_actions
+                                                                                          (player end turn)
+                                                                                                  |
+     ----------------------------------------------------------------------------------------------
+     |
+     V
+for action.handle_action for actions in action.queue -> perform / tick down
+
+
 input handler: reload (consumables class) -> calls action -> reloads
 
-next up - queueing player actions
+After that figure out squad movement orders.
+
+After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
+magazine class itself.
 
 new weapon property - needs_mag_to_fire
 ability to single load rounds into guns for emergencies
@@ -21,6 +44,8 @@ add armour
 armour weight changes dexterity and walk speed
 
 Extended Goals
+-when enemy dies with a gun, should drop the magazine and gun separately. That way can scavenge magazines without
+interacting with gun
 -calling input handlers from consumable and more generally actually using the consumable class properly
 -Blood loss
 -Less confusing control scheme
@@ -133,7 +158,6 @@ TEC-9
 Sten
 Dragunov
 M1 garand
-M14 - cool source rubber buttstock
 Thompson
 RPD
 Makarov

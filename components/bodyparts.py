@@ -16,6 +16,7 @@ import colour
 
 if TYPE_CHECKING:
     from engine import Engine
+    from components.consumables import Wearable
 
 
 class Bodypart:
@@ -51,7 +52,7 @@ class Bodypart:
         self.show_splatter_message = False  # whether a splatter should show for this limb
         self.splatter_message_shown = False  # whether a splatter message has been shown for this limb. Can be set to
         self.splatter_message = None
-        self.equipped = None  # equipped armour item
+        self.equipped: Optional[Wearable] = None  # equipped armour item
         self.name = name
 
         self.part_type = part_type  # string associated with the type of bodypart it is, i.e. 'Head', 'Arm'
@@ -206,15 +207,15 @@ class Bodypart:
 
         if self.equipped:
             # whether attack hits armour or not
-            if self.equipped.usable_properties.armour_coverage < 100:
+            if self.equipped.armour_coverage < 100:
                 # random chance whether attack hits armour based on armour coverage
                 if choices(population=(True, False),
-                           weights=(self.equipped.usable_properties.armour_coverage,
-                                    100 - self.equipped.usable_properties.armour_coverage))[0]:
-                    armour_protection = self.equipped.usable_properties.protection_physical
+                           weights=(self.equipped.armour_coverage,
+                                    100 - self.equipped.armour_coverage))[0]:
+                    armour_protection = self.equipped.protection_physical
             else:
                 # armour covers 100% of part
-                armour_protection = self.equipped.usable_properties.protection_physical
+                armour_protection = self.equipped.protection_physical
 
         if armour_damage < self.protection_physical + armour_protection:
             damage = 0
@@ -246,15 +247,15 @@ class Bodypart:
 
         if self.equipped:
             # whether attack hits armour or not
-            if self.equipped.usable_properties.armour_coverage < 100:
+            if self.equipped.armour_coverage < 100:
                 # random chance whether attack hits armour based on armour coverage
                 if choices(population=(True, False),
-                           weights=(self.equipped.usable_properties.armour_coverage,
-                                    100 - self.equipped.usable_properties.armour_coverage))[0]:
-                    armour_protection += self.equipped.usable_properties.protection_ballistic
+                           weights=(self.equipped.armour_coverage,
+                                    100 - self.equipped.armour_coverage))[0]:
+                    armour_protection += self.equipped.protection_ballistic
             else:
                 # armour covers 100% of part
-                armour_protection += self.equipped.usable_properties.protection_ballistic
+                armour_protection += self.equipped.protection_ballistic
 
         if armour_protection > 0:
 
