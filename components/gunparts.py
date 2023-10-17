@@ -83,6 +83,7 @@ class Parts:
                                                    ap_distance_cost_modifier=self.parent.ap_distance_cost_modifier,
                                                    receiver_height_above_bore=self.parent.receiver_height_above_bore,
                                                    spread_modifier=self.parent.spread_modifier,
+                                                   projectile_spread_modifier=self.parent.projectile_spread_modifier,
                                                    target_acquisition_ap=self.parent.target_acquisition_ap,
                                                    firing_ap_cost=self.parent.firing_ap_cost,
                                                    condition_accuracy=self.parent.condition_accuracy,
@@ -119,6 +120,7 @@ class Parts:
                                             ap_distance_cost_modifier=self.parent.ap_distance_cost_modifier,
                                             receiver_height_above_bore=self.parent.receiver_height_above_bore,
                                             spread_modifier=self.parent.spread_modifier,
+                                            projectile_spread_modifier=self.parent.projectile_spread_modifier,
                                             target_acquisition_ap=self.parent.target_acquisition_ap,
                                             firing_ap_cost=self.parent.firing_ap_cost,
                                             condition_accuracy=self.parent.condition_accuracy,
@@ -193,6 +195,11 @@ class Parts:
                             except KeyError:
                                 pass
 
+            # gives additional mag capacity if conferred by parts
+            if (isinstance(self.parent, GunIntegratedMag) and
+                    hasattr(part.usable_properties, 'additional_magazine_capacity')):
+                self.parent.mag_capacity += part.usable_properties.additional_magazine_capacity
+
             # updates gun properties with that of the current part
             self.set_property(part_properties=part.usable_properties.__dict__)
 
@@ -249,17 +256,32 @@ class Parts:
 
                 elif type(part_properties[property_str]) is float:
                     gun_property = getattr(self.parent, property_str)
-                    if type(gun_property) is int:
-                        setattr(self.parent, property_str, round((part_properties[property_str] * gun_property), 2))
+
+                    if property_str == "velocity_modifier" or property_str == "projectile_spread_modifier":
+                        gun_property['single projectile'] = gun_property['single projectile'] * part_properties[property_str]
+                        
                     else:
-                        setattr(self.parent, property_str, (part_properties[property_str] * gun_property))
+
+                        if type(gun_property) is int:
+                            setattr(self.parent, property_str, round((part_properties[property_str] * gun_property), 2))
+                        else:
+                            setattr(self.parent, property_str, (part_properties[property_str] * gun_property))
 
                 elif type(part_properties[property_str]) in (None, str, int, bool):
                     setattr(self.parent, property_str, part_properties[property_str])
 
                 elif type(part_properties[property_str]) is dict:
-                    new_dict = {**getattr(self.parent, property_str), **part_properties[property_str]}
-                    setattr(self.parent, property_str, new_dict)
+
+                    if property_str == "velocity_modifier" or property_str == "projectile_spread_modifier":
+                        gun_property = getattr(self.parent, property_str)
+
+                        for round_type in part_properties[property_str].keys():
+                            if round_type in gun_property:
+                                gun_property[round_type] = gun_property[round_type] * \
+                                                           part_properties[property_str][round_type]
+                    else:
+                        new_dict = {**getattr(self.parent, property_str), **part_properties[property_str]}
+                        setattr(self.parent, property_str, new_dict)
 
     def disassemble(self, entity):
 

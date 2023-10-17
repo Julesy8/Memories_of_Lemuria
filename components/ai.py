@@ -8,14 +8,13 @@ import tcod
 
 from components.consumables import GunMagFed, GunIntegratedMag, Gun, Weapon, MeleeWeapon, Bullet
 from actions import Action, MovementAction, WaitAction, UnarmedAttackAction, AttackAction, \
-    ReloadMagFed, LoadBulletsIntoMagazine, MeleeAttackAction, GunAttackAction
+    ReloadMagFed, LoadBulletsIntoMagazine, MeleeAttackAction, GunAttackAction, ReloadFromClip
 from entity import Actor
 
-# TODO - make this more modular and clean
 
 class BaseAI(Action):
 
-    def __init__(self,entity: Actor,):
+    def __init__(self, entity: Actor, ):
         self.queued_action: Optional[Action] = None
         self.turns_until_action: int = 0
         super().__init__(entity)
@@ -55,7 +54,7 @@ class BaseAI(Action):
 
 
 class HostileEnemy(BaseAI):
-    def __init__(self,entity: Actor,):
+    def __init__(self, entity: Actor, ):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
@@ -181,7 +180,7 @@ class HostileEnemy(BaseAI):
 
 
 class HostileAnimal(HostileEnemy):
-    def __init__(self, entity: Actor,):
+    def __init__(self, entity: Actor, ):
         super().__init__(entity)
         self.attack_radius = 5
         self.attacking_target = False
@@ -280,7 +279,7 @@ class HostileAnimal(HostileEnemy):
 
 
 class HostileEnemyArmed(BaseAI):
-    def __init__(self, entity: Actor,):
+    def __init__(self, entity: Actor, ):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
@@ -332,7 +331,7 @@ class HostileEnemyArmed(BaseAI):
                 break
 
             # perform attack action
-            if fighter.ap > 0 and self.entity.fighter.turns_attack_inactive <= 0 and distance <= attack_range \
+            if fighter.ap > 0 >= self.entity.fighter.turns_attack_inactive and distance <= attack_range \
                     and self.entity.fighter.fleeing_turns <= 0 and \
                     target.fighter.visible_tiles[self.entity.x, self.entity.y] and self.queued_action is None:
 
@@ -358,10 +357,12 @@ class HostileEnemyArmed(BaseAI):
 
                         # reload weapon
                         if held_item.usable_properties.chambered_bullet is None:
-                            # print('reloading')
                             ReloadMagFed(entity=self.entity, gun=held_item.usable_properties,
                                          magazine_to_load=held_item.usable_properties.previously_loaded_magazine). \
                                 handle_action()
+                            self.entity.fighter.fleeing_turns = (
+                                round(held_item.usable_properties.previously_loaded_magazine.ap_to_load
+                                      / self.entity.fighter.ap_per_turn))
 
                         # round in chamber, attacks
                         else:
@@ -372,15 +373,25 @@ class HostileEnemyArmed(BaseAI):
                     # gun integrated mag
                     elif isinstance(held_item.usable_properties, GunIntegratedMag):
 
-                        no_bullets_to_load = held_item.usable_properties.mag_capacity - \
-                                             len(held_item.usable_properties.magazine)
-
                         # reload weapon
                         if held_item.usable_properties.chambered_bullet is None and isinstance(
                                 held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
-                            LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
-                                                    bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
-                                                    bullets_to_load=no_bullets_to_load).handle_action()
+
+                            if held_item.usable_properties.previously_loaded_clip is not None:
+                                # reload from clip
+                                ReloadFromClip(entity=self.entity,
+                                               clip=held_item.usable_properties.previously_loaded_clip,
+                                               gun=held_item.usable_properties)
+                                self.entity.fighter.fleeing_turns = (
+                                    round(held_item.usable_properties.previously_loaded_clip.ap_to_load
+                                          / self.entity.fighter.ap_per_turn))
+
+                            else:
+                                no_bullets_to_load = held_item.usable_properties.mag_capacity - \
+                                                     len(held_item.usable_properties.magazine)
+                                LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
+                                                        bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
+                                                        bullets_to_load=no_bullets_to_load).handle_action()
 
                         # round in chamber, attacks
                         else:
@@ -389,8 +400,6 @@ class HostileEnemyArmed(BaseAI):
 
             # reload if magazine below half capacity and player not visible, reloads
             elif not target.fighter.visible_tiles[self.entity.x, self.entity.y] and has_weapon and reload_check:
-
-                # print('reload check')
 
                 reload_check = False
 
@@ -404,10 +413,11 @@ class HostileEnemyArmed(BaseAI):
 
                         if mag_capacity < mag_round_count / 2:
                             if not isinstance(self.queued_action, LoadBulletsIntoMagazine) and isinstance(
-                                held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
+                                    held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
                                 LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
                                                         bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
                                                         bullets_to_load=no_bullets_to_load).handle_action()
+                                self.entity.fighter.fleeing_turns = (no_bullets_to_load * 2)
                                 pass
 
                     # magazine fed gun
@@ -421,6 +431,9 @@ class HostileEnemyArmed(BaseAI):
                                 ReloadMagFed(entity=self.entity, gun=held_item,
                                              magazine_to_load=held_item.usable_properties.previously_loaded_magazine). \
                                     perform()
+                                self.entity.fighter.fleeing_turns = (
+                                    round(held_item.usable_properties.previously_loaded_magazine.ap_to_load
+                                          / self.entity.fighter.ap_per_turn))
                                 pass
 
             # any kind of movement action occurring
@@ -486,7 +499,8 @@ class HostileEnemyArmed(BaseAI):
                     self.queued_action.distance = distance
 
                     # attack with a weapon
-                    if isinstance(self.queued_action, MeleeAttackAction) or isinstance(self.queued_action, GunAttackAction):
+                    if isinstance(self.queued_action, MeleeAttackAction) or isinstance(self.queued_action,
+                                                                                       GunAttackAction):
                         # check if still holding weapon
                         if not self.queued_action.weapon == held_item:
                             action_viable = False

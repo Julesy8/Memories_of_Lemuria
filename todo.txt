@@ -1,7 +1,7 @@
 -----
 TO DO
 -----
-
+-high recoil rounds should incur an AP penalty to target re-acquisition
 -multple sizes of icon, can add new sizes in main.spec
 
 Ideal item action handling:
@@ -42,8 +42,10 @@ new weapon property - needs_mag_to_fire
 ability to single load rounds into guns for emergencies
 add armour
 armour weight changes dexterity and walk speed
+grenades
 
 Extended Goals
+-ability to fold folding stocks, giving them different properties
 -when enemy dies with a gun, should drop the magazine and gun separately. That way can scavenge magazines without
 interacting with gun
 -calling input handlers from consumable and more generally actually using the consumable class properly
@@ -153,7 +155,6 @@ target_acquisition_ap =
 
 Guns to add
 FAL
-Remington 870
 TEC-9
 Sten
 Dragunov

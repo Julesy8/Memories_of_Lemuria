@@ -61,8 +61,8 @@ Hive Mother
 
 """
 
-# TODO - enemy rebalance - worse at shooting, less health etc
 # health values scale with size of the animal roughly
+
 
 def placeholder_fighter():
     return Fighter(unarmed_meat_damage=5, unarmed_armour_damage=5, item_drops={}, spawn_group_amount=1, weapons={})

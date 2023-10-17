@@ -383,7 +383,7 @@ glock_17 = Item(
                     'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
         current_fire_mode='single shot',
         parts=Parts(),
-        velocity_modifier=1.0,
+        velocity_modifier={'single projectile': 1.0},
         compatible_bullet_type='9mm',
         felt_recoil=1.1,
         receiver_height_above_bore=0.46,
@@ -393,7 +393,8 @@ glock_17 = Item(
         target_acquisition_ap=30,
         firing_ap_cost=60,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=0.055,
+        spread_modifier=1.09,
+        projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pistol',
         barrel_length=4.49
     )

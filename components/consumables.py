@@ -4,6 +4,7 @@ from typing import Optional, TYPE_CHECKING
 
 from exceptions import Impossible
 
+from numpy import random
 from math import sqrt, e, pi, cos, sin
 from random import uniform, choices
 from copy import deepcopy
@@ -188,7 +189,8 @@ class Weapon(Usable):
                 equip_time *= self.loaded_magazine.equip_ap_mod
 
         return self.ap_to_equip
-        # TODO - if weapon attack turns in full auto go over one turn, should be broken up into multiple turns
+        # TODO - if weapon attack turns in full auto go over one turn, should be broken up into multiple turns. Alternatively (better solution) - make it so attacks can't go more than one turn anymore
+
 
 class MeleeWeapon(Weapon):
 
@@ -251,6 +253,7 @@ class Bullet(Usable):
                  spread_modifier: float,  # range penalty per tile to account for spread
                  ballistic_coefficient: float,
                  bullet_length: float,  # inches
+                 projectile_type: str = 'single projectile',  # e.g. buckshot, birdshot
                  max_expansion: float = 1.0,  # multiplier of diameter
                  max_expansion_velocity: int = 2000,  # velocity at which bullet expands to maximum diameter
                  bullet_expands=False,  # whether bullet expands (hollow point / soft point)
@@ -260,6 +263,7 @@ class Bullet(Usable):
                  projectile_no: int = 1,
                  ):
         self.bullet_type = bullet_type
+        self.projectile_type = projectile_type
         self.mass = mass
         self.charge_mass = charge_mass
         self.diameter = diameter
@@ -276,6 +280,7 @@ class Bullet(Usable):
         self.load_time_modifier = load_time_modifier
         self.projectile_no = projectile_no
         self.spread_modifier = spread_modifier
+
 
 class Magazine(Usable):
 
@@ -337,6 +342,7 @@ class Magazine(Usable):
             else:
                 return self.engine.message_log.add_message(f"{entity.name} is already empty", colour.RED)
 
+
 class DetachableMagazine(Magazine):
     def __init__(self,
                  magazine_type: str,  # type of weapon this magazine works with i.e. glock 9mm
@@ -349,7 +355,6 @@ class DetachableMagazine(Magazine):
                  ap_distance_cost_mod: float = 1.0,
                  equip_ap_mod: float = 1.0,
                  ):
-
         super().__init__(compatible_bullet_type=compatible_bullet_type, mag_capacity=mag_capacity)
 
         self.magazine_type = magazine_type
@@ -360,6 +365,7 @@ class DetachableMagazine(Magazine):
         self.ap_distance_cost_mod = ap_distance_cost_mod
         self.equip_ap_mod = equip_ap_mod
 
+
 class Clip(Magazine):
     def __init__(self,
                  magazine_type: str,
@@ -368,19 +374,19 @@ class Clip(Magazine):
                  magazine_size: str,
                  ap_to_load: int,
                  ):
-
         super().__init__(compatible_bullet_type=compatible_bullet_type, mag_capacity=mag_capacity)
 
         self.magazine_type = magazine_type
         self.magazine_size = magazine_size
         self.ap_to_load = ap_to_load
 
+
 class Gun(Weapon):
     def __init__(self,
                  parts: Parts,
                  gun_type: str,
                  compatible_bullet_type: str,
-                 velocity_modifier: float,
+                 velocity_modifier: dict,
                  ap_to_equip: int,
                  fire_modes: dict,  # fire rates in rpm
                  current_fire_mode: str,
@@ -393,7 +399,8 @@ class Gun(Weapon):
                  receiver_height_above_bore: float,  # inches
                  target_acquisition_ap: int,  # ap cost for acquiring new target
                  ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
-                 spread_modifier: float,  # MoA / 100 - for M16A2 2-3 MoA, so 0.03
+                 spread_modifier: float,  # spread due to purely non-ballistic factors i.e. handling
+                 projectile_spread_modifier: dict,  # spread due to ballistic factors i.e. barrel length, choke
                  manual_action: bool = False,
                  action_cycle_ap_cost: int = 100,
                  condition_accuracy: int = 5,
@@ -403,6 +410,7 @@ class Gun(Weapon):
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
                  compatible_clip: str = None,
+                 previously_loaded_clip: Optional[Clip] = None,
                  chambered_bullet: Optional[Bullet] = None,
                  pdw_stock: bool = False,
                  has_stock: bool = False,
@@ -435,7 +443,9 @@ class Gun(Weapon):
         self.receiver_height_above_bore = receiver_height_above_bore
         self.sight_height_above_bore = sight_height_above_bore
         self.barrel_length = barrel_length
-        self.spread_modifier = spread_modifier  # MoA / 100
+        self.spread_modifier = spread_modifier
+        self.projectile_spread_modifier = projectile_spread_modifier
+        self.previously_loaded_clip = previously_loaded_clip
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
         self.fire_modes = fire_modes
@@ -468,9 +478,8 @@ class Gun(Weapon):
                           targeted_bodypart: Optional[Bodypart]):
         raise NotImplementedError
 
-
-    def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int, hit_location_x: int,
-                      hit_location_y: int, proficiency: float, skill_range_modifier: float) -> None:
+    def attack_ranged(self, distance: int, target: Actor, attacker: Actor, part_index: int,
+                      proficiency: float, skill_range_modifier: float) -> None:
 
         if self.jammed:
             self.engine.message_log.add_message("Attack failed: gun jammed. Press ENTER to clear.", colour.RED)
@@ -521,6 +530,8 @@ class Gun(Weapon):
 
             if self.chambered_bullet is not None:
 
+                velocity_modifier = self.velocity_modifier[self.chambered_bullet.projectile_type]
+
                 ammo_weight = len(magazine) * self.chambered_bullet.parent.weight
                 total_weight = self.parent.weight + mag_weight + ammo_weight
 
@@ -540,7 +551,7 @@ class Gun(Weapon):
                         self.jammed = True
                         return
 
-                muzzle_velocity = self.chambered_bullet.velocity * self.velocity_modifier
+                muzzle_velocity = self.chambered_bullet.velocity * velocity_modifier
 
                 # calculates 'sound radius' based on barrel pressure relative to that of a glock 17 firing 115 gr
                 # bullets, which has an arbitrary sound radius of 20 when unsuppressed
@@ -558,16 +569,16 @@ class Gun(Weapon):
                 else:
                     weight_handling_modifier = 0.85 + 0.15 * ((self.parent.weight + total_weight) / 4)
 
-                # gives projectile spread in MoA
-                spread_diameter = \
-                    self.chambered_bullet.spread_modifier * self.spread_modifier * \
-                    dist_yards * attacker.fighter.ranged_accuracy * min((5 / self.condition_accuracy), 2) \
-                    * proficiency * skill_range_modifier * weight_handling_modifier
+                # aim location coordinates
+                standard_deviation = (0.1 * dist_yards * attacker.fighter.ranged_accuracy * proficiency *
+                                      skill_range_modifier * weight_handling_modifier)
+                hit_location_x = random.normal(scale=standard_deviation, size=1)[0]
+                hit_location_y = random.normal(scale=standard_deviation, size=1)[0]
 
-                # bullet spread hit location coordinates
-                radius = (spread_diameter * 0.523) * sqrt(uniform(0, 1))
-                spread_x = radius * cos(spread_angle)
-                spread_y = radius * sin(spread_angle)
+                # projectile hit locations from ballistic factors
+                projectile_spread_modifier = (self.projectile_spread_modifier[self.chambered_bullet.projectile_type] *
+                                              self.chambered_bullet.spread_modifier *
+                                              min((5 / self.condition_accuracy), 2) * dist_yards)
 
                 # Pejsa's projectile drop formula
 
@@ -593,9 +604,13 @@ class Gun(Weapon):
 
                 for i in range(self.chambered_bullet.projectile_no):
 
+                    radius_projectile = (projectile_spread_modifier * 0.523) * sqrt(uniform(0, 1))
+                    spread_x_projectile = radius_projectile * cos(spread_angle)
+                    spread_y_projectile = radius_projectile * sin(spread_angle)
+
                     # checks if hit
-                    hit_location_x += spread_x
-                    hit_location_y += (recoil_penalty * dist_yards) + projectile_path + spread_y
+                    hit_location_x += spread_x_projectile
+                    hit_location_y += (recoil_penalty * dist_yards) + projectile_path + spread_y_projectile
 
                     if not hit_location_x > (target.bodyparts[part_index].width * 0.3937 / 2) or hit_location_x < 0 or \
                             hit_location_y > (target.bodyparts[part_index].height * 0.3937 / 2) or hit_location_y < 0:
@@ -641,7 +656,9 @@ class Gun(Weapon):
                             muzzle_break = self.muzzle_break_efficiency
 
                         gas_velocity = muzzle_velocity * 1.7
-                        bullet_momentum = self.chambered_bullet.mass * 0.000142857 * muzzle_velocity
+                        bullet_momentum = \
+                            self.chambered_bullet.mass * 0.000142857 * muzzle_velocity * \
+                            self.chambered_bullet.projectile_no
                         gas_momentum = \
                             self.chambered_bullet.charge_mass * 0.000142857 * muzzle_velocity / 2
                         momentum_jet = \
@@ -719,7 +736,6 @@ class Gun(Weapon):
                     self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
                                                         colour.WHITE)
 
-    # TODO - make it so that AI can reload from clips
     def load_from_clip(self, clip: Clip):
 
         entity = self.parent
@@ -789,7 +805,6 @@ class Wearable(Usable):
                  large_mag_slots: int,
                  equip_ap_cost: int,
                  ):
-
         self.protection_ballistic = protection_ballistic
         self.armour_coverage = armour_coverage
         self.protection_physical = protection_physical
@@ -808,13 +823,14 @@ class Wearable(Usable):
     def unequip(self, user: Actor) -> None:
         actions.UnequipWearable(entity=user, wearable=self).handle_action()
 
+
 class GunMagFed(Gun):
     def __init__(self,
                  parts: Parts,
                  gun_type: str,
                  compatible_magazine_type: str,
                  compatible_bullet_type: str,
-                 velocity_modifier: float,
+                 velocity_modifier: dict,
                  ap_to_equip: int,
                  fire_modes: dict,
                  current_fire_mode: str,
@@ -828,6 +844,7 @@ class GunMagFed(Gun):
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
                  spread_modifier: float,  # MoA / 100
+                 projectile_spread_modifier: dict,
                  manual_action: bool = False,
                  action_cycle_ap_cost: int = 100,
                  condition_accuracy: int = 5,
@@ -880,10 +897,11 @@ class GunMagFed(Gun):
             has_stock=has_stock,
             short_barrel=short_barrel,
             barrel_length=barrel_length,
-            pdw_stock=pdw_stock
+            pdw_stock=pdw_stock,
+            projectile_spread_modifier=projectile_spread_modifier
         )
 
-    def load_gun(self,  user: Actor, magazine: DetachableMagazine):
+    def load_gun(self, user: Actor, magazine: DetachableMagazine):
         actions.ReloadMagFed(entity=user, magazine_to_load=magazine, gun=self).handle_action()
 
     def unload_gun(self):
@@ -924,11 +942,12 @@ class GunMagFed(Gun):
         return actions.GunMagFedAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
                                        gun=self, targeted_bodypart=targeted_bodypart).handle_action()
 
+
 class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
                  parts: Parts,
                  gun_type: str,
-                 velocity_modifier: float,
+                 velocity_modifier: dict,
                  ap_to_equip: int,
                  fire_modes: dict,
                  current_fire_mode: str,
@@ -943,7 +962,8 @@ class GunIntegratedMag(Gun, Magazine):
                  receiver_height_above_bore: float,
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
-                 spread_modifier: float,  # MoA / 100
+                 spread_modifier: float,
+                 projectile_spread_modifier: dict,
                  manual_action: bool = False,
                  action_cycle_ap_cost: int = 100,
                  condition_accuracy: int = 5,
@@ -995,7 +1015,8 @@ class GunIntegratedMag(Gun, Magazine):
             has_stock=has_stock,
             short_barrel=short_barrel,
             barrel_length=barrel_length,
-            pdw_stock=pdw_stock
+            pdw_stock=pdw_stock,
+            projectile_spread_modifier=projectile_spread_modifier
         )
 
     def chamber_round(self):
@@ -1040,6 +1061,7 @@ class GunIntegratedMag(Gun, Magazine):
 
         return ap_cost, load_time_modifier, proficiency
 
+
 class GunComponent(Usable):
     def __init__(self,
                  part_type: str,
@@ -1065,6 +1087,7 @@ class GunComponent(Usable):
             self.condition_function = condition_function
 
         self.__dict__.update(kwargs)
+
 
 class RecipeUnlock(Usable):
 

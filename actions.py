@@ -212,6 +212,7 @@ class AttackAction(Action):
             self.part_index = choices(indices, weights)[0]
             self.targeted_bodypart = target.bodyparts[self.part_index]
 
+
 class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
     def action_viable(self) -> bool:
@@ -220,7 +221,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
         if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] \
-                            and distance == 1:
+                and distance == 1:
             return True
         else:
             return False
@@ -256,6 +257,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             else:
                 return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
+
 class MeleeAttackAction(AttackAction):
     def __init__(self, distance: int, weapon: MeleeWeapon, entity: Actor, targeted_actor: Actor,
                  targeted_bodypart: Optional[Bodypart]):
@@ -269,7 +271,7 @@ class MeleeAttackAction(AttackAction):
         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
         if self.engine.game_map.visible[self.targeted_actor.x, self.targeted_actor.y] \
-                            and distance == 1:
+                and distance == 1:
             return True
         else:
             return False
@@ -289,6 +291,7 @@ class MeleeAttackAction(AttackAction):
         self.weapon.attack_melee(target=self.targeted_actor, attacker=self.entity,
                                  part_index=self.part_index, hitchance=hit_chance)
 
+
 class GunAttackAction(AttackAction):
     def __init__(self, distance: int, gun: Gun, entity: Actor, targeted_actor: Actor,
                  targeted_bodypart: Optional[Bodypart]):
@@ -301,7 +304,7 @@ class GunAttackAction(AttackAction):
         self.rounds_in_mag = 0
         self.target_acquisition_ap = self.weapon.target_acquisition_ap * self.entity.fighter.target_acquisition_ap
         self.ap_distance_cost_modifier = self.weapon.ap_distance_cost_modifier * \
-                                       self.entity.fighter.ap_distance_cost_modifier
+                                         self.entity.fighter.ap_distance_cost_modifier
 
     def action_viable(self) -> bool:
         if self.entity.player and self.entity.fighter.visible_tiles[self.targeted_actor.x, self.targeted_actor.y] or \
@@ -366,8 +369,9 @@ class GunAttackAction(AttackAction):
                 # time (and therefore AP) it takes to fire the given amount of rounds
                 time_to_fire = self.entity.fighter.automatic_fire_duration
             else:
-                time_to_fire = self.rounds_in_mag / round((self.weapon.fire_modes[self.weapon.current_fire_mode]['fire rate']
-                                                      / 60 * self.weapon.fire_rate_modifier))
+                time_to_fire = self.rounds_in_mag / round(
+                    (self.weapon.fire_modes[self.weapon.current_fire_mode]['fire rate']
+                     / 60 * self.weapon.fire_rate_modifier))
 
             ap_cost += round(time_to_fire * 100)
 
@@ -405,18 +409,13 @@ class GunAttackAction(AttackAction):
 
         self.get_target()
 
-        # calculate hit location on body
-        standard_deviation = 0.1 * self.distance
-        hit_location_x = numpy.random.normal(scale=standard_deviation, size=1)[0]
-        hit_location_y = numpy.random.normal(scale=standard_deviation, size=1)[0]
-
         self.weapon.attack_ranged(target=self.targeted_actor, attacker=self.entity,
-                                  part_index=self.part_index, hit_location_x=hit_location_x,
-                                  hit_location_y=hit_location_y, distance=self.distance,
+                                  part_index=self.part_index, distance=self.distance,
                                   proficiency=self.proficiency, skill_range_modifier=self.marksmanship)
 
         self.entity.fighter.previously_targeted_part = self.targeted_bodypart
         self.entity.fighter.previous_target_actor = self.targeted_actor
+
 
 class GunMagFedAttack(GunAttackAction):
     def __init__(self, distance: int, gun: GunMagFed, entity: Actor, targeted_actor: Actor,
@@ -443,6 +442,7 @@ class GunMagFedAttack(GunAttackAction):
             if rounds_in_mag >= 1:
                 self.total_weight += (len(magazine) * magazine[0].parent.weight)
 
+
 class GunIntegratedMagAttack(GunAttackAction):
 
     def __init__(self, distance: int, gun: GunIntegratedMag, entity: Actor, targeted_actor: Actor,
@@ -451,13 +451,13 @@ class GunIntegratedMagAttack(GunAttackAction):
         self.weapon = gun
 
     def additional_ap_cost(self) -> None:
-
         rounds_in_mag = len(self.weapon.magazine)
         magazine = self.weapon.magazine
 
         # adds weight of rounds in magazine to total weight
         if rounds_in_mag >= 1:
             self.total_weight += (len(magazine) * magazine[0].parent.weight)
+
 
 class ClearJam(Action):
 
@@ -487,6 +487,7 @@ class ClearJam(Action):
     def perform(self) -> None:
         self.gun.jammed = False
         self.engine.message_log.add_message(f"{self.entity.name} cleared jam", colour.GREEN)
+
 
 class ReloadMagFed(Action):
     def __init__(self, entity: Actor, gun: GunMagFed, magazine_to_load: DetachableMagazine):
@@ -521,11 +522,10 @@ class ReloadMagFed(Action):
             ap_cost += self.gun.action_cycle_ap_cost
 
         ap_cost *= proficiency
-        return  ap_cost
+        return ap_cost
 
     def perform(self) -> None:
 
-        # TODO - make it so AI flees when reloading
         # loads magazine into gun
         if self.gun.loaded_magazine is not None:
 
@@ -542,6 +542,7 @@ class ReloadMagFed(Action):
         if len(self.gun.loaded_magazine.magazine) > 0:
             if self.gun.chambered_bullet is None:
                 self.gun.chambered_bullet = self.gun.loaded_magazine.magazine.pop()
+
 
 class ReloadFromClip(Action):
     def __init__(self, entity: Actor, gun: Gun, clip: Clip):
@@ -583,10 +584,11 @@ class ReloadFromClip(Action):
             ap_cost += self.gun.action_cycle_ap_cost
 
         ap_cost *= proficiency
-        return  ap_cost
+        return ap_cost
 
     def perform(self) -> None:
         self.gun.load_from_clip(clip=self.clip)
+
 
 class LoadBulletsIntoMagazine(Action):
     def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Bullet):
@@ -635,10 +637,10 @@ class LoadBulletsIntoMagazine(Action):
         # loads bullets into gun
         self.magazine.load_magazine(ammo=self.bullet_type, load_amount=self.bullets_to_load)
 
+
 class MovementAction(ActionWithDirection):
 
     def calculate_ap_cost(self):
-        # TODO - remove move_success_chance from fighter, replace with just increasing AP cost probably
         return self.entity.fighter.move_ap_cost
 
     def action_viable(self) -> bool:
@@ -690,6 +692,7 @@ class MovementAction(ActionWithDirection):
                         self.engine.handle_enemy_turns()
         """
 
+
 class BumpAction(ActionWithDirection):
 
     def perform(self) -> None:
@@ -701,8 +704,9 @@ class BumpAction(ActionWithDirection):
 
                 if item_held is not None:
                     return item_held.usable_properties.get_attack_action(distance=1, entity=self.entity,
-                                                                          targeted_actor=self.target_actor,
-                                                                         targeted_bodypart=self.target_actor.bodyparts[0])
+                                                                         targeted_actor=self.target_actor,
+                                                                         targeted_bodypart=self.target_actor.bodyparts[
+                                                                             0])
 
                 else:
                     return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
@@ -891,6 +895,7 @@ class HealPart(Action):
     def perform(self) -> None:
         self.healing_item.usable_properties.activate(self)
 
+
 class EquipWeapon(Action):
     def __init__(self, entity: Actor, weapon: Weapon):
         super().__init__(entity)
@@ -901,6 +906,7 @@ class EquipWeapon(Action):
 
     def perform(self) -> None:
         self.entity.inventory.held = self.weapon.parent
+
 
 class EquipWeaponToPrimary(EquipWeapon):
     def __init__(self, entity: Actor, weapon: Weapon):
@@ -913,6 +919,7 @@ class EquipWeaponToPrimary(EquipWeapon):
                                                    item_container=None, amount=1)
         self.entity.inventory.primary_weapon = self.weapon.parent
 
+
 class EquipWeaponToSecondary(EquipWeapon):
     def __init__(self, entity: Actor, weapon: Weapon):
         super().__init__(entity, weapon)
@@ -923,6 +930,7 @@ class EquipWeaponToSecondary(EquipWeapon):
             self.entity.inventory.add_to_inventory(item=self.entity.inventory.secondary_weapon,
                                                    item_container=None, amount=1)
         self.entity.inventory.secondary_weapon = self.weapon.parent
+
 
 class UnequipWeapon(EquipWeapon):
 
@@ -938,6 +946,7 @@ class UnequipWeapon(EquipWeapon):
             inventory.primary_weapon = None
         elif inventory.secondary_weapon == self.weapon.parent:
             inventory.secondary_weapon = None
+
 
 class EquipWearable(Action):
 
@@ -967,6 +976,7 @@ class EquipWearable(Action):
                         self.entity.inventory.items.remove(self.wearable.parent)
                         item_removed = True
                     bodypart.equipped = self.wearable
+
 
 class UnequipWearable(EquipWearable):
     def __init__(self, entity: Actor, wearable: Wearable):

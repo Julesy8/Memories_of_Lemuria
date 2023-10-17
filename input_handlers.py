@@ -162,7 +162,6 @@ class EventHandler(BaseEventHandler):
         return self
 
     def handle_action(self, action: Optional[Action]) -> bool:
-        # TODO - this probably needs reworking, especially how enemy turns are handled
         """Handle actions returned from event methods.
 
         Returns True if the action will advance a turn.
@@ -192,8 +191,6 @@ class EventHandler(BaseEventHandler):
 
 
 class MainGameEventHandler(EventHandler):
-
-    # TODO - key to advance to handle queued actions
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
@@ -1836,8 +1833,6 @@ class CraftGun(CraftItem):
                          )
 
     def add_options(self):
-
-        # TODO - all this should be handled by an action / consumable method
 
         # checks if current part selection is the same as the type as item in the prerequisite parts
         # if it is, only adds parts to options that are in prerequisites

@@ -293,7 +293,7 @@ m1_carbine = Item(
                     'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
         parts=Parts(),
         compatible_bullet_type='.30 Carbine',
-        velocity_modifier=1.0,
+        velocity_modifier={'projectile': 1.0},
         felt_recoil=1.0,
         sound_modifier=1.0,
         zero_range=25,
@@ -302,7 +302,8 @@ m1_carbine = Item(
         target_acquisition_ap=50,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=0.05,
+        spread_modifier=1.0,
+        projectile_spread_modifier={'single projectile': 1.0},
         barrel_length=17.75,
         gun_type='rifle'
     )
@@ -331,7 +332,7 @@ m2_carbine = Item(
                     'automatic': {'fire rate': 750, 'automatic': True}},
         parts=Parts(),
         compatible_bullet_type='.30 Carbine',
-        velocity_modifier=1.0,
+        velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         sound_modifier=1.0,
         zero_range=25,
@@ -340,7 +341,8 @@ m2_carbine = Item(
         target_acquisition_ap=50,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=0.05,
+        spread_modifier=1.0,
+        projectile_spread_modifier={'single projectile': 1.0},
         barrel_length=17.75,
         gun_type='rifle'
     )

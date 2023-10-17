@@ -1000,3 +1000,24 @@ m14_50rd = Item(
         failure_chance=2,
     )
 )
+
+"""
+R870 DM
+"""
+
+r870_6rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Model 870 DM 6 Round Magazine",
+    weight=0.21,
+    stacking=None,
+    description='6 round box magazine for the magazine fed DM model of the Remington 870',
+    usable_properties=DetachableMagazine(
+        magazine_type='R870 DM',
+        compatible_bullet_type=['12 Gauge', ],
+        mag_capacity=6,
+        magazine_size='medium',
+        ap_to_load=400,
+    )
+)

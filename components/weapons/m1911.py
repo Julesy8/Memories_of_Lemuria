@@ -7,6 +7,8 @@ import colour
 FRAMES
 """
 
+# TODO - 3011 frame that uses AR parts
+
 # SEMI-AUTO
 
 m1911_frame_gov_ss = Item(
@@ -1857,7 +1859,7 @@ m1911 = Item(
                     'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
         current_fire_mode='single shot',
         parts=Parts(),
-        velocity_modifier=1.0,
+        velocity_modifier={'single projectile': 1.0},
         compatible_bullet_type='1911 .45 ACP',
         felt_recoil=1.1,
         load_time_modifier=1.1,
@@ -1865,10 +1867,11 @@ m1911 = Item(
         sight_height_above_bore=0.067,
         sound_modifier=1.0,
         zero_range=25,
-        target_acquisition_ap=30,  # TODO - maybe increase as a modifier for enemies
+        target_acquisition_ap=30,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=0.055,
+        spread_modifier=1.09,
+        projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pistol',
         barrel_length=5
     )

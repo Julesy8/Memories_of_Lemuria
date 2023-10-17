@@ -5,8 +5,9 @@ As this game is in active development, you may encounter bugs throughout the cou
 reports and suggestions to EMAIL@EMAIL.COM.
 
 Thank you for downloading Memories of Lemuria. This is a rogue-like game centred on advanced firearms combat, ballistics
-simulation and gun crafting. Because of the complex nature of the gameplay, it is HIGHLY recommended that you read
-the tutorial section manual in its entirety before commencing and refer back to this document often.
+simulation, gun crafting and squad tactics. Because of the complex nature of the gameplay, it is HIGHLY recommended
+that you read the tutorial section manual in its entirety before commencing play. It may be helpful to refer back to
+this document frequently during play.
 
 Many thanks to Blavatsky (https://blavatsky.bandcamp.com) for graciously allowing me to use his music.
 
@@ -36,18 +37,20 @@ ACTIONS AND MENUS
 -----------------
 
 F11: Toggle full screen
-G: Pick up item
-I: Inventory
-E: Equipped Items (i.e. Armour, Weapons etc)
-V: Message History
-R: Magazine Loadout
-Q: Interact with Held Weapon
-C: Crafting
-S: Change Attack Style
-P: Bestiary
-Z: View Skills
-Space: Attack Mode
-Escape: Save and Exit
+G: pick up item
+I: inventory
+E: interact with equipped items (i.e. armour, weapons etc)
+V: message history
+R: magazine loadout
+Q: interact with held weapon
+C: crafting
+S: change attack style
+P: bestiary
+Z: view skills
+Tab: switch character
+-: toggle squad mode
+Space: toggle attack mode
+Escape: save and exit
 
  - MENU NAVIGATION -
 
@@ -121,6 +124,11 @@ interacting with them.
 ------
 COMBAT
 ------
+
+- SQUAD MODE -
+
+Squad mode allows you to control multiple player characters during a single turn. Squad mode can be enabled by pressing
+(-). When in squad mode, your turn will only end when you press (?).
 
 - DAMAGE & HEALTH -
 

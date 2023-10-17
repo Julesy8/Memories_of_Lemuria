@@ -370,7 +370,7 @@ m14 = Item(
                     'automatic': {'fire rate': 750, 'automatic': True}},
         parts=Parts(),
         compatible_bullet_type='7.62x51',
-        velocity_modifier=1.0,
+        velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         sound_modifier=1.0,
         zero_range=25,
@@ -379,7 +379,8 @@ m14 = Item(
         target_acquisition_ap=50,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=0.05,
+        spread_modifier=1.03,
+        projectile_spread_modifier={'single projectile': 1.0},
         barrel_length=22,
         gun_type='rifle'
     )
@@ -406,7 +407,7 @@ m1a = Item(
                     'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False},},
         parts=Parts(),
         compatible_bullet_type='7.62x51',
-        velocity_modifier=1.0,
+        velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         sound_modifier=1.0,
         zero_range=25,
@@ -415,7 +416,8 @@ m1a = Item(
         target_acquisition_ap=50,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=0.05,
+        spread_modifier=1.0,
+        projectile_spread_modifier={'single projectile': 1.0},
         barrel_length=22,
         gun_type='rifle'
     )

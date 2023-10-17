@@ -303,12 +303,6 @@ def new_game() -> Engine:
 
     engine.update_fov()
 
-    # TODO - new start game message
-    # engine.message_log.add_message(
-    #     "You lose your footing and fall deep into the caverns below... You can't see any way to get back to the surface"
-    #     , colour.LIGHT_MAGENTA
-    # )
-
     return engine
 
 
@@ -330,7 +324,7 @@ def generate_subtext() -> str:
                      'Cursed', 'Hegelian', 'Occult', 'Banned', 'Experimental', 'Reviled', '"Fictional"', 'CIA',
                      'Timeless', 'Theoretical', 'Runic', 'Spiritual', 'Soulful', 'Historical', 'Symbolic',
                      'Intuitive', 'Weaponized', 'Primal', 'Subconscious', 'Arthurian', 'Goetic', 'Wagnerian',
-                     'Taoist', 'Dharmic', 'Practical', 'Factual', 'Numinous'))
+                     'Taoist', 'Dharmic', 'Practical', 'Factual', 'Numinous', 'Life-Affirming'))
 
     verb_2 = choice(('Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',

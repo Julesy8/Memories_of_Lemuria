@@ -216,6 +216,11 @@ bullets_54r_weighted = {
     bullets.round_54r_200_fmj: 80,
 }
 
+bullets_12ga_weighted = {
+    bullets.round_12ga_00buck: 6,
+    bullets.round_12ga_slug: 1
+}
+
 glock17_parts_weighted = {
     glock17.glock17_frame: 250,
 

@@ -7,6 +7,7 @@ import components.weapons.mosin as mosin
 import components.weapons.m1911 as m1911
 import components.weapons.m1_carbine as m1_carbine
 import components.weapons.m14 as m14
+import components.weapons.r870 as r870
 import components.weapons.attachments as attachments
 import components.weapons.gun_parts_weighted as gun_parts
 
@@ -19,7 +20,8 @@ from entity import Item
 
 
 class PremadeWeapon:
-    def __init__(self, gun_item: Item, part_dict: dict, bullet, optics: dict, magazine=None, name: str = ''):
+    def __init__(self, gun_item: Item, part_dict: dict, bullet, optics: dict, magazine=None, name: str = '',
+                 clip=None):
 
         self.gun_item = gun_item
         self.name = name
@@ -27,6 +29,7 @@ class PremadeWeapon:
         self.magazine = magazine
         self.optics = optics
         self.bullet = bullet
+        self.clip = clip
 
     def update_properties(self) -> Item:
 
@@ -223,6 +226,9 @@ class PremadeWeapon:
         # if not keep_round_chambered - i.e. gun is bolt action or open bolt, removes bullet from magazine
         if not self.gun_item.usable_properties.keep_round_chambered:
             self.magazine.magazine.pop()
+
+        if self.clip is not None:
+            self.gun_item.usable_properties.previously_loaded_clip = self.clip
 
         # updates gun properties
         self.gun_item.usable_properties.parts.update_partlist(attachment_dict={})
@@ -693,8 +699,19 @@ m1045_weapon = PremadeWeapon(gun_item=m10.mac10,
                                                 },
                                  "M10/45 Carbine Handguard": {m10.mac10_carbine_handguard_m16a2: 1,
                                                               m10.mac10_carbine_handguard_picatinny: 1},
+                                 "Stock Adapter M10": {None: 50,
+                                                       m10.mac10_ar_stock_adapter: 1},
                                  "M10 Stock": {m10.mac1045_full_stock: 8, m10.mac1045_folding_stock: 4,
                                                m10.mac1045_stock: 100},
+                                 "AR Stock": {
+                                     None: 20,
+                                     ar15.ar_stock_m16a2: 100,
+                                     ar15.ar_stock_moe: 50,
+                                     ar15.ar_stock_ubr: 20,
+                                     ar15.ar_stock_danieldefense: 45,
+                                     ar15.ar_stock_prs: 30,
+                                     ar15.ar_stock_maxim_cqb: 10,
+                                 },
                                  "M10 Optics Mount": {None: 10, m10.mac10_optics_mount: 1},
                                  "Muzzle Device": {
                                      None: 50,
@@ -741,8 +758,19 @@ m109_weapon = PremadeWeapon(gun_item=m10.mac10,
                                                },
                                 "M10/45 Carbine Handguard": {m10.mac109_carbine_handguard_m16a2: 1,
                                                              m10.mac109_carbine_handguard_picatinny: 1},
+                                "Stock Adapter M10": {None: 50,
+                                                      m10.mac10_ar_stock_adapter: 1},
                                 "M10 Stock": {m10.mac1045_full_stock: 8, m10.mac1045_folding_stock: 4,
                                               m10.mac1045_stock: 100},
+                                "AR Stock": {
+                                    None: 20,
+                                    ar15.ar_stock_m16a2: 100,
+                                    ar15.ar_stock_moe: 50,
+                                    ar15.ar_stock_ubr: 20,
+                                    ar15.ar_stock_danieldefense: 45,
+                                    ar15.ar_stock_prs: 30,
+                                    ar15.ar_stock_maxim_cqb: 10,
+                                },
                                 "M10 Optics Mount": {None: 10, m10.mac10_optics_mount: 1},
                                 "Muzzle Device": {
                                     None: 50,
@@ -774,6 +802,7 @@ sks_weapon = PremadeWeapon(gun_item=sks.sks,
                            magazine={magazines.ak762_30rd: 200, magazines.ak762_40rd: 15, magazines.ak762_60rd: 7,
                                      magazines.ak762_75rd: 5, magazines.ak762_100rd: 4, magazines.sks_mag_20rd: 200,
                                      magazines.sks_mag_35rd: 80, magazines.sks_mag_75rd: 8},
+                           clip=magazines.sks_clip,
                            optics=optics_test,
                            part_dict={
                                "SKS Barrel": {
@@ -795,6 +824,23 @@ sks_weapon = PremadeWeapon(gun_item=sks.sks,
                                    sks.stock_sks_fab: 10,
                                    sks.stock_sks_sabertooth: 6,
                                    sks.stock_sks_bullpup: 3,
+                               },
+                               "AR Grip": {
+                                   ar15.ar_grip_trybe: 35,
+                                   ar15.ar_grip_moe: 60,
+                                   ar15.ar_grip_hogue: 20,
+                                   ar15.ar_grip_strikeforce: 25,
+                                   ar15.ar_grip_a2: 80,
+                                   ar15.ar_grip_stark: 30,
+                               },
+                               "AR Stock": {
+                                   None: 20,
+                                   ar15.ar_stock_m16a2: 100,
+                                   ar15.ar_stock_moe: 50,
+                                   ar15.ar_stock_ubr: 20,
+                                   ar15.ar_stock_danieldefense: 45,
+                                   ar15.ar_stock_prs: 30,
+                                   ar15.ar_stock_maxim_cqb: 10,
                                },
                                "SKS Internal Magazine": {sks.sks_integrated_mag: 1, None: 1},
                                "SKS Optics Mount": {None: 20, sks.sks_optics_mount: 1},
@@ -820,7 +866,7 @@ sks_weapon = PremadeWeapon(gun_item=sks.sks,
                                    ak.muzzle_lantac: 15,
                                    ak.muzzle_pbs4: 10,
                                    ak.muzzle_pbs1: 10,
-                                   ak.muzzle_dynacomp: 12,},
+                                   ak.muzzle_dynacomp: 12, },
                            },
                            )
 
@@ -831,6 +877,7 @@ Mosin Nagant
 mosin_weapon = PremadeWeapon(gun_item=mosin.mosindict,
                              bullet=gun_parts.bullets_54r_weighted,
                              magazine=magazines.mosin_nagant,
+                             clip=magazines.mosin_clip,
                              optics=optics_test,
                              part_dict={
                                  "Mosin-Nagant Stock": {
@@ -1091,80 +1138,114 @@ M1 Carbine
 """
 
 m1_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m1_carbine,
-                           bullet={bullets.round_30carb_110_jhp: 1, bullets.round_30carb_110_fmj: 4},
-                           magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
-                           optics=optics_test,
-                           part_dict={
-                               "M1 Carbine Reciever": m1_carbine.m1_reciever,
-                               "M1/M2 Carbine Stock": {
-                                   m1_carbine.m1_stock: 100,
-                                   m1_carbine.m1_stock_ebr: 2,
-                                   m1_carbine.m1_stock_enforcer: 5,
-                                   m1_carbine.m1_stock_springfield: 15
+                               bullet={bullets.round_30carb_110_jhp: 1, bullets.round_30carb_110_fmj: 4},
+                               magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
+                               optics=optics_test,
+                               part_dict={
+                                   "M1 Carbine Reciever": m1_carbine.m1_reciever,
+                                   "M1/M2 Carbine Stock": {
+                                       m1_carbine.m1_stock: 100,
+                                       m1_carbine.m1_stock_ebr: 2,
+                                       m1_carbine.m1_stock_enforcer: 5,
+                                       m1_carbine.m1_stock_springfield: 15
+                                   },
+                                   "M1/M2 Carbine Barrel": {
+                                       m1_carbine.m1_barrel: 10,
+                                       m1_carbine.m1_barrel_enforcer: 10,
+                                       m1_carbine.m1_barrel_threaded: 1,
+                                       m1_carbine.m1_barrel_enforcer_threaded: 1,
+                                   },
+                                   "AR Grip": {
+                                       ar15.ar_grip_trybe: 35,
+                                       ar15.ar_grip_moe: 60,
+                                       ar15.ar_grip_hogue: 20,
+                                       ar15.ar_grip_strikeforce: 25,
+                                       ar15.ar_grip_a2: 80,
+                                       ar15.ar_grip_stark: 30,
+                                   },
+                                   "AR Stock": {
+                                       None: 20,
+                                       ar15.ar_stock_m16a2: 100,
+                                       ar15.ar_stock_moe: 50,
+                                       ar15.ar_stock_ubr: 20,
+                                       ar15.ar_stock_danieldefense: 45,
+                                       ar15.ar_stock_prs: 30,
+                                       ar15.ar_stock_maxim_cqb: 10,
+                                   },
+                                   "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
+                                   "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                          attachments.adapter_mlok_picrail_short: 1},
+                                   "Muzzle Device": {
+                                       attachments.suppressor_obsidian_9: 1,
+                                       attachments.suppressor_wolfman_9mm: 1,
+                                       ar15.ar15_muzzle_flashhider: 100,
+                                       ar15.ar15_muzzle_st6012: 8,
+                                       ar15.ar15_muzzle_mi_mb4: 5,
+                                       ar15.ar15_muzzle_cobra: 3, },
+                                   "Underbarrel Accessory": {
+                                       None: 200,
+                                       attachments.grip_promag_vertical: 10,
+                                       attachments.grip_jem_vertical: 10,
+                                       attachments.grip_aimtac_short: 5,
+                                       attachments.grip_hipoint_folding: 5,
+                                   },
                                },
-                               "M1/M2 Carbine Barrel": {
-                                   m1_carbine.m1_barrel: 10,
-                                   m1_carbine.m1_barrel_enforcer: 10,
-                                   m1_carbine.m1_barrel_threaded: 1,
-                                   m1_carbine.m1_barrel_enforcer_threaded: 1,
-                               },
-                               "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
-                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
-                                                      attachments.adapter_mlok_picrail_short: 1},
-                               "Muzzle Device": {
-                                   attachments.suppressor_obsidian_9: 1,
-                                   attachments.suppressor_wolfman_9mm: 1,
-                                   ar15.ar15_muzzle_flashhider: 100,
-                                    ar15.ar15_muzzle_st6012: 8,
-                                    ar15.ar15_muzzle_mi_mb4: 5,
-                                    ar15.ar15_muzzle_cobra: 3,},
-                               "Underbarrel Accessory": {
-                                   None: 200,
-                                   attachments.grip_promag_vertical: 10,
-                                   attachments.grip_jem_vertical: 10,
-                                   attachments.grip_aimtac_short: 5,
-                                   attachments.grip_hipoint_folding: 5,
-                               },
-                           },
-                           )
+                               )
 
 m2_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m2_carbine,
-                           bullet={bullets.round_30carb_110_jhp: 1, bullets.round_30carb_110_fmj: 4},
-                           magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
-                           optics=optics_test,
-                           part_dict={
-                               "M2 Carbine Reciever": m1_carbine.m2_reciever,
-                               "M1/M2 Carbine Stock": {
-                                   m1_carbine.m1_stock: 100,
-                                   m1_carbine.m1_stock_ebr: 2,
-                                   m1_carbine.m1_stock_enforcer: 5,
-                                   m1_carbine.m1_stock_springfield: 15
+                               bullet={bullets.round_30carb_110_jhp: 1, bullets.round_30carb_110_fmj: 4},
+                               magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
+                               optics=optics_test,
+                               part_dict={
+                                   "M2 Carbine Reciever": m1_carbine.m2_reciever,
+                                   "M1/M2 Carbine Stock": {
+                                       m1_carbine.m1_stock: 100,
+                                       m1_carbine.m1_stock_ebr: 2,
+                                       m1_carbine.m1_stock_enforcer: 5,
+                                       m1_carbine.m1_stock_springfield: 15
+                                   },
+                                   "M1/M2 Carbine Barrel": {
+                                       m1_carbine.m1_barrel: 10,
+                                       m1_carbine.m1_barrel_enforcer: 10,
+                                       m1_carbine.m1_barrel_threaded: 1,
+                                       m1_carbine.m1_barrel_enforcer_threaded: 1,
+                                   },
+                                   "AR Grip": {
+                                       ar15.ar_grip_trybe: 35,
+                                       ar15.ar_grip_moe: 60,
+                                       ar15.ar_grip_hogue: 20,
+                                       ar15.ar_grip_strikeforce: 25,
+                                       ar15.ar_grip_a2: 80,
+                                       ar15.ar_grip_stark: 30,
+                                   },
+                                   "AR Stock": {
+                                       None: 20,
+                                       ar15.ar_stock_m16a2: 100,
+                                       ar15.ar_stock_moe: 50,
+                                       ar15.ar_stock_ubr: 20,
+                                       ar15.ar_stock_danieldefense: 45,
+                                       ar15.ar_stock_prs: 30,
+                                       ar15.ar_stock_maxim_cqb: 10,
+                                   },
+                                   "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
+                                   "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                          attachments.adapter_mlok_picrail_short: 1},
+                                   "Muzzle Device": {
+                                       attachments.suppressor_obsidian_9: 1,
+                                       attachments.suppressor_wolfman_9mm: 1,
+                                       ar15.ar15_muzzle_flashhider: 100,
+                                       ar15.ar15_muzzle_st6012: 8,
+                                       ar15.ar15_muzzle_mi_mb4: 5,
+                                       ar15.ar15_muzzle_cobra: 3, },
+                                   "Underbarrel Accessory": {
+                                       None: 200,
+                                       attachments.grip_promag_vertical: 10,
+                                       attachments.grip_jem_vertical: 10,
+                                       attachments.grip_aimtac_short: 5,
+                                       attachments.grip_hipoint_folding: 5,
+                                   },
                                },
-                               "M1/M2 Carbine Barrel": {
-                                   m1_carbine.m1_barrel: 10,
-                                   m1_carbine.m1_barrel_enforcer: 10,
-                                   m1_carbine.m1_barrel_threaded: 1,
-                                   m1_carbine.m1_barrel_enforcer_threaded: 1,
-                               },
-                               "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
-                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
-                                                      attachments.adapter_mlok_picrail_short: 1},
-                               "Muzzle Device": {
-                                   attachments.suppressor_obsidian_9: 1,
-                                   attachments.suppressor_wolfman_9mm: 1,
-                                   ar15.ar15_muzzle_flashhider: 100,
-                                    ar15.ar15_muzzle_st6012: 8,
-                                    ar15.ar15_muzzle_mi_mb4: 5,
-                                    ar15.ar15_muzzle_cobra: 3,},
-                               "Underbarrel Accessory": {
-                                   None: 200,
-                                   attachments.grip_promag_vertical: 10,
-                                   attachments.grip_jem_vertical: 10,
-                                   attachments.grip_aimtac_short: 5,
-                                   attachments.grip_hipoint_folding: 5,
-                               },
-                           },
-                           )
+                               )
 
 """ 
 M14 / M1A
@@ -1173,68 +1254,222 @@ M14 / M1A
 m14_gun = PremadeWeapon(gun_item=m14.m14,
                         bullet=gun_parts.bullets_308_weighted,
                         magazine={magazines.m14_10rd: 20, magazines.m14_20rd: 10, magazines.m14_50rd: 1},
-                           optics=optics_test,
-                           part_dict={
-                               "M14 Reciever": m14.m14_reciever,
-                               "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
-                                                 m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
-                                                 m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
-                               "M14/M1A Barrel": {m14.m14_barrel: 10, m14.m14_barrel_18in: 3, m14.m14_barrel_socom: 1},
-                               "Thread Adapter": {None: 20,
-                                                  attachments.thread_adapter_m14_5824: 1},
-                               "M14/M1A Picatinny Rail Optic Mount": {None: 15, m14.m14_optic_mount: 1},
-                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
-                                                      attachments.adapter_mlok_picrail_short: 1},
-                               "Underbarrel Accessory": {
-                                   None: 200,
-                                   attachments.grip_promag_vertical: 10,
-                                   attachments.grip_jem_vertical: 10,
-                                   attachments.grip_aimtac_short: 5,
-                                   attachments.grip_hipoint_folding: 5,
-                               },
-                               "Muzzle Device": {m14.m14_muzzle_usgi: 100,
-                                                 m14.m14_muzzle_uscg_brake: 3,
-                                                 m14.m14_muzzle_vais_brake: 8,
-                                                 m14.m14_muzzle_synergy_brake: 4,
-                                                 ar15.ar15_300_muzzle_flashhider: 100,
-                                                 ar15.ar15_300_muzzle_cobra: 8,
-                                                 ar15.ar15_300_muzzle_pegasus: 5,
-                                                 ar15.ar15_300_muzzle_strike: 3,
-                                                 },
-                           },
-                           )
-
+                        optics=optics_test,
+                        part_dict={
+                            "M14 Reciever": m14.m14_reciever,
+                            "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
+                                              m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
+                                              m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
+                            "M14/M1A Barrel": {m14.m14_barrel: 10, m14.m14_barrel_18in: 3, m14.m14_barrel_socom: 1},
+                            "AR Grip": {
+                                ar15.ar_grip_trybe: 35,
+                                ar15.ar_grip_moe: 60,
+                                ar15.ar_grip_hogue: 20,
+                                ar15.ar_grip_strikeforce: 25,
+                                ar15.ar_grip_a2: 80,
+                                ar15.ar_grip_stark: 30,
+                            },
+                            "AR Stock": {
+                                None: 20,
+                                ar15.ar_stock_m16a2: 100,
+                                ar15.ar_stock_moe: 50,
+                                ar15.ar_stock_ubr: 20,
+                                ar15.ar_stock_danieldefense: 45,
+                                ar15.ar_stock_prs: 30,
+                                ar15.ar_stock_maxim_cqb: 10,
+                            },
+                            "Thread Adapter": {None: 20,
+                                               attachments.thread_adapter_m14_5824: 1},
+                            "M14/M1A Picatinny Rail Optic Mount": {None: 15, m14.m14_optic_mount: 1},
+                            "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                   attachments.adapter_mlok_picrail_short: 1},
+                            "Underbarrel Accessory": {
+                                None: 200,
+                                attachments.grip_promag_vertical: 10,
+                                attachments.grip_jem_vertical: 10,
+                                attachments.grip_aimtac_short: 5,
+                                attachments.grip_hipoint_folding: 5,
+                            },
+                            "Muzzle Device": {m14.m14_muzzle_usgi: 100,
+                                              m14.m14_muzzle_uscg_brake: 3,
+                                              m14.m14_muzzle_vais_brake: 8,
+                                              m14.m14_muzzle_synergy_brake: 4,
+                                              ar15.ar15_300_muzzle_flashhider: 100,
+                                              ar15.ar15_300_muzzle_cobra: 8,
+                                              ar15.ar15_300_muzzle_pegasus: 5,
+                                              ar15.ar15_300_muzzle_strike: 3,
+                                              },
+                        },
+                        )
 
 m1a_gun = PremadeWeapon(gun_item=m14.m1a,
                         bullet=gun_parts.bullets_308_weighted,
                         magazine={magazines.m14_10rd: 20, magazines.m14_20rd: 10, magazines.m14_50rd: 1},
-                           optics=optics_test,
-                           part_dict={
-                               "M1A Reciever": m14.m14_reciever,
-                               "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
-                                                 m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
-                                                 m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
-                               "M14/M1A Barrel": {m14.m14_barrel: 10, m14.m14_barrel_18in: 3, m14.m14_barrel_socom: 1},
-                               "Thread Adapter": {None: 20,
-                                                  attachments.thread_adapter_m14_5824: 1},
-                               "M14/M1A Picatinny Rail Optic Mount": {None: 15, m14.m14_optic_mount: 1},
-                               "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
-                                                      attachments.adapter_mlok_picrail_short: 1},
-                               "Underbarrel Accessory": {
-                                   None: 200,
-                                   attachments.grip_promag_vertical: 10,
-                                   attachments.grip_jem_vertical: 10,
-                                   attachments.grip_aimtac_short: 5,
-                                   attachments.grip_hipoint_folding: 5,
-                               },
-                               "Muzzle Device": {m14.m14_muzzle_usgi: 100,
-                                                 m14.m14_muzzle_uscg_brake: 3,
-                                                 m14.m14_muzzle_vais_brake: 8,
-                                                 m14.m14_muzzle_synergy_brake: 4,
-                                                 ar15.ar15_300_muzzle_flashhider: 100,
-                                                 ar15.ar15_300_muzzle_cobra: 8,
-                                                 ar15.ar15_300_muzzle_pegasus: 5,
-                                                 ar15.ar15_300_muzzle_strike: 3,
-                                                 },
-                           },
-                           )
+                        optics=optics_test,
+                        part_dict={
+                            "M1A Reciever": m14.m14_reciever,
+                            "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
+                                              m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
+                                              m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
+                            "M14/M1A Barrel": {m14.m14_barrel: 10, m14.m14_barrel_18in: 3, m14.m14_barrel_socom: 1},
+                            "AR Grip": {
+                                ar15.ar_grip_trybe: 35,
+                                ar15.ar_grip_moe: 60,
+                                ar15.ar_grip_hogue: 20,
+                                ar15.ar_grip_strikeforce: 25,
+                                ar15.ar_grip_a2: 80,
+                                ar15.ar_grip_stark: 30,
+                            },
+                            "AR Stock": {
+                                None: 20,
+                                ar15.ar_stock_m16a2: 100,
+                                ar15.ar_stock_moe: 50,
+                                ar15.ar_stock_ubr: 20,
+                                ar15.ar_stock_danieldefense: 45,
+                                ar15.ar_stock_prs: 30,
+                                ar15.ar_stock_maxim_cqb: 10,
+                            },
+                            "Thread Adapter": {None: 20,
+                                               attachments.thread_adapter_m14_5824: 1},
+                            "M14/M1A Picatinny Rail Optic Mount": {None: 15, m14.m14_optic_mount: 1},
+                            "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
+                                                   attachments.adapter_mlok_picrail_short: 1},
+                            "Underbarrel Accessory": {
+                                None: 200,
+                                attachments.grip_promag_vertical: 10,
+                                attachments.grip_jem_vertical: 10,
+                                attachments.grip_aimtac_short: 5,
+                                attachments.grip_hipoint_folding: 5,
+                            },
+                            "Muzzle Device": {m14.m14_muzzle_usgi: 100,
+                                              m14.m14_muzzle_uscg_brake: 3,
+                                              m14.m14_muzzle_vais_brake: 8,
+                                              m14.m14_muzzle_synergy_brake: 4,
+                                              ar15.ar15_300_muzzle_flashhider: 100,
+                                              ar15.ar15_300_muzzle_cobra: 8,
+                                              ar15.ar15_300_muzzle_pegasus: 5,
+                                              ar15.ar15_300_muzzle_strike: 3,
+                                              },
+                        },
+                        )
+
+"""
+R870
+"""
+
+r870_gun = PremadeWeapon(gun_item=r870.rem_870,
+                         bullet=gun_parts.bullets_12ga_weighted,
+                         magazine=magazines.r870_6rd,
+                         optics=optics_test,
+                         part_dict={
+                             "Model 870 Reciever": {r870.reciever_r870_4rd: 100,
+                                                    r870.reciever_r870dm: 5,
+                                                    r870.reciever_r870_6rd: 20},
+                             "Model 870 Barrel": {r870.r870_barrel_26: 200,
+                                                  r870.r870_barrel_18: 75,
+                                                  r870.r870_barrel_t14: 30,
+                                                  r870.r870_barrel_18_bead: 25,
+                                                  r870.r870_barrel_t14_bead: 15},
+                             "Model 870 Stock": {r870.r870_stock: 300,
+                                                 r870.r870_stock_polymer: 300,
+                                                 r870.r870_stock_magpul: 75,
+                                                 r870.r870_stock_shockwave: 25,
+                                                 r870.r870_stock_pistol: 15,
+                                                 r870.r870_stock_maverick: 40,
+                                                 r870.r870_stock_sterling: 15,
+                                                 r870.r870_ar_stock_adapter: 5},
+                             "AR Grip": {
+                                 ar15.ar_grip_trybe: 35,
+                                 ar15.ar_grip_moe: 60,
+                                 ar15.ar_grip_hogue: 20,
+                                 ar15.ar_grip_strikeforce: 25,
+                                 ar15.ar_grip_a2: 80,
+                                 ar15.ar_grip_stark: 30,
+                             },
+                             "AR Stock": {
+                                 None: 20,
+                                 ar15.ar_stock_m16a2: 100,
+                                 ar15.ar_stock_moe: 50,
+                                 ar15.ar_stock_ubr: 20,
+                                 ar15.ar_stock_danieldefense: 45,
+                                 ar15.ar_stock_prs: 30,
+                                 ar15.ar_stock_maxim_cqb: 10,
+                             },
+                             "Model 870 Forend": {r870.r870_forend: 100,
+                                                  r870.r870_forend_polymer: 100,
+                                                  r870.r870_forend_magpul: 25,
+                                                  r870.r870_forend_tacstar: 15,
+                                                  r870.r870_forend_voa: 10},
+                             "Model 870 Choke": {
+                                 r870.r870_choke_im: 15,
+                                 r870.r870_choke_modified: 50,
+                                 r870.r870_choke_cylinder: 300,
+                                 r870.r870_choke_improved_ported: 10,
+                                 r870.r870_choke_cylinder_ported: 40,
+                             },
+                             "Model 870 Magazine Extension": {
+                                 None: 100,
+                                 r870.r870_extension_2rd: 10,
+                                 r870.r870_extension_4rd: 5,
+                                 r870.r870_extension_6rd: 2,
+                             },
+                             "Model 870 Optics Mount": {
+                                 None: 50,
+                                 r870.r870_optic_picrail: 5,
+                                 r870.r870_optic_picrail_ghost: 3,
+                             },
+                         },
+                         )
+
+supershorty_gun = PremadeWeapon(gun_item=r870.rem_870,
+                                bullet=gun_parts.bullets_12ga_weighted,
+                                magazine={},
+                                optics=optics_test,
+                                part_dict={
+                                    "Model 870 Reciever": {r870.reciever_r870_shorty: 1},
+                                    "Model 870 Barrel": {r870.r870_barrel_shorty: 1},
+                                    "Model 870 Stock": {r870.r870_stock: 300,
+                                                        r870.r870_stock_polymer: 300,
+                                                        r870.r870_stock_magpul: 75,
+                                                        r870.r870_stock_shockwave: 25,
+                                                        r870.r870_stock_pistol: 15,
+                                                        r870.r870_stock_maverick: 40,
+                                                        r870.r870_stock_sterling: 15,
+                                                        r870.r870_ar_stock_adapter: 5},
+                                    "AR Grip": {
+                                        ar15.ar_grip_trybe: 35,
+                                        ar15.ar_grip_moe: 60,
+                                        ar15.ar_grip_hogue: 20,
+                                        ar15.ar_grip_strikeforce: 25,
+                                        ar15.ar_grip_a2: 80,
+                                        ar15.ar_grip_stark: 30,
+                                    },
+                                    "AR Stock": {
+                                        None: 20,
+                                        ar15.ar_stock_m16a2: 100,
+                                        ar15.ar_stock_moe: 50,
+                                        ar15.ar_stock_ubr: 20,
+                                        ar15.ar_stock_danieldefense: 45,
+                                        ar15.ar_stock_prs: 30,
+                                        ar15.ar_stock_maxim_cqb: 10,
+                                    },
+                                    "Model 870 Choke": {
+                                        r870.r870_choke_im: 15,
+                                        r870.r870_choke_modified: 50,
+                                        r870.r870_choke_cylinder: 300,
+                                        r870.r870_choke_improved_ported: 10,
+                                        r870.r870_choke_cylinder_ported: 40,
+                                    },
+                                    "Model 870 Magazine Extension": {
+                                        None: 100,
+                                        r870.r870_extension_2rd: 10,
+                                        r870.r870_extension_4rd: 5,
+                                        r870.r870_extension_6rd: 2,
+                                    },
+                                    "Model 870 Optics Mount": {
+                                        None: 50,
+                                        r870.r870_optic_picrail: 5,
+                                        r870.r870_optic_picrail_ghost: 3,
+                                    },
+                                },
+                                )
