@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from actions import Action
     from game_map import GameMap
 
+
 class Engine:
     game_map: GameMap
 
@@ -47,7 +48,7 @@ class Engine:
         for action in self.action_queue:
             action.handle_action()
 
-        self.handle_enemy_turns()
+        self.handle_turns()
 
     def switch_player(self) -> None:
         player_index = self.players.index(self.player)
@@ -67,13 +68,14 @@ class Engine:
         with open(filename, "wb") as f:
             f.write(save_data)
 
-    def handle_enemy_turns(self) -> None:
+    def handle_turns(self) -> None:
 
-        for player in self.game_map.engine.players:
-            player.fighter.ap += round(player.fighter.ap_per_turn * player.fighter.ap_per_turn_modifier)
+        # for player in self.game_map.engine.players:
+        #     player.fighter.ap += round(player.fighter.ap_per_turn * player.fighter.ap_per_turn_modifier)
 
         for entity in set(self.game_map.actors):
-            if entity.ai and not entity in self.game_map.engine.players and entity.fighter.target_actor:
+            #             if entity.ai and not entity in self.game_map.engine.players and entity.fighter.target_actor:
+            if entity.ai:
                 try:
                     if entity.fighter.active:
                         entity.ai.perform()
@@ -89,9 +91,9 @@ class Engine:
         # last turn
         for player in self.players:
             player_fov = compute_fov(
-            self.game_map.tiles["transparent"],
-            (player.x, player.y),
-            radius=self.game_map.fov_radius,)
+                self.game_map.tiles["transparent"],
+                (player.x, player.y),
+                radius=self.game_map.fov_radius, )
 
             player.fighter.visible_tiles[:] = player_fov
 
@@ -108,6 +110,11 @@ class Engine:
                         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
                         # at 10 metres distance there's an equal chance of the enemy noticing you as not noticing you
                         # TODO - this should be affected by a stealth skill and perception
+
+                        # removes path for all player characters, stopping movement orders
+                        for i in self.players:
+                            i.ai.path = []
+
                         sees_player = choices((True, False), weights=(10, distance))
                         if sees_player:
                             entity.fighter.active = True
@@ -127,7 +134,6 @@ class Engine:
                         if distance_player <= distance_target and choices((True, False),
                                                                           weights=(7, distance_target)):
                             entity.fighter.target_actor = player
-
 
         self.game_map.visible[:] = fov
 

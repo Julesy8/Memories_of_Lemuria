@@ -19,7 +19,7 @@ from level_generator import MessyBSPTree
 from input_handlers import BaseEventHandler, MainGameEventHandler, PopupMessage
 from level_parameters import level_params
 from components.inventory import Inventory
-from components.ai import BaseAI
+from components.ai import PlayerCharacter
 from components.npc_templates import PlayerFighter
 from components.bodyparts import Body, Arm, Leg, Head
 from random import choice
@@ -225,28 +225,28 @@ def new_game() -> Engine:
     body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
 
     player_1 = Actor(0,
-                   0,
-                   '@',
-                   colour.GREEN,
-                   'Player 1',
-                   ai=BaseAI,
-                   fighter=fighter_component,
-                   bodyparts=body_parts,
-                   player=True,
-                   inventory=Inventory(capacity=15),
-                   )
+                     0,
+                     '@',
+                     colour.GREEN,
+                     'Player 1',
+                     ai=PlayerCharacter,
+                     fighter=fighter_component,
+                     bodyparts=body_parts,
+                     player=True,
+                     inventory=Inventory(capacity=15),
+                     )
 
     player_2 = Actor(0,
-                   0,
-                   '@',
-                   colour.YELLOW,
-                   'Player 2',
-                   ai=BaseAI,
-                   fighter=deepcopy(fighter_component),
-                   bodyparts=deepcopy(body_parts),
-                   player=True,
-                   inventory=Inventory(capacity=15),
-                   )
+                     0,
+                     '@',
+                     colour.YELLOW,
+                     'Player 2',
+                     ai=PlayerCharacter,
+                     fighter=deepcopy(fighter_component),
+                     bodyparts=deepcopy(body_parts),
+                     player=True,
+                     inventory=Inventory(capacity=15),
+                     )
 
     engine = Engine(player=player_1)
 

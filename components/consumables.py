@@ -698,7 +698,7 @@ class Gun(Weapon):
         # shot sound alert enemies in the vicinity of where the shot was fired from
         # only needs to be computed once for the 'loudest' shot fired
 
-        for x in set(self.gamemap.actors) - {attacker}:
+        for x in set(self.gamemap.actors):
 
             if not attacker.fighter.responds_to_sound:
                 continue
@@ -707,14 +707,17 @@ class Gun(Weapon):
             dy = x.y - attacker.y
             distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
+            # if entity in range of the gun shot sound, starts pathing towards source of sound
             if distance <= sound_radius:
-                try:
-                    path = x.ai.get_path_to(attacker.x, attacker.y)
-                except AttributeError:
-                    continue
-                if len(path) <= sound_radius:
-                    setattr(x.ai, 'path', path)
-                    x.active = True
+
+                if not x.player:
+                    try:
+                        path = x.ai.get_path_to(attacker.x, attacker.y)
+                    except AttributeError:
+                        continue
+                    if len(path) <= sound_radius:
+                        setattr(x.ai, 'path', path)
+                        x.active = True
 
                 # prints to console vaguely where gunshots are coming from for the player
                 if not attacker.player and not self.gamemap.visible[attacker.x, attacker.y]:

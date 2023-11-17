@@ -53,6 +53,47 @@ class BaseAI(Action):
         return [(index[0], index[1]) for index in path]
 
 
+class PlayerCharacter(BaseAI):
+    def __init__(self, entity: Actor, ):
+        super().__init__(entity)
+        self.path: List[Tuple[int, int]] = []
+        self.following = None
+
+    def perform(self) -> None:
+
+        fighter = self.entity.fighter
+
+        # AP regeneration
+        fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
+
+        if self.entity.fighter.turns_attack_inactive >= 1:
+            self.entity.fighter.turns_attack_inactive -= 1
+        if self.entity.fighter.turns_move_inactive >= 1:
+            self.entity.fighter.turns_move_inactive -= 1
+
+        if self.following is not None:
+            self.path = self.get_path_to(self.following.x, self.following.y)
+
+        while fighter.ap > 0:
+
+            # any kind of movement action occurring
+            if fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
+
+                if self.path:
+                    dest_x, dest_y = self.path.pop(0)
+                    MovementAction(
+                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                    ).handle_action()
+
+                else:
+                    break
+
+            else:
+                break
+
+        # return WaitAction(self.entity).perform()
+
+
 class HostileEnemy(BaseAI):
     def __init__(self, entity: Actor, ):
         super().__init__(entity)
@@ -491,6 +532,10 @@ class HostileEnemyArmed(BaseAI):
 
             # for attack actions
             if isinstance(self.queued_action, AttackAction):
+
+                # resets player path when attacked, stopping movement actions
+                for player in self.engine.players:
+                    player.ai.path = []
 
                 # target still visible
                 if target.fighter.visible_tiles[self.entity.x, self.entity.y]:

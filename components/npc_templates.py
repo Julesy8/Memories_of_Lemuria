@@ -41,7 +41,8 @@ class Fighter(BaseComponent):
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  fears_death=True,
-                 description: str = ''
+                 description: str = '',
+                 active: bool = False
                  ):
 
         self.target_actor = None
@@ -82,7 +83,7 @@ class Fighter(BaseComponent):
         # whether entity paths towards gunshot sounds
         self.responds_to_sound = responds_to_sound
 
-        self.active = False
+        self.active = active
         self.item_drops = item_drops
         self.weapons = weapons
         self.spawn_group_amount = spawn_group_amount
@@ -146,7 +147,8 @@ class GunFighter(Fighter):
                  firing_ap_cost: float = 1.0,
                  ap_distance_cost_modifier: float = 1.0,
                  fears_death=True,
-                 description: str = ''
+                 description: str = '',
+                 active=False
                  ):
 
         # how long (in seconds) an automatic burst of fire should last
@@ -163,7 +165,7 @@ class GunFighter(Fighter):
 
         super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
                          unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
-                         move_success_chance, responds_to_sound, fears_death, description)
+                         move_success_chance, responds_to_sound, fears_death, description, active)
 
     @property
     def felt_recoil(self):
@@ -239,7 +241,8 @@ class PlayerFighter(GunFighter):
                  skill_rifle_proficiency: int = 0,
                  skill_bolt_action_proficiency: int = 0,
                  fears_death=True,
-                 description: str = ''
+                 description: str = '',
+                 active=True
                  ):
 
         self._skill_marksmanship = skill_marksmanship
@@ -252,7 +255,8 @@ class PlayerFighter(GunFighter):
         super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
                          unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
                          move_success_chance, responds_to_sound, automatic_fire_duration, felt_recoil,
-                         target_acquisition_ap, firing_ap_cost, ap_distance_cost_modifier, fears_death, description)
+                         target_acquisition_ap, firing_ap_cost, ap_distance_cost_modifier, fears_death, description,
+                         active)
 
     @property
     def skill_marksmanship(self):

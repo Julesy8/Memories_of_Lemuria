@@ -97,7 +97,7 @@ class Action:
                 turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
                                                                    self.entity.fighter.ap_per_turn_modifier)))
                 for i in range(turns_to_skip):
-                    self.engine.handle_enemy_turns()
+                    self.engine.handle_turns()
 
         # entity is AI and has enough AP, performs action
         elif self.entity.fighter.ap >= ap_cost:

@@ -33,7 +33,15 @@ for action.handle_action for actions in action.queue -> perform / tick down
 
 input handler: reload (consumables class) -> calls action -> reloads
 
+increase standard reload time to 5 seconds
+
 After that figure out squad movement orders.
+- make attack mode a more general squad orders mode
+ - attack mode selectable from there
+ - press M to give movement order
+    - select units by right clicking and then left clicking where you want them to move, square lights up
+ - press different key to give squad commands e.g. reload, follow
+ - press key to advance time to given order positions
 
 After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
 magazine class itself.
@@ -45,6 +53,7 @@ armour weight changes dexterity and walk speed
 grenades
 
 Extended Goals
+-enemy should only run from player when has taken significant damage or is under fire
 -ability to fold folding stocks, giving them different properties
 -when enemy dies with a gun, should drop the magazine and gun separately. That way can scavenge magazines without
 interacting with gun
@@ -154,12 +163,41 @@ spread_modifier =
 target_acquisition_ap =
 
 Guns to add
+
+pistols
+hi point
+tec 9
+TT33
+
+carbines
+hi point
+ruger 22
+
+smgs
+PPSH
+uzi
+fgc 9
+Thompson
+
+battle rifles
+FAL
+SVD
+Garand
+
+Shotguns
+Baikal side by side
+benelli M3
+saiga 12
+
+precision
+remington 700
+Serbu RN50
+Serbu BFG 50
+
 FAL
 TEC-9
 Sten
-Dragunov
 M1 garand
-Thompson
 RPD
 Makarov
 PPSH

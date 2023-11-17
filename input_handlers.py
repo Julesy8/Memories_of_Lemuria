@@ -177,7 +177,7 @@ class EventHandler(BaseEventHandler):
                 self.engine.message_log.add_message(exc.args[0], colour.RED)
             return False  # Skip enemy turn on exceptions.
 
-        self.engine.handle_enemy_turns()
+        self.engine.handle_turns()
 
         self.engine.update_fov()
         return True
@@ -212,8 +212,6 @@ class MainGameEventHandler(EventHandler):
             action = WaitAction(player)
         elif key == tcod.event.K_v:
             return HistoryViewer(self.engine)
-        elif key == tcod.event.K_SPACE:
-            return ChangeTargetActor(engine=self.engine)
         elif key == tcod.event.K_g:
             return PickUpEventHandler(engine=self.engine)
         elif key == tcod.event.K_r:
@@ -242,10 +240,16 @@ class MainGameEventHandler(EventHandler):
             return Bestiary(self.engine)
         elif key == tcod.event.K_z:
             return ViewPlayerStats(self.engine)
-        elif key == tcod.event.K_TAB:
-            return self.engine.switch_player()
+
+        elif key == tcod.event.K_SPACE:
+            return ChangeTargetActor(engine=self.engine)
+        elif key == tcod.event.K_x:
+            return MovePlayers(self.engine)
         elif key == tcod.event.K_QUESTION and self.engine.squad_mode:
             return self.engine.handle_queued_actions()
+
+        elif key == tcod.event.K_TAB:
+            return self.engine.switch_player()
         elif key == tcod.event.K_LESS:
             if self.engine.squad_mode:
                 self.engine.squad_mode = False
@@ -330,6 +334,86 @@ class HistoryViewer(EventHandler):
         else:  # Any other key moves back to the main game state.
             return MainGameEventHandler(self.engine)
         return None
+
+
+class MovePlayers(EventHandler):
+
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+        self.console = None
+        self.players_selected = []
+        self.destinations = []
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.console = console
+
+        screen_shape = self.console.rgb.shape
+        cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
+
+        for player in self.players_selected:
+            player_x = player.x - cam_x
+            player_y = player.y - cam_y
+            console.print(player_x, player_y, "X", player.fg_colour, (170, 255, 0))
+
+        # for player in self.players_selected:
+
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[ActionOrHandler]:
+        screen_shape = self.console.rgb.shape
+        cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
+
+        mouse_x, mouse_y = self.engine.mouse_location
+        mouse_x += cam_x
+        mouse_y += cam_y
+
+        # button 1 = LMB
+        # button 3 = RMB
+
+        # TODO - way to click drag select players
+
+        if self.engine.game_map.in_bounds(mouse_x, mouse_y):
+
+            # selects players
+            if event.button == 1:
+                for player in self.engine.players:
+                    if player.x == mouse_x and player.y == mouse_y:
+                        if player not in self.players_selected:
+                            self.players_selected.append(player)
+                        else:
+                            self.players_selected.remove(player)
+
+            # moves players
+            elif event.button == 3:
+
+                for player in self.players_selected:
+
+                    set_following = False
+
+                    for i in self.engine.players:
+                        if i.x == mouse_x and i.y == mouse_y:
+                            player.ai.following = player
+                            set_following = True
+
+                    if not set_following:
+                        if self.engine.game_map.explored[mouse_x, mouse_y]:
+                            player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
+                            self.players_selected = []
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        has_path = True
+
+        if event.sym == tcod.event.K_ESCAPE:
+            return MainGameEventHandler(self.engine)
+
+        elif event.sym == tcod.event.K_RETURN:
+            while has_path:
+                has_path = False
+                for player in self.engine.players:
+                    if player.ai.path:
+                        has_path = True
+                if has_path:
+                    self.engine.handle_turns()
+                    self.engine.update_fov()
 
 
 class AskUserEventHandler(EventHandler):
@@ -702,7 +786,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
 
         elif option == 'equip to primary':
             try:
-                self.item.usable_properties.equip_to_primary()
+                self.item.usable_properties.equip_to_primary(user=self.engine.player)
                 return MainGameEventHandler(self.engine)
 
             except AttributeError:
@@ -710,7 +794,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
 
         elif option == 'equip to secondary':
             try:
-                self.item.usable_properties.equip_to_secondary()
+                self.item.usable_properties.equip_to_secondary(user=self.engine.player)
                 return MainGameEventHandler(self.engine)
 
             except AttributeError:
@@ -733,7 +817,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             if hasattr(self.item.usable_properties, 'parts'):
                 self.item.usable_properties.parts.disassemble(entity=self.engine.player)
                 for i in range(5):
-                    self.engine.handle_enemy_turns()
+                    self.engine.handle_turns()
                 return MainGameEventHandler(self.engine)
 
         elif option == 'inspect':
@@ -1055,7 +1139,7 @@ class ChangeTargetActor(AskUserEventHandler):
             return ShowEnemyInfo(self.engine, entity=player.fighter.target_actor, parent_handler=self)
 
         elif key in WAIT_KEYS:
-            self.engine.handle_enemy_turns()
+            self.engine.handle_turns()
 
         elif key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -1910,24 +1994,25 @@ class CraftGun(CraftItem):
         if self.parts[self.current_part_selection] in self.item_dict[self.item_name]["compatible parts"]:
             # if part is not required and there are no parts of this type available,
             # skips to the next part type
-            if len(self.options) == 0 and self.parts[self.current_part_selection] != self.parts[-1]:
-                self.options = ['none', ] + self.options
-                self.current_part_selection += 1
-                return CraftGun(engine=self.engine,
-                                current_part_index=self.current_part_selection,
-                                item_to_craft=self.item_name,
-                                item_dict=self.item_dict,
-                                part_dict=self.part_dict,
-                                compatible_parts=self.compatible_parts,
-                                prevent_suppression=self.prevent_suppression,
-                                attachment_points=self.attachment_points,
-                                attachments_dict=self.attachments_dict,
-                                has_optic=self.has_optic
-                                )
-
-            # part is not required, adds the option to select no part
-            else:
-                self.options = ['none', ] + self.options
+            # if len(self.options) == 0 and self.parts[self.current_part_selection] != self.parts[-1]:
+            self.options = ['none', ] + self.options
+                # self.current_part_selection += 1
+            #     print('test 1')
+            #     return CraftGun(engine=self.engine,
+            #                     current_part_index=self.current_part_selection,
+            #                     item_to_craft=self.item_name,
+            #                     item_dict=self.item_dict,
+            #                     part_dict=self.part_dict,
+            #                     compatible_parts=self.compatible_parts,
+            #                     prevent_suppression=self.prevent_suppression,
+            #                     attachment_points=self.attachment_points,
+            #                     attachments_dict=self.attachments_dict,
+            #                     has_optic=self.has_optic
+            #                     )
+            #
+            # # part is not required, adds the option to select no part
+            # else:
+            #     self.options = ['none', ] + self.options
 
         # if part is required but no item of this type in inventory, cancels crafting
         else:
@@ -1985,6 +2070,7 @@ class CraftGun(CraftItem):
 
         else:
             self.current_part_selection += 1
+            print('test 2')
             return CraftGun(engine=self.engine,
                             current_part_index=self.current_part_selection,
                             item_to_craft=self.item_name,
@@ -2039,7 +2125,7 @@ class CraftGun(CraftItem):
             item.parent = self.engine.player.inventory
 
             for i in range(5):
-                self.engine.handle_enemy_turns()
+                self.engine.handle_turns()
 
             self.engine.player.inventory.add_to_inventory(item=item, item_container=None, amount=1)
             return MainGameEventHandler(engine=self.engine)
@@ -2191,7 +2277,7 @@ class SelectAttachPoint(UserOptionsWithPages):
         # still more parts, continues to next part type
         else:
             self.crafting_handler.current_part_selection += 1
-
+            print('test 3')
             return CraftGun(engine=self.engine,
                             current_part_index=self.crafting_handler.current_part_selection,
                             item_to_craft=self.crafting_handler.item_name,
@@ -2297,7 +2383,7 @@ class InspectItemViewer(AskUserEventHandler):
                                                   (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
                                                            1)) * 100),
             "-- Bullet Velocity Modifier --": ('velocity_modifier',
-                                               round(getattr(self.item.usable_properties, 'velocity_modifier', 1), 3)),
+                                               getattr(self.item.usable_properties, 'velocity_modifier', 1), 3),
 
             "-- Part Condition: Accuracy (%) --": ('condition_accuracy',
                                                    round((getattr(self.item.usable_properties, 'condition_accuracy',
@@ -2358,10 +2444,16 @@ class InspectItemViewer(AskUserEventHandler):
 
                     for key_2, value_2 in value[1].items():
                         new_string += f"{key_2:}"
-                        for string in value_2:
-                            new_string += f" {string}"
-                            if not string == value_2[-1]:
-                                new_string += ', '
+                        print(value)
+                        print(value[1])
+                        print(value_2)
+                        try:
+                            for string in value_2:
+                                new_string += f" {string}"
+                                if not string == value_2[-1]:
+                                    new_string += ', '
+                        except TypeError:
+                            new_string += f" {value_2}"
 
                     self.item_info[key] = ('', new_string)
 
