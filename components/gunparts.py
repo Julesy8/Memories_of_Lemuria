@@ -171,7 +171,6 @@ class Parts:
             # if current part is an attachment adapter, finds out if optic attached and then iterates through part list
             # to find what it is currently attached to. If found, updates the gun properties with that of the optic
             # mount to which the adapter is attached
-            # TODO - this may still be broken
             if part.usable_properties.part_type == 'Attachment Adapter':
                 optic_attached = False
 

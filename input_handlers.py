@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from copy import deepcopy
 from typing import Optional, TYPE_CHECKING, Union, Callable
+from configparser import ConfigParser
 from math import ceil
 import tcod
 import textwrap
@@ -27,6 +28,10 @@ if TYPE_CHECKING:
     from engine import Engine
     from components.consumables import Magazine, Bullet, Gun, GunMagFed, GunIntegratedMag, Clip, DetachableMagazine
     from components.bodyparts import Bodypart
+
+config = ConfigParser()
+config.read('settings.ini')
+max_fps = config.getint('settings', 'max_fps')
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -243,8 +248,6 @@ class MainGameEventHandler(EventHandler):
 
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine)
-        elif key == tcod.event.K_x:
-            return MovePlayers(self.engine)
         elif key == tcod.event.K_QUESTION and self.engine.squad_mode:
             return self.engine.handle_queued_actions()
 
@@ -334,86 +337,6 @@ class HistoryViewer(EventHandler):
         else:  # Any other key moves back to the main game state.
             return MainGameEventHandler(self.engine)
         return None
-
-
-class MovePlayers(EventHandler):
-
-    def __init__(self, engine: Engine):
-        super().__init__(engine)
-        self.console = None
-        self.players_selected = []
-        self.destinations = []
-
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
-        self.console = console
-
-        screen_shape = self.console.rgb.shape
-        cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
-
-        for player in self.players_selected:
-            player_x = player.x - cam_x
-            player_y = player.y - cam_y
-            console.print(player_x, player_y, "X", player.fg_colour, (170, 255, 0))
-
-        # for player in self.players_selected:
-
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[ActionOrHandler]:
-        screen_shape = self.console.rgb.shape
-        cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
-
-        mouse_x, mouse_y = self.engine.mouse_location
-        mouse_x += cam_x
-        mouse_y += cam_y
-
-        # button 1 = LMB
-        # button 3 = RMB
-
-        # TODO - way to click drag select players
-
-        if self.engine.game_map.in_bounds(mouse_x, mouse_y):
-
-            # selects players
-            if event.button == 1:
-                for player in self.engine.players:
-                    if player.x == mouse_x and player.y == mouse_y:
-                        if player not in self.players_selected:
-                            self.players_selected.append(player)
-                        else:
-                            self.players_selected.remove(player)
-
-            # moves players
-            elif event.button == 3:
-
-                for player in self.players_selected:
-
-                    set_following = False
-
-                    for i in self.engine.players:
-                        if i.x == mouse_x and i.y == mouse_y:
-                            player.ai.following = player
-                            set_following = True
-
-                    if not set_following:
-                        if self.engine.game_map.explored[mouse_x, mouse_y]:
-                            player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
-                            self.players_selected = []
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-        has_path = True
-
-        if event.sym == tcod.event.K_ESCAPE:
-            return MainGameEventHandler(self.engine)
-
-        elif event.sym == tcod.event.K_RETURN:
-            while has_path:
-                has_path = False
-                for player in self.engine.players:
-                    if player.ai.path:
-                        has_path = True
-                if has_path:
-                    self.engine.handle_turns()
-                    self.engine.update_fov()
 
 
 class AskUserEventHandler(EventHandler):
@@ -956,6 +879,10 @@ class ChangeTargetActor(AskUserEventHandler):
 
     def __init__(self, engine: Engine):
         super().__init__(engine)
+        self.tick_counter = 0
+        self.max_tick = max_fps * 3
+        self.players_selected = []
+        self.destinations = []
         self.engine = engine
         self.targets = []
         self.target_index = None
@@ -1017,14 +944,44 @@ class ChangeTargetActor(AskUserEventHandler):
     def on_render(self, console: tcod.Console):
         super().on_render(console)  # Draw the main state as the background.
 
+        blink_on = False
+
         self.console = console
 
         screen_shape = console.rgb.shape
         cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
 
+        self.tick_counter += 1
+
+        if self.tick_counter > self.max_tick - max_fps:
+            blink_on = True
+        if self.tick_counter > self.max_tick:
+            self.tick_counter = 0
+
+        player_name_list = []
+
+        for player in self.players_selected:
+            player_name_list.append(player.name)
+            player_x = player.x - cam_x
+            player_y = player.y - cam_y
+            if blink_on:
+                console.print(player_x, player_y, player.char, player.fg_colour, (170, 255, 0))
+
+        if len(player_name_list) > 0:
+            console.print(x=0, y=3, string=f"PLAYERS SELECTED: {', '.join(player_name_list)}",
+                          fg=colour.WHITE, bg=(0, 0, 0))
+
+        for destination in self.destinations:
+            dest_x = destination[0] - cam_x
+            dest_y = destination[1] - cam_y
+            console.print(x=0, y=4, string="R ALT - EXECUTE MOVEMENT ORDER", fg=colour.WHITE, bg=(0, 0, 0))
+
+            if blink_on:
+                console.print(dest_x, dest_y, "X", colour.WHITE)
+
         player = self.engine.player
 
-        console.print(x=0, y=1, string="ATTACK MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=0, y=1, string="ACTION MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
 
         if player.fighter.target_actor is not None:
 
@@ -1056,9 +1013,56 @@ class ChangeTargetActor(AskUserEventHandler):
         else:
             console.print(x=0, y=2, string="NO TARGET", fg=colour.WHITE, bg=(0, 0, 0))
 
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[ActionOrHandler]:
+        screen_shape = self.console.rgb.shape
+        cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
+
+        mouse_x, mouse_y = self.engine.mouse_location
+        mouse_x += cam_x
+        mouse_y += cam_y
+
+        # button 1 = LMB
+        # button 3 = RMB
+
+        # TODO - way to click drag select players
+        # TODO - mouse controls for attacks
+
+        if self.engine.game_map.in_bounds(mouse_x, mouse_y):
+
+            # selects players
+            if event.button == 1:
+                for player in self.engine.players:
+                    if player.x == mouse_x and player.y == mouse_y:
+                        if player not in self.players_selected:
+                            self.players_selected.append(player)
+                        else:
+                            self.players_selected.remove(player)
+
+            # moves players
+            elif event.button == 3:
+
+                for player in self.players_selected:
+
+                    set_following = False
+
+                    # checks if tile selected has another player on it, if so sets to follow
+                    for i in self.engine.players:
+                        if i.x == mouse_x and i.y == mouse_y:
+                            player.ai.following = player
+                            set_following = True
+                        # no other player on tile, places destination marker
+                        else:
+                            self.destinations.append([mouse_x, mouse_y])
+
+                    if not set_following:
+                        if self.engine.game_map.explored[mouse_x, mouse_y]:
+                            player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
+                            self.players_selected = []
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
         key = event.sym
+        has_path = True
 
         if key == tcod.event.K_SPACE:  # change target
 
@@ -1139,6 +1143,7 @@ class ChangeTargetActor(AskUserEventHandler):
             return ShowEnemyInfo(self.engine, entity=player.fighter.target_actor, parent_handler=self)
 
         elif key in WAIT_KEYS:
+            self.destinations = []
             self.engine.handle_turns()
 
         elif key in MOVE_KEYS:
@@ -1148,6 +1153,18 @@ class ChangeTargetActor(AskUserEventHandler):
         elif key == tcod.event.K_ESCAPE:
             self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
             return MainGameEventHandler(self.engine)
+
+        # moves players
+        elif event.sym == tcod.event.K_RALT:
+            self.destinations = []
+            while has_path:
+                has_path = False
+                for player in self.engine.players:
+                    if player.ai.path:
+                        has_path = True
+                if has_path:
+                    self.engine.handle_turns()
+                    self.engine.update_fov()
 
     def update_bodypart_list(self) -> None:
         # updates bodypart list

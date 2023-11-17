@@ -189,6 +189,7 @@ class Weapon(Usable):
                 equip_time *= self.loaded_magazine.equip_ap_mod
 
         return self.ap_to_equip
+        # low priority
         # TODO - if weapon attack turns in full auto go over one turn, should be broken up into multiple turns. Alternatively (better solution) - make it so attacks can't go more than one turn anymore
 
 
@@ -527,6 +528,11 @@ class Gun(Weapon):
 
         # fires rounds
         while rounds_to_fire > 0:
+
+            # TODO - rendering bullet path
+            # bullet_path = attacker.ai.get_path_to(target.x, target.y)
+            # for x in bullet_path:
+            #     self.engine.game_map.
 
             if self.chambered_bullet is not None:
 
