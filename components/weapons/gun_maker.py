@@ -18,6 +18,8 @@ from random import choices, randint
 
 from entity import Item
 
+# TODO - type hints
+
 
 class PremadeWeapon:
     def __init__(self, gun_item: Item, part_dict: dict, bullet, optics: dict, magazine=None, name: str = '',

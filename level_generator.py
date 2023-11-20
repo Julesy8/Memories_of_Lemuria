@@ -1,7 +1,7 @@
 import copy
 
 from random import random, randint, choice, choices
-from copy import deepcopy
+from copy import deepcopy, copy
 
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
 from colours_and_chars import MapColoursChars
@@ -207,8 +207,8 @@ class MessyBSPTree:
 
     def place_entities(self, room: Rect):
 
-        enemy = copy.deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
-                                      k=1)[0])
+        enemy = deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
+                                 k=1)[0])
 
         number_of_monsters = randint(0, enemy.fighter.spawn_group_amount)
         number_of_items = randint(0, self.max_items_per_room)
@@ -222,9 +222,57 @@ class MessyBSPTree:
                 enemy.place(x, y, self.dungeon)
 
                 if len(enemy.fighter.weapons.keys()) > 0:
-                    held_weapon = deepcopy(choices(population=list(enemy.fighter.weapons.keys()),
-                                                   weights=list(enemy.fighter.weapons.values()),
-                                                   k=1)[0]).update_properties()
+                    gun = deepcopy(choices(population=list(enemy.fighter.weapons.keys()),
+                                           weights=list(enemy.fighter.weapons.values()),
+                                           k=1)[0])
+                    held_weapon = gun.update_properties()
+                    weapon_properties = held_weapon.usable_properties
+
+                    bullets = weapon_properties.chambered_bullet.parent
+                    bullets.stack_size = randint(0, 10)
+                    if bullets.stack_size > 0:
+                        enemy.inventory.add_to_inventory(item=bullets, item_container=None, amount=1)
+
+                    # adds clips to inventory and loads them
+                    if hasattr(weapon_properties, 'compatible_clip'):
+                        compatible_clip_type = weapon_properties.compatible_clip
+                        compatible_clips = copy(gun.clip)
+                        if compatible_clips is not None:
+                            for clip in gun.clip.keys():
+                                if clip.magazine_type != compatible_clip_type:
+                                    compatible_clips.update({clip: gun.magazine[clip]})
+                                    del compatible_clips[clip]
+
+                            # randomly selects clip
+                            clip = choices(population=list(compatible_clips.keys()),
+                                           weights=list(compatible_clips.values()), k=1)[0]
+
+                            for y in range(randint(0, 2)):
+                                clip_copy = deepcopy(clip.parent)
+                                clip_copy.load_magazine(ammo=weapon_properties.chambered_bullet,
+                                                        load_amount=(randint(1, clip.mag_capacity)))
+                                enemy.inventory.add_to_inventory(item=clip_copy.parent, item_container=None, amount=1)
+
+                    # adds magazines to inventory and loads them
+                    elif hasattr(weapon_properties, 'compatible_magazine_type'):
+                        compatible_magazine_type = weapon_properties.compatible_magazine_type
+                        compatible_magazines = copy(gun.magazine)
+                        if compatible_magazines is not None:
+                            for magazine in gun.magazine.keys():
+                                if magazine.magazine_type != compatible_magazine_type:
+                                    compatible_magazines.update({magazine: gun.magazine[magazine]})
+
+                                    del compatible_magazines[magazine]
+
+                            # randomly selects magazine
+                            magazine = choices(population=list(compatible_magazines.keys()),
+                                               weights=list(compatible_magazines.values()), k=1)[0]
+
+                            for y in range(randint(0, 2)):
+                                mag_copy = deepcopy(magazine.parent)
+                                mag_copy.load_magazine(ammo=weapon_properties.chambered_bullet,
+                                                       load_amount=(randint(1, magazine.mag_capacity)))
+                                enemy.inventory.add_to_inventory(item=mag_copy.parent, item_container=None, amount=1)
 
                     enemy.inventory.held = held_weapon
                     enemy.inventory.held.usable_properties.parent = enemy.inventory.held
@@ -236,7 +284,7 @@ class MessyBSPTree:
 
             if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities) and \
                     self.dungeon.tiles[x, y] != down_stairs:
-                item = copy.deepcopy(choices(population=self.item_population, weights=self.item_weight, k=1)[0])
+                item = deepcopy(choices(population=self.item_population, weights=self.item_weight, k=1)[0])
                 item.place(x, y, self.dungeon)
 
 

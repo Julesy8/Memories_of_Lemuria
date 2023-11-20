@@ -102,7 +102,7 @@ giant_snake = Actor(
     ai=HostileAnimal,
     bodyparts=(Body(hp=40, protection_ballistic=0, protection_physical=0, depth=15, width=120, height=15),
                Head(hp=5, protection_ballistic=0, protection_physical=0, depth=15, width=15, height=15)),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 
 )
 
@@ -124,7 +124,7 @@ large_rat = Actor(
                     ),
     ai=HostileAnimal,
     bodyparts=(Body(hp=10, protection_ballistic=0, protection_physical=0, depth=15, width=20, height=15),),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 
 )
 
@@ -145,7 +145,7 @@ rat_king = Actor(
     ai=HostileAnimal,
     bodyparts=(Body(hp=200, protection_ballistic=0, protection_physical=0, depth=20, width=40, height=40,
                     name='Writhing Mass'),),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 aligator = Actor(
@@ -175,7 +175,7 @@ aligator = Actor(
                Leg(hp=35, protection_ballistic=0, name='left hind leg', protection_physical=4, depth=11, width=11,
                    height=15),
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 outlaw = Actor(
@@ -206,7 +206,7 @@ outlaw = Actor(
                Leg(hp=40, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=12, width=15, height=100)
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 peacekeeper = Actor(
@@ -238,7 +238,7 @@ peacekeeper = Actor(
                Leg(hp=40, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=12, width=15, height=100)
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 
@@ -271,7 +271,7 @@ maniac = Actor(
                Leg(hp=40, protection_ballistic=0, protection_physical=0,
                    name='left leg', depth=12, width=15, height=100)
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 """
@@ -307,7 +307,7 @@ troglodyte = Actor(
                Leg(hp=40, protection_ballistic=0, protection_physical=0,
                    name='left leg', depth=10, width=12, height=70)
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 soldier = Actor(
@@ -338,7 +338,7 @@ soldier = Actor(
                Leg(hp=40, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=12, width=15, height=100)
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 wyrm = Actor(
@@ -359,7 +359,7 @@ wyrm = Actor(
     ai=HostileEnemy,
     bodyparts=(Body(hp=100, protection_ballistic=0, protection_physical=0, depth=30, width=300, height=30),
                Head(hp=40, protection_ballistic=0, protection_physical=0, depth=30, width=30, height=35)),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 chimera = Actor(
@@ -389,7 +389,7 @@ chimera = Actor(
                Leg(hp=30, protection_ballistic=0, protection_physical=0,
                    name='left leg', depth=10, width=12, height=35)
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 dogman = Actor(
@@ -422,7 +422,7 @@ dogman = Actor(
                Leg(hp=150, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=23, width=23, height=133)
                ),
-    inventory=Inventory(capacity=0),
+    inventory=Inventory(),
 )
 
 """

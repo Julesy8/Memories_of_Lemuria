@@ -248,12 +248,13 @@ class MainGameEventHandler(EventHandler):
 
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine)
-        elif key == tcod.event.K_QUESTION and self.engine.squad_mode:
+        # TODO - squad mode is totally fucked
+        elif key == tcod.event.K_LALT and self.engine.squad_mode:
             return self.engine.handle_queued_actions()
 
         elif key == tcod.event.K_TAB:
             return self.engine.switch_player()
-        elif key == tcod.event.K_LESS:
+        elif key == tcod.event.K_RALT:
             if self.engine.squad_mode:
                 self.engine.squad_mode = False
             else:

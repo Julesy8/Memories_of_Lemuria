@@ -36,12 +36,8 @@ input handler: reload (consumables class) -> calls action -> reloads
 increase standard reload time to 5 seconds
 
 After that figure out squad movement orders.
-- make attack mode a more general squad orders mode
- - attack mode selectable from there
- - press M to give movement order
-    - select units by right clicking and then left clicking where you want them to move, square lights up
+view squad members screen
  - press different key to give squad commands e.g. reload, follow
- - press key to advance time to given order positions
 
 After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
 magazine class itself.

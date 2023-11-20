@@ -5,14 +5,47 @@ from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
 
-import colour
 import tile_types
 from colours_and_chars import MapColoursChars
 from entity import Actor, Item
+from components.inventory import Inventory
+from components.ai import PlayerCharacter
+import colour
+from random import choice
+from components.npc_templates import PlayerFighter
+from components.bodyparts import Body, Arm, Leg, Head
+from components.weapons.gun_maker import g_17
+from copy import copy
 
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
+
+new_player_chance = (True, False, False, False, False, False, False, False, False, False, False, False, False, False,
+                     False, False, False, False, False, False, False, False, False, False, False)
+
+player_colours = [colour.BLUE, colour.GREEN, colour.RED, colour.MAGENTA, colour.ORANGE, colour.YELLOW,
+                  colour.PURPLE,
+                  colour.CYAN, colour.LIGHT_BLUE, colour.LIGHT_GREEN, colour.LIGHT_RED, colour.LIGHT_MAGENTA]
+
+first_names = ['Sam', 'Julian', 'Hamish', 'Josh', 'Oliver', 'Adam', 'David', 'Clancy', 'Henry', 'Jack',
+               'Daniel', 'Mark', 'Chris', 'Will', 'Steven', 'Kevin', 'Brian', 'George', 'Ronald', 'Jason',
+               'Edward', 'Jeffrt', 'Jacob', 'Gary', 'Nick', 'Eric', 'Larry', 'Justin', 'Brandon', 'Joe', 'Alex',
+               'Ethan', 'Jordan', 'Charles', 'Frank', 'Ray', 'Patrick', 'Kyle', 'Terry', 'Carl', 'Juan', 'Vince',
+               'Tyrese', 'Napoleon', 'Deshawn', 'Lebron', 'Jose', 'Pablo', 'Manuel', 'Yaron', 'Ian', 'Walter', ]
+
+last_names = ['James', 'Nobel', 'Smith', 'Hayes', 'Peat', 'Davis', 'Harris', 'Carter', 'Gomez', 'Williams',
+              'Peterson', 'Jones', 'Garcia', 'Miller', 'Brown', 'Anderson', 'Moore', 'Jackson', 'Washington', 'Lee',
+              'Lewis', 'Walker', 'Young', 'King', 'Wright', 'Scott', 'Hill', 'Hunt', 'Stewart', 'Cook', 'Reed',
+              'Price', ]
+
+weapons_leveled = {
+    0: {g_17: 5},
+    1: {g_17: 5},
+    2: {g_17: 5},
+    3: {g_17: 5},
+    4: {g_17: 5},
+}
 
 
 def _get_view_slice(screen_width: int, world_width: int, anchor: int):
@@ -209,11 +242,73 @@ class GameMap:
         if 0 <= camera_xy_updated[0] < self.width and 0 <= camera_xy_updated[1] < self.height:
             self.camera_xy = camera_xy_updated
 
+    def generate_player(self):
+
+        # randomly generates player name
+        first_name = choice(first_names)
+        last_name = choice(last_names)
+        name = f"{first_name} {last_name}"
+
+        colours = copy(player_colours)
+
+        # prevents duplicate player colours
+        for player in self.engine.players:
+            if player.fg_colour in colours:
+                colours.remove(player.fg_colour)
+
+        # randomly selects player colour
+        player_colour = choice(colours)
+
+        fighter_component = PlayerFighter(unarmed_meat_damage=10, unarmed_armour_damage=5, item_drops={},
+                                          spawn_group_amount=1, weapons=weapons_leveled[self.engine.current_level])
+
+        head_part = Head(hp=60, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26)
+        body_part = Body(hp=100, protection_ballistic=0, protection_physical=0, depth=20, width=35, height=56)
+        r_arm = Arm(hp=70, protection_ballistic=0, protection_physical=0, name='right arm', depth=10, width=10,
+                    height=78)
+        l_arm = Arm(hp=70, protection_ballistic=0, protection_physical=0, name='left arm', depth=10, width=10,
+                    height=78)
+        r_leg = Leg(hp=75, protection_ballistic=0, protection_physical=0, name='right leg', depth=12, width=15,
+                    height=100)
+        l_leg = Leg(hp=75, protection_ballistic=0, protection_physical=0, name='left leg', depth=12, width=15,
+                    height=100)
+
+        body_parts = (body_part, head_part, r_arm, l_arm, r_leg, l_leg)
+
+        player = Actor(0,
+                       0,
+                       '@',
+                       player_colour,
+                       name,
+                       ai=PlayerCharacter,
+                       fighter=fighter_component,
+                       bodyparts=body_parts,
+                       player=True,
+                       inventory=Inventory(capacity=15),
+                       )
+
+        self.engine.players.append(player)
+        self.engine.message_log.add_message(f"New squad member found: {name}", colour.MAGENTA)
+        return True
+
     def generate_level(self) -> None:
         from level_generator import MessyBSPTree
         from level_parameters import level_params
 
+        new_player = False
+
         self.engine.current_floor += 1
+
+        if self.engine.current_level == 0:
+            if self.engine.current_floor == 2:
+                new_player = self.generate_player()
+            if self.engine.current_floor == 5:
+                self.engine.current_level += 1
+                self.engine.current_floor = 0
+
+            if not new_player:
+                if choice(new_player_chance):
+                    self.generate_player()
 
         self.engine.game_map = MessyBSPTree(
             messy_tunnels=level_params[self.engine.current_level][0],

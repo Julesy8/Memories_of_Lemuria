@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Inventory(BaseComponent):
     parent: Actor
 
-    def __init__(self, capacity: float):
+    def __init__(self, capacity: float = 30.0):
         self.capacity = capacity
         self.items: List[Item] = []
         self.held = None
