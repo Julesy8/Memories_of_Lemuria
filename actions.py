@@ -20,8 +20,9 @@ if TYPE_CHECKING:
 
 
 class Action:
-    def __init__(self, entity: Actor) -> None:
+    def __init__(self, entity: Actor, handle_now: bool = False) -> None:
         super().__init__()
+        self.handle_now = handle_now
         self.entity = entity
         self.queued = False
         self.turns_until_action = 0
@@ -38,8 +39,13 @@ class Action:
 
         ap_cost = self.calculate_ap_cost()
 
+        action_viable = self.action_viable()
+
+        if self.handle_now and action_viable:
+            return self.perform()
+
         # checks if action is viable
-        if not self.action_viable():
+        if not action_viable:
             self.entity.ai.queued_action = None
             return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.RED)
 
@@ -50,8 +56,11 @@ class Action:
                 # no more turns left to wait, performs action
                 # TODO - execution of queued actions for players should probably be handled by individual AI instances
                 #   rather than by a queue list in engine
-                if self in self.engine.action_queue:
-                    self.engine.action_queue.remove(self)
+
+                # TODO - temporary fix
+                if self.entity.player:
+                    if self == self.entity.ai.queued_action:
+                        self.entity.ai.queued_action = None
                 return self.perform()
             else:
                 # still turns left to wait, decreases turns_until_action
@@ -63,12 +72,11 @@ class Action:
 
             # if squad mode, will add action to engine action_queue
             if self.engine.squad_mode:
-
                 # queues action if > 0 AP
                 if self.entity.fighter.ap > 0:
                     self.entity.fighter.ap -= ap_cost
                     self.queued = True
-                    self.engine.action_queue.append(self)
+                    self.entity.ai.queued_action = self
 
                     # calculates and sets number of turns until action can take place if not enough AP is available
                     if self.entity.fighter.ap < 0:
@@ -84,8 +92,8 @@ class Action:
             elif self.entity.fighter.ap >= ap_cost:
                 # performs action if enough AP is available
                 self.entity.fighter.ap -= ap_cost
-                if self in self.engine.action_queue:
-                    self.engine.action_queue.remove(self)
+                if self == self.entity.ai.queued_action:
+                    self.entity.ai.queued_action = None
                 self.perform()
 
             # not in squad mode and not enough AP to perform action - skips appropriate amount of turns
@@ -150,8 +158,8 @@ class TakeStairsAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Actor, dx: int, dy: int):
-        super().__init__(entity)
+    def __init__(self, entity: Actor, dx: int, dy: int, handle_now: bool = False):
+        super().__init__(entity, handle_now)
 
         self.dx = dx
         self.dy = dy
@@ -716,7 +724,7 @@ class BumpAction(ActionWithDirection):
                 pass
 
         else:
-            return MovementAction(self.entity, self.dx, self.dy).handle_action()
+            return MovementAction(entity=self.entity, dx=self.dx, dy=self.dy, handle_now=True).handle_action()
 
 
 class AddToInventory(Action):

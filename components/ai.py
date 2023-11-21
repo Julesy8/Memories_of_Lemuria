@@ -54,7 +54,7 @@ class BaseAI(Action):
 
 
 class PlayerCharacter(BaseAI):
-    def __init__(self, entity: Actor, ):
+    def __init__(self, entity: Actor):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
         self.following = None
@@ -74,7 +74,7 @@ class PlayerCharacter(BaseAI):
         if self.following is not None:
             self.path = self.get_path_to(self.following.x, self.following.y)
 
-        while fighter.ap > 0:
+        while fighter.ap > 0 and self.queued_action is None:
 
             # any kind of movement action occurring
             if fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:

@@ -182,9 +182,11 @@ class EventHandler(BaseEventHandler):
                 self.engine.message_log.add_message(exc.args[0], colour.RED)
             return False  # Skip enemy turn on exceptions.
 
-        self.engine.handle_turns()
+        if not self.engine.squad_mode:
+            self.engine.handle_turns()
 
-        self.engine.update_fov()
+        # self.engine.update_fov() moved to handle_turns
+
         return True
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
@@ -248,7 +250,6 @@ class MainGameEventHandler(EventHandler):
 
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine)
-        # TODO - squad mode is totally fucked
         elif key == tcod.event.K_LALT and self.engine.squad_mode:
             return self.engine.handle_queued_actions()
 
@@ -1014,7 +1015,7 @@ class ChangeTargetActor(AskUserEventHandler):
         else:
             console.print(x=0, y=2, string="NO TARGET", fg=colour.WHITE, bg=(0, 0, 0))
 
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[ActionOrHandler]:
+    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> None:
         screen_shape = self.console.rgb.shape
         cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
 

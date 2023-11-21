@@ -38,6 +38,8 @@ increase standard reload time to 5 seconds
 After that figure out squad movement orders.
 view squad members screen
  - press different key to give squad commands e.g. reload, follow
+- when performing action (action queued) should say something like "performing action: reloading"
+TODO - clear queue when switching from squad mode to individual mode
 
 After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
 magazine class itself.

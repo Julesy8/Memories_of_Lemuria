@@ -19,7 +19,6 @@ from render_functions import render_names_at_mouse_location, render_part
 
 if TYPE_CHECKING:
     from entity import Actor
-    from actions import Action
     from game_map import GameMap
 
 
@@ -39,14 +38,19 @@ class Engine:
 
         self.bestiary = {}
 
-        self.action_queue: list[Action] = []
         self.squad_mode: bool = False
 
         self.floor_str = f"{level_names[self.current_level]} {self.current_floor + 1}"
 
     def handle_queued_actions(self) -> None:
-        for action in self.action_queue:
-            action.handle_action()
+        for player in self.players:
+            if player.ai.queued_action is not None:
+
+                try:
+                    player.ai.queued_action.handle_action()
+                except exceptions.Impossible as exc:
+                    if not exc.args[0] == "Silent":  # if error is "Silent" as arg, doesn't print error to message log
+                        self.message_log.add_message(exc.args[0], colour.RED)
 
         self.handle_turns()
 
@@ -70,9 +74,7 @@ class Engine:
 
     def handle_turns(self) -> None:
 
-        # for player in self.game_map.engine.players:
-        #     player.fighter.ap += round(player.fighter.ap_per_turn * player.fighter.ap_per_turn_modifier)
-
+        self.update_fov()  # moved here from handle_action
         for entity in set(self.game_map.actors):
             #             if entity.ai and not entity in self.game_map.engine.players and entity.fighter.target_actor:
             if entity.ai:
