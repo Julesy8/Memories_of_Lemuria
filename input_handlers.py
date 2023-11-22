@@ -249,7 +249,7 @@ class MainGameEventHandler(EventHandler):
             return ViewPlayerStats(self.engine)
 
         elif key == tcod.event.K_SPACE:
-            return ChangeTargetActor(engine=self.engine)
+            return ChangeTargetActor(engine=self.engine, in_squad_mode=self.engine.squad_mode)
         elif key == tcod.event.K_LALT and self.engine.squad_mode:
             return self.engine.handle_queued_actions()
 
@@ -877,10 +877,18 @@ class AmountToPickUpMenu(TypeAmountEventHandler):
         return MainGameEventHandler(self.engine)
 
 
+class DestinationMarker:
+    def __int__(self, x: int, y: int, colours: list[tuple[int, int, int]]):
+        self.x = x
+        self.y = y
+        self.colours = colours
+
+
 class ChangeTargetActor(AskUserEventHandler):
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, in_squad_mode: bool):
         super().__init__(engine)
+        self.in_squad_mode = in_squad_mode
         self.tick_counter = 0
         self.max_tick = max_fps * 3
         self.players_selected = []
@@ -899,6 +907,8 @@ class ChangeTargetActor(AskUserEventHandler):
         self.console = None
 
         self.item = self.engine.player.inventory.held
+
+        self.engine.squad_mode = True
 
         self.get_targets()
 
@@ -944,6 +954,9 @@ class ChangeTargetActor(AskUserEventHandler):
             self.update_part_str_colour()
 
     def on_render(self, console: tcod.Console):
+
+        # TODO - destination markers should change between different colours corresponding to which entity going there
+
         super().on_render(console)  # Draw the main state as the background.
 
         blink_on = False
@@ -976,7 +989,7 @@ class ChangeTargetActor(AskUserEventHandler):
         for destination in self.destinations:
             dest_x = destination[0] - cam_x
             dest_y = destination[1] - cam_y
-            console.print(x=0, y=4, string="R ALT - EXECUTE MOVEMENT ORDER", fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=0, y=4, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
 
             if blink_on:
                 console.print(dest_x, dest_y, "X", colour.WHITE)
@@ -984,6 +997,14 @@ class ChangeTargetActor(AskUserEventHandler):
         player = self.engine.player
 
         console.print(x=0, y=1, string="ACTION MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
+
+        # if gun is jammed, prints a message on the screen and instructs player on how to clear
+        if self.item is not None:
+            if hasattr(self.item.usable_properties, 'jammed'):
+                if self.item.usable_properties.jammed:
+                    console.print(x=0, y=console.height - 7, string="GUN JAMMED: [ENTER] TO CLEAR",
+                                  fg=colour.RED, bg=(0, 0, 0))
+                    return
 
         if player.fighter.target_actor is not None:
 
@@ -1045,26 +1066,14 @@ class ChangeTargetActor(AskUserEventHandler):
 
                 for player in self.players_selected:
 
-                    set_following = False
-
-                    # checks if tile selected has another player on it, if so sets to follow
-                    for i in self.engine.players:
-                        if i.x == mouse_x and i.y == mouse_y:
-                            player.ai.following = player
-                            set_following = True
-                        # no other player on tile, places destination marker
-                        else:
-                            self.destinations.append([mouse_x, mouse_y])
-
-                    if not set_following:
-                        if self.engine.game_map.explored[mouse_x, mouse_y]:
-                            player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
-                            self.players_selected = []
+                    if self.engine.game_map.explored[mouse_x, mouse_y]:
+                        player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
+                        self.destinations.append([mouse_x, mouse_y])
+                        self.players_selected = []
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
         key = event.sym
-        has_path = True
 
         if key == tcod.event.K_SPACE:  # change target
 
@@ -1082,6 +1091,8 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.target_index = 0
                 self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y)
             except TypeError:
+                if not self.in_squad_mode:
+                    self.engine.squad_mode = False
                 return MainGameEventHandler(self.engine)
 
             self.target_index = self.targets.index(player.fighter.target_actor)
@@ -1100,6 +1111,8 @@ class ChangeTargetActor(AskUserEventHandler):
                     self.selected_bodypart = self.bodypartlist[0]
                     self.bodypart_index = 0
                 except IndexError:
+                    if not self.in_squad_mode:
+                        self.engine.squad_mode = False
                     return MainGameEventHandler(self.engine)
 
             self.update_part_str_colour()
@@ -1117,16 +1130,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
                 # attack with weapon
                 if self.item is not None:
-
                     self.item.usable_properties.get_attack_action()
-
-                    # prints splatter message
-                    if self.selected_bodypart.show_splatter_message:
-                        self.engine.message_log.add_message(self.selected_bodypart.splatter_message,
-                                                            colour.GREEN)
-
-                        self.selected_bodypart.show_splatter_message = False
-                        self.selected_bodypart.splatter_message_shown = True
 
                 # unarmed attack
                 else:
@@ -1138,6 +1142,8 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.engine.render(console=self.console)
 
             else:
+                if not self.in_squad_mode:
+                    self.engine.squad_mode = False
                 return MainGameEventHandler(self.engine)
 
         # displays enemy info
@@ -1146,7 +1152,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
         elif key in WAIT_KEYS:
             self.destinations = []
-            self.engine.handle_turns()
+            self.engine.handle_queued_actions()
 
         elif key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -1154,19 +1160,9 @@ class ChangeTargetActor(AskUserEventHandler):
 
         elif key == tcod.event.K_ESCAPE:
             self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
+            if not self.in_squad_mode:
+                self.engine.squad_mode = False
             return MainGameEventHandler(self.engine)
-
-        # moves players
-        elif event.sym == tcod.event.K_RALT:
-            self.destinations = []
-            while has_path:
-                has_path = False
-                for player in self.engine.players:
-                    if player.ai.path:
-                        has_path = True
-                if has_path:
-                    self.engine.handle_turns()
-                    self.engine.update_fov()
 
     def update_bodypart_list(self) -> None:
         # updates bodypart list

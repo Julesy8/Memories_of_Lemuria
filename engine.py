@@ -44,13 +44,11 @@ class Engine:
 
     def handle_queued_actions(self) -> None:
         for player in self.players:
-            if player.ai.queued_action is not None:
-
-                try:
-                    player.ai.queued_action.handle_action()
-                except exceptions.Impossible as exc:
-                    if not exc.args[0] == "Silent":  # if error is "Silent" as arg, doesn't print error to message log
-                        self.message_log.add_message(exc.args[0], colour.RED)
+            try:
+                player.ai.perform()
+            except exceptions.Impossible as exc:
+                if not exc.args[0] == "Silent":  # if error is "Silent" as arg, doesn't print error to message log
+                    self.message_log.add_message(exc.args[0], colour.RED)
 
         self.handle_turns()
 
@@ -73,11 +71,10 @@ class Engine:
             f.write(save_data)
 
     def handle_turns(self) -> None:
-
         self.update_fov()  # moved here from handle_action
         for entity in set(self.game_map.actors):
             #             if entity.ai and not entity in self.game_map.engine.players and entity.fighter.target_actor:
-            if entity.ai:
+            if entity.ai and not entity.player:
                 try:
                     if entity.fighter.active:
                         entity.ai.perform()
@@ -153,8 +150,7 @@ class Engine:
 
         console.print(x=0, y=console.height - 5, string=self.player.name, fg=colour.WHITE)
 
-        if self.player.fighter.ap < 0:
-            console.print(x=2, y=0, string='PERFORMING ACTIONS', fg=colour.RED)
+        # TODO - render action message here
 
         # render message log
         self.message_log.render(console=console, x=6, y=console.height - 4,

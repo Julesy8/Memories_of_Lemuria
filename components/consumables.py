@@ -483,7 +483,7 @@ class Gun(Weapon):
                       proficiency: float, skill_range_modifier: float) -> None:
 
         if self.jammed:
-            self.engine.message_log.add_message("Attack failed: gun jammed. Press ENTER to clear.", colour.RED)
+            self.engine.message_log.add_message("Attack failed: gun jammed.", colour.RED)
 
         self.momentum_gun = 0
         self.time_in_barrel = 0
@@ -553,7 +553,7 @@ class Gun(Weapon):
 
                     if choices(population=(True, False), weights=(round(25 - ((self.condition_function / 5) * 25) +
                                                                         mag_fail_chance), 100))[0]:
-                        self.engine.message_log.add_message("Your gun is jammed! Press ENTER to clear.", colour.RED)
+                        self.engine.message_log.add_message("Your gun is jammed!", colour.RED)
                         self.jammed = True
                         return
 

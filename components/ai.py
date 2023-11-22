@@ -57,7 +57,6 @@ class PlayerCharacter(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
-        self.following = None
 
     def perform(self) -> None:
 
@@ -66,15 +65,18 @@ class PlayerCharacter(BaseAI):
         # AP regeneration
         fighter.ap += round(fighter.ap_per_turn * fighter.ap_per_turn_modifier)
 
+        # TODO - make it so cannot queue new actions while inactive at the handle_action level
         if self.entity.fighter.turns_attack_inactive >= 1:
             self.entity.fighter.turns_attack_inactive -= 1
         if self.entity.fighter.turns_move_inactive >= 1:
             self.entity.fighter.turns_move_inactive -= 1
 
-        if self.following is not None:
-            self.path = self.get_path_to(self.following.x, self.following.y)
+        if self.queued_action is not None:
+            # TODO - should be able to queue new actions while you still have AP above 0
+            #  queued_actions should be a list of actions rather than single variable
+            self.queued_action.handle_action()
 
-        while fighter.ap > 0 and self.queued_action is None:
+        else:
 
             # any kind of movement action occurring
             if fighter.move_ap_cost <= fighter.ap and self.entity.fighter.turns_move_inactive <= 0:
@@ -82,16 +84,8 @@ class PlayerCharacter(BaseAI):
                 if self.path:
                     dest_x, dest_y = self.path.pop(0)
                     MovementAction(
-                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y, handle_now=True
                     ).handle_action()
-
-                else:
-                    break
-
-            else:
-                break
-
-        # return WaitAction(self.entity).perform()
 
 
 class HostileEnemy(BaseAI):

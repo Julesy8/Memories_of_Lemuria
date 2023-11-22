@@ -28,16 +28,30 @@ player_colours = [colour.BLUE, colour.GREEN, colour.RED, colour.MAGENTA, colour.
                   colour.PURPLE,
                   colour.CYAN, colour.LIGHT_BLUE, colour.LIGHT_GREEN, colour.LIGHT_RED, colour.LIGHT_MAGENTA]
 
-first_names = ['Sam', 'Julian', 'Hamish', 'Josh', 'Oliver', 'Adam', 'David', 'Clancy', 'Henry', 'Jack',
-               'Daniel', 'Mark', 'Chris', 'Will', 'Steven', 'Kevin', 'Brian', 'George', 'Ronald', 'Jason',
-               'Edward', 'Jeffrt', 'Jacob', 'Gary', 'Nick', 'Eric', 'Larry', 'Justin', 'Brandon', 'Joe', 'Alex',
-               'Ethan', 'Jordan', 'Charles', 'Frank', 'Ray', 'Patrick', 'Kyle', 'Terry', 'Carl', 'Juan', 'Vince',
-               'Tyrese', 'Napoleon', 'Deshawn', 'Lebron', 'Jose', 'Pablo', 'Manuel', 'Yaron', 'Ian', 'Walter', ]
+first_names = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
+               'Christopher', 'Daniel', 'Matthew', 'Anthony', 'Donald', 'Mark', 'Paul', 'Steven', 'Andrew', 'Kenneth',
+               'George', 'Joshua', 'Kevin', 'Brian', 'Edward', 'William', 'Nicholas', 'Tyler', 'Brandon', 'Jacob',
+               'Ryan', 'Justin', 'Jonathan', 'Austin', 'Cody', 'Eric', 'Benjamin', 'Adam', 'Samuel', 'Jeremy',
+               'Patrick', 'Alexander', 'Jesse', 'Zachary', 'Dylan', 'Nathan', 'Scott', 'Kyle', 'Jeffrey', 'Sean',
+               'Travis', 'Bryan', 'Ethan', 'Luke', 'Carlos', 'Ian', 'Peter', 'Christian', 'Cameron', 'Shawn', 'Luis',
+               'Jared', 'Juan', 'Caleb', 'Evan', 'Gabriel', 'Chase', 'Antonio', 'Cory', 'Curtis', 'Seth', 'Adrian',
+               'Jorge', 'Trevor', 'Dustin', 'Mario', 'Derek', 'Devin', 'Javier', 'Miguel', 'Julian', 'Oscar',
+               'Blake', 'Cole', 'Joel', 'Ronald', 'Francisco', 'Bradley', 'Eduardo', 'Devon', 'Maxwell', 'Ruben',
+               'Ricardo', 'Derrick', 'Tanner', 'Angel', 'Brett', 'Martin', 'Spencer', 'Gavin', 'Henry', 'Troy',
+               'Victor', 'Darius', 'Drew']
 
-last_names = ['James', 'Nobel', 'Smith', 'Hayes', 'Peat', 'Davis', 'Harris', 'Carter', 'Gomez', 'Williams',
-              'Peterson', 'Jones', 'Garcia', 'Miller', 'Brown', 'Anderson', 'Moore', 'Jackson', 'Washington', 'Lee',
-              'Lewis', 'Walker', 'Young', 'King', 'Wright', 'Scott', 'Hill', 'Hunt', 'Stewart', 'Cook', 'Reed',
-              'Price', ]
+last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Martinez',
+              'Taylor', 'Anderson', 'Wilson', 'Jackson', 'Wright',
+              'Perez', 'Walker', 'Hall', 'Young', 'Allen', 'King', 'Scott', 'Green', 'Baker', 'Adams',
+              'Nelson', 'Carter', 'Mitchell', 'Perez', 'Roberts', 'Turner', 'Phillips', 'Campbell', 'Parker',
+              'Evans', 'Edwards', 'Collins', 'Stewart', 'Sanchez', 'Morris', 'Rogers', 'Reed', 'Cook', 'Morgan',
+              'Bell', 'Murphy', 'Bailey', 'Rivera', 'Cooper', 'Richardson', 'Cox', 'Howard', 'Ward', 'Torres',
+              'Peterson', 'Gray', 'Ramirez', 'James', 'Watson', 'Brooks', 'Kelly', 'Sanders', 'Price', 'Bennett',
+              'Wood', 'Barnes', 'Ross', 'Henderson', 'Coleman', 'Jenkins', 'Perry', 'Powell', 'Long', 'Patterson',
+              'Hughes', 'Flores', 'Washington', 'Butler', 'Simmons', 'Foster', 'Gonzales', 'Bryant', 'Alexander',
+              'Russell', 'Griffin', 'Diaz', 'Hayes', 'Myers', 'Ford', 'Hamilton', 'Graham', 'Sullivan', 'Wallace',
+              'Woods', 'Cole', 'West', 'Jordan', 'Owens', 'Reynolds', 'Fisher', 'Ellis', 'Harrison', 'Gibson',
+              'Mcdonald', 'Cruz', 'Marshall', 'Ortiz', 'Gomez', 'Murray', 'Freeman']
 
 weapons_leveled = {
     0: {g_17: 5},
@@ -321,4 +335,4 @@ class GameMap:
             engine=self.engine,
             current_level=self.engine.current_level,
             fov_radius=level_params[self.engine.current_level][7]
-            ).generate_level()
+        ).generate_level()
