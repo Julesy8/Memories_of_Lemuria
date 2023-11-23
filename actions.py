@@ -54,8 +54,6 @@ class Action:
 
             if self.turns_until_action <= 0:
                 # no more turns left to wait, performs action
-                # TODO - execution of queued actions for players should probably be handled by individual AI instances
-                #   rather than by a queue list in engine
 
                 # TODO - temporary fix
                 if self.entity.player:
@@ -244,7 +242,10 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
     def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart]):
         super().__init__(distance, entity, targeted_actor, targeted_bodypart)
-        self.action_str = f'unarmed attack on {targeted_actor.name}, {targeted_bodypart.name}'
+        if targeted_bodypart is not None:
+            self.action_str = f'unarmed attack on {targeted_actor.name}, {targeted_bodypart.name}'
+        else:
+            self.action_str = ''
 
     def action_viable(self) -> bool:
         dx = self.targeted_actor.x - self.entity.x
@@ -294,7 +295,12 @@ class MeleeAttackAction(AttackAction):
                  targeted_bodypart: Optional[Bodypart]):
         super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
                          targeted_bodypart=targeted_bodypart)
-        self.action_str = f'attack on {targeted_actor.name}, {targeted_bodypart.name}'
+
+        if targeted_bodypart is not None:
+            self.action_str = f'attack on {targeted_actor.name}, {targeted_bodypart.name}'
+        else:
+            self.action_str = ''
+
         self.weapon = weapon
 
     def action_viable(self) -> bool:
@@ -329,7 +335,12 @@ class GunAttackAction(AttackAction):
                  targeted_bodypart: Optional[Bodypart]):
         super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
                          targeted_bodypart=targeted_bodypart)
-        self.action_str = f'shooting {targeted_actor.name}, {targeted_bodypart.name}'
+
+        if targeted_bodypart is not None:
+            self.action_str = f'shooting {targeted_actor.name}, {targeted_bodypart.name}'
+        else:
+            self.action_str = ''
+
         self.weapon = gun
         self.total_weight = self.weapon.parent.weight
         self.proficiency = 1.0

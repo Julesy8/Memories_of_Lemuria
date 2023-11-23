@@ -154,12 +154,12 @@ class MainMenu(BaseEventHandler):
     def ev_keydown(
             self, event: tcod.event.KeyDown
     ) -> Optional[BaseEventHandler]:
-        if event.sym == tcod.event.K_ESCAPE:
-            if music:
-                self.music.terminate()
-            raise SystemExit()
+        # if event.sym == tcod.event.K_ESCAPE:
+        #     if music:
+        #         self.music.terminate()
+        #     raise SystemExit()
 
-        elif event.sym == tcod.event.K_DOWN:
+        if event.sym == tcod.event.K_DOWN:
             if self.option_selected < 2:
                 self.option_selected += 1
             else:
@@ -306,6 +306,7 @@ def new_game() -> Engine:
     return engine
 
 
+# TODO - should not be able to start a new game if there is already a save file
 def load_game(filename: str) -> Engine:
     """Load an Engine instance from a file."""
     with open(filename, "rb") as f:

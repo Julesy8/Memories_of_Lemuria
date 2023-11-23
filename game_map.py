@@ -199,6 +199,8 @@ class GameMap:
 
     def render(self, console: Console) -> None:
 
+        # TODO - FOV outside of controlled player vision should be slightly dimmed
+
         screen_shape = console.rgb.shape
         cam_x, cam_y = self.get_left_top_pos(screen_shape)
 
@@ -313,16 +315,18 @@ class GameMap:
 
         self.engine.current_floor += 1
 
-        if self.engine.current_level == 0:
-            if self.engine.current_floor == 2:
-                new_player = self.generate_player()
-            if self.engine.current_floor == 5:
-                self.engine.current_level += 1
-                self.engine.current_floor = 0
+        if len(self.engine.players) < 5:
+            # TODO - extend for other floors
+            if self.engine.current_level == 0:
+                if self.engine.current_floor == 2:
+                    new_player = self.generate_player()
+                if self.engine.current_floor == 5:
+                    self.engine.current_level += 1
+                    self.engine.current_floor = 0
 
-            if not new_player:
-                if choice(new_player_chance):
-                    self.generate_player()
+                if not new_player:
+                    if choice(new_player_chance):
+                        self.generate_player()
 
         self.engine.game_map = MessyBSPTree(
             messy_tunnels=level_params[self.engine.current_level][0],

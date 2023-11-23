@@ -218,38 +218,39 @@ class MainGameEventHandler(EventHandler):
         elif key in WAIT_KEYS:
             action = WaitAction(player)
         elif key == tcod.event.K_v:
-            return HistoryViewer(self.engine)
+            return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_g:
-            return PickUpEventHandler(engine=self.engine)
+            return PickUpEventHandler(engine=self.engine, parent_handler=self)
         elif key == tcod.event.K_r:
-            return LoadoutEventHandler(engine=self.engine)
+            return LoadoutEventHandler(engine=self.engine, parent_handler=self)
         elif key == tcod.event.K_q:
             try:
                 # held gun is mag fed
                 if hasattr(player.inventory.held.usable_properties, 'loaded_magazine'):
-                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held)
+                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held, parent_handler=self)
                 # held gun is integrated magazine
                 elif hasattr(player.inventory.held.usable_properties, 'magazine'):
-                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held)
+                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held, parent_handler=self)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
         elif key == tcod.event.K_ESCAPE:
-            return QuitEventHandler(self.engine)
+            return QuitEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_c:
-            return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting')
+            return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting',
+                                     parent_handler=self)
         elif key == tcod.event.K_i:
-            return InventoryEventHandler(self.engine)
+            return InventoryEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_e:
-            return EquipmentEventHandler(self.engine)
+            return EquipmentEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_s:
-            return AttackStyleMenu(self.engine)
+            return AttackStyleMenu(self.engine, parent_handler=self)
         elif key == tcod.event.K_p:
-            return Bestiary(self.engine)
+            return Bestiary(self.engine, parent_handler=self)
         elif key == tcod.event.K_z:
-            return ViewPlayerStats(self.engine)
+            return ViewPlayerStats(self.engine, parent_handler=self)
 
         elif key == tcod.event.K_SPACE:
-            return ChangeTargetActor(engine=self.engine, in_squad_mode=self.engine.squad_mode)
+            return ChangeTargetActor(engine=self.engine, in_squad_mode=self.engine.squad_mode, parent_handler=self)
         elif key == tcod.event.K_LALT and self.engine.squad_mode:
             return self.engine.handle_queued_actions()
 
@@ -292,8 +293,9 @@ CURSOR_Y_KEYS = {
 class HistoryViewer(EventHandler):
     """Print the history on a larger window which can be navigated."""
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler, ):
         super().__init__(engine)
+        self.parent_handler = parent_handler
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
 
@@ -319,7 +321,7 @@ class HistoryViewer(EventHandler):
         )
         log_console.blit(console, 3, 3)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[MainGameEventHandler]:
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
         # Fancy conditional movement to make it feel right.
         if event.sym in CURSOR_Y_KEYS:
             adjust = CURSOR_Y_KEYS[event.sym]
@@ -337,11 +339,16 @@ class HistoryViewer(EventHandler):
         elif event.sym == tcod.event.K_END:
             self.cursor = self.log_length - 1  # Move directly to the last message.
         else:  # Any other key moves back to the main game state.
-            return MainGameEventHandler(self.engine)
+            return self.parent_handler
         return None
 
 
 class AskUserEventHandler(EventHandler):
+
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
+        super().__init__(engine)
+        self.parent_handler = parent_handler
+
     """Handles user input for actions which require special input."""
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
@@ -366,15 +373,15 @@ class AskUserEventHandler(EventHandler):
 
         By default this returns to the main event handler.
         """
-        return MainGameEventHandler(self.engine)
+        return self.parent_handler
 
 
 class UserOptionsEventHandler(AskUserEventHandler):
 
-    def __init__(self, engine: Engine, options: list, title: str):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler, options: list, title: str):
         self.options = options
         self.TITLE = title
-        super().__init__(engine)
+        super().__init__(engine, parent_handler)
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
@@ -425,7 +432,7 @@ class UserOptionsEventHandler(AskUserEventHandler):
         index = key - tcod.event.K_a
 
         if event.sym == tcod.event.K_ESCAPE:
-            return MainGameEventHandler(self.engine)
+            return self.parent_handler
 
         if 0 <= index <= 26:
             try:
@@ -443,14 +450,13 @@ class UserOptionsEventHandler(AskUserEventHandler):
 class UserOptionsWithPages(AskUserEventHandler):
     TITLE = "<missing title>"
 
-    def __init__(self, engine: Engine, page: int, options: list, title: str):
-        super().__init__(engine)
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler, page: int, options: list, title: str):
         self.max_list_length = 15  # defines the maximum amount of items to be displayed in the menu
         self.page = page
         self.options = options
         self.TITLE = title
 
-        super().__init__(engine)
+        super().__init__(engine, parent_handler)
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
@@ -549,8 +555,8 @@ class UserOptionsWithPages(AskUserEventHandler):
 
 
 class TypeInputEventHandler(AskUserEventHandler):
-    def __init__(self, item: Item, prompt_string: str, engine: Engine):
-        super().__init__(engine)
+    def __init__(self, item: Item, parent_handler: BaseEventHandler, prompt_string: str, engine: Engine):
+        super().__init__(engine, parent_handler)
         self.item = item
         self.engine = engine
         self.buffer = ''
@@ -581,7 +587,7 @@ class TypeInputEventHandler(AskUserEventHandler):
 
             if not event.repeat:
                 if key == tcod.event.K_ESCAPE:
-                    return MainGameEventHandler(self.engine)
+                    return self.parent_handler
 
                 elif key == tcod.event.K_BACKSPACE:
                     self.buffer = self.buffer[:-1]
@@ -612,7 +618,7 @@ class TypeAmountEventHandler(TypeInputEventHandler):
                                 self.buffer += event.text
 
                     if key == tcod.event.K_ESCAPE:
-                        return MainGameEventHandler(self.engine)
+                        return self.parent_handler
 
                     elif key == tcod.event.K_BACKSPACE:
                         self.buffer = self.buffer[:-1]
@@ -641,11 +647,12 @@ class TypeAmountEventHandler(TypeInputEventHandler):
 
 class InventoryEventHandler(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
         title = "Inventory" + f" - {round(engine.player.inventory.current_item_weight(), 2)}" \
                               f"/{engine.player.inventory.capacity}kg"
 
-        super().__init__(engine=engine, options=engine.player.inventory.items, page=0, title=title)
+        super().__init__(engine=engine, parent_handler=parent_handler,
+                         options=engine.player.inventory.items, page=0, title=title)
 
     def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
@@ -663,14 +670,14 @@ class InventoryEventHandler(UserOptionsWithPages):
         if hasattr(item.usable_properties, 'gun_type'):
             options += ['equip to primary', 'equip to secondary', 'disassemble', 'rename']
 
-        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
+        return ItemInteractionHandler(item=item, options=options, engine=self.engine, parent_handler=self)
 
 
 class ItemInteractionHandler(UserOptionsEventHandler):  # options for interacting with an item
 
-    def __init__(self, item, options: list, engine: Engine):
+    def __init__(self, item, options: list, engine: Engine, parent_handler: BaseEventHandler):
         self.item = item
-        super().__init__(engine=engine, options=options, title=item.name)
+        super().__init__(engine=engine, parent_handler=parent_handler, options=options, title=item.name)
 
     def ev_on_option_selected(self, option) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
@@ -678,11 +685,14 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             try:
                 if hasattr(self.item.usable_properties, 'mag_capacity'):
                     if hasattr(self.item.usable_properties, 'gun_type'):
-                        return GunOptionsIntegratedMag(engine=self.engine, gun=self.item.usable_properties)
+                        return GunOptionsIntegratedMag(engine=self.engine, gun=self.item.usable_properties,
+                                                       parent_handler=self)
                     else:
-                        return MagazineOptionsHandler(engine=self.engine, magazine=self.item.usable_properties)
+                        return MagazineOptionsHandler(engine=self.engine, magazine=self.item.usable_properties,
+                                                      parent_handler=self)
                 elif hasattr(self.item.usable_properties, 'loaded_magazine'):
-                    return GunOptionsMagFed(engine=self.engine, gun=self.item.usable_properties)
+                    return GunOptionsMagFed(engine=self.engine, gun=self.item.usable_properties,
+                                            parent_handler=self)
                 else:
                     return self.item.usable_properties.get_action(self.engine.player)
 
@@ -692,19 +702,20 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'pick up':
             if self.item.stacking:
                 if self.item.stacking.stack_size > 1:
-                    return AmountToPickUpMenu(item=self.item, engine=self.engine)
+                    return AmountToPickUpMenu(item=self.item, engine=self.engine, parent_handler=self)
                 else:
                     return PickupAction(entity=self.engine.player, item=self.item, amount=1)
             else:
                 return PickupAction(entity=self.engine.player, item=self.item, amount=1)
 
         elif option == 'rename':
-            return RenameItem(item=self.item, prompt_string='New Name:', engine=self.engine)
+            return RenameItem(item=self.item, prompt_string='New Name:', engine=self.engine,
+                              parent_handler=self)
 
         elif option == 'equip':
             try:
                 self.item.usable_properties.equip()
-                return MainGameEventHandler(self.engine)
+                return self.parent_handler
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -712,7 +723,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'equip to primary':
             try:
                 self.item.usable_properties.equip_to_primary(user=self.engine.player)
-                return MainGameEventHandler(self.engine)
+                return self.parent_handler
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -720,7 +731,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'equip to secondary':
             try:
                 self.item.usable_properties.equip_to_secondary(user=self.engine.player)
-                return MainGameEventHandler(self.engine)
+                return self.parent_handler
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -728,13 +739,13 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'unequip':
             try:
                 self.item.usable_properties.unequip()
-                return MainGameEventHandler(self.engine)
+                return self.parent_handler
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'drop':
             try:
-                return DropItemEventHandler(item=self.item, engine=self.engine)
+                return DropItemEventHandler(item=self.item, engine=self.engine, parent_handler=self.parent_handler)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
 
@@ -746,7 +757,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 return MainGameEventHandler(self.engine)
 
         elif option == 'inspect':
-            return InspectItemViewer(engine=self.engine, item=self.item)
+            return InspectItemViewer(engine=self.engine, item=self.item, parent_handler=self.parent_handler)
 
         else:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -756,8 +767,8 @@ class EquipmentEventHandler(AskUserEventHandler):
     # used for equipment screen
     TITLE = "Equipment"
 
-    def __init__(self, engine: Engine):
-        super().__init__(engine)
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
+        super().__init__(engine, parent_handler)
         self.equipped_list = []  # equipped items
 
     def on_render(self, console: tcod.Console) -> None:
@@ -823,7 +834,7 @@ class EquipmentEventHandler(AskUserEventHandler):
                 selected_item = self.equipped_list[index]
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
-                return EquipmentEventHandler(engine=self.engine)
+                return EquipmentEventHandler(engine=self.engine, parent_handler=self)
             return self.on_item_selected(selected_item)
         return super().ev_keydown(event)
 
@@ -831,20 +842,22 @@ class EquipmentEventHandler(AskUserEventHandler):
         """Called when the user selects a valid item."""
         options = ['unequip', 'inspect']
 
-        return ItemInteractionHandler(item=item, options=options, engine=self.engine)
+        return ItemInteractionHandler(item=item, options=options, engine=self.engine,
+                                      parent_handler=self)
 
 
 class DropItemEventHandler(TypeAmountEventHandler):
 
-    def __init__(self, item, engine: Engine):
-        super().__init__(engine=engine, item=item, prompt_string="amount to drop (leave blank for all):")
+    def __init__(self, item, engine: Engine, parent_handler: BaseEventHandler):
+        super().__init__(engine=engine, parent_handler=parent_handler, item=item,
+                         prompt_string="amount to drop (leave blank for all):")
 
     def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
         return actions.DropAction(entity=self.engine.player, item=self.item, drop_amount=int(self.buffer))
 
 
 class PickUpEventHandler(UserOptionsWithPages):
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
 
         items_at_location = []
 
@@ -855,16 +868,19 @@ class PickUpEventHandler(UserOptionsWithPages):
             if actor_location_x == item.x and actor_location_y == item.y:
                 items_at_location.append(item)
 
-        super().__init__(engine=engine, page=0, options=items_at_location, title="Pick Up/Inspect Items")
+        super().__init__(engine=engine, page=0, options=items_at_location, title="Pick Up/Inspect Items",
+                         parent_handler=parent_handler)
 
     def ev_on_option_selected(self, item):
-        return ItemInteractionHandler(item=item, options=['pick up', 'inspect'], engine=self.engine)
+        return ItemInteractionHandler(item=item, options=['pick up', 'inspect'], engine=self.engine,
+                                      parent_handler=self.parent_handler)
 
 
 class AmountToPickUpMenu(TypeAmountEventHandler):
 
-    def __init__(self, item, engine: Engine):
-        super().__init__(engine=engine, item=item, prompt_string="amount to pick up (leave blank for all):")
+    def __init__(self, item, engine: Engine, parent_handler: BaseEventHandler):
+        super().__init__(engine=engine, item=item, prompt_string="amount to pick up (leave blank for all):",
+                         parent_handler=parent_handler)
 
     def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
 
@@ -874,7 +890,7 @@ class AmountToPickUpMenu(TypeAmountEventHandler):
         except AttributeError:
             self.engine.message_log.add_message("Invalid entry", colour.RED)
 
-        return MainGameEventHandler(self.engine)
+        return self.parent_handler
 
 
 class DestinationMarker:
@@ -886,8 +902,8 @@ class DestinationMarker:
 
 class ChangeTargetActor(AskUserEventHandler):
 
-    def __init__(self, engine: Engine, in_squad_mode: bool):
-        super().__init__(engine)
+    def __init__(self, engine: Engine, in_squad_mode: bool, parent_handler: BaseEventHandler):
+        super().__init__(engine, parent_handler)
         self.in_squad_mode = in_squad_mode
         self.tick_counter = 0
         self.max_tick = max_fps * 3
@@ -996,7 +1012,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
         player = self.engine.player
 
-        console.print(x=0, y=1, string="ACTION MODE - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=0, y=1, string="SQUAD CONTROL - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
 
         # if gun is jammed, prints a message on the screen and instructs player on how to clear
         if self.item is not None:
@@ -1074,6 +1090,7 @@ class ChangeTargetActor(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
         key = event.sym
+        modifier = event.mod
 
         if key == tcod.event.K_SPACE:  # change target
 
@@ -1093,7 +1110,7 @@ class ChangeTargetActor(AskUserEventHandler):
             except TypeError:
                 if not self.in_squad_mode:
                     self.engine.squad_mode = False
-                return MainGameEventHandler(self.engine)
+                return self.parent_handler
 
             self.target_index = self.targets.index(player.fighter.target_actor)
 
@@ -1101,7 +1118,7 @@ class ChangeTargetActor(AskUserEventHandler):
             self.update_bodypart_list()
             self.update_part_str_colour()
 
-        elif key == tcod.event.K_TAB:  # change limb targetted
+        elif key == tcod.event.K_LALT or key == tcod.event.K_RALT:  # change limb targetted
             try:
                 self.selected_bodypart = self.bodypartlist[self.bodypart_index + 1]
                 self.bodypart_index += 1
@@ -1113,7 +1130,7 @@ class ChangeTargetActor(AskUserEventHandler):
                 except IndexError:
                     if not self.in_squad_mode:
                         self.engine.squad_mode = False
-                    return MainGameEventHandler(self.engine)
+                    return self.parent_handler
 
             self.update_part_str_colour()
 
@@ -1141,10 +1158,40 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.get_targets()
                 self.engine.render(console=self.console)
 
-            else:
-                if not self.in_squad_mode:
-                    self.engine.squad_mode = False
-                return MainGameEventHandler(self.engine)
+        elif key == tcod.event.K_TAB:
+            return self.engine.switch_player()
+        elif key == tcod.event.K_c:
+            return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting',
+                                     parent_handler=self)
+        elif key == tcod.event.K_i:
+            return InventoryEventHandler(self.engine, parent_handler=self)
+        elif key == tcod.event.K_e:
+            return EquipmentEventHandler(self.engine, parent_handler=self)
+        elif key == tcod.event.K_s:
+            return AttackStyleMenu(self.engine, parent_handler=self)
+        elif key == tcod.event.K_p:
+            return Bestiary(self.engine, parent_handler=self)
+        elif key == tcod.event.K_z:
+            return ViewPlayerStats(self.engine, parent_handler=self)
+        elif key == tcod.event.K_r:
+            return LoadoutEventHandler(engine=self.engine, parent_handler=self)
+        elif key == tcod.event.K_PERIOD and modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+            return actions.TakeStairsAction(player)
+
+        elif key == tcod.event.K_q:
+            try:
+                # held gun is mag fed
+                if hasattr(player.inventory.held.usable_properties, 'loaded_magazine'):
+                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+                # held gun is integrated magazine
+                elif hasattr(player.inventory.held.usable_properties, 'magazine'):
+                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+        elif key == tcod.event.K_v:
+            return HistoryViewer(self.engine, parent_handler=self)
+        elif key == tcod.event.K_g:
+            return PickUpEventHandler(engine=self.engine, parent_handler=self)
 
         # displays enemy info
         elif key == tcod.event.K_k and player.fighter.target_actor is not None:
@@ -1162,7 +1209,7 @@ class ChangeTargetActor(AskUserEventHandler):
             self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
             if not self.in_squad_mode:
                 self.engine.squad_mode = False
-            return MainGameEventHandler(self.engine)
+            return self.parent_handler
 
     def update_bodypart_list(self) -> None:
         # updates bodypart list
@@ -1313,7 +1360,7 @@ class QuitEventHandler(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
-        console.print(x=console.width // 2 - 10, y=console.height // 2 - 3, string="Quit to Desktop?",
+        console.print(x=console.width // 2 - 9, y=console.height // 2 - 3, string="Quit to Menu ?",
                       fg=colour.WHITE, bg=(0, 0, 0))
         console.print(x=console.width // 2 - 9, y=console.height // 2 - 1, string="(Y) Yes (N) No",
                       fg=colour.WHITE, bg=(0, 0, 0))
@@ -1321,15 +1368,15 @@ class QuitEventHandler(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
         if key == tcod.event.K_y:
-            raise SystemExit()
+            raise exceptions.QuitToMenu
 
         elif key == tcod.event.K_n:
-            return MainGameEventHandler(self.engine)
+            return self.parent_handler
 
 
 class MagazineOptionsHandler(UserOptionsEventHandler):
 
-    def __init__(self, engine: Engine, magazine: Union[DetachableMagazine, Clip]):
+    def __init__(self, engine: Engine, magazine: Union[DetachableMagazine, Clip], parent_handler: BaseEventHandler):
 
         self.magazine = magazine
 
@@ -1346,14 +1393,15 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
         else:
             options.append('add to loadout')
 
-        super().__init__(engine=engine, options=options, title=title)
+        super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
 
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         player = self.engine.player
 
         if option == 'load bullets':
-            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine)
+            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine,
+                                              parent_handler=self.parent_handler)
 
         elif option == 'unload bullets':
             self.magazine.unload_magazine(entity=self.engine.player)
@@ -1368,7 +1416,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
 
 
 class GunOptionsMagFed(UserOptionsEventHandler):
-    def __init__(self, engine: Engine, gun: GunMagFed):
+    def __init__(self, engine: Engine, gun: GunMagFed, parent_handler: BaseEventHandler):
         self.gun = gun
 
         title = gun.parent.name
@@ -1391,22 +1439,23 @@ class GunOptionsMagFed(UserOptionsEventHandler):
             if not firemode == self.gun.current_fire_mode:
                 options.append(firemode)
 
-        super().__init__(engine=engine, options=options, title=title)
+        super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
 
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         if option == 'load magazine':
-            return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun)
+            return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun, parent_handler=self)
 
         elif option == 'unload magazine':
             self.gun.unload_gun()
 
         elif option == 'load from clip':
-            return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
+            return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun, parent_handler=self)
 
         elif option == 'rename':
-            return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
+            return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine,
+                              parent_handler=self)
 
         elif option == 'clear jam':
             return actions.ClearJam(entity=self.engine.player, gun=self.gun).handle_action()
@@ -1414,11 +1463,11 @@ class GunOptionsMagFed(UserOptionsEventHandler):
         elif option in self.firemodes:
             self.gun.current_fire_mode = option
 
-        return MainGameEventHandler(engine=self.engine)
+        return self.parent_handler
 
 
 class GunOptionsIntegratedMag(UserOptionsEventHandler):
-    def __init__(self, engine: Engine, gun: GunIntegratedMag):
+    def __init__(self, engine: Engine, gun: GunIntegratedMag, parent_handler: BaseEventHandler):
         self.gun = gun
 
         title = gun.parent.name
@@ -1436,22 +1485,23 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
             if not firemode == self.gun.current_fire_mode:
                 options.append(firemode)
 
-        super().__init__(engine=engine, options=options, title=title)
+        super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
 
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
         if option == 'load rounds':
-            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun)
+            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun, parent_handler=self)
 
         elif option == 'unload rounds':
             self.gun.unload_magazine(entity=self.engine.player)
 
         elif option == 'load from clip':
-            return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun)
+            return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun, parent_handler=self)
 
         elif option == 'rename':
-            return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine)
+            return RenameItem(item=self.gun.parent, prompt_string='New Name:', engine=self.engine,
+                              parent_handler=self)
 
         elif option == 'clear jam':
             return actions.ClearJam(entity=self.engine.player, gun=self.gun).handle_action()
@@ -1459,24 +1509,24 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
         elif option in self.firemodes:
             self.gun.current_fire_mode = option
 
-        return MainGameEventHandler(engine=self.engine)
+        return self.parent_handler
 
 
 class RenameItem(TypeInputEventHandler):
 
-    def __init__(self, item: Item, prompt_string: str, engine: Engine):
-        super().__init__(prompt_string=prompt_string, engine=engine, item=item)
+    def __init__(self, item: Item, prompt_string: str, engine: Engine, parent_handler: BaseEventHandler):
+        super().__init__(prompt_string=prompt_string, engine=engine, item=item, parent_handler=parent_handler)
 
     def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
         if not self.buffer == '':
             self.item.name = self.buffer
 
-        return MainGameEventHandler(engine=self.engine)
+        return self.parent_handler
 
 
 class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, gun: GunMagFed):
+    def __init__(self, engine: Engine, gun: GunMagFed, parent_handler: BaseEventHandler):
         self.gun = gun
 
         mag_list = []
@@ -1491,7 +1541,7 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
                 if item.usable_properties.magazine_type == self.gun.compatible_magazine_type:
                     mag_list.append(item)
 
-        super().__init__(engine=engine, options=mag_list, page=0, title=title)
+        super().__init__(engine=engine, options=mag_list, page=0, title=title, parent_handler=parent_handler)
 
     def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
@@ -1518,12 +1568,12 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
     def ev_on_option_selected(self, item: DetachableMagazine) -> Optional[ActionOrHandler]:
         ReloadMagFed(entity=self.engine.player, gun=self.gun, magazine_to_load=item).handle_action()
-        return MainGameEventHandler(engine=self.engine)
+        return self.parent_handler
 
 
 class SelectClipToLoadIntoGun(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, gun: Gun):
+    def __init__(self, engine: Engine, gun: Gun, parent_handler: BaseEventHandler):
         self.gun = gun
 
         mag_list = []
@@ -1538,7 +1588,7 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
                 if item.usable_properties.magazine_type == self.gun.compatible_clip:
                     mag_list.append(item)
 
-        super().__init__(engine=engine, options=mag_list, page=0, title=title)
+        super().__init__(engine=engine, options=mag_list, page=0, title=title, parent_handler=parent_handler)
 
     def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
@@ -1566,18 +1616,19 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
     def ev_on_option_selected(self, item: Clip) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         self.gun.load_from_clip(clip=item)
-        return MainGameEventHandler(engine=self.engine)
+        return self.parent_handler
 
 
 class SelectPartToRepair(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, options: list, callback: Callable[[Item], Optional[Action]]):
+    def __init__(self, engine: Engine, options: list, callback: Callable[[Item], Optional[Action]],
+                 parent_handler: BaseEventHandler):
 
         self.callback = callback
 
         title = 'Select Part to Repair'
 
-        super().__init__(engine=engine, options=options, page=0, title=title)
+        super().__init__(engine=engine, options=options, page=0, title=title, parent_handler=parent_handler)
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
@@ -1644,13 +1695,14 @@ class SelectPartToRepair(UserOptionsWithPages):
 
 
 class SelectPartToHeal(UserOptionsEventHandler):
-    def __init__(self, engine: Engine, options: list[Bodypart], callback: Callable[[Bodypart], Optional[Action]]):
+    def __init__(self, engine: Engine, options: list[Bodypart],
+                 callback: Callable[[Bodypart], Optional[Action]], parent_handler: BaseEventHandler):
 
         self.callback = callback
 
         title = 'Select Body Part to Heal'
 
-        super().__init__(engine=engine, options=options, title=title)
+        super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
@@ -1714,7 +1766,7 @@ class SelectPartToHeal(UserOptionsEventHandler):
 class SelectBulletsToLoadHandler(UserOptionsWithPages):
     TITLE = "Select Bullets"
 
-    def __init__(self, engine: Engine, magazine: Magazine):
+    def __init__(self, engine: Engine, magazine: Magazine, parent_handler: BaseEventHandler):
         self.magazine = magazine
         ammo_list = []
 
@@ -1726,7 +1778,7 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
         title = f"Load {self.magazine.parent.name} - ({len(self.magazine.magazine)}/" \
                 f"{self.magazine.mag_capacity})"
 
-        super().__init__(engine=engine, page=0, title=title, options=ammo_list)
+        super().__init__(engine=engine, page=0, title=title, options=ammo_list, parent_handler=parent_handler)
 
     def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
@@ -1753,25 +1805,27 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
 
     def ev_on_option_selected(self, item: Bullet) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
-        return SelectNumberOfBulletsToLoadHandler(engine=self.engine, magazine=self.magazine, ammo=item)
+        return SelectNumberOfBulletsToLoadHandler(engine=self.engine, magazine=self.magazine, ammo=item,
+                                                  parent_handler=self.parent_handler)
 
 
 class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
 
-    def __init__(self, engine: Engine, magazine: Magazine, ammo: Bullet):
+    def __init__(self, engine: Engine, magazine: Magazine, ammo: Bullet, parent_handler: BaseEventHandler):
         self.magazine = magazine
         self.ammo = ammo
-        super().__init__(engine=engine, item=ammo.parent, prompt_string="amount to load (leave blank for maximum):")
+        super().__init__(engine=engine, item=ammo.parent, prompt_string="amount to load (leave blank for maximum):",
+                         parent_handler=parent_handler)
 
     def ev_on_option_selected(self):
         LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo, bullets_to_load=int(self.buffer),
                                 magazine=self.magazine).handle_action()
-        return MainGameEventHandler(self.engine)
+        return self.parent_handler
 
 
 class LoadoutEventHandler(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
         title = "Loadout"
 
         loadout_items = []
@@ -1789,7 +1843,7 @@ class LoadoutEventHandler(UserOptionsWithPages):
             if item in inventory.items:
                 loadout_items.append(item)
 
-        super().__init__(engine=engine, options=loadout_items, page=0, title=title)
+        super().__init__(engine=engine, options=loadout_items, page=0, title=title, parent_handler=parent_handler)
 
     def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
@@ -1817,18 +1871,20 @@ class LoadoutEventHandler(UserOptionsWithPages):
     def ev_on_option_selected(self, item: Union[Clip, DetachableMagazine]):
 
         if hasattr(item, 'mag_capacity'):
-            return MagazineOptionsHandler(engine=self.engine, magazine=item)
+            return MagazineOptionsHandler(engine=self.engine, magazine=item, parent_handler=self)
 
         elif hasattr(item, 'gun_type'):
 
             options = ['equip', 'unequip', 'use', 'inspect']
-            return ItemInteractionHandler(item=item.parent, options=options, engine=self.engine)
+            return ItemInteractionHandler(item=item.parent, options=options, engine=self.engine,
+                                          parent_handler=self)
 
 
 class SelectItemToCraft(UserOptionsWithPages):
-    def __init__(self, engine: Engine, title: str, item_dict: dict):
+    def __init__(self, engine: Engine, title: str, item_dict: dict, parent_handler: BaseEventHandler):
 
-        super().__init__(engine=engine, options=list(item_dict.keys()), page=0, title=title)
+        super().__init__(engine=engine, options=list(item_dict.keys()), page=0, title=title,
+                         parent_handler=parent_handler)
         self.item_dict = item_dict
 
     def ev_on_option_selected(self, option):
@@ -1855,14 +1911,16 @@ class SelectItemToCraft(UserOptionsWithPages):
                                 prevent_suppression=False,
                                 attachment_points=[],
                                 has_optic=False,
-                                attachments_dict={}
+                                attachments_dict={},
+                                parent_handler=self.parent_handler
                                 )
             else:
-                return MainGameEventHandler(engine=self.engine)
+                return self.parent_handler
 
         # dictionary selected does not have parts list
         else:
-            return SelectItemToCraft(engine=self.engine, title=option, item_dict=self.item_dict[option])
+            return SelectItemToCraft(engine=self.engine, title=option, item_dict=self.item_dict[option],
+                                     parent_handler=self)
 
 
 class CraftItem(UserOptionsWithPages):
@@ -1873,6 +1931,7 @@ class CraftItem(UserOptionsWithPages):
                  item_dict: dict,
                  compatible_parts: dict,
                  part_dict: dict,
+                 parent_handler: BaseEventHandler
                  ):
         self.engine = engine
 
@@ -1898,7 +1957,7 @@ class CraftItem(UserOptionsWithPages):
         self.compatible_parts = compatible_parts
         self.add_options()
 
-        super().__init__(engine=engine, options=self.options, page=0, title=title)
+        super().__init__(engine=engine, options=self.options, page=0, title=title, parent_handler=parent_handler)
 
     def add_options(self):
         return NotImplementedError
@@ -1916,6 +1975,7 @@ class CraftGun(CraftItem):
                  attachment_points: list,
                  attachments_dict: dict,
                  has_optic: bool,
+                 parent_handler: BaseEventHandler
                  ):
 
         self.prevent_suppression = prevent_suppression
@@ -1929,6 +1989,7 @@ class CraftGun(CraftItem):
                          item_dict=item_dict,
                          compatible_parts=compatible_parts,
                          part_dict=part_dict,
+                         parent_handler=parent_handler
                          )
 
     def add_options(self):
@@ -2011,7 +2072,7 @@ class CraftGun(CraftItem):
             # skips to the next part type
             # if len(self.options) == 0 and self.parts[self.current_part_selection] != self.parts[-1]:
             self.options = ['none', ] + self.options
-                # self.current_part_selection += 1
+            # self.current_part_selection += 1
             #     print('test 1')
             #     return CraftGun(engine=self.engine,
             #                     current_part_index=self.current_part_selection,
@@ -2072,7 +2133,8 @@ class CraftGun(CraftItem):
 
             # if requires attachment point, has player select specific attachment point
             if hasattr(option.usable_properties, 'attachment_point_required'):
-                return SelectItemToAttach(engine=self.engine, item=option, crafting_handler=self)
+                return SelectItemToAttach(engine=self.engine, item=option, crafting_handler=self,
+                                          parent_handler=self.parent_handler)
 
             # sets part in part dict to be the selected part
             self.part_dict[self.parts[self.current_part_selection]] = option
@@ -2081,11 +2143,10 @@ class CraftGun(CraftItem):
         # part is last part to select
         if self.parts[self.current_part_selection] == self.parts[-1]:
             self.craft_item()
-            return MainGameEventHandler(engine=self.engine)
+            return self.parent_handler
 
         else:
             self.current_part_selection += 1
-            print('test 2')
             return CraftGun(engine=self.engine,
                             current_part_index=self.current_part_selection,
                             item_to_craft=self.item_name,
@@ -2095,7 +2156,10 @@ class CraftGun(CraftItem):
                             prevent_suppression=self.prevent_suppression,
                             attachment_points=self.attachment_points,
                             attachments_dict=self.attachments_dict,
-                            has_optic=self.has_optic
+                            has_optic=self.has_optic,
+                            # TODO - may be able to set parent handler to self,
+                            #  allowing player to go back through options
+                            parent_handler=self.parent_handler
                             )
 
     def craft_item(self) -> Optional[ActionOrHandler]:
@@ -2107,7 +2171,7 @@ class CraftGun(CraftItem):
         # gun has no sights, cannot be crafted.
         if not self.has_optic:
             self.engine.message_log.add_message(f"Crafting failed - missing sights", colour.RED)
-            return MainGameEventHandler(self.engine)
+            return self.parent_handler
 
         # all possible components with the amount required to craft
         full_part_dict = {**self.item_dict[self.item_name]['compatible parts'],
@@ -2143,15 +2207,15 @@ class CraftGun(CraftItem):
                 self.engine.handle_turns()
 
             self.engine.player.inventory.add_to_inventory(item=item, item_container=None, amount=1)
-            return MainGameEventHandler(engine=self.engine)
+            return self.parent_handler
 
         else:
-            return MainGameEventHandler(engine=self.engine)
+            return self.parent_handler
 
 
 class SelectItemToAttach(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, item: Item, crafting_handler: CraftGun):
+    def __init__(self, engine: Engine, item: Item, crafting_handler: CraftGun, parent_handler: BaseEventHandler):
         title = f"Select Part to Attach to"
 
         self.crafting_handler = crafting_handler
@@ -2229,17 +2293,18 @@ class SelectItemToAttach(UserOptionsWithPages):
                                 if part not in options:
                                     options.append(part)
 
-        super().__init__(engine=engine, options=options, page=0, title=title)
+        super().__init__(engine=engine, options=options, page=0, title=title, parent_handler=parent_handler)
 
     def ev_on_option_selected(self, attachment_point_item: Item) -> Optional[ActionOrHandler]:
 
         return SelectAttachPoint(engine=self.engine, attach_point_item=attachment_point_item, accessory=self.item,
-                                 crafting_handler=self.crafting_handler)
+                                 crafting_handler=self.crafting_handler, parent_handler=self.parent_handler)
 
 
 class SelectAttachPoint(UserOptionsWithPages):
 
-    def __init__(self, engine: Engine, attach_point_item: Item, accessory: Item, crafting_handler: CraftGun):
+    def __init__(self, engine: Engine, attach_point_item: Item, accessory: Item, crafting_handler: CraftGun,
+                 parent_handler: BaseEventHandler):
         title = f"Select Attachment Point"
 
         self.crafting_handler = crafting_handler
@@ -2255,7 +2320,7 @@ class SelectAttachPoint(UserOptionsWithPages):
                 if self.crafting_handler.attachments_dict[attach_point_item.name][attachment_point] is None:
                     options.append(attachment_point)
 
-        super().__init__(engine=engine, options=options, page=0, title=title)
+        super().__init__(engine=engine, options=options, page=0, title=title, parent_handler=parent_handler)
 
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
 
@@ -2287,7 +2352,7 @@ class SelectAttachPoint(UserOptionsWithPages):
         # part is last part to select, crafts item
         if self.crafting_handler.parts[self.crafting_handler.current_part_selection] == self.crafting_handler.parts[-1]:
             self.crafting_handler.craft_item()
-            return MainGameEventHandler(engine=self.engine)
+            return self.parent_handler
 
         # still more parts, continues to next part type
         else:
@@ -2302,14 +2367,15 @@ class SelectAttachPoint(UserOptionsWithPages):
                             prevent_suppression=self.crafting_handler.prevent_suppression,
                             attachment_points=self.crafting_handler.attachment_points,
                             attachments_dict=self.crafting_handler.attachments_dict,
-                            has_optic=self.crafting_handler.has_optic
+                            has_optic=self.crafting_handler.has_optic,
+                            parent_handler=self.parent_handler
                             )
 
 
 class InspectItemViewer(AskUserEventHandler):
 
-    def __init__(self, engine: Engine, item: Item):
-        super().__init__(engine=engine)
+    def __init__(self, engine: Engine, item: Item, parent_handler: BaseEventHandler):
+        super().__init__(engine=engine, parent_handler=parent_handler)
 
         self.item = item
         self.TITLE = item.name
@@ -2555,7 +2621,7 @@ class InspectItemViewer(AskUserEventHandler):
 
         if key == tcod.event.K_i:
             if self.inspect_parts_option:
-                return ShowParts(engine=self.engine, item=self.item)
+                return ShowParts(engine=self.engine, item=self.item, parent_handler=self)
 
         elif key == tcod.event.K_UP:
 
@@ -2586,7 +2652,7 @@ class InspectItemViewer(AskUserEventHandler):
                 self.scroll_position += 1
 
         elif key == tcod.event.K_ESCAPE:
-            return MainGameEventHandler(self.engine)
+            return self.parent_handler
 
 
 def skill_proficiency(skill_level, skill_max) -> str:
@@ -2614,9 +2680,10 @@ def skill_proficiency(skill_level, skill_max) -> str:
 
 class ViewPlayerStats(EventHandler):
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
         super().__init__(engine)
         self.title = f'Skills - {engine.player.name}'
+        self.parent_handler = parent_handler
         self.options = {
             "Ranged Marksmanship": skill_proficiency(engine.player.fighter.skill_marksmanship, 1000),
             "Pistol Proficiency": skill_proficiency(engine.player.fighter.skill_pistol_proficiency, 1000),
@@ -2654,30 +2721,31 @@ class ViewPlayerStats(EventHandler):
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         if event.sym == tcod.event.K_ESCAPE:
-            return MainGameEventHandler(engine=self.engine)
+            return self.parent_handler
 
 
 class ShowParts(UserOptionsWithPages):
 
-    def __init__(self, engine, item):
+    def __init__(self, engine, item, parent_handler: BaseEventHandler):
         title = f"parts - {item.name}"
 
-        super().__init__(engine=engine, options=item.usable_properties.parts.part_list, page=0, title=title)
+        super().__init__(engine=engine, options=item.usable_properties.parts.part_list, page=0, title=title,
+                         parent_handler=parent_handler)
 
     def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
 
-        return InspectItemViewer(item=item, engine=self.engine)
+        return InspectItemViewer(item=item, engine=self.engine, parent_handler=self.parent_handler)
 
 
 class AttackStyleMenu(UserOptionsEventHandler):
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
 
         title = "Change Attack Style"
         options = ['precise', 'measured', 'close quarters']
 
-        super().__init__(engine=engine, options=options, title=title)
+        super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
 
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
@@ -2697,10 +2765,11 @@ class AttackStyleMenu(UserOptionsEventHandler):
 
 class Bestiary(UserOptionsWithPages):
 
-    def __init__(self, engine):
+    def __init__(self, engine, parent_handler: BaseEventHandler):
         title = f"Bestiary"
 
-        super().__init__(engine=engine, options=list(engine.bestiary.keys()), page=0, title=title)
+        super().__init__(engine=engine, options=list(engine.bestiary.keys()), page=0, title=title,
+                         parent_handler=parent_handler)
 
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""

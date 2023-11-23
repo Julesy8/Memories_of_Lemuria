@@ -40,6 +40,8 @@ view squad members screen
  - press different key to give squad commands e.g. reload, follow
 - when performing action (action queued) should say something like "performing action: reloading"
 
+TODO - should only be able to go down stairs when all players are close enough by
+
 After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
 magazine class itself.
 
@@ -50,11 +52,8 @@ armour weight changes dexterity and walk speed
 grenades
 
 Extended Goals
+-doors
 -enemy should only run from player when has taken significant damage or is under fire
--ability to fold folding stocks, giving them different properties
--when enemy dies with a gun, should drop the magazine and gun separately. That way can scavenge magazines without
-interacting with gun
--calling input handlers from consumable and more generally actually using the consumable class properly
 -Blood loss
 -Less confusing control scheme
 -Name and class select on menu screen
@@ -62,7 +61,6 @@ interacting with gun
 -Trigger mods
 -Attack queue for player in attack mode, VATS style
 -Full mouse controls
--Squad members
 -unique enemies which spawn once per game
 -in the dungeon you find enemies using your looted equipment from previous runs
 -more room shapes on level generation
@@ -74,7 +72,6 @@ interacting with gun
 # this equation is not even slightly realistic, but it works as a gamified stat since actually
 # calculating stability would require lots of data I don't have
 yaw_depth = max(0, (0.28/projectile config) * (velocity (fps) /2600) * (bullet length (inches) / 2.26) * 12 * randrange(0.3))
-
 
 
 -save guns to look at in main menu

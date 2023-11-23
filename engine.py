@@ -210,4 +210,4 @@ class Engine:
                 console.print(x=66, y=console.height - 3, string=f"{len(gun.magazine) + chamber}/{gun.mag_capacity}",
                               fg=colour.WHITE, bg_blend=1)
 
-        render_names_at_mouse_location(console=console, x=1, y=console.height - 5, engine=self, game_map=self.game_map)
+        render_names_at_mouse_location(console=console, x=0, y=console.height - 6, engine=self, game_map=self.game_map)
