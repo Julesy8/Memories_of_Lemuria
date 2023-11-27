@@ -36,7 +36,7 @@ def new_tile(
 
 
 # SHROUD represents unexplored, unseen tiles
-SHROUD = np.array((ord(" "), colour.WHITE, (0,0,0)), dtype=graphic_dt)
+SHROUD = np.array((ord(" "), colour.WHITE, (0, 0, 0)), dtype=graphic_dt)
 
 
 def new_floor(fg_colour_d: Tuple[int, int, int], bg_colour_d: Tuple[int, int, int],

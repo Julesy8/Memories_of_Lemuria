@@ -313,7 +313,7 @@ class Magazine(Usable):
     def unload_magazine(self, entity: Actor) -> None:
         # unloads bullets from magazine
 
-        bullets_unloaded = []
+        # bullets_unloaded = []
 
         inventory = entity.inventory
 
@@ -325,23 +325,32 @@ class Magazine(Usable):
                     setattr(self, "chambered_bullet", None)
 
             if len(self.magazine) > 0:
+                print(f'bullets in mag {len(self.magazine)}')
+                # TODO - unfuck this
                 for bullet in self.magazine:
+                    actions.AddToInventory(item=bullet.parent, amount=1,
+                                           entity=inventory.parent).handle_action()
 
-                    if bullet not in bullets_unloaded:
-                        bullets_unloaded.append(bullet.parent)
-                        bullet_counter = 0
-                        for i in self.magazine:
-                            if i.parent.name == bullet.parent.name:
-                                bullet_counter += 1
-
-                        bullet.parent.stacking.stack_size = bullet_counter
-
-                        actions.AddToInventory(item=bullet.parent, amount=bullet_counter,
-                                               entity=inventory.parent).perform()
                 self.magazine = []
 
+                # for bullet in self.magazine:
+                #
+                #     if bullet not in bullets_unloaded:
+                #         bullets_unloaded.append(bullet.parent.name)b
+                #         bullet_counter = 0
+                #         for i in self.magazine:
+                #             if i.parent.name == bullet.parent.name:
+                #                 bullet_counter += 1
+                #                 print(f'bullet counter {bullet_counter}')
+                #
+                #         bullet.parent.stacking.stack_size = bullet_counter
+                #
+                #         actions.AddToInventory(item=bullet.parent, amount=bullet_counter,
+                #                                entity=inventory.parent).perform()
+                # self.magazine = []
+
             else:
-                return self.engine.message_log.add_message(f"{entity.name} is already empty", colour.RED)
+                return self.engine.message_log.add_message(f"{self.parent.name} is already empty", colour.RED)
 
 
 class DetachableMagazine(Magazine):

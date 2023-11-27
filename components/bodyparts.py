@@ -3,6 +3,7 @@ from __future__ import annotations
 from random import randint
 from math import floor, sqrt, pi
 from numpy import log
+from components.ai import DeadAI
 from typing import Optional, TYPE_CHECKING
 from copy import deepcopy
 from random import choices, uniform, choice

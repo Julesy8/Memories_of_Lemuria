@@ -18,8 +18,14 @@ from message_log import MessageLog
 from render_functions import render_names_at_mouse_location, render_part
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Actor, Item
     from game_map import GameMap
+
+
+class GraveYard:
+    def __init__(self):
+        self.player_characters: list[Actor] = []
+        self.guns: list[Item] = []
 
 
 class Engine:
@@ -71,6 +77,7 @@ class Engine:
             f.write(save_data)
 
     def handle_turns(self) -> None:
+        print(self.player.parent)
         self.update_fov()  # moved here from handle_action
         for entity in set(self.game_map.actors):
             #             if entity.ai and not entity in self.game_map.engine.players and entity.fighter.target_actor:

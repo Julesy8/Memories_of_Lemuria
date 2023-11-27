@@ -12,22 +12,12 @@ import traceback
 from multiprocessing import Process
 import tcod
 
-import colour
 from engine import Engine
-from entity import Actor
 from level_generator import MessyBSPTree
 from input_handlers import BaseEventHandler, MainGameEventHandler, PopupMessage
 from level_parameters import level_params
-from components.inventory import Inventory
-from components.ai import PlayerCharacter
-from components.npc_templates import PlayerFighter
-from components.bodyparts import Body, Arm, Leg, Head
+from player_generator import generate_player
 from random import choice
-
-from copy import deepcopy
-
-from components.weapons.glock17 import glock17_frame, glock17_barrel, glock17_slide, glock_switch
-from components.weapons.magazines import glock_mag_9mm
 from components.weapons.bullets import round_9mm_124_jhp
 
 # for crafting testing
@@ -202,64 +192,17 @@ def new_game() -> Engine:
 
     current_level = 0
 
-    # initialises player entity
-    fighter_component = PlayerFighter(unarmed_meat_damage=10, unarmed_armour_damage=5, item_drops={},
-                                      spawn_group_amount=1, weapons={})
+    player_1 = generate_player(current_level=0, players=[])
 
-    Head_part = Head(hp=60, protection_ballistic=10, protection_physical=50, depth=20, width=20, height=26)
-    Body_part = Body(hp=100, protection_ballistic=10, protection_physical=50, depth=20, width=35, height=56)
-    R_Arm = Arm(hp=70, protection_ballistic=10, protection_physical=50, name='right arm', depth=10, width=10, height=78)
-    L_Arm = Arm(hp=70, protection_ballistic=10, protection_physical=50, name='left arm', depth=10, width=10, height=78)
-    R_Leg = Leg(hp=75, protection_ballistic=10, protection_physical=50, name='right leg', depth=12, width=15,
-                height=100)
-    L_Leg = Leg(hp=75, protection_ballistic=10, protection_physical=50, name='left leg', depth=12, width=15, height=100)
+    player_2 = generate_player(current_level=0, players=[])
 
-    # Head_part = Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26)
-    # Body_part = Body(hp=100, protection_ballistic=0, protection_physical=0, depth=20, width=35, height=56)
-    # R_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=0, name='right arm', depth=10, width=10, height=78)
-    # L_Arm = Arm(hp=70, protection_ballistic=0, protection_physical=0, name='left arm', depth=10, width=10, height=78)
-    # R_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=0, name='right leg', depth=12, width=15,
-    #             height=100)
-    # L_Leg = Leg(hp=75, protection_ballistic=0, protection_physical=0, name='left leg', depth=12, width=15, height=100)
-
-    body_parts = (Body_part, Head_part, R_Arm, L_Arm, R_Leg, L_Leg)
-
-    player_1 = Actor(0,
-                     0,
-                     '@',
-                     colour.GREEN,
-                     'Player 1',
-                     ai=PlayerCharacter,
-                     fighter=fighter_component,
-                     bodyparts=body_parts,
-                     player=True,
-                     inventory=Inventory(capacity=15),
-                     )
-
-    player_2 = Actor(0,
-                     0,
-                     '@',
-                     colour.YELLOW,
-                     'Player 2',
-                     ai=PlayerCharacter,
-                     fighter=deepcopy(fighter_component),
-                     bodyparts=deepcopy(body_parts),
-                     player=True,
-                     inventory=Inventory(capacity=15),
-                     )
-
-    engine = Engine(player=player_1)
-
-    # inventory_items = [mac1045,]
-
-    # inventory_items = [glock_17, glock17_frame, glock17_barrel, glock17_slide, glock17_slide_optic,
-    #                   glock_switch, glock_9mm_compensator, glock_stock, glock_pic_rail, suppressor_surefire_9mm]
+    engine = Engine(player_1)
 
     bullets = round_9mm_124_jhp
     bullets.stacking.stack_size = 50
 
-    inventory_items = [glock17_frame, glock17_barrel,
-                       glock_switch, glock17_slide, glock_mag_9mm, bullets]
+    # inventory_items = [glock17_frame, glock17_barrel,
+    #                    glock_switch, glock17_slide, glock_mag_9mm, bullets]
 
     engine.crafting_recipes = deep_update(engine.crafting_recipes, glock17dict)
 
@@ -276,14 +219,14 @@ def new_game() -> Engine:
     #                   mac1045_extended_barrel, mac1045_carbine_barrel, mac10_full_stock, mac10_folding_stock,
     #                   mac1045_sionics_suppressor, mac109_max_barrel, mac1045_max_barrel, mac10_vertical_grip]
 
-    for item in inventory_items:
-        itemcopy = deepcopy(item)
-        player_1.inventory.items.append(itemcopy)
-        itemcopy.parent = player_1.inventory
-
-        itemcopy = deepcopy(item)
-        player_2.inventory.items.append(itemcopy)
-        itemcopy.parent = player_2.inventory
+    # for item in inventory_items:
+    #     itemcopy = deepcopy(item)
+    #     player_1.inventory.items.append(itemcopy)
+    #     itemcopy.parent = player_1.inventory
+    #
+    #     itemcopy = deepcopy(item)
+    #     player_2.inventory.items.append(itemcopy)
+    #     itemcopy.parent = player_2.inventory
 
     engine.players.append(player_2)
 
@@ -321,11 +264,16 @@ def generate_subtext() -> str:
                      'Post-Apocalyptic', 'Morally Ambiguous', 'Atlantean', 'New World Order',
                      'Harmonic', 'Universal', 'Post-Structural', 'Archetypal', 'Scientific', 'Haunted', 'Absurdist',
                      'Philosophical', 'Angelic', 'Paranormal', 'Shamanic', 'Vampiric', 'Cryptic', 'Jungian',
-                     'Reptilian', 'Lovecraftian', 'Biblical', 'Heretical', 'Heterodox', 'Theological', 'Religious',
+                     'Reptilian', 'Lovecraftian', 'Biblical', 'Heretical', 'Heterodox', 'Theological',
                      'Cursed', 'Hegelian', 'Occult', 'Banned', 'Experimental', 'Reviled', '"Fictional"', 'CIA',
                      'Timeless', 'Theoretical', 'Runic', 'Spiritual', 'Soulful', 'Historical', 'Symbolic',
                      'Intuitive', 'Weaponized', 'Primal', 'Subconscious', 'Arthurian', 'Goetic', 'Wagnerian',
-                     'Taoist', 'Dharmic', 'Practical', 'Factual', 'Numinous', 'Life-Affirming'))
+                     'Taoist', 'Dharmic', 'Practical', 'Factual', 'Numinous', 'Life-Affirming', 'Nocturnal',
+                     'Ascendant', 'High Vibration', 'Malevolent', 'Benevolent', 'Blessed', 'Holy', 'Evil',
+                     'Mysterious', 'Beloved', 'Romantic', 'Devious', 'Illuminati', 'Majestic', 'Sickening', 'Literal',
+                     'Spooky', 'Undead', 'Criminal', 'Hyperborean', 'Forgotten', 'Perrenial', 'Latent', 'Final',
+                     'Continental', 'Nihilistic', 'Eastern', 'Western', 'Sentient', 'Tragic', 'Melancholic',
+                     'Infernal', 'Serbian', 'Misanthropic'))
 
     verb_2 = choice(('Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',
@@ -335,23 +283,32 @@ def generate_subtext() -> str:
                      'Cautionary', 'Transcendental', 'Chaotic', 'Perennial', 'Secret', 'Revisionist', 'Pseudo',
                      'Military', 'Sensory', 'Planetary', 'Radical', 'Chakra', 'Compassionate', 'Archaic', 'Arcane',
                      'Lawful', 'Royal', 'Sacrificial', 'Cubic', 'Elite', 'Satirical', 'Polemical', 'Sci-Fi',
-                     'Fantasy', 'Post-Truth'))
+                     'Fantasy', 'Post-Truth', 'Federal', 'Biographical', 'Reanimated', 'Existential', 'Paranoid',
+                     'Psychic', 'Enlightenment'))
 
     verb_3 = choice(('Combat', 'Gun Smithing', 'UFO-ology', 'Warfare', 'Conspiracy', 'CQC', 'Harm Prevention',
                      'Self Defense', 'Horror', 'Action', 'Time-War', 'Numerology', 'Sacred Geometry',
-                     'Ultra Violence', 'Tulpamancy', 'Astral Projection', 'Psychic', 'Englightenment', 'Gun Fu',
+                     'Ultra Violence', 'Tulpamancy', 'Astral Projection', 'Englightenment', 'Gun Fu',
                      'Gunplay', 'Brainwashing', 'Martial Arts', 'Hand Loading', 'Gun Design', 'Physics',
                      'Firearms Safety', 'Gun Collection', 'Ballistics', 'Gun Customization', 'Gun Building',
                      'Demonology', 'Virtual Reality', 'Lucid Dreaming', 'Remote Viewing', 'Folklore', 'Exorcism',
                      'Manifestation', 'Alien Abduction', 'Shape Shifting', 'Witchcraft', 'Predictive Programming',
-                     'Terrorism', 'Mythology', 'Chemtrails'))
+                     'Terrorism', 'Mythology', 'Chemtrails', 'Worship', 'Science', 'Necromancy', 'Gangstalking',
+                     'Block Chain', 'Finance', 'Arson', 'Therapy',
+                     'Robbery', 'Kabbalah',
+                     ))
 
     noun = choice(('Computer Role Playing Game', 'Simulation', 'Training Module', 'Course', 'Engine',
-                   'RPG', 'Rogue Like', 'Rogue Lite', 'Program', 'Center', 'Game', 'Experience', 'Proof-of-Concept',
+                   'RPG', 'Rogue Like', 'Program', 'Center', 'Game', 'Experience',
                    'Videogame Adaptation', 'Demonstration', 'Tutorial', 'Simulator', '(DO NOT RESEARCH)', 'LARP',
-                   'Shooter', '-Hack Like', 'Documentary', 'Temple', 'Metaphor', 'Parable',
+                   'Shooter', 'Documentary', 'Temple', 'Metaphor', 'Parable',
                    'Oracle', 'Thing', 'Infohazard', 'Psyop', 'Manual', 'Vision', 'Project', 'Transcript',
-                   'In Silico', 'Matrix', 'Frequency', 'Glossary', 'Algorithm', 'Host', 'Gateway', 'Sigil'))
+                   'In Silico', 'Matrix', 'Frequency', 'Glossary', 'Algorithm', 'Host', 'Gateway', 'Sigil', 'Nexion',
+                   'Network', '.exe', '.zip', 'Hallucination', 'Found Footage', 'Religion', 'Trap', 'Computer',
+                   'Operating System', 'Forum', 'Image Board', 'Online', 'Cabal', 'Prophecy', 'Machine', 'Life Style',
+                   'Pathogen', 'Tome', 'The Movie', 'Artifact', 'Dictionary', 'For Dummies', 'Part 1', 'System',
+                   'Society'
+                   ))
 
     subtext_str = f"{verb_1} {verb_2} {verb_3} {noun}"
     return subtext_str

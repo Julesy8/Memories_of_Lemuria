@@ -9,7 +9,7 @@ import tcod
 import textwrap
 import tcod.event
 
-from entity import Item, Actor
+from entity import Item, Actor, Entity
 import actions
 from actions import (
     Action,
@@ -232,7 +232,7 @@ class MainGameEventHandler(EventHandler):
                 elif hasattr(player.inventory.held.usable_properties, 'magazine'):
                     return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held, parent_handler=self)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                self.engine.message_log.add_message("Invalid entry: no held weapon", colour.RED)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_c:
@@ -244,10 +244,10 @@ class MainGameEventHandler(EventHandler):
             return EquipmentEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_s:
             return AttackStyleMenu(self.engine, parent_handler=self)
-        elif key == tcod.event.K_p:
+        elif key == tcod.event.K_l:
             return Bestiary(self.engine, parent_handler=self)
-        elif key == tcod.event.K_z:
-            return ViewPlayerStats(self.engine, parent_handler=self)
+        elif key == tcod.event.K_p:
+            return ViewPlayer(self.engine, parent_handler=self)
 
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine, in_squad_mode=self.engine.squad_mode, parent_handler=self)
@@ -555,7 +555,7 @@ class UserOptionsWithPages(AskUserEventHandler):
 
 
 class TypeInputEventHandler(AskUserEventHandler):
-    def __init__(self, item: Item, parent_handler: BaseEventHandler, prompt_string: str, engine: Engine):
+    def __init__(self, item: Entity, parent_handler: BaseEventHandler, prompt_string: str, engine: Engine):
         super().__init__(engine, parent_handler)
         self.item = item
         self.engine = engine
@@ -738,7 +738,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
 
         elif option == 'unequip':
             try:
-                self.item.usable_properties.unequip()
+                self.item.usable_properties.unequip(user=self.engine.player)
                 return self.parent_handler
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
@@ -819,7 +819,7 @@ class EquipmentEventHandler(AskUserEventHandler):
         if len(self.equipped_list) > 0:
             for i, item in enumerate(self.equipped_list):
                 item_key = chr(ord("a") + i)
-
+                print(equipment_dictionary)
                 console.print(x + 1, y + i + 1, f"({item_key}) {equipment_dictionary[item.name]} | {item.name}")
 
         else:
@@ -843,7 +843,57 @@ class EquipmentEventHandler(AskUserEventHandler):
         options = ['unequip', 'inspect']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine,
-                                      parent_handler=self)
+                                      parent_handler=self.parent_handler)
+
+
+class ViewPlayer(UserOptionsEventHandler):
+
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
+        self.options = ['Rename', 'View Player Stats [z]', 'Inventory [i]', 'Equipment [e]',
+                        'Loadout [r]', 'Held Weapon [q]', 'Attack Style [s]', 'Crafting [c]']
+        super().__init__(engine, parent_handler, options=self.options, title=engine.player.name)
+
+    def ev_on_option_selected(self, option):
+
+        player = self.engine.player
+
+        if option == 'Rename':
+            return RenamePlayer(engine=self.engine, parent_handler=self)
+        elif option == 'View Player Stats [z]':
+            return ViewPlayerStats(engine=self.engine, parent_handler=self)
+        elif option == 'Inventory [i]':
+            return InventoryEventHandler(engine=self.engine, parent_handler=self)
+        elif option == 'Equipment [e]':
+            return EquipmentEventHandler(engine=self.engine, parent_handler=self)
+        elif option == 'Loadout [r]':
+            return LoadoutEventHandler(engine=self.engine, parent_handler=self)
+        elif option == 'Held Weapon [q]':
+            try:
+                # held gun is mag fed
+                if hasattr(player.inventory.held.usable_properties, 'loaded_magazine'):
+                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+                # held gun is integrated magazine
+                elif hasattr(player.inventory.held.usable_properties, 'magazine'):
+                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+            except AttributeError:
+                self.engine.message_log.add_message("Invalid entry: no held weapon", colour.RED)
+        elif option == 'Attack Style [s]':
+            return AttackStyleMenu(engine=self.engine, parent_handler=self)
+        elif option == 'Crafting [c]':
+            return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting',
+                                     parent_handler=self)
+
+
+class RenamePlayer(TypeInputEventHandler):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
+        super().__init__(prompt_string="Rename Character", engine=engine, item=engine.player,
+                         parent_handler=parent_handler)
+
+    def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
+        if not self.buffer == '':
+            self.item.name = self.buffer
+
+        return self.parent_handler
 
 
 class DropItemEventHandler(TypeAmountEventHandler):
@@ -1139,7 +1189,7 @@ class ChangeTargetActor(AskUserEventHandler):
             if self.item is not None:
                 if hasattr(self.item.usable_properties, 'jammed'):
                     if self.item.usable_properties.jammed:
-                        return actions.ClearJam(entity=player, gun=self.item).handle_action()
+                        return actions.ClearJam(entity=player, gun=self.item.usable_properties).handle_action()
 
             if player.fighter.target_actor:
 
@@ -1147,13 +1197,16 @@ class ChangeTargetActor(AskUserEventHandler):
 
                 # attack with weapon
                 if self.item is not None:
-                    self.item.usable_properties.get_attack_action()
+                    self.item.usable_properties.get_attack_action(distance=distance_target, entity=player,
+                                                                  targeted_actor=player.fighter.target_actor,
+                                                                  targeted_bodypart=self.selected_bodypart)
 
                 # unarmed attack
                 else:
                     actions.UnarmedAttackAction(distance=distance_target, entity=player,
                                                 targeted_actor=player.fighter.target_actor,
-                                                targeted_bodypart=self.selected_bodypart).handle_action()
+                                                targeted_bodypart=self.selected_bodypart,
+                                                handle_now=True).handle_action()
 
                 self.get_targets()
                 self.engine.render(console=self.console)
@@ -2157,8 +2210,6 @@ class CraftGun(CraftItem):
                             attachment_points=self.attachment_points,
                             attachments_dict=self.attachments_dict,
                             has_optic=self.has_optic,
-                            # TODO - may be able to set parent handler to self,
-                            #  allowing player to go back through options
                             parent_handler=self.parent_handler
                             )
 

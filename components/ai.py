@@ -53,6 +53,13 @@ class BaseAI(Action):
         return [(index[0], index[1]) for index in path]
 
 
+class DeadAI(BaseAI):
+    def __init__(self, entity: Actor):
+        super().__init__(entity)
+
+    def perform(self) -> None:
+        pass
+
 class PlayerCharacter(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)

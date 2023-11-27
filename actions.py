@@ -28,6 +28,7 @@ class Action:
         self.turns_until_action = 0
 
     @property
+    # TODO - suspect strange crash originating from here
     def engine(self) -> Engine:
         """Return the engine this action belongs to."""
         return self.entity.gamemap.engine
@@ -47,6 +48,8 @@ class Action:
         # checks if action is viable
         if not action_viable:
             self.entity.ai.queued_action = None
+            # return
+            # TODO - test
             return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.RED)
 
         # if action is queued
@@ -66,7 +69,7 @@ class Action:
                 return
 
         # entity is player
-        if self.entity.player:
+        if self.entity.player and self.entity.ai:
 
             # if squad mode, will add action to engine action_queue
             if self.engine.squad_mode:
@@ -201,8 +204,9 @@ class ActionWithDirection(Action):
 
 
 class AttackAction(Action):
-    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart]):
-        super().__init__(entity)
+    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart],
+                 handle_now: bool = False):
+        super().__init__(entity=entity, handle_now=handle_now)
 
         targeted_actor.active = True
 
@@ -240,8 +244,9 @@ class AttackAction(Action):
 
 class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
-    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart]):
-        super().__init__(distance, entity, targeted_actor, targeted_bodypart)
+    def __init__(self, distance: int, entity: Actor, targeted_actor: Actor, targeted_bodypart: Optional[Bodypart],
+                 handle_now: bool = False):
+        super().__init__(distance, entity, targeted_actor, targeted_bodypart, handle_now=handle_now)
         if targeted_bodypart is not None:
             self.action_str = f'unarmed attack on {targeted_actor.name}, {targeted_bodypart.name}'
         else:
@@ -259,6 +264,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             return False
 
     def calculate_ap_cost(self) -> int:
+        # TODO - crash has something to do with calculating AP costs
         fighter = self.entity.fighter
         ap_cost = round(fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
         return ap_cost
@@ -292,9 +298,9 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
 
 class MeleeAttackAction(AttackAction):
     def __init__(self, distance: int, weapon: MeleeWeapon, entity: Actor, targeted_actor: Actor,
-                 targeted_bodypart: Optional[Bodypart]):
+                 targeted_bodypart: Optional[Bodypart], handle_now: bool = False):
         super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                         targeted_bodypart=targeted_bodypart)
+                         targeted_bodypart=targeted_bodypart, handle_now=handle_now)
 
         if targeted_bodypart is not None:
             self.action_str = f'attack on {targeted_actor.name}, {targeted_bodypart.name}'
@@ -332,9 +338,9 @@ class MeleeAttackAction(AttackAction):
 
 class GunAttackAction(AttackAction):
     def __init__(self, distance: int, gun: Gun, entity: Actor, targeted_actor: Actor,
-                 targeted_bodypart: Optional[Bodypart]):
+                 targeted_bodypart: Optional[Bodypart], handle_now: bool = False):
         super().__init__(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                         targeted_bodypart=targeted_bodypart)
+                         targeted_bodypart=targeted_bodypart, handle_now=handle_now)
 
         if targeted_bodypart is not None:
             self.action_str = f'shooting {targeted_actor.name}, {targeted_bodypart.name}'
@@ -351,6 +357,10 @@ class GunAttackAction(AttackAction):
                                          self.entity.fighter.ap_distance_cost_modifier
 
     def action_viable(self) -> bool:
+
+        # return self.engine.game_map.check_los(start_x=self.entity.x, start_y=self.entity.y,
+        #                                       end_x=self.targeted_actor.x, end_y=self.targeted_actor.y)
+
         if self.entity.player and self.entity.fighter.visible_tiles[self.targeted_actor.x, self.targeted_actor.y] or \
                 self.targeted_actor.fighter.visible_tiles[self.entity.x, self.entity.y]:
             return True
@@ -470,8 +480,8 @@ class GunAttackAction(AttackAction):
 
 class GunMagFedAttack(GunAttackAction):
     def __init__(self, distance: int, gun: GunMagFed, entity: Actor, targeted_actor: Actor,
-                 targeted_bodypart: Optional[Bodypart]):
-        super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart)
+                 targeted_bodypart: Optional[Bodypart], handle_now: bool = False):
+        super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart, handle_now=handle_now)
         self.weapon = gun
         self.total_weight = self.weapon.parent.weight
 
@@ -497,8 +507,8 @@ class GunMagFedAttack(GunAttackAction):
 class GunIntegratedMagAttack(GunAttackAction):
 
     def __init__(self, distance: int, gun: GunIntegratedMag, entity: Actor, targeted_actor: Actor,
-                 targeted_bodypart: Optional[Bodypart]):
-        super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart)
+                 targeted_bodypart: Optional[Bodypart], handle_now: bool = False):
+        super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart, handle_now=handle_now)
         self.weapon = gun
 
     def additional_ap_cost(self) -> None:
@@ -788,49 +798,52 @@ class AddToInventory(Action):
 
     def perform(self) -> None:
 
-        if self.item.stacking:
+        self.entity.inventory.add_to_inventory(item=self.item, item_container=None, amount=self.amount)
 
-            # checks if there is enough capacity for the item
-            if self.entity.inventory.current_item_weight() + self.item.weight * self.item.stacking.stack_size > \
-                    self.entity.inventory.capacity:
-                self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
-                return
-
-            if self.item.stacking.stack_size >= self.amount > 0:
-                stack_amount = self.amount
-            else:
-                stack_amount = self.item.stacking.stack_size
-
-            self.item_copy.stacking.stack_size = stack_amount
-
-            # if item of this type already in inventory, tries to add it to existing stack
-            repeat_found = False
-            for i in self.entity.inventory.items:
-                if i.name == self.item.name:
-                    repeat_item_index = self.entity.inventory.items.index(i)
-                    self.entity.inventory.items[repeat_item_index].stacking.stack_size += \
-                        self.item_copy.stacking.stack_size
-                    repeat_found = True
-
-            if not repeat_found:
-                # item of this type not already present in inventory
-                self.entity.inventory.items.append(self.item_copy)
-
-            self.item.stacking.stack_size -= self.item_copy.stacking.stack_size
-
-            if self.item.stacking.stack_size <= 0:
-                self.remove_from_container()
-
-        else:
-
-            if self.entity.inventory.current_item_weight() + self.item.weight > self.entity.inventory.capacity:
-                self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
-
-            else:
-                self.entity.inventory.items.append(self.item_copy)
-                self.remove_from_container()
-
-        self.item_copy.parent = self.entity.inventory
+        #
+        # if self.item.stacking:
+        #
+        #     # checks if there is enough capacity for the item
+        #     if self.entity.inventory.current_item_weight() + self.item.weight * self.item.stacking.stack_size > \
+        #             self.entity.inventory.capacity:
+        #         self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
+        #         return
+        #
+        #     if self.item.stacking.stack_size >= self.amount > 0:
+        #         stack_amount = self.amount
+        #     else:
+        #         stack_amount = self.item.stacking.stack_size
+        #
+        #     self.item_copy.stacking.stack_size = stack_amount
+        #
+        #     # if item of this type already in inventory, tries to add it to existing stack
+        #     repeat_found = False
+        #     for i in self.entity.inventory.items:
+        #         if i.name == self.item.name:
+        #             repeat_item_index = self.entity.inventory.items.index(i)
+        #             self.entity.inventory.items[repeat_item_index].stacking.stack_size += \
+        #                 self.item_copy.stacking.stack_size
+        #             repeat_found = True
+        #
+        #     if not repeat_found:
+        #         # item of this type not already present in inventory
+        #         self.entity.inventory.items.append(self.item_copy)
+        #
+        #     self.item.stacking.stack_size -= self.item_copy.stacking.stack_size
+        #
+        #     if self.item.stacking.stack_size <= 0:
+        #         self.remove_from_container()
+        #
+        # else:
+        #
+        #     if self.entity.inventory.current_item_weight() + self.item.weight > self.entity.inventory.capacity:
+        #         self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
+        #
+        #     else:
+        #         self.entity.inventory.items.append(self.item_copy)
+        #         self.remove_from_container()
+        #
+        # self.item_copy.parent = self.entity.inventory
 
     def remove_from_container(self):
         pass
