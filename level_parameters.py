@@ -1,6 +1,6 @@
 from numpy import array
 from components.enemies.caverns import *
-from components.commonitems import medkit
+from components.commonitems import medkit, repair_kit
 from components.weapons.magazines import glock_mag_9mm
 
 # this dictionary has the parameters for all the levels in the game
@@ -76,12 +76,12 @@ Enemies_by_level = {
     # sewers
     0:
         (
-            (giant_snake, 5),
+            # (giant_snake, 5),
             (large_rat, 5),
-            (rat_king, 5),
-            (aligator, 5),
-            (maniac, 5),
-            (outlaw, 100)
+            # (rat_king, 5),
+            # (aligator, 5),
+            # (maniac, 5),
+            # (outlaw, 100)
         ),
     # caverns
     1:
@@ -121,10 +121,11 @@ Items_by_level = {
     0:
         (
             [medkit, 1],
-            [medkit, 1],
+            # TODO - fix weapon repair kits
+            [repair_kit, 1],
             # [glock_17, 1],
             # [round_9mm_124_fmj, 1],
-            [glock_mag_9mm, 1],
+            # [glock_mag_9mm, 1],
             # [glock17_frame, 1],
             # [glock17_barrel, 1],
             # [glock17_slide, 1],

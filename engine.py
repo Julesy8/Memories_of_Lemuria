@@ -10,6 +10,7 @@ from numpy import logical_or
 
 from tcod.console import Console
 from tcod.map import compute_fov
+from math import ceil
 import colour
 
 import exceptions
@@ -56,8 +57,6 @@ class Engine:
                 if not exc.args[0] == "Silent":  # if error is "Silent" as arg, doesn't print error to message log
                     self.message_log.add_message(exc.args[0], colour.RED)
 
-        self.handle_turns()
-
     def switch_player(self) -> None:
         player_index = self.players.index(self.player)
         try:
@@ -77,7 +76,7 @@ class Engine:
             f.write(save_data)
 
     def handle_turns(self) -> None:
-        print(self.player.parent)
+        self.handle_queued_actions()
         self.update_fov()  # moved here from handle_action
         for entity in set(self.game_map.actors):
             #             if entity.ai and not entity in self.game_map.engine.players and entity.fighter.target_actor:
@@ -103,23 +102,17 @@ class Engine:
 
             player.fighter.visible_tiles[:] = player_fov
 
-            fov = logical_or(fov, player_fov)
-
             # activates entity when seen by player
             for entity in self.game_map.actors:
                 if entity.ai and player.fighter.visible_tiles[entity.x, entity.y] and not entity in self.players:
 
-                    if not entity.fighter.active:
-
+                    # selects new target if inactive or no target currently
+                    if not entity.fighter.active or entity.fighter.target_actor is None:
                         dx = entity.x - player.x
                         dy = entity.y - player.y
                         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
                         # at 10 metres distance there's an equal chance of the enemy noticing you as not noticing you
                         # TODO - this should be affected by a stealth skill and perception
-
-                        # removes path for all player characters, stopping movement orders
-                        for i in self.players:
-                            i.ai.path = []
 
                         sees_player = choices((True, False), weights=(10, distance))
                         if sees_player:
@@ -141,6 +134,8 @@ class Engine:
                                                                           weights=(7, distance_target)):
                             entity.fighter.target_actor = player
 
+            fov = logical_or(fov, player_fov)
+
         self.game_map.visible[:] = fov
 
         # If a tile is "visible" it should be added to "explored".
@@ -151,19 +146,26 @@ class Engine:
         console.draw_rect(0, console.height - 4, console.width, 4, 219, bg=(0, 0, 0))
 
         if self.squad_mode:
-            console.print(x=0, y=0, string="MODE: SQUAD", fg=colour.WHITE)
+            console.print(x=0, y=0, string=f"MODE: SQUAD / COMBAT STYLE: {self.player.fighter.attack_style}",
+                          fg=colour.WHITE)
         else:
-            console.print(x=0, y=0, string="MODE: INDIVIDUAL", fg=colour.WHITE)
+            console.print(x=0, y=0, string=f"MODE: INDIVIDUAL / COMBAT STYLE: {self.player.fighter.attack_style}",
+                          fg=colour.WHITE)
 
         console.print(x=0, y=console.height - 5, string=self.player.name, fg=colour.WHITE)
-
-        # TODO - render action message here
 
         # render message log
         self.message_log.render(console=console, x=6, y=console.height - 4,
                                 width=console.width - 16, height=4)
 
-        ap_str = f"AP: {self.player.fighter.ap}/{self.player.fighter.max_ap}"
+        ap_str = f"/ AP: {round(self.player.fighter.ap)}/{self.player.fighter.max_ap}"
+
+        if self.player.ai is not None:
+            if self.player.ai.queued_action:
+                turns_remaining = ceil(abs(self.player.fighter.ap/self.player.fighter.ap_per_turn *
+                                           self.player.fighter.ap_per_turn_modifier))
+                ap_str = f"/ {self.player.ai.queued_action.action_str} ({turns_remaining} turns remain)"
+
         console.print(x=len(self.player.name) + 1, y=console.height - 5, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
 
         # head
@@ -203,18 +205,19 @@ class Engine:
         # displays current ammo
         if self.player.inventory.held is not None:
 
+            weapon_str = f"Held: {self.player.inventory.held.name}"
+
             # for magazine fed gun
             if hasattr(self.player.inventory.held.usable_properties, "loaded_magazine"):
                 if self.player.inventory.held.usable_properties.loaded_magazine is None:
-                    console.print(x=66, y=console.height - 3, string="No Mag", fg=colour.WHITE, bg_blend=1)
+                    weapon_str += ' - No Mag'
 
             # for gun with integrated magazine
             elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):
-                chamber = 0
                 if self.player.inventory.held.usable_properties.chambered_bullet is not None:
-                    chamber = 1
-                gun = self.player.inventory.held.usable_properties
-                console.print(x=66, y=console.height - 3, string=f"{len(gun.magazine) + chamber}/{gun.mag_capacity}",
-                              fg=colour.WHITE, bg_blend=1)
+                    weapon_str += ' - Empty'
+
+            console.print(x=console.width - len(weapon_str) - 1, y=console.height - 5, string=weapon_str,
+                          fg=colour.WHITE, bg_blend=1)
 
         render_names_at_mouse_location(console=console, x=0, y=console.height - 6, engine=self, game_map=self.game_map)

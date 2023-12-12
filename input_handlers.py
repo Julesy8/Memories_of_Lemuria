@@ -15,7 +15,6 @@ from actions import (
     Action,
     BumpAction,
     PickupAction,
-    WaitAction,
     ReloadMagFed,
     LoadBulletsIntoMagazine,
     GunAttackAction
@@ -202,6 +201,8 @@ class MainGameEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
 
+        # TODO press shift + wait to skip forward turns to when everyone has AP
+
         key = event.sym
         modifier = event.mod
 
@@ -216,7 +217,8 @@ class MainGameEventHandler(EventHandler):
             dx, dy = MOVE_KEYS[key]
             action = BumpAction(player, dx, dy)
         elif key in WAIT_KEYS:
-            action = WaitAction(player)
+            self.engine.handle_turns()
+            # action = WaitAction(player)
         elif key == tcod.event.K_v:
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_g:
@@ -227,10 +229,12 @@ class MainGameEventHandler(EventHandler):
             try:
                 # held gun is mag fed
                 if hasattr(player.inventory.held.usable_properties, 'loaded_magazine'):
-                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held.usable_properties,
+                                            parent_handler=self)
                 # held gun is integrated magazine
                 elif hasattr(player.inventory.held.usable_properties, 'magazine'):
-                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held.usable_properties,
+                                                   parent_handler=self)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry: no held weapon", colour.RED)
         elif key == tcod.event.K_ESCAPE:
@@ -251,8 +255,6 @@ class MainGameEventHandler(EventHandler):
 
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine, in_squad_mode=self.engine.squad_mode, parent_handler=self)
-        elif key == tcod.event.K_LALT and self.engine.squad_mode:
-            return self.engine.handle_queued_actions()
 
         elif key == tcod.event.K_TAB:
             return self.engine.switch_player()
@@ -274,12 +276,32 @@ def on_quit() -> None:
 
 class GameOverEventHandler(EventHandler):
 
-    def ev_quit(self, event: tcod.event.Quit) -> None:
-        on_quit()
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)  # Draw the main state as the background.
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
-        if event.sym == tcod.event.K_ESCAPE:
-            on_quit()
+        console.draw_frame(
+            x=console.width // 2 - 18,
+            y=console.height // 2 - 4,
+            width=36,
+            height=5,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        console.print(x=console.width // 2 - 16, y=console.height // 2 - 2, string="Your team perished in the depths",
+                      fg=colour.MAGENTA, bg=(0, 0, 0))
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+
+        key = event.sym
+
+        if key == tcod.event.K_v:
+            return HistoryViewer(self.engine, parent_handler=self)
+        elif key == tcod.event.K_ESCAPE:
+            return QuitEventHandler(self.engine, parent_handler=self)
+        elif key == tcod.event.K_l:
+            return Bestiary(self.engine, parent_handler=self)
 
 
 CURSOR_Y_KEYS = {
@@ -698,6 +720,8 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.RED)
+            except NotImplementedError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
 
         elif option == 'pick up':
             if self.item.stacking:
@@ -714,7 +738,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
 
         elif option == 'equip':
             try:
-                self.item.usable_properties.equip()
+                self.item.usable_properties.equip(user=self.engine.player)
                 return self.parent_handler
 
             except AttributeError:
@@ -819,7 +843,6 @@ class EquipmentEventHandler(AskUserEventHandler):
         if len(self.equipped_list) > 0:
             for i, item in enumerate(self.equipped_list):
                 item_key = chr(ord("a") + i)
-                print(equipment_dictionary)
                 console.print(x + 1, y + i + 1, f"({item_key}) {equipment_dictionary[item.name]} | {item.name}")
 
         else:
@@ -1021,11 +1044,9 @@ class ChangeTargetActor(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console):
 
-        # TODO - destination markers should change between different colours corresponding to which entity going there
-
         super().on_render(console)  # Draw the main state as the background.
 
-        blink_on = False
+        blink_on = True
 
         self.console = console
 
@@ -1035,7 +1056,7 @@ class ChangeTargetActor(AskUserEventHandler):
         self.tick_counter += 1
 
         if self.tick_counter > self.max_tick - max_fps:
-            blink_on = True
+            blink_on = False
         if self.tick_counter > self.max_tick:
             self.tick_counter = 0
 
@@ -1057,7 +1078,7 @@ class ChangeTargetActor(AskUserEventHandler):
             dest_y = destination[1] - cam_y
             console.print(x=0, y=4, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
 
-            if blink_on:
+            if blink_on and 0 <= dest_x < console.width and 0 <= dest_y < console.height:
                 console.print(dest_x, dest_y, "X", colour.WHITE)
 
         player = self.engine.player
@@ -1076,8 +1097,8 @@ class ChangeTargetActor(AskUserEventHandler):
 
             target_x, target_y = player.fighter.target_actor.x - cam_x, player.fighter.target_actor.y - cam_y
 
-            if 0 <= target_x < console.width and 0 <= target_y < console.height:
-                console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('X'), colour.YELLOW
+            if 0 <= target_x < console.width and 0 <= target_y < console.height and blink_on:
+                console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('▼'), colour.LIGHT_RED
 
             target_str = f"Targeting: {player.fighter.target_actor.name} - {self.selected_bodypart.name}".upper()
             # ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
@@ -1113,19 +1134,26 @@ class ChangeTargetActor(AskUserEventHandler):
         # button 1 = LMB
         # button 3 = RMB
 
-        # TODO - way to click drag select players
         # TODO - mouse controls for attacks
 
         if self.engine.game_map.in_bounds(mouse_x, mouse_y):
 
-            # selects players
+            # selects players or enemies to attack
             if event.button == 1:
-                for player in self.engine.players:
-                    if player.x == mouse_x and player.y == mouse_y:
-                        if player not in self.players_selected:
-                            self.players_selected.append(player)
+                for entity in self.engine.game_map.actors:
+                    if entity.x == mouse_x and entity.y == mouse_y:
+                        # player selected
+                        if entity.player:
+                            if entity not in self.players_selected:
+                                self.players_selected.append(entity)
+                            else:
+                                self.players_selected.remove(entity)
+                        # enemy selected
                         else:
-                            self.players_selected.remove(player)
+                            self.engine.player.fighter.target_actor = entity
+                            self.selected_bodypart = self.engine.player.fighter.target_actor.bodyparts[0]
+                            self.bodypart_index = 0
+                            self.target_index = 0
 
             # moves players
             elif event.button == 3:
@@ -1197,9 +1225,10 @@ class ChangeTargetActor(AskUserEventHandler):
 
                 # attack with weapon
                 if self.item is not None:
-                    self.item.usable_properties.get_attack_action(distance=distance_target, entity=player,
-                                                                  targeted_actor=player.fighter.target_actor,
-                                                                  targeted_bodypart=self.selected_bodypart)
+                    (self.item.usable_properties.get_attack_action(distance=distance_target, entity=player,
+                                                                   targeted_actor=player.fighter.target_actor,
+                                                                   targeted_bodypart=self.selected_bodypart).
+                     handle_action())
 
                 # unarmed attack
                 else:
@@ -1230,15 +1259,16 @@ class ChangeTargetActor(AskUserEventHandler):
             return LoadoutEventHandler(engine=self.engine, parent_handler=self)
         elif key == tcod.event.K_PERIOD and modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
             return actions.TakeStairsAction(player)
-
         elif key == tcod.event.K_q:
             try:
                 # held gun is mag fed
                 if hasattr(player.inventory.held.usable_properties, 'loaded_magazine'):
-                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+                    return GunOptionsMagFed(engine=self.engine, gun=player.inventory.held.usable_properties,
+                                            parent_handler=self)
                 # held gun is integrated magazine
                 elif hasattr(player.inventory.held.usable_properties, 'magazine'):
-                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held, parent_handler=self)
+                    return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held.usable_properties,
+                                                   parent_handler=self)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
         elif key == tcod.event.K_v:
@@ -1251,8 +1281,10 @@ class ChangeTargetActor(AskUserEventHandler):
             return ShowEnemyInfo(self.engine, entity=player.fighter.target_actor, parent_handler=self)
 
         elif key in WAIT_KEYS:
-            self.destinations = []
-            self.engine.handle_queued_actions()
+            self.engine.handle_turns()
+            # return WaitAction(player)
+            # self.destinations = []
+            # self.engine.handle_queued_actions()
 
         elif key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -1747,7 +1779,7 @@ class SelectPartToRepair(UserOptionsWithPages):
         return self.callback(item)
 
 
-class SelectPartToHeal(UserOptionsEventHandler):
+class SelectPartToHeal(AskUserEventHandler):
     def __init__(self, engine: Engine, options: list[Bodypart],
                  callback: Callable[[Bodypart], Optional[Action]], parent_handler: BaseEventHandler):
 
@@ -1755,9 +1787,13 @@ class SelectPartToHeal(UserOptionsEventHandler):
 
         title = 'Select Body Part to Heal'
 
-        super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
+        self.options = options
+        self.TITLE = title
+
+        super().__init__(engine=engine, parent_handler=parent_handler)
 
     def on_render(self, console: tcod.Console) -> None:
+        print('yes')
         super().on_render(console)
 
         longest_option_name = 0
@@ -1811,6 +1847,22 @@ class SelectPartToHeal(UserOptionsEventHandler):
                 str_colour = colour.RED
 
             console.print(x + 1, y + i + 1, f"({option_key}) {option.name} - {damage_str}", fg=str_colour)
+
+    def ev_keydown(self, event: tcod.event.KeyDown):
+        key = event.sym
+        index = key - tcod.event.K_a
+
+        if event.sym == tcod.event.K_ESCAPE:
+            return self.parent_handler
+
+        if 0 <= index <= 26:
+            try:
+                selected_option = self.options[index]
+            except IndexError:
+                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                return self
+            return self.ev_on_option_selected(selected_option)
+        return super().ev_keydown(event)
 
     def ev_on_option_selected(self, bodypart: Bodypart) -> Optional[ActionOrHandler]:
         return self.callback(bodypart)
@@ -2408,7 +2460,6 @@ class SelectAttachPoint(UserOptionsWithPages):
         # still more parts, continues to next part type
         else:
             self.crafting_handler.current_part_selection += 1
-            print('test 3')
             return CraftGun(engine=self.engine,
                             current_part_index=self.crafting_handler.current_part_selection,
                             item_to_craft=self.crafting_handler.item_name,
@@ -2491,7 +2542,7 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Fire Rate Modifier --": ('fire_rate_modifier',
                                          round(getattr(self.item.usable_properties, 'fire_rate_modifier', 1), 3)),
             "-- Barrel Length (Inch) --": ('barrel_length',
-                                           round((getattr(self.item.usable_properties, 'barrel_length', 1) * 12), 3)),
+                                           round((getattr(self.item.usable_properties, 'barrel_length', 1)), 3)),
             "-- Zero Range (Yard) --": ('zero_range', getattr(self.item.usable_properties, 'zero_range', 1)),
             "-- Sight Height Over Mount (Inch) --": ('sight_height_above_bore',
                                                      getattr(self.item.usable_properties, 'sight_height_above_bore',
@@ -2576,9 +2627,6 @@ class InspectItemViewer(AskUserEventHandler):
 
                     for key_2, value_2 in value[1].items():
                         new_string += f"{key_2:}"
-                        print(value)
-                        print(value[1])
-                        print(value_2)
                         try:
                             for string in value_2:
                                 new_string += f" {string}"
@@ -2633,7 +2681,7 @@ class InspectItemViewer(AskUserEventHandler):
             x=1,
             y=1,
             width=40,
-            height=height + 1,
+            height=height + 2,
             title=self.TITLE,
             clear=True,
             fg=colour.WHITE,

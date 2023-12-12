@@ -20,15 +20,13 @@ if TYPE_CHECKING:
 
 class Action:
     def __init__(self, entity: Actor, handle_now: bool = False) -> None:
-        # super().__init__() don't need call to super when not a subclass
         self.handle_now = handle_now
         self.action_str = ''
         self.entity = entity
         self.queued = False
-        self.turns_until_action = 0
+        # self.turns_until_action = 0
 
     @property
-    # TODO - suspect strange crash originating from here
     def engine(self) -> Engine:
         """Return the engine this action belongs to."""
         return self.entity.gamemap.engine
@@ -37,10 +35,12 @@ class Action:
         return True
 
     def handle_action(self) -> None:
-
         ap_cost = self.calculate_ap_cost()
 
         action_viable = self.action_viable()
+
+        if self.entity.ai is None:
+            return
 
         if self.handle_now and action_viable:
             return self.perform()
@@ -48,82 +48,48 @@ class Action:
         # checks if action is viable
         if not action_viable:
             self.entity.ai.queued_action = None
-            # return
-            # TODO - test
-            return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.RED)
+            if self.queued:
+                # gives back remaining AP
+                turns_remaining = ceil(abs(self.entity.fighter.ap / self.entity.fighter.ap_per_turn *
+                                           self.entity.fighter.ap_per_turn_modifier))
+                self.entity.fighter.ap += turns_remaining * self.entity.fighter.ap_per_turn * self.entity.fighter.ap_per_turn_modifier
+            if self.entity.player:
+                return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.RED)
 
-        # if action is queued
-        if self.queued:
+        # if entity has no AP, returns
+        if not self.queued and self.entity.fighter.ap < 0:
+            if self.entity.player:
+                self.engine.message_log.add_message(f"Cannot perform action: no AP", colour.RED)
+            return
 
-            if self.turns_until_action <= 0:
-                # no more turns left to wait, performs action
+        # queued and has AP, performs action
+        elif self.queued and self.entity.fighter.ap > 0:
+            self.entity.ai.queued_action = None
+            return self.perform()
 
-                # TODO - temporary fix
-                if self.entity.player:
-                    if self == self.entity.ai.queued_action:
-                        self.entity.ai.queued_action = None
-                return self.perform()
-            else:
-                # still turns left to wait, decreases turns_until_action
-                self.turns_until_action -= 1
-                return
+        # if not in squad mode and aciton queued, handles turns so the action can be completed instantly in real time
+        # (still takes turns in game time)
+        elif self.queued and self.entity.fighter.ap <= 0 and not self.engine.squad_mode:
+            self.engine.handle_turns()
 
-        # entity is player
-        if self.entity.player and self.entity.ai:
-
-            # if squad mode, will add action to engine action_queue
-            if self.engine.squad_mode:
-                # queues action if > 0 AP
-                if self.entity.fighter.ap > 0:
-                    self.entity.fighter.ap -= ap_cost
-                    self.queued = True
-                    self.entity.ai.queued_action = self
-
-                    # calculates and sets number of turns until action can take place if not enough AP is available
-                    if self.entity.fighter.ap < 0:
-                        turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
-                                                                           self.entity.fighter.ap_per_turn_modifier)))
-                        self.turns_until_action = turns_to_skip
-
-                # less than 0 AP, action cannot be queued
-                else:
-                    self.engine.message_log.add_message(f"Cannot perform action: no AP", colour.RED)
-
-            # not in squad mode - actions are not queued
-            elif self.entity.fighter.ap >= ap_cost:
-                # performs action if enough AP is available
-                self.entity.fighter.ap -= ap_cost
-                if self == self.entity.ai.queued_action:
-                    self.entity.ai.queued_action = None
-                self.perform()
-
-            # not in squad mode and not enough AP to perform action - skips appropriate amount of turns
-            else:
-                self.queued = True
-                self.entity.fighter.ap -= ap_cost
-
-                # how many turns entity has to wait until attack
-                turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
-                                                                   self.entity.fighter.ap_per_turn_modifier)))
-                for i in range(turns_to_skip):
-                    self.engine.handle_turns()
-
-        # entity is AI and has enough AP, performs action
+        # entity has enough AP, performs action
         elif self.entity.fighter.ap >= ap_cost:
             self.entity.fighter.ap -= ap_cost
+            if self == self.entity.ai.queued_action:
+                self.entity.ai.queued_action = None
             self.perform()
 
-        # entity is AI and does not have enough AP to perform action
-        else:
+        # entity does not have enough AP to perform action
+        elif not self.queued:
             # sets action to queued
             self.entity.fighter.ap -= ap_cost
             self.queued = True
             self.entity.ai.queued_action = self
 
-            # how many turns entity has to wait until attack
-            turns_to_skip = ceil(abs(self.entity.fighter.ap / (self.entity.fighter.ap_per_turn *
-                                                               self.entity.fighter.ap_per_turn_modifier)))
-            self.entity.ai.turns_until_action = turns_to_skip
+            # if not in squad mode, handles turns so the action can be completed instantly in real time
+            # (still takes turns in game time)
+            if not self.engine.squad_mode:
+                self.engine.handle_turns()
 
     def calculate_ap_cost(self) -> int:
         return 0
@@ -155,6 +121,10 @@ class TakeStairsAction(Action):
         Take the stairs, if any exist at the entity's location.
         """
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
+            for player in self.engine.players:
+                if player.distance_to(player) > 10:
+                    raise exceptions.Impossible("Cannot move down stairs: players too far away")
+
             self.engine.game_map.generate_level()
             self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
             self.engine.update_floor_str()
@@ -264,7 +234,6 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             return False
 
     def calculate_ap_cost(self) -> int:
-        # TODO - crash has something to do with calculating AP costs
         fighter = self.entity.fighter
         ap_cost = round(fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
         return ap_cost
@@ -357,15 +326,8 @@ class GunAttackAction(AttackAction):
                                          self.entity.fighter.ap_distance_cost_modifier
 
     def action_viable(self) -> bool:
-
-        # return self.engine.game_map.check_los(start_x=self.entity.x, start_y=self.entity.y,
-        #                                       end_x=self.targeted_actor.x, end_y=self.targeted_actor.y)
-
-        if self.entity.player and self.entity.fighter.visible_tiles[self.targeted_actor.x, self.targeted_actor.y] or \
-                self.targeted_actor.fighter.visible_tiles[self.entity.x, self.entity.y]:
-            return True
-        else:
-            return False
+        return self.engine.game_map.check_los(start_x=self.entity.x, start_y=self.entity.y,
+                                              end_x=self.targeted_actor.x, end_y=self.targeted_actor.y)
 
     def additional_ap_cost(self) -> int:
         return 0
@@ -761,6 +723,7 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
 
     def perform(self) -> None:
+
         if self.target_actor and not self.target_actor.player:
 
             try:
@@ -771,7 +734,7 @@ class BumpAction(ActionWithDirection):
                     return item_held.usable_properties.get_attack_action(distance=1, entity=self.entity,
                                                                          targeted_actor=self.target_actor,
                                                                          targeted_bodypart=self.target_actor.bodyparts[
-                                                                             0])
+                                                                             0]).handle_action()
 
                 else:
                     return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
@@ -796,54 +759,43 @@ class AddToInventory(Action):
     def calculate_ap_cost(self) -> int:
         return 0
 
+    def action_viable(self) -> bool:
+
+        stack_size = 1
+
+        if self.item.stacking:
+            stack_size = self.item.stacking.stack_size
+
+        # checks if there is enough capacity for the item
+        if self.entity.inventory.current_item_weight() + self.item.weight * stack_size > \
+                self.entity.inventory.capacity:
+            self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
+            return False
+
+        return True
+
     def perform(self) -> None:
 
-        self.entity.inventory.add_to_inventory(item=self.item, item_container=None, amount=self.amount)
+        if self.item.stacking:
 
-        #
-        # if self.item.stacking:
-        #
-        #     # checks if there is enough capacity for the item
-        #     if self.entity.inventory.current_item_weight() + self.item.weight * self.item.stacking.stack_size > \
-        #             self.entity.inventory.capacity:
-        #         self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
-        #         return
-        #
-        #     if self.item.stacking.stack_size >= self.amount > 0:
-        #         stack_amount = self.amount
-        #     else:
-        #         stack_amount = self.item.stacking.stack_size
-        #
-        #     self.item_copy.stacking.stack_size = stack_amount
-        #
-        #     # if item of this type already in inventory, tries to add it to existing stack
-        #     repeat_found = False
-        #     for i in self.entity.inventory.items:
-        #         if i.name == self.item.name:
-        #             repeat_item_index = self.entity.inventory.items.index(i)
-        #             self.entity.inventory.items[repeat_item_index].stacking.stack_size += \
-        #                 self.item_copy.stacking.stack_size
-        #             repeat_found = True
-        #
-        #     if not repeat_found:
-        #         # item of this type not already present in inventory
-        #         self.entity.inventory.items.append(self.item_copy)
-        #
-        #     self.item.stacking.stack_size -= self.item_copy.stacking.stack_size
-        #
-        #     if self.item.stacking.stack_size <= 0:
-        #         self.remove_from_container()
-        #
-        # else:
-        #
-        #     if self.entity.inventory.current_item_weight() + self.item.weight > self.entity.inventory.capacity:
-        #         self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
-        #
-        #     else:
-        #         self.entity.inventory.items.append(self.item_copy)
-        #         self.remove_from_container()
-        #
-        # self.item_copy.parent = self.entity.inventory
+            if self.item.stacking.stack_size >= self.amount > 0:
+                stack_amount = self.amount
+            else:
+                stack_amount = self.item.stacking.stack_size
+
+            self.item_copy.stacking.stack_size = stack_amount
+            self.item.stacking.stack_size -= self.item_copy.stacking.stack_size
+            self.entity.inventory.add_to_inventory(item=self.item_copy, item_container=None, amount=self.amount)
+
+            if self.item.stacking.stack_size <= 0:
+                self.remove_from_container()
+
+        else:
+
+            self.entity.inventory.items.append(self.item_copy)
+            self.remove_from_container()
+
+        self.item_copy.parent = self.entity.inventory
 
     def remove_from_container(self):
         pass
@@ -937,7 +889,10 @@ class ItemAction(Action):
     def perform(self) -> None:
         """Invoke the items ability, this action will be given to provide context."""
         # if self.item.usable_properties:  # test
-        self.item.usable_properties.activate(self)
+        try:
+            self.item.usable_properties.activate(self)
+        except NotImplementedError:
+            pass
 
 
 class RepairItem(Action):
@@ -959,6 +914,7 @@ class HealPart(Action):
         super().__init__(entity)
         self.part_to_heal = part_to_heal
         self.healing_item = healing_item
+        # TODO - shorten action strings
         self.action_str = f'using {healing_item.name} on {part_to_heal.name}'
 
     def calculate_ap_cost(self) -> int:

@@ -68,7 +68,9 @@ class HealingConsumable(Usable):
                                 callback=lambda part_to_heal:
                                 actions.HealPart(entity=user,
                                                  part_to_heal=part_to_heal,
-                                                 healing_item=self.parent))
+                                                 healing_item=self.parent,),
+                                parent_handler=MainGameEventHandler(self.engine)
+                                )
 
     def activate(self, action: actions.HealPart) -> BaseEventHandler:
         bodypart = action.part_to_heal
@@ -76,7 +78,7 @@ class HealingConsumable(Usable):
 
         self.parent.stacking.stack_size -= 1
 
-        self.engine.message_log.add_message(f"{self.parent.name}'s remaining: {self.parent.stacking.stack_size}",
+        self.engine.message_log.add_message(f"{self.parent.name}s remaining: {self.parent.stacking.stack_size}",
                                             colour.WHITE, )
 
         if self.parent.stacking.stack_size <= 0:
@@ -93,8 +95,13 @@ class RepairKit(Usable):
         # appends repairable items to options list
         for item in self.engine.player.inventory.items:
             if isinstance(item.usable_properties, GunComponent):
-                if item.usable_properties.condition_accuracy < 5 or item.usable_properties.condition_function < 5:
-                    options.append(item)
+                if hasattr(item.usable_properties, 'condition_accuracy'):
+                    if item.usable_properties.condition_accuracy < 5:
+                        options.append(item)
+                        continue
+                elif hasattr(item.usable_properties, 'condition_function'):
+                    if item.usable_properties.condition_function < 5:
+                        options.append(item)
 
         # returns part selection menu
         return SelectPartToRepair(engine=self.engine,
@@ -102,7 +109,8 @@ class RepairKit(Usable):
                                   callback=lambda item_to_repair:
                                   actions.RepairItem(entity=user,
                                                      item_to_repair=item_to_repair,
-                                                     repair_kit_item=self.parent))
+                                                     repair_kit_item=self.parent),
+                                  parent_handler=MainGameEventHandler(self.engine))
 
     def activate(self, action: actions.RepairItem) -> BaseEventHandler:
         item = action.item_to_repair
@@ -189,7 +197,6 @@ class Weapon(Usable):
                 equip_time *= self.loaded_magazine.equip_ap_mod
 
         return self.ap_to_equip
-        # low priority
         # TODO - if weapon attack turns in full auto go over one turn, should be broken up into multiple turns. Alternatively (better solution) - make it so attacks can't go more than one turn anymore
 
 
@@ -216,7 +223,7 @@ class MeleeWeapon(Weapon):
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
         return actions.MeleeAttackAction(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                                         weapon=self, targeted_bodypart=targeted_bodypart).handle_action()
+                                         weapon=self, targeted_bodypart=targeted_bodypart)
 
     def attack_melee(self, target: Actor, attacker: Actor, part_index: int, hitchance: int):
 
@@ -325,8 +332,6 @@ class Magazine(Usable):
                     setattr(self, "chambered_bullet", None)
 
             if len(self.magazine) > 0:
-                print(f'bullets in mag {len(self.magazine)}')
-                # TODO - unfuck this
                 for bullet in self.magazine:
                     actions.AddToInventory(item=bullet.parent, amount=1,
                                            entity=inventory.parent).handle_action()
@@ -560,7 +565,7 @@ class Gun(Weapon):
                             if isinstance(self.loaded_magazine, DetachableMagazine):
                                 mag_fail_chance = self.loaded_magazine.failure_chance
 
-                    if choices(population=(True, False), weights=(round(25 - ((self.condition_function / 5) * 25) +
+                    if choices(population=(True, False), weights=(round(10 - ((self.condition_function / 5) * 10) +
                                                                         mag_fail_chance), 100))[0]:
                         self.engine.message_log.add_message("Your gun is jammed!", colour.RED)
                         self.jammed = True
@@ -578,6 +583,7 @@ class Gun(Weapon):
                 sound_radius_list.append(sound_radius)
 
                 # calculates AP modifier based on weight and weapon type
+                # TODO - should be affected by a 'strength' stat
                 if self.gun_type == 'pistol':
                     weight_handling_modifier = 0.75 + 0.25 * (self.parent.weight + total_weight)
 
@@ -596,7 +602,6 @@ class Gun(Weapon):
                                               min((5 / self.condition_accuracy), 2) * dist_yards)
 
                 # Pejsa's projectile drop formula
-
                 retardation_coefficient = \
                     self.chambered_bullet.ballistic_coefficient * 246 * muzzle_velocity ** 0.45
 
@@ -958,7 +963,7 @@ class GunMagFed(Gun):
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
         return actions.GunMagFedAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                                       gun=self, targeted_bodypart=targeted_bodypart).handle_action()
+                                       gun=self, targeted_bodypart=targeted_bodypart)
 
 
 class GunIntegratedMag(Gun, Magazine):
@@ -1044,7 +1049,7 @@ class GunIntegratedMag(Gun, Magazine):
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
         return actions.GunIntegratedMagAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
-                                              gun=self, targeted_bodypart=targeted_bodypart).handle_action()
+                                              gun=self, targeted_bodypart=targeted_bodypart)
 
     def loading_ap(self):
 

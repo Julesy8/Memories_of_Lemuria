@@ -98,7 +98,6 @@ class GameMap:
             (width, height), fill_value=False, order="F"
         )  # Tiles the player can currently see
 
-        # TODO - switch to line of sight
         for player in self.engine.players:
             player.fighter.visible_tiles = np.full(
                 (width, height), fill_value=False, order="F"
@@ -109,6 +108,8 @@ class GameMap:
         )  # Tiles the player has seen before
 
         self.downstairs_location = (0, 0)
+
+        self.rooms = []
 
         self.camera_xy = (0, 0)  # Camera center position.
 
@@ -158,8 +159,6 @@ class GameMap:
         return self.camera_xy[0] - screen_shape[0] // 2, self.camera_xy[1] - screen_shape[1] // 2
 
     def render(self, console: Console) -> None:
-
-        # TODO - FOV outside of controlled player vision should be slightly dimmed
 
         screen_shape = console.rgb.shape
         cam_x, cam_y = self.get_left_top_pos(screen_shape)
@@ -214,7 +213,6 @@ class GameMap:
     def check_los(self, start_x: int, start_y: int, end_x: int, end_y: int):
         # checks if line of sight exists between two positions
         los = tcod.los.bresenham((start_x, start_y), (end_x, end_y)).tolist()
-        # TODO - can use to render gun shot tragectory
         for tile in los:
             # checks if tile is walkable
             if not self.tiles[tile[0], tile[1]][0]:

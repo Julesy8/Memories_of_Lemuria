@@ -149,8 +149,6 @@ class Bodypart:
 
     def die(self) -> None:
 
-        # TODO - add proper death screen with score etc
-
         # drops random item from list and held item
         if len(self.parent.fighter.item_drops.keys()) > 0:
             drops = list(self.parent.fighter.item_drops.keys())
@@ -187,7 +185,6 @@ class Bodypart:
                 self.engine.bestiary[self.parent.name] = self.parent.fighter.description
 
         self.parent.ai = None
-        self.parent.name = f"{self.parent.name} remains"
         self.parent.char = '%'
         self.parent.fg_colour = colour.WHITE
         self.parent.render_order = RenderOrder.CORPSE
@@ -198,9 +195,9 @@ class Bodypart:
             self.engine.players.remove(self.parent)
             if len(self.engine.players) > 0:
                 self.engine.player = self.engine.players[0]
-            else:
-                return self.engine.message_log.add_message(f"you lost", colour.LIGHT_MAGENTA)
-            return self.engine.message_log.add_message(f"{self.parent.name} is dead!", colour.LIGHT_MAGENTA)
+                return self.engine.message_log.add_message(f"{self.parent.name} is dead!", colour.LIGHT_MAGENTA)
+
+        self.parent.name = f"{self.parent.name} remains"
 
     def deal_damage_melee(self, meat_damage: int, armour_damage: int, attacker: Actor):
 
@@ -413,10 +410,10 @@ class Bodypart:
 
                 self.hp -= damage
                 if attacker.player:
-                    self.engine.message_log.add_message(f"You shoot {self.parent.name} in the {self.name}",
+                    self.engine.message_log.add_message(f"{attacker.name} shoots {self.parent.name} in the {self.name}",
                                                         colour.GREEN)
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name} shoots you in the {self.name}",
+                    self.engine.message_log.add_message(f"{attacker.name} shoots {self.parent.name} in the {self.name}",
                                                         colour.RED)
 
             # hit, no damage dealt
@@ -502,17 +499,23 @@ class Arm(Bodypart):
     def cripple(self) -> None:
         self.functional = False
 
-        # try:
-        #
-        #     self.parent.inventory.held.place(self.parent.x, self.parent.y, self.engine.game_map)
-        #     self.parent.inventory.held = None
-        #
-        #     if self.parent == self.engine.player:
-        #         self.engine.message_log.add_message(f"The {self.parent.inventory.held.name} slips from your grasp",
-        #                                             colour.RED)
-        #
-        # except AttributeError:
-        #     pass
+        # entity drops their gun if right arm crippled
+        if self.name == "Right Arm":
+            try:
+
+                self.parent.inventory.held.place(self.parent.x, self.parent.y, self.engine.game_map)
+                message_colour = colour.GREEN
+
+                if self.parent == self.engine.player:
+                    message_colour = colour.RED
+
+                self.engine.message_log.add_message(f"{self.parent.name} drops their {self.parent.inventory.held.name}",
+                                                    message_colour)
+
+                self.parent.inventory.held = None
+
+            except AttributeError:
+                pass
 
         self.parent.fighter.ranged_accuracy *= 1.2
         self.parent.fighter.melee_accuracy *= 0.8

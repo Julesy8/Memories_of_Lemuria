@@ -120,6 +120,8 @@ class MessyBSPTree:
                 stairs.place(x=room_centre_x, y=room_centre_y, gamemap=self.dungeon)
                 self.dungeon.downstairs_location = room_centre_x, room_centre_y
 
+        self.dungeon.rooms = self._rooms
+
         return self.dungeon
 
     def create_room(self, room):

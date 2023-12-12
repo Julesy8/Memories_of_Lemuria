@@ -16,6 +16,7 @@ from engine import Engine
 from level_generator import MessyBSPTree
 from input_handlers import BaseEventHandler, MainGameEventHandler, PopupMessage
 from level_parameters import level_params
+from colour import LIGHT_MAGENTA
 from player_generator import generate_player
 from random import choice
 from components.weapons.bullets import round_9mm_124_jhp
@@ -47,6 +48,8 @@ class MainMenu(BaseEventHandler):
         self.colour_mode_forward = [True, True, True]
         self.fg_colour = [randint(60, 249), randint(60, 249), randint(60, 249)]
         self.subtext = generate_subtext()
+
+        self.music = None
 
         if music:
             self.music = Process(target=playmusic)
@@ -131,13 +134,13 @@ class MainMenu(BaseEventHandler):
                       fg=self.fg_colour)
 
         # noinspection PyTypeChecker
-        console.print(x=console.width // 2 - 19, y=53,
+        console.print(x=console.width // 2 - 19, y=console.height // 2 + 22,
                       string='PRE-ALPHA - READ MANUAL BEFORE PLAYING',
                       fg=self.fg_colour)
 
         if music:
             # noinspection PyTypeChecker
-            console.print(x=console.width // 2 - 26, y=54,
+            console.print(x=console.width // 2 - 26, y=console.height // 2 + 23,
                           string='MUSIC BY BLAVATSKY -- HTTPS://BLAVATSKY.BANDCAMP.COM',
                           fg=self.fg_colour)
 
@@ -165,13 +168,17 @@ class MainMenu(BaseEventHandler):
             self.subtext = generate_subtext()
 
         elif event.sym == tcod.event.K_RETURN:
+            # new game
             if self.option_selected == 0:
                 if music:
                     self.music.terminate()
                 return MainGameEventHandler(new_game())
+            # continue game
             elif self.option_selected == 1:
                 try:
-                    self.music.terminate()
+                    # TODO show message here warning player that current save will be overwritten
+                    if self.music is not None:
+                        self.music.terminate()
                     return MainGameEventHandler(load_game("savegame.sav"))
                 except FileNotFoundError:
                     return PopupMessage(self, "No saved game to load.", title='Error')
@@ -194,7 +201,7 @@ def new_game() -> Engine:
 
     player_1 = generate_player(current_level=0, players=[])
 
-    player_2 = generate_player(current_level=0, players=[])
+    player_2 = generate_player(current_level=0, players=[player_1])
 
     engine = Engine(player_1)
 
@@ -246,10 +253,18 @@ def new_game() -> Engine:
 
     engine.update_fov()
 
+    # TODO - show this message on new game in startup menu not in game
+    engine.message_log.add_message(
+        "War, economic collapse and civil strife have beset the world. Governments, desperate to "
+        "restore order, have instituted strict martial law. Many civilians, rebels and criminals have retreated into "
+        "sewer systems, tunnels and caves to escape persecution or prosecution. By your wits and by the gun, you must "
+        "survive the perilous subterranean world, and on the way uncover its many ancient mysteries. (Press V to view)"
+        , LIGHT_MAGENTA
+    )
+
     return engine
 
 
-# TODO - should not be able to start a new game if there is already a save file
 def load_game(filename: str) -> Engine:
     """Load an Engine instance from a file."""
     with open(filename, "rb") as f:
@@ -304,9 +319,9 @@ def generate_subtext() -> str:
                    'Shooter', 'Documentary', 'Temple', 'Metaphor', 'Parable',
                    'Oracle', 'Thing', 'Infohazard', 'Psyop', 'Manual', 'Vision', 'Project', 'Transcript',
                    'In Silico', 'Matrix', 'Frequency', 'Glossary', 'Algorithm', 'Host', 'Gateway', 'Sigil', 'Nexion',
-                   'Network', '.exe', '.zip', 'Hallucination', 'Found Footage', 'Religion', 'Trap', 'Computer',
+                   'Network', 'Hallucination', 'Found Footage', 'Religion', 'Trap', 'Computer',
                    'Operating System', 'Forum', 'Image Board', 'Online', 'Cabal', 'Prophecy', 'Machine', 'Life Style',
-                   'Pathogen', 'Tome', 'The Movie', 'Artifact', 'Dictionary', 'For Dummies', 'Part 1', 'System',
+                   'Pathogen', 'Tome', 'The Movie', 'Artifact', 'Dictionary', 'For Dummies', 'System',
                    'Society'
                    ))
 

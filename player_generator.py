@@ -18,23 +18,21 @@ if TYPE_CHECKING:
 
 def generate_player(current_level: int, players: list):
 
-    player_colours = [colour.BLUE, colour.GREEN, colour.RED, colour.MAGENTA, colour.ORANGE, colour.YELLOW,
-                      colour.PURPLE,
-                      colour.CYAN, colour.LIGHT_BLUE, colour.LIGHT_GREEN, colour.LIGHT_RED, colour.LIGHT_MAGENTA]
+    player_colours = [colour.BLUE, colour.JADE, colour.MAGENTA, colour.ORANGE, colour.YELLOW,
+                      colour.PURPLE, colour.CYAN, colour.LIGHT_BLUE, colour.LIGHT_GREEN,
+                      colour.LIGHT_MAGENTA, colour.LIGHT_YELLOW]
 
     first_names = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
                    'Christopher', 'Daniel', 'Matthew', 'Anthony', 'Donald', 'Mark', 'Paul', 'Steven', 'Andrew',
-                   'Kenneth',
-                   'George', 'Joshua', 'Kevin', 'Brian', 'Edward', 'William', 'Nicholas', 'Tyler', 'Brandon', 'Jacob',
-                   'Ryan', 'Justin', 'Jonathan', 'Austin', 'Cody', 'Eric', 'Benjamin', 'Adam', 'Samuel', 'Jeremy',
-                   'Patrick', 'Alexander', 'Jesse', 'Zachary', 'Dylan', 'Nathan', 'Scott', 'Kyle', 'Jeffrey', 'Sean',
-                   'Travis', 'Bryan', 'Ethan', 'Luke', 'Carlos', 'Ian', 'Peter', 'Christian', 'Cameron', 'Shawn',
-                   'Luis',
-                   'Jared', 'Juan', 'Caleb', 'Evan', 'Gabriel', 'Chase', 'Antonio', 'Cory', 'Curtis', 'Seth', 'Adrian',
-                   'Jorge', 'Trevor', 'Dustin', 'Mario', 'Derek', 'Devin', 'Javier', 'Miguel', 'Julian', 'Oscar',
-                   'Blake', 'Cole', 'Joel', 'Ronald', 'Francisco', 'Bradley', 'Eduardo', 'Devon', 'Maxwell', 'Ruben',
-                   'Ricardo', 'Derrick', 'Tanner', 'Angel', 'Brett', 'Martin', 'Spencer', 'Gavin', 'Henry', 'Troy',
-                   'Victor', 'Darius', 'Drew', ]
+                   'Kenneth', 'George', 'Joshua', 'Kevin', 'Brian', 'Edward', 'William', 'Nicholas', 'Tyler', 'Brandon',
+                   'Jacob', 'Ryan', 'Justin', 'Jonathan', 'Austin', 'Cody', 'Eric', 'Benjamin', 'Adam', 'Samuel',
+                   'Jeremy', 'Patrick', 'Alexander', 'Jesse', 'Zachary', 'Dylan', 'Nathan', 'Scott', 'Kyle', 'Jeffrey',
+                   'Sean', 'Travis', 'Bryan', 'Ethan', 'Luke', 'Carlos', 'Ian', 'Peter', 'Christian', 'Cameron',
+                   'Shawn', 'Luis', 'Jared', 'Juan', 'Caleb', 'Evan', 'Gabriel', 'Chase', 'Antonio', 'Cory', 'Curtis',
+                   'Seth', 'Adrian', 'Jorge', 'Trevor', 'Dustin', 'Mario', 'Derek', 'Devin', 'Javier', 'Miguel',
+                   'Julian', 'Oscar', 'Blake', 'Cole', 'Joel', 'Ronald', 'Francisco', 'Bradley', 'Eduardo', 'Devon',
+                   'Maxwell', 'Ruben', 'Ricardo', 'Derrick', 'Tanner', 'Angel', 'Brett', 'Martin', 'Spencer', 'Gavin',
+                   'Henry', 'Troy', 'Victor', 'Darius', 'Drew', ]
 
     last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Martinez',
                   'Taylor', 'Anderson', 'Wilson', 'Jackson', 'Wright',
@@ -102,6 +100,8 @@ def generate_player(current_level: int, players: list):
                    )
 
     player.fighter.give_weapon()
+
+    player.fighter.attack_style_measured()
 
     return player
 

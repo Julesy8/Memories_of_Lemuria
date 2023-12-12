@@ -1,8 +1,6 @@
 -----
 TO DO
 -----
--high recoil rounds should incur an AP penalty to target re-acquisition
--multple sizes of icon, can add new sizes in main.spec
 
 Ideal item action handling:
 
@@ -33,13 +31,6 @@ for action.handle_action for actions in action.queue -> perform / tick down
 
 input handler: reload (consumables class) -> calls action -> reloads
 
-increase standard reload time to 5 seconds
-
-After that figure out squad movement orders.
-view squad members screen
- - press different key to give squad commands e.g. reload, follow
-- when performing action (action queued) should say something like "performing action: reloading"
-
 TODO - should only be able to go down stairs when all players are close enough by
 
 After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
@@ -52,28 +43,21 @@ armour weight changes dexterity and walk speed
 grenades
 
 Extended Goals
+-make AIs even worse and miss more often
+-high recoil rounds should incur an AP penalty to target re-acquisition
+-multple sizes of icon, can add new sizes in main.spec
+-TODO - way to check how many rounds in magazine, i.e. about half full, full, almost empty
+-doom style screen smear on death
 -doors
--enemy should only run from player when has taken significant damage or is under fire
 -Blood loss
--Less confusing control scheme
--Name and class select on menu screen
 -Better level progression - alternative levels
 -Trigger mods
 -Attack queue for player in attack mode, VATS style
--Full mouse controls
 -unique enemies which spawn once per game
 -in the dungeon you find enemies using your looted equipment from previous runs
 -more room shapes on level generation
 -weapon graphics
 -try reducing exe size - use UPX
-
-- instead of using randint, use int(128 * random.random()) - https://eli.thegreenplace.net/2018/slow-and-fast-methods-for-generating-random-integers-in-python/
-
-# this equation is not even slightly realistic, but it works as a gamified stat since actually
-# calculating stability would require lots of data I don't have
-yaw_depth = max(0, (0.28/projectile config) * (velocity (fps) /2600) * (bullet length (inches) / 2.26) * 12 * randrange(0.3))
-
-
 -save guns to look at in main menu
 -grave yard
 
@@ -88,20 +72,6 @@ equip (rifle - from sling) - 100
 acquire target (pistol) - 50
 acquire target (rifle) - 30
 shoot (pistol and rifle) -
-
-How squad mechanics should work
-- new player characters are found at random between stages
-- use mouse drag/click to select units
-- can also use number keys to select inividual units
-- must select units individually to attack
-- upon entering combat, a new mode is activated where actions are queued, press another key to confirm all actions at
-once and advance one enemy turn. If character turn still in progress (no ap), can't do any moves
-- shows current character name and zooms in on them when selected
-- select characters, click where to move them to and then hit a button to confirm, move incrementally towards position.
-Movement is interupted when they enter combat
-- should be a menu from which you can access various squad options including having all player characters reload,
-reload magazines and weapons in loadout, heal and trade items between player characters when not in combat
-- way to preference ammo type for automatic reloading
 
 recoil reduction
     stock - 45%

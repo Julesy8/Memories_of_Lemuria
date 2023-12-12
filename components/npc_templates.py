@@ -37,8 +37,8 @@ class Fighter(BaseComponent):
                  move_ap_cost: int = 100,
                  ap: int = 100,
                  ap_per_turn: int = 100,
-                 melee_accuracy: float = 1.0,  # more = more accurate
-                 ranged_accuracy: float = 1.0,  # less = more accurate
+                 melee_accuracy: float = 0.5,  # more = more accurate
+                 ranged_accuracy: float = 5.0,  # less = more accurate
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  fears_death=True,
@@ -103,7 +103,6 @@ class Fighter(BaseComponent):
         return self._ap
 
     @property
-    # TODO - these properties seem to have something to do with crash
     def attack_ap_modifier(self) -> float:
         return self.action_ap_modifier
 
@@ -204,15 +203,15 @@ class GunFighter(Fighter):
                  move_ap_cost: int = 100,
                  ap: int = 100,
                  ap_per_turn: int = 100,
-                 melee_accuracy: float = 1.0,
-                 ranged_accuracy: float = 1.0,
+                 melee_accuracy: float = 0.5,
+                 ranged_accuracy: float = 5.0,
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  automatic_fire_duration: float = 0.5,
-                 felt_recoil: float = 1.0,
-                 target_acquisition_ap: float = 1.0,
-                 firing_ap_cost: float = 1.0,
-                 ap_distance_cost_modifier: float = 1.0,
+                 felt_recoil: float = 2.0,
+                 target_acquisition_ap: float = 2.0,
+                 firing_ap_cost: float = 1.5,
+                 ap_distance_cost_modifier: float = 2.0,
                  fears_death=True,
                  description: str = '',
                  active=False
@@ -228,6 +227,7 @@ class GunFighter(Fighter):
         self.target_acquisition_ap_original = target_acquisition_ap
         self.firing_ap_cost_original = firing_ap_cost
         self.ap_distance_cost_modifier_original = ap_distance_cost_modifier
+        self.attack_style = ''
 
         super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
                          unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
@@ -266,16 +266,19 @@ class GunFighter(Fighter):
         self._ap_distance_cost_modifier = value
 
     def attack_style_precision(self):
+        self.attack_style = 'PRECISION'
         self.style_range_accuracy = 0.7
         self.automatic_fire_duration = 0.2
         self.style_action_ap = 1.3
 
     def attack_style_cqc(self):
+        self.attack_style = 'CLOSE QUARTERS'
         self.style_range_accuracy = 1.3
         self.automatic_fire_duration = 0.7
         self.style_action_ap = 0.7
 
     def attack_style_measured(self):
+        self.attack_style = 'MEASURED'
         self.style_range_accuracy = 1.0
         self.automatic_fire_duration = 0.5
         self.style_action_ap = 1.0
@@ -292,15 +295,15 @@ class PlayerFighter(GunFighter):
                  move_ap_cost: int = 100,
                  ap: int = 100,
                  ap_per_turn: int = 100,
-                 melee_accuracy: float = 1.0,
-                 ranged_accuracy: float = 1.0,
+                 melee_accuracy: float = 0.5,
+                 ranged_accuracy: float = 5.0,
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  automatic_fire_duration: float = 0.5,
-                 felt_recoil: float = 1.0,
-                 target_acquisition_ap: float = 1.0,
-                 firing_ap_cost: float = 1.0,
-                 ap_distance_cost_modifier: float = 1.0,
+                 felt_recoil: float = 2.0,
+                 target_acquisition_ap: float = 2.0,
+                 firing_ap_cost: float = 1.5,
+                 ap_distance_cost_modifier: float = 2.0,
                  skill_marksmanship: int = 0,
                  skill_pistol_proficiency: int = 0,
                  skill_smg_proficiency: int = 0,

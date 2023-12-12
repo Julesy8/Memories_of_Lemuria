@@ -18,7 +18,7 @@ from random import choices, randint
 
 from entity import Item
 
-# TODO - type hints
+# TODO - probability of parts themselves influenced by which level the player is on
 
 
 class PremadeWeapon:
