@@ -121,7 +121,6 @@ Items_by_level = {
     0:
         (
             [medkit, 1],
-            # TODO - fix weapon repair kits
             [repair_kit, 1],
             # [glock_17, 1],
             # [round_9mm_124_fmj, 1],

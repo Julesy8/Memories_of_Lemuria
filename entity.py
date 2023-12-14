@@ -102,6 +102,7 @@ class Actor(Entity):
             inventory: Inventory,
             bleeds=True,
             player: bool = False,
+            speaks: bool = False,
     ):
         super().__init__(
             x=x,
@@ -114,6 +115,7 @@ class Actor(Entity):
         )
 
         self.ai = ai(self)
+        self.speaks = speaks
         self.bleeds = bleeds
         self.fighter = fighter
         self.fighter.parent = self

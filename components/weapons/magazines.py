@@ -2,6 +2,8 @@ import colour
 from entity import Item
 from components.consumables import DetachableMagazine, Clip
 
+# TODO - add more magazines that have witness holes and are clear etc
+
 """
 GLOCK 9mm
 """
@@ -20,6 +22,8 @@ glock_mag_9mm = Item(
         mag_capacity=17,
         magazine_size='small',
         ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -40,6 +44,8 @@ glock_mag_9mm_33 = Item(
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.02,
         equip_ap_mod=1.06,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -61,6 +67,8 @@ glock_mag_9mm_50 = Item(
         ap_distance_cost_mod=1.15,
         equip_ap_mod=1.18,
         failure_chance=2,
+        witness=True,
+        witness_check_ap=200,
     )
 )
 
@@ -82,6 +90,8 @@ glock_mag_9mm_100 = Item(
         ap_distance_cost_mod=1.23,
         equip_ap_mod=1.25,
         failure_chance=3,
+        witness=True,
+        witness_check_ap=200,
     )
 )
 
@@ -103,6 +113,8 @@ m1911_mag_45_8 = Item(
         mag_capacity=8,
         magazine_size='small',
         ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -121,6 +133,8 @@ m1911_mag_45_10 = Item(
         mag_capacity=10,
         magazine_size='small',
         ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -138,6 +152,8 @@ m1911_mag_45_15 = Item(
         mag_capacity=15,
         magazine_size='medium',
         ap_to_load=330,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -159,6 +175,8 @@ m1911_mag_45_40 = Item(
         ap_distance_cost_mod=1.15,
         equip_ap_mod=1.18,
         failure_chance=2,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -180,6 +198,8 @@ m1911_mag_9_10 = Item(
         mag_capacity=10,
         magazine_size='small',
         ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -201,6 +221,8 @@ m1911_mag_10_8 = Item(
         mag_capacity=8,
         magazine_size='small',
         ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -222,6 +244,8 @@ m1911_mag_40sw_8 = Item(
         mag_capacity=8,
         magazine_size='small',
         ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
     )
 )
 
@@ -244,6 +268,7 @@ mac10_mag_45 = Item(
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=300,
     )
 )
 
@@ -264,6 +289,7 @@ mac10_mag_45_extended = Item(
         target_acquisition_ap_mod=1.05,
         ap_distance_cost_mod=1.05,
         equip_ap_mod=1.05,
+        witness_check_ap=300,
     )
 )
 
@@ -281,6 +307,7 @@ mac10_mag_9 = Item(
         mag_capacity=32,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=300,
     )
 )
 
@@ -306,6 +333,7 @@ mosin_nagant = Item(
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.03,
         equip_ap_mod=1.06,
+        witness_check_ap=300,
     )
 )
 
@@ -365,6 +393,7 @@ sks_mag_20rd = Item(
         target_acquisition_ap_mod=1.04,
         ap_distance_cost_mod=1.04,
         equip_ap_mod=1.05,
+        witness_check_ap=300,
     )
 )
 
@@ -386,6 +415,7 @@ sks_mag_35rd = Item(
         target_acquisition_ap_mod=1.05,
         ap_distance_cost_mod=1.05,
         equip_ap_mod=1.06,
+        witness_check_ap=300,
     )
 )
 
@@ -408,6 +438,7 @@ sks_mag_75rd = Item(
         ap_distance_cost_mod=1.12,
         equip_ap_mod=1.15,
         failure_chance=3,
+        witness_check_ap=300,
     )
 )
 
@@ -430,6 +461,7 @@ ak762_30rd = Item(
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=300,
     )
 )
 
@@ -450,6 +482,7 @@ ak762_40rd = Item(
         target_acquisition_ap_mod=1.04,
         ap_distance_cost_mod=1.03,
         equip_ap_mod=1.05,
+        witness_check_ap=300,
     )
 )
 
@@ -471,6 +504,7 @@ ak762_60rd = Item(
         ap_distance_cost_mod=1.08,
         equip_ap_mod=1.06,
         failure_chance=2,
+        witness_check_ap=300,
     )
 )
 
@@ -492,6 +526,7 @@ ak762_75rd = Item(
         ap_distance_cost_mod=1.12,
         equip_ap_mod=1.15,
         failure_chance=3,
+        witness_check_ap=300,
     )
 )
 
@@ -513,6 +548,7 @@ ak762_100rd = Item(
         ap_distance_cost_mod=1.22,
         equip_ap_mod=1.25,
         failure_chance=3,
+        witness_check_ap=300,
     )
 )
 
@@ -534,6 +570,7 @@ ak545_30rd = Item(
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=300,
     )
 )
 
@@ -554,6 +591,7 @@ ak545_45rd = Item(
         target_acquisition_ap_mod=1.05,
         ap_distance_cost_mod=1.04,
         equip_ap_mod=1.07,
+        witness_check_ap=300,
     )
 )
 
@@ -575,6 +613,7 @@ ak545_60rd = Item(
         ap_distance_cost_mod=1.06,
         equip_ap_mod=1.05,
         failure_chance=2,
+        witness_check_ap=300,
     )
 )
 
@@ -596,6 +635,7 @@ ak545_100rd = Item(
         ap_distance_cost_mod=1.2,
         equip_ap_mod=1.25,
         failure_chance=3,
+        witness_check_ap=300,
     )
 )
 
@@ -617,6 +657,7 @@ ak556_30rd = Item(
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=300,
     )
 )
 
@@ -638,6 +679,7 @@ stanag_30rd = Item(
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=300,
     )
 )
 
@@ -658,6 +700,7 @@ stanag_40rd = Item(
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.02,
         equip_ap_mod=1.04,
+        witness_check_ap=300,
     )
 )
 
@@ -679,6 +722,7 @@ stanag_50rd = Item(
         ap_distance_cost_mod=1.06,
         equip_ap_mod=1.09,
         failure_chance=1,
+        witness_check_ap=300,
     )
 )
 
@@ -700,6 +744,7 @@ stanag_60rd = Item(
         ap_distance_cost_mod=1.07,
         equip_ap_mod=1.07,
         failure_chance=2,
+        witness_check_ap=300,
     )
 )
 
@@ -721,6 +766,8 @@ stanag_100rd = Item(
         ap_distance_cost_mod=1.18,
         equip_ap_mod=1.25,
         failure_chance=3,
+        witness=True,
+        witness_check_ap=200,
     )
 )
 
@@ -742,6 +789,7 @@ ar10_20rd = Item(
         mag_capacity=20,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=200,
     )
 )
 
@@ -762,6 +810,7 @@ ar10_25rd = Item(
         target_acquisition_ap_mod=1.02,
         ap_distance_cost_mod=1.01,
         equip_ap_mod=1.02,
+        witness_check_ap=200,
     )
 )
 
@@ -783,6 +832,7 @@ ar10_40rd = Item(
         ap_distance_cost_mod=1.04,
         equip_ap_mod=1.06,
         failure_chance=1,
+        witness_check_ap=200,
     )
 )
 
@@ -804,6 +854,7 @@ ar10_50rd = Item(
         ap_distance_cost_mod=1.06,
         equip_ap_mod=1.12,
         failure_chance=2,
+        witness_check_ap=200,
     )
 )
 
@@ -829,6 +880,7 @@ calico_9mm_50rd = Item(
         ap_distance_cost_mod=1.17,
         equip_ap_mod=1.14,
         failure_chance=1,
+        witness_check_ap=200,
     )
 )
 
@@ -850,6 +902,7 @@ calico_9mm_100rd = Item(
         ap_distance_cost_mod=1.25,
         equip_ap_mod=1.3,
         failure_chance=1,
+        witness_check_ap=200,
     )
 )
 
@@ -874,6 +927,8 @@ m31_9mm_36rd = Item(
         target_acquisition_ap_mod=1.02,
         ap_distance_cost_mod=1.03,
         equip_ap_mod=1.03,
+        witness=True,
+        witness_check_ap=200,
     )
 )
 
@@ -895,6 +950,7 @@ m31_9mm_71rd = Item(
         ap_distance_cost_mod=1.18,
         equip_ap_mod=1.22,
         failure_chance=2,
+        witness_check_ap=200,
     )
 )
 
@@ -919,6 +975,7 @@ m1_carbine_15rd = Item(
         target_acquisition_ap_mod=1.02,
         ap_distance_cost_mod=1.03,
         equip_ap_mod=1.03,
+        witness_check_ap=200,
     )
 )
 
@@ -939,6 +996,7 @@ m1_carbine_30rd = Item(
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.02,
         equip_ap_mod=1.03,
+        witness_check_ap=200,
     )
 )
 
@@ -960,6 +1018,7 @@ m14_10rd = Item(
         mag_capacity=10,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=200,
     )
 )
 
@@ -977,6 +1036,7 @@ m14_20rd = Item(
         mag_capacity=20,
         magazine_size='medium',
         ap_to_load=300,
+        witness_check_ap=200,
     )
 )
 
@@ -998,6 +1058,7 @@ m14_50rd = Item(
         ap_distance_cost_mod=1.06,
         equip_ap_mod=1.12,
         failure_chance=2,
+        witness_check_ap=200,
     )
 )
 
@@ -1019,5 +1080,6 @@ r870_6rd = Item(
         mag_capacity=6,
         magazine_size='medium',
         ap_to_load=400,
+        witness_check_ap=200,
     )
 )

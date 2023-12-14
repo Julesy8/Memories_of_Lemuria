@@ -214,8 +214,12 @@ class Engine:
 
             # for gun with integrated magazine
             elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):
-                if self.player.inventory.held.usable_properties.chambered_bullet is not None:
+                if (self.player.inventory.held.usable_properties.chambered_bullet is not None and
+                        self.player.inventory.held.usable_properties.keep_round_chambered):
                     weapon_str += ' - Empty'
+                elif not self.player.inventory.held.usable_properties.keep_round_chambered:
+                    if len(self.player.inventory.held.usable_properties.magazine) == 0:
+                        weapon_str += ' - Empty'
 
             console.print(x=console.width - len(weapon_str) - 1, y=console.height - 5, string=weapon_str,
                           fg=colour.WHITE, bg_blend=1)

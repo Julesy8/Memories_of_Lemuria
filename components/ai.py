@@ -15,10 +15,6 @@ if TYPE_CHECKING:
     from level_gen_tools import Rect
 
 
-# TODO - also attack actions should be executed procedurally instead of all at once at the end of regaining the right
-# amount of AP
-
-
 class BaseAI(Action):
 
     def __init__(self, entity: Actor, ):
@@ -277,7 +273,6 @@ class HostileEnemyArmed(HostileEnemy):
         has_weapon = False
 
         # check held weapon type
-        # TODO - AI should be able to reload without the attack method being called
         if held_item is not None:
             if isinstance(held_item.usable_properties, Weapon):
                 has_weapon = True

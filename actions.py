@@ -122,7 +122,8 @@ class TakeStairsAction(Action):
         """
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
             for player in self.engine.players:
-                if player.distance_to(player) > 10:
+                if self.entity.distance_to(player) > 10:
+                    print('x')
                     raise exceptions.Impossible("Cannot move down stairs: players too far away")
 
             self.engine.game_map.generate_level()
@@ -218,7 +219,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                  handle_now: bool = False):
         super().__init__(distance, entity, targeted_actor, targeted_bodypart, handle_now=handle_now)
         if targeted_bodypart is not None:
-            self.action_str = f'unarmed attack on {targeted_actor.name}, {targeted_bodypart.name}'
+            self.action_str = f'unarmed attack on {targeted_actor.name}'
         else:
             self.action_str = ''
 
@@ -272,7 +273,7 @@ class MeleeAttackAction(AttackAction):
                          targeted_bodypart=targeted_bodypart, handle_now=handle_now)
 
         if targeted_bodypart is not None:
-            self.action_str = f'attack on {targeted_actor.name}, {targeted_bodypart.name}'
+            self.action_str = f'attack on {targeted_actor.name}'
         else:
             self.action_str = ''
 
@@ -312,7 +313,7 @@ class GunAttackAction(AttackAction):
                          targeted_bodypart=targeted_bodypart, handle_now=handle_now)
 
         if targeted_bodypart is not None:
-            self.action_str = f'shooting {targeted_actor.name}, {targeted_bodypart.name}'
+            self.action_str = f'shooting {targeted_actor.name}'
         else:
             self.action_str = ''
 
@@ -345,6 +346,7 @@ class GunAttackAction(AttackAction):
 
         self.additional_ap_cost()
 
+        firing_ap_cost = 0
         ap_cost = 0
 
         # calculates AP modifier based on weight and weapon type
@@ -389,7 +391,7 @@ class GunAttackAction(AttackAction):
                     (self.weapon.fire_modes[self.weapon.current_fire_mode]['fire rate']
                      / 60 * self.weapon.fire_rate_modifier))
 
-            ap_cost += round(time_to_fire * 100)
+            firing_ap_cost += round(time_to_fire * 100)
 
         ap_cost *= self.entity.fighter.attack_ap_modifier
 
@@ -516,7 +518,7 @@ class ClearJam(Action):
 class ReloadMagFed(Action):
     def __init__(self, entity: Actor, gun: GunMagFed, magazine_to_load: DetachableMagazine):
         super().__init__(entity)
-        self.action_str = f'reloading {gun.parent.name}'
+        self.action_str = f'reloading'
         self.gun = gun
         self.magazine_to_load = magazine_to_load
 
@@ -572,7 +574,7 @@ class ReloadMagFed(Action):
 class ReloadFromClip(Action):
     def __init__(self, entity: Actor, gun: Gun, clip: Clip):
         super().__init__(entity)
-        self.action_str = f'reloading {gun.parent.name}'
+        self.action_str = f'reloading'
         self.gun = gun
         self.clip = clip
 
@@ -619,7 +621,7 @@ class ReloadFromClip(Action):
 class LoadBulletsIntoMagazine(Action):
     def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Bullet):
         super().__init__(entity)
-        self.action_str = f'loading rounds into {magazine.parent.name}'
+        self.action_str = f'loading magazine'
 
         self.magazine = magazine
 
@@ -753,7 +755,7 @@ class AddToInventory(Action):
         super().__init__(entity)
         self.item = item
         self.amount = amount
-        self.action_str = f'adding {item.name} to inventory'
+        self.action_str = f'adding item to inventory'
         self.item_copy = deepcopy(self.item)
 
     def calculate_ap_cost(self) -> int:
@@ -804,7 +806,7 @@ class AddToInventory(Action):
 class PickupAction(AddToInventory):
     def __init__(self, entity: Actor, item: Item, amount: int):
         super().__init__(entity, item, amount)
-        self.action_str = f'picking up {item.name}'
+        self.action_str = f'picking up item'
         entity.previous_target_actor = None
 
     def calculate_ap_cost(self) -> int:
@@ -824,7 +826,7 @@ class DropAction(Action):
 
     def __init__(self, entity: Actor, item: Item, drop_amount: int):
         super().__init__(entity)
-        self.action_str = f'dropping {item.name}'
+        self.action_str = f'dropping item'
         self.item = item
         self.drop_amount = drop_amount
 
@@ -900,7 +902,7 @@ class RepairItem(Action):
         super().__init__(entity)
         self.item_to_repair = item_to_repair
         self.repair_kit_item = repair_kit_item
-        self.action_str = f'repairing {item_to_repair.name}'
+        self.action_str = f'repairing item'
 
     def calculate_ap_cost(self) -> int:
         return 500
@@ -914,8 +916,7 @@ class HealPart(Action):
         super().__init__(entity)
         self.part_to_heal = part_to_heal
         self.healing_item = healing_item
-        # TODO - shorten action strings
-        self.action_str = f'using {healing_item.name} on {part_to_heal.name}'
+        self.action_str = f'healing {part_to_heal.name}'
 
     def calculate_ap_cost(self) -> int:
         return 1000
@@ -927,7 +928,7 @@ class HealPart(Action):
 class EquipWeapon(Action):
     def __init__(self, entity: Actor, weapon: Weapon):
         super().__init__(entity)
-        self.action_str = f'equipping {weapon.parent.name} to held'
+        self.action_str = f'equipping {weapon.parent.name}'
         self.weapon = weapon
 
     def calculate_ap_cost(self) -> int:
@@ -940,7 +941,7 @@ class EquipWeapon(Action):
 class EquipWeaponToPrimary(EquipWeapon):
     def __init__(self, entity: Actor, weapon: Weapon):
         super().__init__(entity, weapon)
-        self.action_str = f'equipping {weapon.parent.name} to primary'
+        self.action_str = f'equipping {weapon.parent.name}'
 
     def perform(self) -> None:
         self.entity.inventory.items.remove(self.weapon.parent)
@@ -953,7 +954,7 @@ class EquipWeaponToPrimary(EquipWeapon):
 class EquipWeaponToSecondary(EquipWeapon):
     def __init__(self, entity: Actor, weapon: Weapon):
         super().__init__(entity, weapon)
-        self.action_str = f'equipping {weapon.parent.name} to secondary'
+        self.action_str = f'equipping {weapon.parent.name}'
 
     def perform(self) -> None:
         self.entity.inventory.items.remove(self.weapon.parent)
@@ -967,7 +968,7 @@ class UnequipWeapon(EquipWeapon):
 
     def __init__(self, entity: Actor, weapon: Weapon):
         super().__init__(entity, weapon)
-        self.action_str = f'uneuipping {weapon.parent.name}'
+        self.action_str = f'unequipping {weapon.parent.name}'
 
     def perform(self) -> None:
 
@@ -983,11 +984,53 @@ class UnequipWeapon(EquipWeapon):
             inventory.secondary_weapon = None
 
 
+class CheckRoundsInMag(Action):
+    def __init__(self, entity: Actor, weapon: GunMagFed):
+        super().__init__(entity)
+        self.action_str = f'checking rounds in mag'
+        self.weapon = weapon
+
+    def calculate_ap_cost(self) -> int:
+
+        proficiency = 1.0
+
+        if self.entity.player:
+            if self.weapon.gun_type == 'pistol':
+                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
+            elif self.weapon.gun_type == 'pdw':
+                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
+            elif self.weapon.gun_type == 'rifle':
+                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
+            elif self.weapon.gun_type == 'bolt action':
+                proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
+
+            proficiency = 1 - (proficiency / 4000)
+
+        # AP cost calculated
+        ap_cost = \
+            (self.entity.fighter.action_ap_modifier *
+             self.weapon.load_time_modifier * self.weapon.loaded_magazine.witness_check_ap * proficiency)
+
+        return ap_cost
+
+    def action_viable(self) -> bool:
+
+        if hasattr(self.weapon.loaded_magazine, 'witness_check_ap'):
+            return True
+
+        else:
+            return False
+
+    def perform(self) -> None:
+        message = self.weapon.loaded_magazine.check_rounds_in_mag()
+        self.engine.message_log.add_message(message, colour.WHITE)
+
+
 class EquipWearable(Action):
 
     def __init__(self, entity: Actor, wearable: Wearable):
         super().__init__(entity)
-        self.action_str = f'euipping {wearable.parent.name}'
+        self.action_str = f'equipping {wearable.parent.name}'
         self.wearable = wearable
 
     def calculate_ap_cost(self) -> int:

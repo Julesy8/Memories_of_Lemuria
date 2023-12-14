@@ -138,7 +138,14 @@ class Fighter(BaseComponent):
             held_weapon = held_weapon.update_properties()
             weapon_properties = held_weapon.usable_properties
 
-            bullets = copy(weapon_properties.chambered_bullet.parent)
+            if weapon_properties.chambered_bullet is None:
+                if hasattr(weapon_properties, 'compatible_magazine_type'):
+                    bullets = copy(weapon_properties.loaded_magazine.magazine[0].parent)
+                else:
+                    bullets = copy(weapon_properties.magazine[0].parent)
+            else:
+                bullets = copy(weapon_properties.chambered_bullet.parent)
+
             amount = randint(10, 20)
             if amount > 0:
                 bullets.stacking.stack_size = amount
@@ -170,22 +177,31 @@ class Fighter(BaseComponent):
                 compatible_magazine_type = weapon_properties.compatible_magazine_type
                 compatible_magazines = copy(gun.magazine)
                 if compatible_magazines is not None:
-                    for magazine in gun.magazine.keys():
-                        if magazine.usable_properties.magazine_type != compatible_magazine_type:
-                            compatible_magazines.update({magazine: gun.magazine[magazine]})
+                    if isinstance(gun.magazine, dict):
+                        for magazine in gun.magazine.keys():
+                            if magazine.usable_properties.magazine_type != compatible_magazine_type:
+                                compatible_magazines.update({magazine: gun.magazine[magazine]})
 
-                            del compatible_magazines[magazine]
+                                del compatible_magazines[magazine]
 
-                    # randomly selects magazine
-                    magazine = choices(population=list(compatible_magazines.keys()),
-                                       weights=list(compatible_magazines.values()), k=1)[0]
+                        # randomly selects magazine
+                        magazine = choices(population=list(compatible_magazines.keys()),
+                                           weights=list(compatible_magazines.values()), k=1)[0]
 
-                    for y in range(randint(0, 2)):
-                        mag_copy = deepcopy(magazine)
-                        mag_copy.usable_properties.load_magazine(ammo=weapon_properties.chambered_bullet,
-                                                                 load_amount=(randint(1, mag_copy.
-                                                                                      usable_properties.mag_capacity)))
-                        self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
+                        for y in range(randint(0, 2)):
+                            mag_copy = deepcopy(magazine)
+                            mag_copy.usable_properties.load_magazine(ammo=weapon_properties.chambered_bullet,
+                                                                     load_amount=(randint(1, mag_copy.
+                                                                                          usable_properties.mag_capacity)))
+                            self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
+                    else:
+                        magazine = gun.magazine
+                        for y in range(randint(0, 2)):
+                            mag_copy = deepcopy(magazine)
+                            mag_copy.usable_properties.load_magazine(ammo=weapon_properties.chambered_bullet,
+                                                                     load_amount=(randint(1, mag_copy.
+                                                                                          usable_properties.mag_capacity)))
+                            self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
 
             self.parent.inventory.held = held_weapon
             self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held

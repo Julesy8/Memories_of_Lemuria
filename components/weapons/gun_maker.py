@@ -189,6 +189,9 @@ class PremadeWeapon:
 
         # randomly selects magazine
 
+        # updates gun properties
+        self.gun_item.usable_properties.parts.update_partlist(attachment_dict={})
+
         # checks for magazine compatibility - may not be mag compatible, therefore not necessary to select
         if magazine_type is not None:
 
@@ -202,20 +205,21 @@ class PremadeWeapon:
                 # randomly selects magazine
                 magazine = choices(population=list(compatible_magazines.keys()),
                                    weights=list(compatible_magazines.values()), k=1)[0]
-
                 self.magazine = magazine.usable_properties
 
+            else:
+                self.magazine = self.magazine.usable_properties
+
         else:
-            self.magazine = None
+            self.magazine = self.gun_item.usable_properties
 
         # loads magazine with bullets
         for i in range(self.magazine.mag_capacity):
             self.magazine.magazine.append(self.bullet.usable_properties)
 
         # sets magazine if gun has internal magazine
-        if self.magazine is None and hasattr(self.gun_item.usable_properties, 'magazine'):
-            self.magazine = self.gun_item.usable_properties
-            self.gun_item.usable_properties.previously_loaded_round = self.bullet.usable_properties
+        if hasattr(self.gun_item.usable_properties, 'magazine'):
+            self.gun_item.usable_properties.previously_loaded_round = deepcopy(self.bullet.usable_properties)
 
         # sets magazine if gun if magazine fed
         if hasattr(self.gun_item.usable_properties, 'loaded_magazine'):
@@ -231,9 +235,6 @@ class PremadeWeapon:
 
         if self.clip is not None:
             self.gun_item.usable_properties.previously_loaded_clip = self.clip
-
-        # updates gun properties
-        self.gun_item.usable_properties.parts.update_partlist(attachment_dict={})
 
         # sets gun name
         if not self.name == '':

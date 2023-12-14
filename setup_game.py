@@ -253,15 +253,6 @@ def new_game() -> Engine:
 
     engine.update_fov()
 
-    # TODO - show this message on new game in startup menu not in game
-    engine.message_log.add_message(
-        "War, economic collapse and civil strife have beset the world. Governments, desperate to "
-        "restore order, have instituted strict martial law. Many civilians, rebels and criminals have retreated into "
-        "sewer systems, tunnels and caves to escape persecution or prosecution. By your wits and by the gun, you must "
-        "survive the perilous subterranean world, and on the way uncover its many ancient mysteries. (Press V to view)"
-        , LIGHT_MAGENTA
-    )
-
     return engine
 
 

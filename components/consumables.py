@@ -197,7 +197,6 @@ class Weapon(Usable):
                 equip_time *= self.loaded_magazine.equip_ap_mod
 
         return self.ap_to_equip
-        # TODO - if weapon attack turns in full auto go over one turn, should be broken up into multiple turns. Alternatively (better solution) - make it so attacks can't go more than one turn anymore
 
 
 class MeleeWeapon(Weapon):
@@ -365,10 +364,12 @@ class DetachableMagazine(Magazine):
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
                  ap_to_load: int,  # ap it takes to load magazine into gun
+                 witness_check_ap: int,  # ap it takes to check roughly how many rounds in magazine
                  failure_chance: int = 0,  # % chance to cause a jam
                  target_acquisition_ap_mod: float = 1.0,
                  ap_distance_cost_mod: float = 1.0,
                  equip_ap_mod: float = 1.0,
+                 witness: bool = False,
                  ):
         super().__init__(compatible_bullet_type=compatible_bullet_type, mag_capacity=mag_capacity)
 
@@ -379,6 +380,28 @@ class DetachableMagazine(Magazine):
         self.target_acquisition_ap_mod = target_acquisition_ap_mod
         self.ap_distance_cost_mod = ap_distance_cost_mod
         self.equip_ap_mod = equip_ap_mod
+        self.witness = witness
+        self.witness_check_ap = witness_check_ap
+
+    def check_rounds_in_mag(self) -> str:
+        rounds_in_mag = len(self.magazine)
+        round_str = ''
+        if rounds_in_mag == self.mag_capacity:
+            round_str = f'magazine full (capacity: {self.mag_capacity} rounds)'
+        elif rounds_in_mag >= 0.8 * self.mag_capacity:
+            round_str = f'magazine almost full (capacity: {self.mag_capacity} rounds)'
+        elif rounds_in_mag >= 0.55 * self.mag_capacity:
+            round_str = f'magazine over half full (capacity: {self.mag_capacity} rounds)'
+        elif rounds_in_mag >= 0.45 * self.mag_capacity:
+            round_str = f'magazine about half full (capacity: {self.mag_capacity} rounds)'
+        elif rounds_in_mag <= 0.45 * self.mag_capacity:
+            round_str = f'magazine less than half full (capacity: {self.mag_capacity} rounds)'
+        elif rounds_in_mag <= 0.25 * self.mag_capacity:
+            round_str = f'magazine less than a quarter full (capacity: {self.mag_capacity}) rounds'
+        elif rounds_in_mag <= 0.1 * self.mag_capacity:
+            round_str = f'magazine almost empty (capacity: {self.mag_capacity} rounds)'
+
+        return round_str
 
 
 class Clip(Magazine):
@@ -543,11 +566,6 @@ class Gun(Weapon):
         # fires rounds
         while rounds_to_fire > 0:
 
-            # TODO - rendering bullet path
-            # bullet_path = attacker.ai.get_path_to(target.x, target.y)
-            # for x in bullet_path:
-            #     self.engine.game_map.
-
             if self.chambered_bullet is not None:
 
                 velocity_modifier = self.velocity_modifier[self.chambered_bullet.projectile_type]
@@ -711,6 +729,8 @@ class Gun(Weapon):
                 if attacker.player:
                     self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
                 break
+
+        attacker.fighter.ap -= round(150 * recoil_penalty)
 
         self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
 

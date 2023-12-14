@@ -31,8 +31,6 @@ Action weight 6 rnd magazine w/o barrel - 3.22 lbs
 presumably wood forend is 0.272 kg
 """
 
-# TODO - ability to ghost load a round into shotgun chamber
-
 """
 RECIEVER
 """
@@ -85,7 +83,7 @@ reciever_r870_6rd = Item(
                                    compatible_parts={'Model 870 Barrel': [
                                            "Model 870 'Tactical Express' 18.5 Inch Barrel",
                                            "Model 870 18.5 Inch Barrel - Blade Sight", ]},
-                                   mag_capacity=6,
+                                   mag_capacity=7,
                                    is_optic=True,
                                    functional_part=True,
                                    ),
@@ -104,7 +102,7 @@ reciever_r870_shorty = Item(
                                    suffix='Super Shorty',
                                    compatible_parts={'Model 870 Barrel': ["Model 870 Super Shorty Barrel", ]},
                                    incompatibilities=(("Model 870 Forend",),),
-                                   mag_capacity=2,
+                                   mag_capacity=3,
                                    is_optic=True,
                                    functional_part=True,
                                    grip_properties={
@@ -524,7 +522,7 @@ r870_choke_im = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Model 870 Choke',
                                    attachment_point_required=('Remington 12 Ga Choke',),
-                                   spread_modifier={'buckshot': 0.66},
+                                   projectile_spread_modifier={'buckshot': 0.66},
                                    ),
     description="Designed for the Remington model 870, this choke attaches inside of the bore of the shotgun, "
                 "restricting its diameter and allowing for tighter groups with buck and bird shot. "
@@ -540,7 +538,7 @@ r870_choke_modified = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Model 870 Choke',
                                    attachment_point_required=('Remington 12 Ga Choke',),
-                                   spread_modifier={'buckshot': 0.71},
+                                   projectile_spread_modifier={'buckshot': 0.71},
                                    ),
     description="Designed for the Remington model 870, this choke attaches inside of the bore of the shotgun, "
                 "restricting its diameter and allowing for tighter groups with buck and bird shot. "
@@ -572,7 +570,7 @@ r870_choke_improved_ported = Item(
                                    attachment_point_required=('Remington 12 Ga Choke',),
                                    muzzle_break_efficiency=0.54,
                                    sound_radius=1.17,
-                                   spread_modifier={'buckshot': 0.83},
+                                   projectile_spread_modifier={'buckshot': 0.83},
                                    ),
     description="Designed for the Remington model 870, this improved cyclinder pattern choke tube attaches inside of "
                 "the bore of the shotgun, restricting its diameter and allowing for tighter groups with buck and "
@@ -656,7 +654,7 @@ r870_extension_2rd = Item(
     weight=0.18,
     stacking=None,
     usable_properties=GunComponent(part_type='Model 870 Magazine Extension',
-                                   v=2,
+                                   additional_magazine_capacity=2,
                                    ),
     description='A magazine tube extension for the Remington model 870. It attaches to the end of the magazine tube '
                 'and gives an extra 2 shells capacity.'
@@ -710,9 +708,9 @@ rem_870 = Item(
         current_fire_mode='single shot',
         parts=Parts(),
         compatible_bullet_type='12 Gauge',
-        velocity_modifier={'single projectile': 1.0},
+        velocity_modifier={'single projectile': 1.0, 'buckshot': 1.0},
         felt_recoil=1.0,
-        mag_capacity=4,
+        mag_capacity=5,
         target_acquisition_ap=50,
         manual_action=True,
         action_cycle_ap_cost=100,
@@ -723,7 +721,7 @@ rem_870 = Item(
         receiver_height_above_bore=0.63,
         sight_height_above_bore=0.12,
         spread_modifier=1.0,
-        projectile_spread_modifier={'single projectile': 1.0},
+        projectile_spread_modifier={'single projectile': 1.0, 'buckshot': 1.0},
         gun_type='rifle',
         barrel_length=20
     )

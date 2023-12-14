@@ -21,8 +21,7 @@ m1911_frame_gov_ss = Item(
     usable_properties=GunComponent(part_type='M1911 Frame',
                                    incompatibilities=(("Iron Sight",),),
                                    functional_part=True,
-                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
-                                               'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
+                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
                                    ),
     description='An unramped stainless steel full-sized frame for 1911 Government/Commander type handguns.'
 )

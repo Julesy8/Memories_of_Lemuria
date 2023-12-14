@@ -257,7 +257,8 @@ class Parts:
                     gun_property = getattr(self.parent, property_str)
 
                     if property_str == "velocity_modifier" or property_str == "projectile_spread_modifier":
-                        gun_property['single projectile'] = gun_property['single projectile'] * part_properties[property_str]
+                        gun_property['single projectile'] = (gun_property['single projectile'] *
+                                                             part_properties[property_str])
                         
                     else:
 

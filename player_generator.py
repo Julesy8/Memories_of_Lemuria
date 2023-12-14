@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import colour
-from components.weapons.gun_maker import g_17
+from components.weapons.gun_maker import (r870_gun, g_17, m14_gun, m1a_gun, mosin_weapon, ar15_weapon, ar10_weapon,
+                                          ak47_weapon, ak74_weapon, ak556_weapon, m1045_weapon)
+
 from entity import Actor
 from components.inventory import Inventory
 from components.ai import PlayerCharacter
@@ -48,7 +50,8 @@ def generate_player(current_level: int, players: list):
                   'Mcdonald', 'Cruz', 'Marshall', 'Ortiz', 'Gomez', 'Murray', 'Freeman']
 
     weapons_leveled = {
-        0: {g_17: 5},
+        0: {r870_gun: 1, g_17: 1, m14_gun: 1, m1a_gun: 1, mosin_weapon: 1, ar15_weapon: 1, ar10_weapon: 1, ak47_weapon: 1,
+            ak74_weapon: 1, ak556_weapon: 1, m1045_weapon: 1},
         1: {g_17: 5},
         2: {g_17: 5},
         3: {g_17: 5},

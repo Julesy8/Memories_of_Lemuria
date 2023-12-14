@@ -201,8 +201,6 @@ class MainGameEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
 
-        # TODO press shift + wait to skip forward turns to when everyone has AP
-
         key = event.sym
         modifier = event.mod
 
@@ -1134,8 +1132,6 @@ class ChangeTargetActor(AskUserEventHandler):
         # button 1 = LMB
         # button 3 = RMB
 
-        # TODO - mouse controls for attacks
-
         if self.engine.game_map.in_bounds(mouse_x, mouse_y):
 
             # selects players or enemies to attack
@@ -1452,7 +1448,7 @@ class QuitEventHandler(AskUserEventHandler):
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
-        if key == tcod.event.K_y:
+        if key == tcod.event.K_y or key == tcod.event.K_ESCAPE:
             raise exceptions.QuitToMenu
 
         elif key == tcod.event.K_n:
@@ -1513,7 +1509,7 @@ class GunOptionsMagFed(UserOptionsEventHandler):
             options.append('clear jam')
 
         if self.gun.loaded_magazine:
-            options += ["load magazine", "unload magazine"]
+            options += ["load magazine", "unload magazine", "check rounds in mag"]
         else:
             options.append("load magazine")
 
@@ -1544,6 +1540,9 @@ class GunOptionsMagFed(UserOptionsEventHandler):
 
         elif option == 'clear jam':
             return actions.ClearJam(entity=self.engine.player, gun=self.gun).handle_action()
+
+        elif option == 'check rounds in mag':
+            return actions.CheckRoundsInMag(entity=self.engine.player, weapon=self.gun).handle_action()
 
         elif option in self.firemodes:
             self.gun.current_fire_mode = option
@@ -1793,7 +1792,6 @@ class SelectPartToHeal(AskUserEventHandler):
         super().__init__(engine=engine, parent_handler=parent_handler)
 
     def on_render(self, console: tcod.Console) -> None:
-        print('yes')
         super().on_render(console)
 
         longest_option_name = 0
