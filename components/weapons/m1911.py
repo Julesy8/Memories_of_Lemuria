@@ -193,7 +193,7 @@ m1911_barrel_commander = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    compatible_parts={
-                                       'M1911 Slide': ['.45 Commander Length Slide', '.45 Government Length Slide']},
+                                       'M1911 Slide': ['.45 Commander Length Slide', ]},
                                    tags=['.45 Commander Length Barrel', ],
                                    compatible_magazine_type='1911 .45 ACP',
                                    compatible_bullet_type='.45 ACP',
@@ -262,7 +262,7 @@ m1911_barrel_commander_threaded = Item(
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    is_attachment_point_types=['Barrel Thread .578x28', ],
                                    compatible_parts={
-                                       'M1911 Slide': ['.45 Commander Length Slide', '.45 Government Length Slide']},
+                                       'M1911 Slide': ['.45 Commander Length Slide', ]},
                                    tags=['.45 Commander Length Barrel', ],
                                    compatible_magazine_type='1911 .45 ACP',
                                    compatible_bullet_type='.45 ACP',
@@ -336,7 +336,7 @@ m1911_barrel_commander_9mm = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    compatible_parts={
-                                       'M1911 Slide': ['9mm Commander Length Slide', '9mm Government Length Slide']},
+                                       'M1911 Slide': ['9mm Commander Length Slide', ]},
                                    tags=['9mm Commander Length Barrel', ],
                                    compatible_magazine_type='1911 9mm',
                                    compatible_bullet_type='9mm',
@@ -408,7 +408,7 @@ m1911_barrel_commander_threaded_9mm = Item(
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    is_attachment_point_types=['Barrel Thread 1/2x28', ],
                                    compatible_parts={
-                                       'M1911 Slide': ['9mm Commander Length Slide', '9mm Government Length Slide']},
+                                       'M1911 Slide': ['9mm Commander Length Slide', ]},
                                    tags=['9mm Commander Length Barrel', ],
                                    compatible_magazine_type='1911 9mm',
                                    compatible_bullet_type='9mm',
@@ -481,8 +481,7 @@ m1911_barrel_commander_10mm = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    compatible_parts={
-                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',
-                                                       '10mm/40 S&W Government Length Slide']},
+                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['10mm Commander Length Barrel', ],
                                    compatible_magazine_type='1911 10mm',
                                    compatible_bullet_type='10mm',
@@ -555,8 +554,7 @@ m1911_barrel_commander_threaded_10mm = Item(
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    is_attachment_point_types=['Barrel Thread 9/16x24', ],
                                    compatible_parts={
-                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',
-                                                       '10mm/40 S&W Government Length Slide']},
+                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['10mm Commander Length Barrel', ],
                                    compatible_magazine_type='1911 10mm',
                                    compatible_bullet_type='10mm',
@@ -632,8 +630,7 @@ m1911_barrel_commander_40sw = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    compatible_parts={
-                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',
-                                                       '10mm/40 S&W Government Length Slide']},
+                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['40 S&W Commander Length Barrel', ],
                                    compatible_magazine_type='1911 40 S&W',
                                    compatible_bullet_type='40 S&W',
@@ -706,8 +703,7 @@ m1911_barrel_commander_threaded_40sw = Item(
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    is_attachment_point_types=['Barrel Thread 9/16x24', ],
                                    compatible_parts={
-                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',
-                                                       '10mm/40 S&W Government Length Slide']},
+                                       'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['40 S&W Commander Length Barrel', ],
                                    compatible_magazine_type='1911 40 S&W',
                                    compatible_bullet_type='40 S&W',

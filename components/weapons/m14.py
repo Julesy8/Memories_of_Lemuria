@@ -14,7 +14,8 @@ m14_reciever = Item(
     name="M14 Reciever",
     weight=1.719,
     stacking=None,
-    usable_properties=GunComponent(part_type='M14 Reciever',
+    usable_properties=GunComponent(part_type='M14 - Reciever',
+                                   compatible_magazine_type='M14/M1A',
                                    functional_part=True,
                                    ),
     description='An unbarreled M14 action with gas system'
@@ -27,7 +28,8 @@ m1a_reciever = Item(
     name="M1A Reciever",
     weight=1.719,
     stacking=None,
-    usable_properties=GunComponent(part_type='M1A Reciever',
+    usable_properties=GunComponent(part_type='M1A - Reciever',
+                                   compatible_magazine_type='M14/M1A',
                                    functional_part=True,
                                    ),
     description='An unbarreled M1A action with gas system'
@@ -426,7 +428,7 @@ m14_dict = {
         "automatic rifles": {
             "M14": {
                 "required parts": {
-                    "M14 Reciever": 1,
+                    "M14 - Reciever": 1,
                     "M14/M1A Stock": 1,
                     "M14/M1A Barrel": 1,
                 },
@@ -449,7 +451,7 @@ m1a_dict = {
         "automatic rifles": {
             "M1A": {
                 "required parts": {
-                    "M1A Reciever": 1,
+                    "M1A - Reciever": 1,
                     "M14/M1A Stock": 1,
                     "M14/M1A Barrel": 1,
                 },

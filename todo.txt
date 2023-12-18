@@ -34,29 +34,21 @@ input handler: reload (consumables class) -> calls action -> reloads
 After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
 magazine class itself.
 
-new weapon property - needs_mag_to_fire
-ability to single load rounds into guns for emergencies
-add armour
-armour weight changes dexterity and walk speed
-grenades
-
 Extended Goals
--make AIs even worse and miss more often
--multple sizes of icon, can add new sizes in main.spec
--doom style screen smear on death
+-borderlands style weapon naming
+-new weapon property - needs_mag_to_fire
+-ability to single load rounds into guns for emergencies
+-grenades
 -dialogue
 -doors
--Blood loss
 -Better level progression - alternative levels
 -Trigger mods
--Attack queue for player in attack mode, VATS style
 -unique enemies which spawn once per game
 -in the dungeon you find enemies using your looted equipment from previous runs
 -more room shapes on level generation
 -weapon graphics
 -try reducing exe size - use UPX
--save guns to look at in main menu
--grave yard
+-grave yard (call it cemetary)
 
 dialogue
 - reloading

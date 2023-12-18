@@ -839,15 +839,19 @@ class Gun(Weapon):
 
 class Wearable(Usable):
     def __init__(self,
-                 protection_ballistic: int,  # equivalent to inches of mild steel
+                 ballistic_protection_level: str,
+                 protection_ballistic: float,  # equivalent to inches of mild steel
                  armour_coverage: int,  # chance that when an attack occurs, the armour will be hit
                  protection_physical: int,
                  fits_bodypart_type: str,
-                 small_mag_slots: int,
-                 medium_mag_slots: int,
-                 large_mag_slots: int,
                  equip_ap_cost: int,
+                 ap_penalty: float = 1.0,
+                 small_mag_slots: int = 0,
+                 medium_mag_slots: int = 0,
+                 large_mag_slots: int = 0,
                  ):
+        self.ap_penalty = ap_penalty
+        self.ballistic_protection_level = ballistic_protection_level
         self.protection_ballistic = protection_ballistic
         self.armour_coverage = armour_coverage
         self.protection_physical = protection_physical

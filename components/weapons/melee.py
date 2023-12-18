@@ -12,7 +12,7 @@ knife = Item(
     description='An old kitchen knife. The edge is dull, but the point is still sharp enough to inflict serious '
                 'damage.',
     usable_properties=MeleeWeapon(
-        base_meat_damage=20,
+        base_meat_damage=6,
         base_armour_damage=5,
         base_accuracy=1.0,
         ap_to_equip=100,
@@ -29,11 +29,11 @@ axe = Item(
     stacking=None,
     description='A rusty old hatchet.',
     usable_properties=MeleeWeapon(
-        base_meat_damage=35,
+        base_meat_damage=11,
         base_armour_damage=7,
         base_accuracy=0.9,
         ap_to_equip=150,
-        base_ap_cost=200,
+        base_ap_cost=250,
     )
 )
 
@@ -46,7 +46,7 @@ hammer = Item(
     stacking=None,
     description='A claw hammer.',
     usable_properties=MeleeWeapon(
-        base_meat_damage=40,
+        base_meat_damage=12,
         base_armour_damage=2,
         base_accuracy=0.8,
         ap_to_equip=130,
@@ -63,7 +63,7 @@ ice_pick = Item(
     stacking=None,
     description='An ice pick. Its a mystery how this object came to be in the depths originally.',
     usable_properties=MeleeWeapon(
-        base_meat_damage=25,
+        base_meat_damage=8,
         base_armour_damage=4,
         base_accuracy=0.95,
         ap_to_equip=110,

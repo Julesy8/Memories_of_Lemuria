@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import colour
-from components.weapons.gun_maker import (r870_gun, g_17, m14_gun, m1a_gun, mosin_weapon, ar15_weapon, ar10_weapon,
-                                          ak47_weapon, ak74_weapon, ak556_weapon, m1045_weapon)
+from components.weapons.gun_maker import (ar15_weapon, ar10_weapon, ak47_weapon, ak74_weapon, ak556_weapon,
+                                          m1045_weapon, m109_weapon, sks_weapon, mosin_weapon, m1911_45, m1911_9mm,
+                                          m1911_10mm, m1911_40sw, m1_carbine_gun, m2_carbine_gun, m14_gun, m1a_gun,
+                                          r870_gun, supershorty_gun, g_17)
 
 from entity import Actor
 from components.inventory import Inventory
@@ -50,8 +52,10 @@ def generate_player(current_level: int, players: list):
                   'Mcdonald', 'Cruz', 'Marshall', 'Ortiz', 'Gomez', 'Murray', 'Freeman']
 
     weapons_leveled = {
-        0: {r870_gun: 1, g_17: 1, m14_gun: 1, m1a_gun: 1, mosin_weapon: 1, ar15_weapon: 1, ar10_weapon: 1, ak47_weapon: 1,
-            ak74_weapon: 1, ak556_weapon: 1, m1045_weapon: 1},
+        0: {ar15_weapon: 1, ar10_weapon: 1, ak47_weapon: 1, ak74_weapon: 1, ak556_weapon: 1, m1045_weapon: 1,
+            m109_weapon: 1, sks_weapon: 1, g_17: 1, mosin_weapon: 1, m1911_45: 1, m1911_9mm: 1, m1911_10mm: 1,
+            m1911_40sw: 1, m1_carbine_gun: 1, m2_carbine_gun: 1, m14_gun: 1, m1a_gun: 1, r870_gun: 1,
+            supershorty_gun: 1},
         1: {g_17: 5},
         2: {g_17: 5},
         3: {g_17: 5},

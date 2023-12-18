@@ -156,20 +156,30 @@ class Fighter(BaseComponent):
                 compatible_clip_type = weapon_properties.compatible_clip
                 compatible_clips = copy(gun.clip)
                 if compatible_clips is not None:
-                    for clip in gun.clip.keys():
-                        if clip.magazine_type != compatible_clip_type:
-                            compatible_clips.update({clip: gun.magazine[clip]})
-                            del compatible_clips[clip]
+                    if isinstance(gun.clip, dict):
 
-                    # randomly selects clip
-                    clip = choices(population=list(compatible_clips.keys()),
-                                   weights=list(compatible_clips.values()), k=1)[0]
+                        for clip in gun.clip.keys():
+                            if clip.magazine_type != compatible_clip_type:
+                                compatible_clips.update({clip: gun.magazine[clip]})
+                                del compatible_clips[clip]
 
-                    for y in range(randint(0, 2)):
-                        clip_copy = deepcopy(clip.parent)
-                        clip_copy.load_magazine(ammo=weapon_properties.chambered_bullet,
-                                                load_amount=(randint(1, clip.mag_capacity)))
-                        self.parent.inventory.add_to_inventory(item=clip_copy.parent, item_container=None, amount=1)
+                        # randomly selects clip
+                        clip = choices(population=list(compatible_clips.keys()),
+                                       weights=list(compatible_clips.values()), k=1)[0]
+
+                        for y in range(randint(0, 2)):
+                            clip_copy = deepcopy(clip.parent)
+                            clip_copy.load_magazine(ammo=weapon_properties.chambered_bullet,
+                                                    load_amount=(randint(1, clip.mag_capacity)))
+                            self.parent.inventory.add_to_inventory(item=clip_copy.parent, item_container=None, amount=1)
+                    else:
+                        clip = gun.clip
+                        for y in range(randint(0, 2)):
+                            clip_copy = deepcopy(clip)
+                            clip_copy.usable_properties.load_magazine(ammo=weapon_properties.chambered_bullet,
+                                                                     load_amount=(randint(1, clip_copy.
+                                                                                          usable_properties.mag_capacity)))
+                            self.parent.inventory.add_to_inventory(item=clip_copy, item_container=None, amount=1)
 
             # adds magazines to inventory and loads them
 

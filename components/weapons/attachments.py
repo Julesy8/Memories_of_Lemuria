@@ -244,6 +244,7 @@ irons_sig_rear = Item(
                                                      'ap_distance_cost_modifier': 0.97,
                                                      'spread_modifier': 0.97,
                                                      'zero_range': 25, },
+                                   attachment_point_required=('Picrail Optics Mount - Short',),
                                    sight_height_above_bore=1.4,
                                    ),
     description='A flip up, standard AR-15 height aperture rear sight manufactured by Sig Sauer. Attaches to picatinny '
@@ -259,7 +260,7 @@ irons_sig_front = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    is_optic=True,
                                    tags=['Iron Sight', 'AR15 Height'],
-                                   additional_required_parts=('Front Sight',),
+                                   attachment_point_required=('Picrail Top Mount - Short',),
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    ),
     description='A flip up, standard AR-15 height front post sight manufactured by Sig Sauer. Attaches to picatinny '
@@ -276,6 +277,7 @@ irons_magpul_rear = Item(
                                    is_optic=True,
                                    tags=['Iron Sight', ],
                                    additional_required_parts=('Front Sight',),
+                                   attachment_point_required=('Picrail Optics Mount - Short',),
                                    compatible_parts={'Front Sight': ['AR15 Height', ]},
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    optic_properties={'target_acquisition_ap': 0.98,
@@ -297,7 +299,7 @@ irons_magpul_front = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    is_optic=True,
                                    tags=['Iron Sight', 'AR15 Height'],
-                                   additional_required_parts=('Front Sight',),
+                                   attachment_point_required=('Picrail Top Mount - Short',),
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    ),
     description='A flip up, standard AR-15 height slim front post sight manufactured by Magpul. '
@@ -314,6 +316,7 @@ irons_dd_rear = Item(
                                    is_optic=True,
                                    tags=['Iron Sight', ],
                                    additional_required_parts=('Front Sight',),
+                                   attachment_point_required=('Picrail Optics Mount - Short',),
                                    compatible_parts={'Front Sight': ['AR15 Height', ]},
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    optic_properties={'target_acquisition_ap': 0.98,
@@ -335,7 +338,7 @@ irons_dd_front = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    is_optic=True,
                                    tags=['Iron Sight', 'AR15 Height'],
-                                   additional_required_parts=('Front Sight',),
+                                   attachment_point_required=('Picrail Top Mount - Short',),
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    ),
     description='A flip up, standard AR-15 height front post sight manufactured by Daniel Defense. '
@@ -352,6 +355,7 @@ irons_troy_rear = Item(
                                    is_optic=True,
                                    tags=['Iron Sight', ],
                                    additional_required_parts=('Front Sight',),
+                                   attachment_point_required=('Picrail Optics Mount - Short',),
                                    compatible_parts={'Front Sight': ['AR15 Height', ]},
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    optic_properties={'target_acquisition_ap': 0.98,
@@ -373,7 +377,7 @@ irons_troy_front = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    is_optic=True,
                                    tags=['Iron Sight', 'AR15 Height'],
-                                   additional_required_parts=('Front Sight',),
+                                   attachment_point_required=('Picrail Top Mount - Short',),
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    ),
     description='A flip up, standard AR-15 height flip up front post sight manufactured by Troy. '

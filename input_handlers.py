@@ -2581,7 +2581,9 @@ class InspectItemViewer(AskUserEventHandler):
             # wearable
             "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
             "-- Ballistic Protection --": (
-                'protection_ballistic', getattr(self.item.usable_properties, 'protection_ballistic', 1)),
+                'ballistic_protection_level', getattr(self.item.usable_properties, 'protection_ballistic', 1)),
+            "-- AP Penalty (%) --": (
+                'ap_penalty', round((getattr(self.item.usable_properties, 'ap_penalty', 1) - 1) * 100)),
             "-- Physical Protection --": ('protection_physical', getattr(self.item.usable_properties,
                                                                          'protection_physical', 1)),
             "-- Armour Coverage --": ('armour_coverage', getattr(self.item.usable_properties, 'armour_coverage', 1)),

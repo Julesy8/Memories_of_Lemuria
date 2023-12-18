@@ -235,8 +235,15 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
             return False
 
     def calculate_ap_cost(self) -> int:
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
         fighter = self.entity.fighter
-        ap_cost = round(fighter.unarmed_ap_cost * fighter.attack_ap_modifier)
+        ap_cost = round(fighter.unarmed_ap_cost * fighter.attack_ap_modifier * armour_ap_multiplier)
         return ap_cost
 
     def perform(self) -> None:
@@ -291,8 +298,15 @@ class MeleeAttackAction(AttackAction):
             return False
 
     def calculate_ap_cost(self) -> int:
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
         fighter = self.entity.fighter
-        ap_cost = round(self.weapon.base_ap_cost * fighter.attack_ap_modifier)
+        ap_cost = round(self.weapon.base_ap_cost * fighter.attack_ap_modifier * armour_ap_multiplier)
         return ap_cost
 
     def perform(self) -> None:
@@ -334,6 +348,12 @@ class GunAttackAction(AttackAction):
         return 0
 
     def calculate_ap_cost(self) -> int:
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
 
         self.give_proficiency()
 
@@ -393,7 +413,8 @@ class GunAttackAction(AttackAction):
 
             firing_ap_cost += round(time_to_fire * 100)
 
-        ap_cost *= self.entity.fighter.attack_ap_modifier
+        ap_cost *= self.entity.fighter.attack_ap_modifier * armour_ap_multiplier
+        ap_cost += firing_ap_cost
 
         return ap_cost
 
@@ -493,6 +514,12 @@ class ClearJam(Action):
 
     def calculate_ap_cost(self):
 
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
         proficiency = 1.0
 
         if self.entity.player:
@@ -508,7 +535,7 @@ class ClearJam(Action):
             proficiency = 1 - (proficiency / 4000)
 
         # jam takes between 2 and 5 seconds to clear
-        return randint(2, 5) * 100 * self.entity.fighter.action_ap_modifier * proficiency
+        return randint(2, 5) * 100 * self.entity.fighter.action_ap_modifier * proficiency * armour_ap_multiplier
 
     def perform(self) -> None:
         self.gun.jammed = False
@@ -523,6 +550,12 @@ class ReloadMagFed(Action):
         self.magazine_to_load = magazine_to_load
 
     def calculate_ap_cost(self):
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
 
         ap_cost = 0
 
@@ -548,7 +581,7 @@ class ReloadMagFed(Action):
         if self.gun.manual_action:
             ap_cost += self.gun.action_cycle_ap_cost
 
-        ap_cost *= proficiency
+        ap_cost *= proficiency * armour_ap_multiplier
         return ap_cost
 
     def perform(self) -> None:
@@ -587,6 +620,12 @@ class ReloadFromClip(Action):
 
     def calculate_ap_cost(self):
 
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
         ap_cost = 0
 
         proficiency = 1.0
@@ -611,7 +650,7 @@ class ReloadFromClip(Action):
         if self.gun.manual_action:
             ap_cost += self.gun.action_cycle_ap_cost
 
-        ap_cost *= proficiency
+        ap_cost *= proficiency * armour_ap_multiplier
         return ap_cost
 
     def perform(self) -> None:
@@ -651,6 +690,13 @@ class LoadBulletsIntoMagazine(Action):
                 inventory.items.remove(bullet_type.parent)
 
     def calculate_ap_cost(self):
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
         ap_cost_modifier = self.entity.fighter.action_ap_modifier * self.bullet_type.load_time_modifier
 
         # loading ap calculated
@@ -658,7 +704,7 @@ class LoadBulletsIntoMagazine(Action):
         ap_cost_modifier *= mag_load_time_modifier
 
         # adds cost of loading each bullet
-        ap_cost += proficiency * self.bullets_to_load * ap_cost_modifier
+        ap_cost += proficiency * self.bullets_to_load * ap_cost_modifier * armour_ap_multiplier
         return ap_cost
 
     def perform(self) -> None:
@@ -919,7 +965,14 @@ class HealPart(Action):
         self.action_str = f'healing {part_to_heal.name}'
 
     def calculate_ap_cost(self) -> int:
-        return 1000
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
+        return round(1000 * armour_ap_multiplier)
 
     def perform(self) -> None:
         self.healing_item.usable_properties.activate(self)
@@ -932,7 +985,13 @@ class EquipWeapon(Action):
         self.weapon = weapon
 
     def calculate_ap_cost(self) -> int:
-        return self.weapon.get_equip_ap()
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
+        return round(self.weapon.get_equip_ap() * armour_ap_multiplier)
 
     def perform(self) -> None:
         self.entity.inventory.held = self.weapon.parent
@@ -992,6 +1051,12 @@ class CheckRoundsInMag(Action):
 
     def calculate_ap_cost(self) -> int:
 
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
         proficiency = 1.0
 
         if self.entity.player:
@@ -1011,7 +1076,7 @@ class CheckRoundsInMag(Action):
             (self.entity.fighter.action_ap_modifier *
              self.weapon.load_time_modifier * self.weapon.loaded_magazine.witness_check_ap * proficiency)
 
-        return ap_cost
+        return round(ap_cost * armour_ap_multiplier)
 
     def action_viable(self) -> bool:
 
@@ -1034,7 +1099,14 @@ class EquipWearable(Action):
         self.wearable = wearable
 
     def calculate_ap_cost(self) -> int:
-        return self.wearable.equip_ap_cost
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
+        return round(self.wearable.equip_ap_cost * armour_ap_multiplier)
 
     def perform(self) -> None:
 

@@ -264,7 +264,7 @@ barrel_sks_akmag = Item(
                                    optic_properties={'target_acquisition_ap': 1.09,
                                                      'ap_distance_cost_modifier': 0.94,
                                                      'spread_modifier': 0.95, },
-                                   compatible_magazine='AK 7.62x39',
+                                   compatible_magazine_type='AK 7.62x39',
                                    is_optic=True,
                                    barrel_length=20,
                                    equip_time=1.1,

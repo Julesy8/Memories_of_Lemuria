@@ -22,9 +22,10 @@ from entity import Item
 
 
 class PremadeWeapon:
-    def __init__(self, gun_item: Item, part_dict: dict, bullet, optics: dict, magazine=None, name: str = '',
-                 clip=None):
+    def __init__(self, gun_item: Item, part_dict: dict, bullet, optics: dict, allowed_part_types:list,
+                 magazine=None, name: str = '', clip=None):
 
+        self.allowed_part_types = allowed_part_types
         self.gun_item = gun_item
         self.name = name
         self.part_dict = part_dict
@@ -51,12 +52,16 @@ class PremadeWeapon:
         # sets part values
         for part in self.part_dict.keys():
 
+            if not part in self.allowed_part_types:
+                continue
+
             # checks if current part selection is the same as the type as item in the prerequisite parts
             # if it is, only adds parts to options that are in prerequisites
             add_only_compatible = False
             for part_type in compatible_parts.keys():
                 if part_type == part:
                     add_only_compatible = True
+                    break
 
             # makes random part selection
             if isinstance(self.part_dict[part], dict):
@@ -161,8 +166,7 @@ class PremadeWeapon:
                 part_keys = self.part_dict[part].usable_properties.compatible_parts.keys()
                 for key, value in compatible_parts.items():
                     if key in part_keys:
-                        compatible_parts[key] = \
-                            value.extend(self.part_dict[part].usable_properties.compatible_parts[key])
+                        compatible_parts[key].extend(self.part_dict[part].usable_properties.compatible_parts[key])
                 for key, value in self.part_dict[part].usable_properties.compatible_parts.items():
                     if key not in compatible_parts.keys():
                         compatible_parts[key] = self.part_dict[part].usable_properties.compatible_parts[key]
@@ -187,6 +191,14 @@ class PremadeWeapon:
             if hasattr(self.part_dict[part].usable_properties, 'compatible_magazine_type'):
                 magazine_type = self.part_dict[part].usable_properties.compatible_magazine_type
 
+            # adds addition required parts to allowed_part_types
+            if hasattr(self.part_dict[part].usable_properties, 'additional_required_parts'):
+                for additional_part in self.part_dict[part].usable_properties.additional_required_parts:
+                    if additional_part == "optic":
+                        continue
+                    else:
+                        self.allowed_part_types.append(additional_part)
+
         # randomly selects magazine
 
         # updates gun properties
@@ -197,7 +209,7 @@ class PremadeWeapon:
 
             if isinstance(self.magazine, dict):
                 # constructs dictionary of compatible magazines
-                compatible_magazines = deepcopy(self.magazine)
+                compatible_magazines = copy(self.magazine)
                 for magazine in self.magazine.keys():
                     if not magazine_type == magazine.usable_properties.magazine_type:
                         del compatible_magazines[magazine]
@@ -214,8 +226,8 @@ class PremadeWeapon:
             self.magazine = self.gun_item.usable_properties
 
         # loads magazine with bullets
-        for i in range(self.magazine.mag_capacity):
-            self.magazine.magazine.append(self.bullet.usable_properties)
+        bullets_to_load = [self.bullet.usable_properties] * self.magazine.mag_capacity
+        self.magazine.magazine = bullets_to_load
 
         # sets magazine if gun has internal magazine
         if hasattr(self.gun_item.usable_properties, 'magazine'):
@@ -266,7 +278,7 @@ g_17 = PremadeWeapon(gun_item=glock17.glock_17,
                              glock17.glock17_barrel_ported: 40,
                              glock17.glock17l_barrel_ported: 30,
                          },
-                         "Glock 17 Slide": {
+                         "G17 Slide": {
                              glock17.glock17_slide: 80,
                              glock17.glock17l_slide: 40,
                              glock17.glock17_slide_optic: 60,
@@ -280,6 +292,9 @@ g_17 = PremadeWeapon(gun_item=glock17.glock_17,
                          "Muzzle Device": {None: 20, glock17.glock_9mm_compensator: 2,
                                            glock17.suppressor_surefire_9mm: 1},
                      },
+                     allowed_part_types=['Glock 17 Frame', 'Glock 17 Barrel', 'G17 Slide', 'Glock Stock',
+                                         'Muzzle Adapter', 'Glock Optics Mount', 'Glock Base Plate',
+                                         'Side Mounted Accessory', 'Underbarrel Accessory', 'Optic', 'Muzzle Device']
                      )
 
 """ 
@@ -373,6 +388,11 @@ ar15_weapon = PremadeWeapon(gun_item=ar15.ar15,
                                     attachments.grip_hipoint_folding: 5,
                                 },
                             },
+                            allowed_part_types=['AR Lower Receiver', 'AR Upper Receiver', 'AR Buffer', 'AR Barrel',
+                                                'AR Handguard', 'AR Grip', 'AR Stock', 'Attachment Adapter',
+                                                'Muzzle Adapter', 'Front Sight', 'AR Optics Mount',
+                                                'Underbarrel Accessory', 'Side Mounted Accessory', 'Muzzle Device',
+                                                'Optic']
                             )
 
 ar10_weapon = PremadeWeapon(gun_item=ar15.ar15,
@@ -449,6 +469,11 @@ ar10_weapon = PremadeWeapon(gun_item=ar15.ar15,
                                     attachments.grip_hipoint_folding: 5,
                                 },
                             },
+                            allowed_part_types=['AR Lower Receiver', 'AR Upper Receiver', 'AR Buffer', 'AR Barrel',
+                                                'AR Handguard', 'AR Grip', 'AR Stock', 'Attachment Adapter',
+                                                'Muzzle Adapter', 'Front Sight', 'AR Optics Mount',
+                                                'Underbarrel Accessory', 'Side Mounted Accessory', 'Muzzle Device',
+                                                'Optic']
                             )
 
 """
@@ -526,6 +551,10 @@ ak47_weapon = PremadeWeapon(gun_item=ak.ak,
                                     attachments.grip_hipoint_folding: 5,
                                 },
                             },
+                            allowed_part_types=['AK Reciever', 'AK Barrel', 'AK Handguard', 'AK Grip', 'AK Stock',
+                                                'Attachment Adapter', 'Muzzle Adapter', 'AK Optics Mount',
+                                                'Side Mounted Accessory', 'Underbarrel Accessory', 'Muzzle Device',
+                                                'AK Magazine Adapter', 'Optic']
                             )
 
 ak74_weapon = PremadeWeapon(gun_item=ak.ak,
@@ -604,6 +633,10 @@ ak74_weapon = PremadeWeapon(gun_item=ak.ak,
                                     attachments.grip_hipoint_folding: 5,
                                 },
                             },
+                            allowed_part_types=['AK Reciever', 'AK Barrel', 'AK Handguard', 'AK Grip', 'AK Stock',
+                                                'Attachment Adapter', 'Muzzle Adapter', 'AK Optics Mount',
+                                                'Side Mounted Accessory', 'Underbarrel Accessory', 'Muzzle Device',
+                                                'AK Magazine Adapter', 'Optic']
                             )
 
 ak556_weapon = PremadeWeapon(gun_item=ak.ak,
@@ -681,6 +714,10 @@ ak556_weapon = PremadeWeapon(gun_item=ak.ak,
                                      attachments.grip_hipoint_folding: 5,
                                  },
                              },
+                             allowed_part_types=['AK Reciever', 'AK Barrel', 'AK Handguard', 'AK Grip', 'AK Stock',
+                                                 'Attachment Adapter', 'Muzzle Adapter', 'AK Optics Mount',
+                                                 'Side Mounted Accessory', 'Underbarrel Accessory', 'Muzzle Device',
+                                                 'AK Magazine Adapter', 'Optic']
                              )
 
 """
@@ -737,6 +774,10 @@ m1045_weapon = PremadeWeapon(gun_item=m10.mac10,
                                      attachments.grip_hipoint_folding: 5,
                                  },
                              },
+                             allowed_part_types=['M10 Lower', 'M10 Upper', 'Stock Adapter M10', 'Attachment Adapter',
+                                                 'Muzzle Adapter', 'M10 Stock', 'M10 Optics Mount', 'Muzzle Device',
+                                                 'Accessory Adapter M10', 'Side Mounted Accessory',
+                                                 'Underbarrel Accessory', 'Optic']
                              )
 
 m109_weapon = PremadeWeapon(gun_item=m10.mac10,
@@ -794,6 +835,10 @@ m109_weapon = PremadeWeapon(gun_item=m10.mac10,
                                     attachments.grip_hipoint_folding: 5,
                                 },
                             },
+                            allowed_part_types=['M10 Lower', 'M10 Upper', 'Stock Adapter M10', 'Attachment Adapter',
+                                                'Muzzle Adapter', 'M10 Stock', 'M10 Optics Mount', 'Muzzle Device',
+                                                'Accessory Adapter M10', 'Side Mounted Accessory',
+                                                'Underbarrel Accessory', 'Optic']
                             )
 
 """
@@ -871,13 +916,16 @@ sks_weapon = PremadeWeapon(gun_item=sks.sks,
                                    ak.muzzle_pbs1: 10,
                                    ak.muzzle_dynacomp: 12, },
                            },
+                           allowed_part_types=['SKS Barrel', 'SKS Stock', 'SKS Internal Magazine', 'Attachment Adapter',
+                                               'SKS Optics Mount', 'Underbarrel Accessory', 'Side Mounted Accessory',
+                                               'Muzzle Device', 'Optic']
                            )
 
 """
 Mosin Nagant
 """
 
-mosin_weapon = PremadeWeapon(gun_item=mosin.mosindict,
+mosin_weapon = PremadeWeapon(gun_item=mosin.mosin_nagant,
                              bullet=gun_parts.bullets_54r_weighted,
                              magazine=magazines.mosin_nagant,
                              clip=magazines.mosin_clip,
@@ -912,6 +960,9 @@ mosin_weapon = PremadeWeapon(gun_item=mosin.mosindict,
                                      ar15.ar15_300_muzzle_strike: 3,
                                  },
                              },
+                             allowed_part_types=['Mosin-Nagant Stock', 'Mosin-Nagant Barrel', 'Attachment Adapter',
+                                                 'Muzzle Adapter', 'Mosin-Nagant Accessory Mount', 'Muzzle Device',
+                                                 'Optic', 'Side Mounted Accessory']
                              )
 
 """
@@ -971,6 +1022,9 @@ m1911_45 = PremadeWeapon(gun_item=m1911.m1911,
                                  attachments.grip_hipoint_folding: 5,
                              },
                          },
+                         allowed_part_types=['M1911 Frame', 'M1911 Barrel', 'M1911 Slide', 'M1911 Grip Panels',
+                                             'M1911 Optics Mount', 'Side Mounted Accessory', 'Underbarrel Accessory',
+                                             'Optic', 'Muzzle Device']
                          )
 
 m1911_9mm = PremadeWeapon(gun_item=m1911.m1911,
@@ -1024,6 +1078,9 @@ m1911_9mm = PremadeWeapon(gun_item=m1911.m1911,
                                   attachments.grip_hipoint_folding: 5,
                               },
                           },
+                          allowed_part_types=['M1911 Frame', 'M1911 Barrel', 'M1911 Slide', 'M1911 Grip Panels',
+                                              'M1911 Optics Mount', 'Side Mounted Accessory', 'Underbarrel Accessory',
+                                              'Optic', 'Muzzle Device']
                           )
 
 m1911_10mm = PremadeWeapon(gun_item=m1911.m1911,
@@ -1080,6 +1137,9 @@ m1911_10mm = PremadeWeapon(gun_item=m1911.m1911,
                                    attachments.grip_hipoint_folding: 5,
                                },
                            },
+                           allowed_part_types=['M1911 Frame', 'M1911 Barrel', 'M1911 Slide', 'M1911 Grip Panels',
+                                               'M1911 Optics Mount', 'Side Mounted Accessory', 'Underbarrel Accessory',
+                                               'Optic', 'Muzzle Device']
                            )
 
 m1911_40sw = PremadeWeapon(gun_item=m1911.m1911,
@@ -1134,6 +1194,9 @@ m1911_40sw = PremadeWeapon(gun_item=m1911.m1911,
                                    attachments.grip_hipoint_folding: 5,
                                },
                            },
+                           allowed_part_types=['M1911 Frame', 'M1911 Barrel', 'M1911 Slide', 'M1911 Grip Panels',
+                                               'M1911 Optics Mount', 'Side Mounted Accessory', 'Underbarrel Accessory',
+                                               'Optic', 'Muzzle Device']
                            )
 
 """ 
@@ -1145,14 +1208,14 @@ m1_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m1_carbine,
                                magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
                                optics=optics_test,
                                part_dict={
-                                   "M1 Carbine Reciever": m1_carbine.m1_reciever,
-                                   "M1/M2 Carbine Stock": {
+                                   "M1 Reciever": m1_carbine.m1_reciever,
+                                   "M1/M2 Stock": {
                                        m1_carbine.m1_stock: 100,
                                        m1_carbine.m1_stock_ebr: 2,
                                        m1_carbine.m1_stock_enforcer: 5,
                                        m1_carbine.m1_stock_springfield: 15
                                    },
-                                   "M1/M2 Carbine Barrel": {
+                                   "M1/M2 Barrel": {
                                        m1_carbine.m1_barrel: 10,
                                        m1_carbine.m1_barrel_enforcer: 10,
                                        m1_carbine.m1_barrel_threaded: 1,
@@ -1175,7 +1238,8 @@ m1_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m1_carbine,
                                        ar15.ar_stock_prs: 30,
                                        ar15.ar_stock_maxim_cqb: 10,
                                    },
-                                   "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
+                                   "M1/M2 Carbine Optic Mount": {None: 30, m1_carbine.m1_m6b_mount: 1,
+                                                                 m1_carbine.m1_sk_mount: 1},
                                    "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
                                                           attachments.adapter_mlok_picrail_short: 1},
                                    "Muzzle Device": {
@@ -1193,6 +1257,10 @@ m1_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m1_carbine,
                                        attachments.grip_hipoint_folding: 5,
                                    },
                                },
+                               allowed_part_types=['M1 Reciever', 'M1/M2 Stock', 'M1/M2 Barrel',
+                                                   'M1/M2 Carbine Optic Mount', 'Attachment Adapter',
+                                                   'Side Mounted Accessory', 'Underbarrel Accessory', 'Muzzle Device',
+                                                   'Optic', 'Muzzle Adapter']
                                )
 
 m2_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m2_carbine,
@@ -1200,14 +1268,14 @@ m2_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m2_carbine,
                                magazine={magazines.m1_carbine_15rd: 5, magazines.m1_carbine_30rd: 1},
                                optics=optics_test,
                                part_dict={
-                                   "M2 Carbine Reciever": m1_carbine.m2_reciever,
-                                   "M1/M2 Carbine Stock": {
+                                   "M2 Reciever": m1_carbine.m2_reciever,
+                                   "M1/M2 Stock": {
                                        m1_carbine.m1_stock: 100,
                                        m1_carbine.m1_stock_ebr: 2,
                                        m1_carbine.m1_stock_enforcer: 5,
                                        m1_carbine.m1_stock_springfield: 15
                                    },
-                                   "M1/M2 Carbine Barrel": {
+                                   "M1/M2 Barrel": {
                                        m1_carbine.m1_barrel: 10,
                                        m1_carbine.m1_barrel_enforcer: 10,
                                        m1_carbine.m1_barrel_threaded: 1,
@@ -1230,7 +1298,8 @@ m2_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m2_carbine,
                                        ar15.ar_stock_prs: 30,
                                        ar15.ar_stock_maxim_cqb: 10,
                                    },
-                                   "M1/M2 Carbine Optic Mount": {None: 15, m1_carbine.m1_m6b_mount: 1},
+                                   "M1/M2 Carbine Optic Mount": {None: 30, m1_carbine.m1_m6b_mount: 1,
+                                                                 m1_carbine.m1_sk_mount: 1},
                                    "Attachment Adapter": {None: 30, attachments.adapter_mlok_picrail: 1,
                                                           attachments.adapter_mlok_picrail_short: 1},
                                    "Muzzle Device": {
@@ -1248,6 +1317,10 @@ m2_carbine_gun = PremadeWeapon(gun_item=m1_carbine.m2_carbine,
                                        attachments.grip_hipoint_folding: 5,
                                    },
                                },
+                               allowed_part_types=['M2 Reciever', 'M1/M2 Stock', 'M1/M2 Barrel',
+                                                   'M1/M2 Carbine Optic Mount', 'Attachment Adapter',
+                                                   'Side Mounted Accessory', 'Underbarrel Accessory', 'Muzzle Device',
+                                                   'Optic', 'Muzzle Adapter']
                                )
 
 """ 
@@ -1259,7 +1332,7 @@ m14_gun = PremadeWeapon(gun_item=m14.m14,
                         magazine={magazines.m14_10rd: 20, magazines.m14_20rd: 10, magazines.m14_50rd: 1},
                         optics=optics_test,
                         part_dict={
-                            "M14 Reciever": m14.m14_reciever,
+                            "M14 - Reciever": m14.m14_reciever,
                             "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
                                               m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
                                               m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
@@ -1303,6 +1376,9 @@ m14_gun = PremadeWeapon(gun_item=m14.m14,
                                               ar15.ar15_300_muzzle_strike: 3,
                                               },
                         },
+                        allowed_part_types=['M14 - Reciever', 'M14/M1A Stock', 'M14/M1A Barrel',
+                                            'M14/M1A Picatinny Rail Optic Mount', 'Attachment Adapter',
+                                            'Side Mounted Accessory', 'Underbarrel Accessory', 'Muzzle Device', 'Optic']
                         )
 
 m1a_gun = PremadeWeapon(gun_item=m14.m1a,
@@ -1310,7 +1386,7 @@ m1a_gun = PremadeWeapon(gun_item=m14.m1a,
                         magazine={magazines.m14_10rd: 20, magazines.m14_20rd: 10, magazines.m14_50rd: 1},
                         optics=optics_test,
                         part_dict={
-                            "M1A Reciever": m14.m14_reciever,
+                            "M1A - Reciever": m14.m14_reciever,
                             "M14/M1A Stock": {m14.m14_stock_fiberglass: 15, m14.m14_stock_wood: 15,
                                               m14.m14_stock_archangel: 7, m14.m14_stock_bullpup: 1,
                                               m14.m14_stock_ebr: 2, m14.m14_stock_vltor: 5},
@@ -1354,6 +1430,9 @@ m1a_gun = PremadeWeapon(gun_item=m14.m1a,
                                               ar15.ar15_300_muzzle_strike: 3,
                                               },
                         },
+                        allowed_part_types=['M1A - Reciever', 'M14/M1A Stock', 'M14/M1A Barrel',
+                                            'M14/M1A Picatinny Rail Optic Mount', 'Attachment Adapter',
+                                            'Side Mounted Accessory', 'Underbarrel Accessory', 'Muzzle Device', 'Optic']
                         )
 
 """
@@ -1422,6 +1501,10 @@ r870_gun = PremadeWeapon(gun_item=r870.rem_870,
                                  r870.r870_optic_picrail_ghost: 3,
                              },
                          },
+                         allowed_part_types=['Model 870 Reciever', 'Model 870 Barrel', 'Model 870 Stock',
+                                             'Model 870 Forend', 'Model 870 Choke', 'Attachment Adapter',
+                                             'Model 870 Magazine Extension', 'Model 870 Optics Mount',
+                                             'Underbarrel Accessory', 'Side Mounted Accessory', 'Optic']
                          )
 
 supershorty_gun = PremadeWeapon(gun_item=r870.rem_870,
@@ -1475,4 +1558,8 @@ supershorty_gun = PremadeWeapon(gun_item=r870.rem_870,
                                         r870.r870_optic_picrail_ghost: 3,
                                     },
                                 },
+                                allowed_part_types=['Super Shorty Reciever', 'Model 870 Barrel', 'Model 870 Stock',
+                                                    'Model 870 Forend', 'Model 870 Choke', 'Attachment Adapter',
+                                                    'Model 870 Magazine Extension', 'Model 870 Optics Mount',
+                                                    'Underbarrel Accessory', 'Side Mounted Accessory', 'Optic']
                                 )
