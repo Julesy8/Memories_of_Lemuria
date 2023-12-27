@@ -158,6 +158,24 @@ bullets_40sw_weighted = {
     bullets.round_40sw_220_fp: 20,
 }
 
+bullets_10mm_40sw_weighted = {
+    bullets.round_40sw_155_jhp: 100,
+    bullets.round_40sw_165_fmj: 80,
+    bullets.round_40sw_180_fmj: 70,
+    bullets.round_40sw_180_jhp: 30,
+    bullets.round_40sw_220_fp: 20,
+    bullets.round_10mm_155_jhp: 100,
+    bullets.round_10mm_180_fmj: 70,
+    bullets.round_10mm_190_jhp: 20,
+    bullets.round_10mm_220_fp: 10,
+}
+
+bullets_76225_weighted = {
+    bullets.round_76225_85_rn: 100,
+    bullets.round_76225_90_jhp: 70,
+    bullets.round_76225_100_jhp: 25,
+}
+
 bullets_45_weighted = {
     bullets.round_45_185_swc: 80,
     bullets.round_45_200_swc: 50,
@@ -219,6 +237,14 @@ bullets_54r_weighted = {
 bullets_12ga_weighted = {
     bullets.round_12ga_00buck: 6,
     bullets.round_12ga_slug: 1
+}
+
+bullets_44mag_weighted = {
+    bullets.round_44_180_jhp: 300,
+    bullets.round_44_200_jhp: 150,
+    bullets.round_44_225_jhp: 50,
+    bullets.round_44_240_sp: 30,
+    bullets.round_44_300_sp: 20
 }
 
 glock17_parts_weighted = {

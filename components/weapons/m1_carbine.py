@@ -15,7 +15,7 @@ m1_reciever = Item(
     weight=0.99,
     stacking=None,
     usable_properties=GunComponent(part_type='M1 Reciever',
-                                   compatible_parts={"M1/M2 Carbine Optic Mount": ["M1/M2 Carbine S&K Optics Mount",]},
+                                   compatible_parts={"M1/M2 Carbine Optic Mount": ["M1/M2 Carbine S&K Optics Mount", ]},
                                    compatible_magazine_type='M1/M2 Carbine',
                                    functional_part=True,
                                    ),
@@ -30,13 +30,12 @@ m2_reciever = Item(
     weight=0.99,
     stacking=None,
     usable_properties=GunComponent(part_type='M2 Reciever',
-                                   compatible_parts={"M1/M2 Carbine Optic Mount": ["M1/M2 Carbine S&K Optics Mount",]},
+                                   compatible_parts={"M1/M2 Carbine Optic Mount": ["M1/M2 Carbine S&K Optics Mount", ]},
                                    compatible_magazine_type='M1/M2 Carbine',
                                    functional_part=True,
                                    ),
     description='An unbarreled selective fire M2 carbine action'
 )
-
 
 """
 STOCK
@@ -51,13 +50,15 @@ m1_stock = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Stock',
                                    compatible_parts={'M1/M2 Barrel': ['M1/M2 Carbine Barrel',
-                                                                              'M1/M2 Carbine Barrel - Threaded'],
-                                                     "M1/M2 Carbine Optic Mount": ["M1/M2 Carbine M6-B Optics Mount",]},
+                                                                      'M1/M2 Carbine Barrel - Threaded'],
+                                                     "M1/M2 Carbine Optic Mount": [
+                                                         "M1/M2 Carbine M6-B Optics Mount", ]},
                                    felt_recoil=0.48,
                                    ap_distance_cost_modifier=0.7,
                                    spread_modifier=0.88,
                                    target_acquisition_ap=0.76,
                                    equip_time=1.25,
+                                   accuracy_part=True,
                                    has_stock=True,
                                    pdw_stock=True,
                                    grip_properties={
@@ -79,13 +80,15 @@ m1_stock_springfield = Item(
     usable_properties=GunComponent(part_type='M1/M2 Stock',
                                    suffix='Tactical',
                                    compatible_parts={'M1/M2 Barrel': ['M1/M2 Carbine Barrel',
-                                                                              'M1/M2 Carbine Barrel - Threaded'],
-                                                     "M1/M2 Carbine Optic Mount": ["M1/M2 Carbine M6-B Optics Mount",]},
+                                                                      'M1/M2 Carbine Barrel - Threaded'],
+                                                     "M1/M2 Carbine Optic Mount": [
+                                                         "M1/M2 Carbine M6-B Optics Mount", ]},
                                    felt_recoil=0.4,
                                    ap_distance_cost_modifier=0.73,
                                    spread_modifier=0.91,
                                    target_acquisition_ap=0.73,
                                    equip_time=1.18,
+                                   accuracy_part=True,
                                    has_stock=True,
                                    grip_properties={
                                        'felt_recoil': 0.84,
@@ -93,7 +96,7 @@ m1_stock_springfield = Item(
                                        'spread_modifier': 0.85,
                                        'target_acquisition_ap': 0.8},
                                    ),
-    description='An aftermarket polymer M1/M2 carbine stock featuring a folding stock and pistol grip manufactured' \
+    description='An aftermarket polymer M1/M2 carbine stock featuring a folding stock and pistol grip manufactured'
                 ' by Choate'
 )
 
@@ -106,8 +109,9 @@ m1_stock_ebr = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Stock',
                                    suffix='EBR',
+                                   accuracy_part=True,
                                    compatible_parts={'M1/M2 Barrel': ['M1/M2 Carbine Barrel',
-                                                                              'M1/M2 Carbine Barrel - Threaded'],},
+                                                                      'M1/M2 Carbine Barrel - Threaded'], },
                                    is_attachment_point_types=['Picrail Underbarrel - Long',
                                                               'Picrail Optics Mount - Long',
                                                               'Picrail Side Mount - Long'],
@@ -134,9 +138,10 @@ m1_stock_enforcer = Item(
     usable_properties=GunComponent(part_type='M1/M2 Stock',
                                    suffix="'Enforcer'",
                                    compatible_parts={'M1/M2 Barrel': ["M1/M2 Carbine 'Enforcer' Barrel",
-                                                                              "M1/M2 Carbine 'Enforcer' Barrel - "
-                                                                              "Threaded"]},
+                                                                      "M1/M2 Carbine 'Enforcer' Barrel - "
+                                                                      "Threaded"]},
                                    felt_recoil=0.84,
+                                   accuracy_part=True,
                                    ap_distance_cost_modifier=0.93,
                                    spread_modifier=0.9,
                                    target_acquisition_ap=0.7,
@@ -146,8 +151,8 @@ m1_stock_enforcer = Item(
                                        'spread_modifier': 0.87,
                                        'target_acquisition_ap': 0.83},
                                    ),
-    description="A wooden pistol-style M1/M2 carbine stock. It has been significantly shortened compared to the " \
-                "regular M1 carbine stock to an overall length of roughly 18 inches. It lacks a butt stock and " \
+    description="A wooden pistol-style M1/M2 carbine stock. It has been significantly shortened compared to the "
+                "regular M1 carbine stock to an overall length of roughly 18 inches. It lacks a butt stock and "
                 "features a pistol grip."
 )
 
@@ -166,6 +171,7 @@ m1_barrel = Item(
                                    optic_properties={'target_acquisition_ap': 1.09,
                                                      'ap_distance_cost_modifier': 0.94,
                                                      'spread_modifier': 0.94, },
+                                   velocity_modifier={'.30 Carbine': 1.0},
                                    barrel_length=17.75,
                                    is_optic=True,
                                    accuracy_part=True,
@@ -185,13 +191,13 @@ m1_barrel_enforcer = Item(
                                                      'ap_distance_cost_modifier': 1.09,
                                                      'spread_modifier': 1.04, },
                                    barrel_length=10.25,
-                                   velocity_modifier=0.83,
+                                   velocity_modifier={'.30 Carbine': 0.83},
                                    target_acquisition_ap=0.92,
                                    short_barrel=True,
                                    is_optic=True,
                                    accuracy_part=True,
                                    ),
-    description="'A shortened 10 1/4 inch pistol barrel for the M1/M2 carbine designed for the 'Super Enforcer' M1 " \
+    description="'A shortened 10 1/4 inch pistol barrel for the M1/M2 carbine designed for the 'Super Enforcer' M1 "
                 "carbine pistols made by Iver Johnson Arms."
 )
 
@@ -204,6 +210,7 @@ m1_barrel_threaded = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Barrel',
                                    is_attachment_point_types=['Barrel Thread 1/2x28'],
+                                   velocity_modifier={'.30 Carbine': 1.0},
                                    optic_properties={'target_acquisition_ap': 1.09,
                                                      'ap_distance_cost_modifier': 0.94,
                                                      'spread_modifier': 0.93, },
@@ -211,7 +218,7 @@ m1_barrel_threaded = Item(
                                    is_optic=True,
                                    accuracy_part=True,
                                    ),
-    description='A standard 18 inch M1/M2 carbine barrel chambered in .30 carbine. It has been threaded to accept ' \
+    description='A standard 18 inch M1/M2 carbine barrel chambered in .30 carbine. It has been threaded to accept '
                 'muzzle devices.'
 )
 
@@ -223,18 +230,18 @@ m1_barrel_enforcer_threaded = Item(
     weight=0.347,
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Barrel',
+                                   velocity_modifier={'.30 Carbine': 0.83},
                                    is_attachment_point_types=['Barrel Thread 1/2x28'],
                                    optic_properties={'target_acquisition_ap': 0.94,
                                                      'ap_distance_cost_modifier': 1.09,
                                                      'spread_modifier': 1.04, },
                                    barrel_length=10.25,
-                                   velocity_modifier=0.83,
                                    target_acquisition_ap=0.92,
                                    short_barrel=True,
                                    is_optic=True,
                                    accuracy_part=True,
                                    ),
-    description="'A shortened 10 1/4 inch pistol barrel for the M1/M2 carbine designed for the 'Super Enforcer' M1 " \
+    description="'A shortened 10 1/4 inch pistol barrel for the M1/M2 carbine designed for the 'Super Enforcer' M1 "
                 "carbine pistols made by Iver Johnson Arms. It has been threaded to accept muzzle devices."
 )
 
@@ -295,7 +302,7 @@ m1_carbine = Item(
         current_fire_mode='single shot',
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
         parts=Parts(),
-        compatible_bullet_type='.30 Carbine',
+        compatible_bullet_type=('.30 Carbine',),
         velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         sound_modifier=1.0,
@@ -333,7 +340,7 @@ m2_carbine = Item(
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
                     'automatic': {'fire rate': 750, 'automatic': True}},
         parts=Parts(),
-        compatible_bullet_type='.30 Carbine',
+        compatible_bullet_type=('.30 Carbine',),
         velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         sound_modifier=1.0,

@@ -266,7 +266,7 @@ class Bullet(Usable):
                  bullet_expands=False,  # whether bullet expands (hollow point / soft point)
                  bullet_yaws=False,  # whether bullet tumbles
                  bullet_fragments=False,  # whether bullet fragments
-                 load_time_modifier: int = 200,
+                 load_time_modifier: int = 300,
                  projectile_no: int = 1,
                  ):
         self.bullet_type = bullet_type
@@ -292,7 +292,7 @@ class Bullet(Usable):
 class Magazine(Usable):
 
     def __init__(self,
-                 compatible_bullet_type: list,  # compatible bullet i.e. 9mm
+                 compatible_bullet_type: tuple,  # compatible bullet i.e. 9mm
                  mag_capacity: int,
                  ):
         self.compatible_bullet_type = compatible_bullet_type
@@ -360,7 +360,7 @@ class Magazine(Usable):
 class DetachableMagazine(Magazine):
     def __init__(self,
                  magazine_type: str,  # type of weapon this magazine works with i.e. glock 9mm
-                 compatible_bullet_type: list,  # compatible bullet i.e. 9mm
+                 compatible_bullet_type: tuple,  # compatible bullet i.e. 9mm
                  mag_capacity: int,
                  magazine_size: str,  # small, medium or large
                  ap_to_load: int,  # ap it takes to load magazine into gun
@@ -407,7 +407,7 @@ class DetachableMagazine(Magazine):
 class Clip(Magazine):
     def __init__(self,
                  magazine_type: str,
-                 compatible_bullet_type: list,
+                 compatible_bullet_type: tuple,
                  mag_capacity: int,
                  magazine_size: str,
                  ap_to_load: int,
@@ -423,7 +423,7 @@ class Gun(Weapon):
     def __init__(self,
                  parts: Parts,
                  gun_type: str,
-                 compatible_bullet_type: str,
+                 compatible_bullet_type: tuple,
                  velocity_modifier: dict,
                  ap_to_equip: int,
                  fire_modes: dict,  # fire rates in rpm
@@ -568,7 +568,8 @@ class Gun(Weapon):
 
             if self.chambered_bullet is not None:
 
-                velocity_modifier = self.velocity_modifier[self.chambered_bullet.projectile_type]
+                velocity_modifier = (self.velocity_modifier[self.chambered_bullet.projectile_type] *
+                                     self.velocity_modifier[self.chambered_bullet.bullet_type])
 
                 ammo_weight = len(magazine) * self.chambered_bullet.parent.weight
                 total_weight = self.parent.weight + mag_weight + ammo_weight
@@ -876,7 +877,7 @@ class GunMagFed(Gun):
                  parts: Parts,
                  gun_type: str,
                  compatible_magazine_type: str,
-                 compatible_bullet_type: str,
+                 compatible_bullet_type: tuple,
                  velocity_modifier: dict,
                  ap_to_equip: int,
                  fire_modes: dict,
@@ -998,7 +999,7 @@ class GunIntegratedMag(Gun, Magazine):
                  ap_to_equip: int,
                  fire_modes: dict,
                  current_fire_mode: str,
-                 compatible_bullet_type: str,
+                 compatible_bullet_type: tuple,
                  mag_capacity: int,
                  keep_round_chambered: bool,  # if when unloading gun the chambered round should stay
                  sound_modifier: float,

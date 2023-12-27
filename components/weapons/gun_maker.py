@@ -8,6 +8,7 @@ import components.weapons.m1911 as m1911
 import components.weapons.m1_carbine as m1_carbine
 import components.weapons.m14 as m14
 import components.weapons.r870 as r870
+import components.weapons.misc_guns as misc
 import components.weapons.attachments as attachments
 import components.weapons.gun_parts_weighted as gun_parts
 
@@ -18,11 +19,12 @@ from random import choices, randint
 
 from entity import Item
 
+
 # TODO - probability of parts themselves influenced by which level the player is on
 
 
 class PremadeWeapon:
-    def __init__(self, gun_item: Item, part_dict: dict, bullet, optics: dict, allowed_part_types:list,
+    def __init__(self, gun_item: Item, part_dict: dict, bullet, optics: dict, allowed_part_types: list,
                  magazine=None, name: str = '', clip=None):
 
         self.allowed_part_types = allowed_part_types
@@ -1563,3 +1565,206 @@ supershorty_gun = PremadeWeapon(gun_item=r870.rem_870,
                                                     'Model 870 Magazine Extension', 'Model 870 Optics Mount',
                                                     'Underbarrel Accessory', 'Side Mounted Accessory', 'Optic']
                                 )
+
+"""
+S&W M629
+"""
+
+m629_gun = PremadeWeapon(gun_item=misc.sw629,
+                         bullet=gun_parts.bullets_44mag_weighted,
+                         magazine={},
+                         clip=magazines.m629_clip,
+                         optics=optics_test,
+                         part_dict={
+                             "S&W .44 Frame": misc.sw629_frame,
+                             "S&W .44 Barrel": {misc.sw629_barrel: 400,
+                                                misc.sw629_barrel_stealth: 10,
+                                                misc.sw629_barrel_5in: 150,
+                                                misc.sw629_barrel_4in: 75,
+                                                },
+                             "S&W N-Frame Optic Mount": {misc.sw629_optic_pistol: 1,
+                                                         misc.sw629_optic_pistol_picrail: 1,
+                                                         None: 20,
+                                                         },
+                         },
+                         allowed_part_types=['S&W .44 Frame', 'S&W .44 Barrel', 'S&W N-Frame Optic Mount', 'Optic']
+                         )
+
+"""
+S&W M610
+"""
+
+m610_gun = PremadeWeapon(gun_item=misc.sw610,
+                         bullet=gun_parts.bullets_10mm_40sw_weighted,
+                         magazine={},
+                         clip=magazines.m610_clip,
+                         optics=optics_test,
+                         part_dict={
+                             "S&W 10mm Frame": misc.sw610_frame,
+                             "S&W 10mm Barrel": {misc.sw610_barrel: 6,
+                                                 misc.sw610_barrel_4in: 1,
+                                                 },
+                             "S&W N-Frame Optic Mount": {misc.sw629_optic_pistol: 1,
+                                                         misc.sw629_optic_pistol_picrail: 1,
+                                                         None: 20,
+                                                         },
+                         },
+                         allowed_part_types=['S&W 10mm Frame', 'S&W 10mm Barrel', 'S&W N-Frame Optic Mount', 'Optic']
+                         )
+
+"""
+DE XIX
+"""
+
+dexix_gun = PremadeWeapon(gun_item=misc.de44,
+                          bullet=gun_parts.bullets_44mag_weighted,
+                          magazine=magazines.de44_mag,
+                          optics=optics_test,
+                          part_dict={
+                              "DE .44 Frame": misc.sw629_frame,
+                              "DE .44 Barrel": {misc.de44_barrel: 400,
+                                                misc.de44_barrel_imb: 20,
+                                                misc.de44_barrel_10in: 15,
+                                                misc.de44_barrel_10in_threaded: 8,
+                                                },
+                              "DE .44 Slide": misc.de44_slide,
+                              "Muzzle Device": {
+                                  ar15.ar15_300_muzzle_flashhider: 100,
+                                  ar15.ar15_300_muzzle_cobra: 8,
+                                  ar15.ar15_300_muzzle_pegasus: 5,
+                                  ar15.ar15_300_muzzle_strike: 3,
+                              },
+
+                          },
+                          allowed_part_types=['DE .44 Frame', 'DE .44 Barrel', 'DE .44 Slide', 'Optic',
+                                              'Muzzle Device']
+                          )
+
+"""
+TT33
+"""
+
+tt33_gun = PremadeWeapon(gun_item=misc.tt33,
+                         bullet=gun_parts.bullets_76225_weighted,
+                         magazine=magazines.tt33_magazine,
+                         optics=optics_test,
+                         part_dict={
+                             "Tokarev TT Frame": misc.tt33_frame,
+                             "Tokarev TT Barrel": misc.tt33_barrel,
+                             "Tokarev TT Slide": {misc.tt33_slide: 20,
+                                                  misc.tt33_slide_tactical: 1,
+                                                  },
+                             "Tokarev TT-33 Grip Panels": {misc.tt33_grip: 15,
+                                                           misc.tt33_grip_rubberised: 1,
+                                                           },
+                             "Muzzle Device": {
+                                 misc.tt33_compensator: 1,
+                                 None: 20,
+                             },
+
+                         },
+                         allowed_part_types=['Tokarev TT Frame', 'Tokarev TT Barrel', 'Tokarev TT Slide',
+                                             'Tokarev TT-33 Grip Panels', 'Optic', 'Muzzle Device']
+                         )
+
+"""
+H015
+"""
+
+h015_gun = PremadeWeapon(gun_item=misc.singleshot,
+                         bullet=gun_parts.bullets_12ga_weighted,
+                         magazine={},
+                         optics=optics_test,
+                         part_dict={
+                             "H015 Reciever": misc.single_shot_reciever,
+                             "H015 Barrel": {misc.single_shot_barrel: 10,
+                                             misc.single_shot_barrel_short: 1},
+                             "H015 Stock": {misc.single_shot_stock: 10,
+                                            misc.h015_birdshead: 1,
+                                            },
+                             "Model 870 Choke": {
+                                 r870.r870_choke_im: 15,
+                                 r870.r870_choke_modified: 50,
+                                 r870.r870_choke_cylinder: 300,
+                                 r870.r870_choke_improved_ported: 10,
+                                 r870.r870_choke_cylinder_ported: 40,
+                             },
+                             "H015 Optic Mount": {
+                                 misc.h015_scope_mount: 1,
+                                 None: 20,
+                             },
+
+                         },
+                         allowed_part_types=['H015 Reciever', 'H015 Barrel', 'H015 Stock',
+                                             'Model 870 Choke', 'H015 Optic Mount', 'Optic']
+                         )
+
+"""
+M3
+"""
+
+m3_gun = PremadeWeapon(gun_item=misc.m3_greasegun,
+                       bullet=gun_parts.bullets_45_weighted,
+                       magazine=magazines.greasegun_mag,
+                       optics=optics_test,
+                       part_dict={
+                           "M3 Reciever": {misc.m3_reciever: 20,
+                                           misc.m3_reciever_picrail: 1},
+                           "M3 Barrel": {misc.m3_barrel: 10,
+                                         misc.m3_barrel_threaded: 1},
+                           "M3 Stock": {misc.single_shot_stock: 10,
+                                        misc.h015_birdshead: 1,
+                                        },
+                           "Muzzle Device": {
+                               attachments.muzzle_nullifier: 3,
+                               attachments.muzzle_kak_45: 5,
+                               attachments.muzzle_kak_a2: 50,
+                               attachments.suppressor_obsidian_45: 2,
+                           },
+                       },
+                       allowed_part_types=['M3 Reciever', 'M3 Barrel', 'M3 Stock', 'Muzzle Device', 'Optic']
+                       )
+
+"""
+PPSh
+"""
+
+ppsh_gun = PremadeWeapon(gun_item=misc.ppsh_41,
+                         bullet=gun_parts.bullets_76225_weighted,
+                         magazine={magazines.ppsh_mag_35rd: 20, magazines.ppsh_71rd: 1},
+                         optics=optics_test,
+                         part_dict={
+                             "PPSh Reciever": misc.ppsh_reciever,
+                             "PPSh Barrel": {misc.ppsh_barrel: 15,
+                                             misc.ppsh_barrel_obrez: 1},
+                             "PPSh Dust Cover": {misc.ppsh_cover: 20,
+                                                 misc.ppsh_cover_obrez: 20,
+                                                 misc.ppsh_cover_tactical: 1,
+                                                 misc.ppsh_cover_obrez_tactical: 1,
+                                                 },
+                             "PPSh Stock": {misc.ppsh_stock: 20,
+                                            misc.ppsh_stock_obrez: 1,
+                                            },
+                         },
+                         allowed_part_types=['PPSh Reciever', 'PPSh Barrel', 'PPSh Dust Cover', 'PPSh Stock', 'Optic']
+                         )
+
+""" 
+SVT-40
+"""
+
+svt40_gun = PremadeWeapon(gun_item=misc.svt,
+                          bullet=gun_parts.bullets_54r_weighted,
+                          magazine=magazines.svt_10rd,
+                          clip=magazines.svt_clip,
+                          optics=optics_test,
+                          part_dict={
+                              "SVT Reciever": {misc.svt_barrel: 29,
+                                               misc.svt_barrel_auto: 1,
+                                               },
+                              "SVT Stock": misc.stock_svt,
+                              "SVT Optics Mount": {misc.svt_pic_scope_mount: 1,
+                                                   None: 15},
+                          },
+                          allowed_part_types=['SVT Reciever', 'SVT Stock', 'SVT Optics Mount', 'Optic']
+                          )

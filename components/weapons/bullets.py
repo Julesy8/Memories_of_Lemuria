@@ -2,6 +2,8 @@ import colour
 from entity import Item, Stacking
 from components.consumables import Bullet
 
+# TODO - new specialised types of bullets particularly armour piercing
+
 # drag coefficients by projectile type
 cd_wadcutter = 0.8333
 cd_jhp = 0.441511  # assumes expansion, if not expanded default to different value
@@ -185,8 +187,8 @@ round_9mm_115_jhp = Item(
         charge_mass=4.7,
         diameter=0.355,
         velocity=1147,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.13,
         bullet_length=0.55,
@@ -210,8 +212,8 @@ round_9mm_124_jhp = Item(
         charge_mass=4.4,
         diameter=0.355,
         velocity=1087,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.17,
         bullet_length=0.55,
@@ -235,8 +237,8 @@ round_9mm_147_jhp = Item(
         charge_mass=3.6,
         diameter=0.355,
         velocity=894,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.197,
         bullet_length=0.55,
@@ -262,8 +264,8 @@ round_9mm_115_jhp_pp = Item(
         charge_mass=5.1,
         diameter=0.355,
         velocity=1208,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.13,
         bullet_length=0.55,
@@ -287,8 +289,8 @@ round_9mm_124_jhp_pp = Item(
         charge_mass=4.7,
         diameter=0.355,
         velocity=1140,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.17,
         bullet_length=0.55,
@@ -312,8 +314,8 @@ round_9mm_147_jhp_pp = Item(
         charge_mass=3.8,
         diameter=0.355,
         velocity=934,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.197,
         bullet_length=0.55,
@@ -393,8 +395,8 @@ round_45_185_jhp = Item(
         charge_mass=6.7,
         diameter=0.452,
         velocity=1071,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.1,
         bullet_length=0.602,
@@ -418,8 +420,8 @@ round_45_200_jhp = Item(
         charge_mass=6.2,
         diameter=0.452,
         velocity=980,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.15,
         bullet_length=0.602,
@@ -443,8 +445,8 @@ round_45_230_jhp = Item(
         charge_mass=5.3,
         diameter=0.452,
         velocity=867,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.205,
         bullet_length=0.602,
@@ -562,8 +564,8 @@ round_45_185_jhp_pp = Item(
         charge_mass=7.0,
         diameter=0.452,
         velocity=1111,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.1,
         bullet_length=0.602,
@@ -587,8 +589,8 @@ round_45_230_jhp_pp = Item(
         charge_mass=5.6,
         diameter=0.452,
         velocity=910,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.205,
         bullet_length=0.602,
@@ -614,8 +616,8 @@ round_45_200_fmj_pp = Item(
         charge_mass=6.7,
         diameter=0.355,
         velocity=1035,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.15,
         bullet_length=0.602,
@@ -636,8 +638,8 @@ round_45_230_fmj_pp = Item(
         charge_mass=6.2,
         diameter=0.355,
         velocity=958,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.205,
         bullet_length=0.602,
@@ -666,8 +668,8 @@ round_10mm_155_jhp = Item(
         charge_mass=8.5,
         diameter=0.4,
         velocity=1246,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.137,
         bullet_length=0.525,
@@ -713,8 +715,8 @@ round_10mm_190_jhp = Item(
         charge_mass=7.4,
         diameter=0.4,
         velocity=1182,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.138,
         bullet_length=0.525,
@@ -768,8 +770,8 @@ round_40sw_155_jhp = Item(
         charge_mass=5.6,
         diameter=0.4,
         velocity=1101,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.137,
         bullet_length=0.525,
@@ -793,8 +795,8 @@ round_40sw_165_fmj = Item(
         charge_mass=5.6,
         diameter=0.4,
         velocity=1070,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.138,
         bullet_length=0.525,
@@ -837,8 +839,8 @@ round_40sw_180_jhp = Item(
         charge_mass=4.6,
         diameter=0.4,
         velocity=958,
-        proj_config=cf_round_ball,
-        drag_coefficient=cd_round_ball,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.138,
         bullet_length=0.525,
@@ -855,7 +857,7 @@ round_40sw_220_fp = Item(
     name='40 S&W - 220gr FP',
     weight=0.015,
     stacking=Stacking(stack_size=10),
-    description='40 S&W 190gr jacketed flat point ammunition',
+    description='40 S&W 220gr jacketed flat point ammunition',
     usable_properties=Bullet(
         bullet_type='40 S&W',
         mass=220,
@@ -867,6 +869,219 @@ round_40sw_220_fp = Item(
         spread_modifier=0.05,
         ballistic_coefficient=0.137,
         bullet_length=0.525,
+    )
+)
+
+"""
+.44 Magnum
+"""
+
+# source: 2020 Alliant Powder Catalog
+# test barrel length: 8.275 inches
+
+round_44_180_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='44 Magnum - 180gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='44 Magnum 180gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='44 Magnum',
+        mass=180,
+        charge_mass=14,
+        diameter=0.429,
+        velocity=1632,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.130,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.74,
+        max_expansion_velocity=1300,
+    )
+)
+
+round_44_200_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='44 Magnum - 200gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='44 Magnum 200gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='44 Magnum',
+        mass=200,
+        charge_mass=15.5,
+        diameter=0.429,
+        velocity=1573,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.122,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.74,
+        max_expansion_velocity=1300,
+    )
+)
+
+round_44_225_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='44 Magnum - 225gr SWC-JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='44 Magnum 225gr semi-wad cutter jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='44 Magnum',
+        mass=225,
+        charge_mass=21.4,
+        diameter=0.429,
+        velocity=1526,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.146,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.74,
+        max_expansion_velocity=1300,
+    )
+)
+
+round_44_240_sp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='44 Magnum - 240gr DCHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='44 Magnum 240gr "deep curl" copper plated soft point ammunition',
+    usable_properties=Bullet(
+        bullet_type='44 Magnum',
+        mass=240,
+        charge_mass=21,
+        diameter=0.429,
+        velocity=1434,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.175,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.74,
+        max_expansion_velocity=1450,
+    )
+)
+
+round_44_300_sp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='44 Magnum - 300gr DCHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='44 Magnum 300gr "deep curl" copper plated soft point ammunition',
+    usable_properties=Bullet(
+        bullet_type='44 Magnum',
+        mass=300,
+        charge_mass=22,
+        diameter=0.429,
+        velocity=1350,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.213,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.74,
+        max_expansion_velocity=1450,
+    )
+)
+
+
+"""
+7.62x25
+"""
+
+# source: https://www.shootingtimes.com/editorial/handloading-the-762x25-tokarev/374699
+# test barrel length: 4.5 inches
+# powder: power pistol
+
+round_76225_85_rn = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x25 Tokarev - 85gr RN',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='7.62x25 Tokarev 85gr jacketed round nose ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x25 Tokarev',
+        mass=85,
+        charge_mass=6.0,
+        diameter=0.309,
+        velocity=1272,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.113,
+        bullet_length=0.525,
+    )
+)
+
+round_76225_90_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x25 Tokarev - 90gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='7.62x25 Tokarev 90gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x25 Tokarev',
+        mass=90,
+        charge_mass=6.0,
+        diameter=0.309,
+        velocity=1231,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.115,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.57,
+        max_expansion_velocity=1500,
+    )
+)
+
+round_76225_100_jhp = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name='7.62x25 Tokarev - 100gr JHP',
+    weight=0.015,
+    stacking=Stacking(stack_size=10),
+    description='7.62x25 Tokarev 90gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='7.62x25 Tokarev',
+        mass=90,
+        charge_mass=5.8,
+        diameter=0.309,
+        velocity=1231,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
+        spread_modifier=0.05,
+        ballistic_coefficient=0.115,
+        bullet_length=0.525,
+        bullet_expands=True,
+        max_expansion=1.57,  # No data, educated guess
+        max_expansion_velocity=1500,
     )
 )
 
@@ -1531,8 +1746,8 @@ round_30carb_110_jhp = Item(
         charge_mass=16,
         diameter=0.3078,
         velocity=1963,
-        proj_config=cf_jhp,
-        drag_coefficient=cd_jhp,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cd_fmj_round_nose,
         spread_modifier=0.05,
         ballistic_coefficient=0.178,
         bullet_length=0.55,  # this is not correct, couldn't find any data on .30 carbine bullet lengths

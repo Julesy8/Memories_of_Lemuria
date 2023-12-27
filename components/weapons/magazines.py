@@ -18,7 +18,7 @@ glock_mag_9mm = Item(
     description='9mm Glock magazine - 17 round capacity',
     usable_properties=DetachableMagazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=17,
         magazine_size='small',
         ap_to_load=300,
@@ -37,10 +37,10 @@ glock_mag_9mm_33 = Item(
     description='extended 9mm Glock magazine - 33 round capacity',
     usable_properties=DetachableMagazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=33,
         magazine_size='medium',
-        ap_to_load=330,
+        ap_to_load=300,
         target_acquisition_ap_mod=1.03,
         ap_distance_cost_mod=1.02,
         equip_ap_mod=1.06,
@@ -59,7 +59,7 @@ glock_mag_9mm_50 = Item(
     description='9mm Glock drum - 50 round capacity',
     usable_properties=DetachableMagazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=50,
         magazine_size='large',
         ap_to_load=500,
@@ -82,7 +82,7 @@ glock_mag_9mm_100 = Item(
     description='9mm Glock Beta Mag - 100 round capacity',
     usable_properties=DetachableMagazine(
         magazine_type='Glock 9mm',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=100,
         magazine_size='large',
         ap_to_load=700,
@@ -109,7 +109,7 @@ m1911_mag_45_8 = Item(
     description='Steel 1911 .45 ACP magazine - 8 round standard capacity',
     usable_properties=DetachableMagazine(
         magazine_type='1911 .45 ACP',
-        compatible_bullet_type=['.45 ACP', ],
+        compatible_bullet_type=('.45 ACP',),
         mag_capacity=8,
         magazine_size='small',
         ap_to_load=300,
@@ -129,7 +129,7 @@ m1911_mag_45_10 = Item(
                 'The polymer base plate has been extended such that it sits flush seamlessly with the magazine well.',
     usable_properties=DetachableMagazine(
         magazine_type='1911 .45 ACP',
-        compatible_bullet_type=['.45 ACP', ],
+        compatible_bullet_type=('.45 ACP',),
         mag_capacity=10,
         magazine_size='small',
         ap_to_load=300,
@@ -148,7 +148,7 @@ m1911_mag_45_15 = Item(
     description='Steel 1911 15 round extended magazine designed by ProMag',
     usable_properties=DetachableMagazine(
         magazine_type='1911 .45 ACP',
-        compatible_bullet_type=['.45 ACP', ],
+        compatible_bullet_type=('.45 ACP',),
         mag_capacity=15,
         magazine_size='medium',
         ap_to_load=330,
@@ -167,7 +167,7 @@ m1911_mag_45_40 = Item(
     description='Polymer .45 ACP 40 round drum magazine designed by ProMag.',
     usable_properties=DetachableMagazine(
         magazine_type='1911 .45 ACP',
-        compatible_bullet_type=['.45 ACP', ],
+        compatible_bullet_type=('.45 ACP',),
         mag_capacity=40,
         magazine_size='large',
         ap_to_load=500,
@@ -194,7 +194,7 @@ m1911_mag_9_10 = Item(
     description='Steel 1911 9mm magazine - 10 round standard capacity',
     usable_properties=DetachableMagazine(
         magazine_type='1911 9mm',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm',),
         mag_capacity=10,
         magazine_size='small',
         ap_to_load=300,
@@ -217,7 +217,7 @@ m1911_mag_10_8 = Item(
     description='Steel 1911 9mm magazine - 8 round standard capacity',
     usable_properties=DetachableMagazine(
         magazine_type='1911 10mm',
-        compatible_bullet_type=['10mm', ],
+        compatible_bullet_type=('10mm',),
         mag_capacity=8,
         magazine_size='small',
         ap_to_load=300,
@@ -240,7 +240,100 @@ m1911_mag_40sw_8 = Item(
     description='Steel 1911 9mm magazine - 8 round standard capacity',
     usable_properties=DetachableMagazine(
         magazine_type='1911 40 S&W',
-        compatible_bullet_type=['40 S&W', ],
+        compatible_bullet_type=('40 S&W',),
+        mag_capacity=8,
+        magazine_size='small',
+        ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
+    )
+)
+
+"""
+Tokarev TT-33
+"""
+
+tt33_magazine = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Tokarev TT-33 Magazine",
+    weight=0.073,
+    stacking=None,
+    description='A steel TT-33 7.62x25 Tokarev magazine - 8 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='TT-33',
+        compatible_bullet_type=('7.62x25 Tokarev',),
+        mag_capacity=8,
+        magazine_size='small',
+        ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
+    )
+)
+
+"""
+PPSh-41
+"""
+
+ppsh_mag_35rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="PPSh 35 Round Magazine",
+    weight=0.38,
+    stacking=None,
+    description='A steel, 35 round capacity 7.62x25 Tokarev magazine made for the PPSh-41',
+    usable_properties=DetachableMagazine(
+        magazine_type='PPSh-41',
+        compatible_bullet_type=('7.62x25 Tokarev',),
+        mag_capacity=35,
+        magazine_size='medium',
+        ap_to_load=300,
+        target_acquisition_ap_mod=1.02,
+        ap_distance_cost_mod=1.03,
+        equip_ap_mod=1.03,
+        witness_check_ap=200,
+    )
+)
+
+ppsh_71rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="PPSh 71 Round Drum",
+    weight=0.68,
+    stacking=None,
+    description='71 round capacity 7.62x25 Tokarev drum magazine designed for the PPSh-41',
+    usable_properties=DetachableMagazine(
+        magazine_type='PPSh-41',
+        compatible_bullet_type=('7.62x25 Tokarev',),
+        mag_capacity=71,
+        magazine_size='large',
+        ap_to_load=500,
+        target_acquisition_ap_mod=1.16,
+        ap_distance_cost_mod=1.18,
+        equip_ap_mod=1.22,
+        failure_chance=2,
+        witness_check_ap=200,
+    )
+)
+
+"""
+Desert Eagle .44
+"""
+
+de44_mag = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="DE XIX .44 Magazine",
+    weight=0.127,
+    stacking=None,
+    description='A standard capacity, 8 round magazine for the Desert Eagle .44 Magnum.',
+    usable_properties=DetachableMagazine(
+        magazine_type='Desert Eagle .44',
+        compatible_bullet_type=('.44 Magnum',),
         mag_capacity=8,
         magazine_size='small',
         ap_to_load=300,
@@ -264,7 +357,7 @@ mac10_mag_45 = Item(
                 'later retrofitted for the M10/45.',
     usable_properties=DetachableMagazine(
         magazine_type='M10/45',
-        compatible_bullet_type=['.45 ACP', ],
+        compatible_bullet_type=('.45 ACP',),
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
@@ -282,7 +375,7 @@ mac10_mag_45_extended = Item(
     description='M10/45 magazine .45 ACP - 40 round capacity. An original magazine modified for greater capacity',
     usable_properties=DetachableMagazine(
         magazine_type='M10/45',
-        compatible_bullet_type=['.45 ACP', ],
+        compatible_bullet_type=('.45 ACP',),
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
@@ -303,8 +396,30 @@ mac10_mag_9 = Item(
     description='M10/9 Magazine 9mm - 32 round capacity',
     usable_properties=DetachableMagazine(
         magazine_type='M10/9',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm',),
         mag_capacity=32,
+        magazine_size='medium',
+        ap_to_load=300,
+        witness_check_ap=300,
+    )
+)
+
+"""
+Grease Gun
+"""
+
+greasegun_mag = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="M3 Grease Gun Magazine",
+    weight=0.34,
+    stacking=None,
+    description='A steel, 30 round capacity .45 ACP magazine made for the M3 Grease Gun',
+    usable_properties=DetachableMagazine(
+        magazine_type='M10/45',
+        compatible_bullet_type=('.45 ACP',),
+        mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
         witness_check_ap=300,
@@ -326,7 +441,7 @@ mosin_nagant = Item(
                 'designed by ProMag',
     usable_properties=DetachableMagazine(
         magazine_type='Mosin-Nagant',
-        compatible_bullet_type=['7.62x54R', ],
+        compatible_bullet_type=('7.62x54R', ),
         mag_capacity=10,
         magazine_size='large',
         ap_to_load=500,
@@ -347,12 +462,52 @@ mosin_clip = Item(
     description='A 5 round capacity clip for Mosin-Nagant rifles',
     usable_properties=Clip(
         magazine_type='Mosin-Nagant Clip',
-        compatible_bullet_type=['7.62x54R', ],
+        compatible_bullet_type=('7.62x54R', ),
         mag_capacity=5,
         magazine_size='small',
         ap_to_load=500,
     )
 )
+
+"""
+SVT-40
+"""
+
+svt_10rd = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SVT-40 10 Round Magazine",
+    weight=0.28,
+    stacking=None,
+    description='10 round capacity 7.62x54R magazine designed for the SVT-40 rifle.',
+    usable_properties=DetachableMagazine(
+        magazine_type='SVT-40',
+        compatible_bullet_type=('7.62x54R', ),
+        mag_capacity=10,
+        magazine_size='medium',
+        ap_to_load=300,
+        witness_check_ap=200,
+    )
+)
+
+svt_clip = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="SVT-40 Clip",
+    weight=0.0085,
+    stacking=None,
+    description='A 5 round capacity clip for SVT-40 rifles',
+    usable_properties=Clip(
+        magazine_type='SVT-40 Clip',
+        compatible_bullet_type=('7.62x54R', ),
+        mag_capacity=5,
+        magazine_size='small',
+        ap_to_load=500,
+    )
+)
+
 
 """
 SKS
@@ -368,7 +523,7 @@ sks_clip = Item(
     description='A 10 round capacity stripper clip for SKS rifles',
     usable_properties=Clip(
         magazine_type='SKS Clip',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=10,
         magazine_size='small',
         ap_to_load=500,
@@ -386,7 +541,7 @@ sks_mag_20rd = Item(
                 'and is compatible with unmodified SKS magazine wells.',
     usable_properties=DetachableMagazine(
         magazine_type='SKS Magazine',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=20,
         magazine_size='medium',
         ap_to_load=400,
@@ -408,7 +563,7 @@ sks_mag_35rd = Item(
                 'and is compatible with unmodified SKS magazine wells.',
     usable_properties=DetachableMagazine(
         magazine_type='SKS Magazine',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=20,
         magazine_size='medium',
         ap_to_load=500,
@@ -430,7 +585,7 @@ sks_mag_75rd = Item(
                 'magazine. It is compatible with unmodified SKS magazine wells.',
     usable_properties=DetachableMagazine(
         magazine_type='SKS Magazine',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=75,
         magazine_size='large',
         ap_to_load=600,
@@ -442,6 +597,50 @@ sks_mag_75rd = Item(
     )
 )
 
+
+"""
+Model 629
+"""
+
+# TODO - new property for clips - whether they become part of the gun when it is loaded like a magazine
+
+m629_clip = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Model 629 Moon Clip",
+    weight=0.005,
+    stacking=None,
+    description='A 6 round capacity moon clip for the Smith & Wesson Model 629 .44 Magnum revolver.',
+    usable_properties=Clip(
+        magazine_type='S&W Model 629 Moon Clip',
+        compatible_bullet_type=('.44 Magnum', ),
+        mag_capacity=6,
+        magazine_size='small',
+        ap_to_load=300,
+    )
+)
+
+""" 
+Model 610
+"""
+
+m610_clip = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_GRAY,
+    name="Model 610 Moon Clip",
+    weight=0.005,
+    stacking=None,
+    description='A 6 round capacity moon clip for the Smith & Wesson Model 610 10mm / 40 S&W revolver.',
+    usable_properties=Clip(
+        magazine_type='S&W Model 629 Moon Clip',
+        compatible_bullet_type=('10mm', '40 S&W'),
+        mag_capacity=6,
+        magazine_size='small',
+        ap_to_load=300,
+    )
+)
 
 """
 AK 7.62x39
@@ -457,7 +656,7 @@ ak762_30rd = Item(
     description='A steel 30 round capacity 7.62x39 AK magazine',
     usable_properties=DetachableMagazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
@@ -475,7 +674,7 @@ ak762_40rd = Item(
     description='A steel 40 round capacity 7.62x39 AK magazine designed for RPK light machine guns',
     usable_properties=DetachableMagazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=40,
         magazine_size='medium',
         ap_to_load=300,
@@ -496,7 +695,7 @@ ak762_60rd = Item(
     description='A polymer 60 round capacity 7.62x39 AK quad stack magazine',
     usable_properties=DetachableMagazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=60,
         magazine_size='medium',
         ap_to_load=500,
@@ -518,7 +717,7 @@ ak762_75rd = Item(
     description='75 round capacity 7.62x39 AK drum magazine',
     usable_properties=DetachableMagazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=75,
         magazine_size='large',
         ap_to_load=500,
@@ -540,7 +739,7 @@ ak762_100rd = Item(
     description='100 round capacity 7.62x39 AK drum magazine',
     usable_properties=DetachableMagazine(
         magazine_type='AK 7.62x39',
-        compatible_bullet_type=['7.62x39', ],
+        compatible_bullet_type=('7.62x39', ),
         mag_capacity=100,
         magazine_size='large',
         ap_to_load=700,
@@ -566,7 +765,7 @@ ak545_30rd = Item(
     description='Standard 30 round capacity 5.45x39 AK magazine',
     usable_properties=DetachableMagazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type=['5.45x39', ],
+        compatible_bullet_type=('5.45x39', ),
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
@@ -584,7 +783,7 @@ ak545_45rd = Item(
     description='45 round capacity 5.45x39 AK magazine designed for RPK-74 light machine guns',
     usable_properties=DetachableMagazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type=['5.45x39', ],
+        compatible_bullet_type=('5.45x39', ),
         mag_capacity=45,
         magazine_size='medium',
         ap_to_load=300,
@@ -605,7 +804,7 @@ ak545_60rd = Item(
     description='60 round capacity 5.45x39 AK quad stack magazine',
     usable_properties=DetachableMagazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type=['5.45x39', ],
+        compatible_bullet_type=('5.45x39', ),
         mag_capacity=60,
         magazine_size='medium',
         ap_to_load=500,
@@ -627,7 +826,7 @@ ak545_100rd = Item(
     description='95 round capacity 5.45x39 AK drum magazine intended for the RPK-16',
     usable_properties=DetachableMagazine(
         magazine_type='AK 5.45x39',
-        compatible_bullet_type=['5.45x39', ],
+        compatible_bullet_type=('5.45x39', ),
         mag_capacity=95,
         magazine_size='large',
         ap_to_load=700,
@@ -653,7 +852,7 @@ ak556_30rd = Item(
     description='Standard 30 round capacity 5.56x45 AK magazine made for the AK-101',
     usable_properties=DetachableMagazine(
         magazine_type='AK 5.56x45',
-        compatible_bullet_type=['5.56x45', ],
+        compatible_bullet_type=('5.56x45', ),
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
@@ -675,7 +874,7 @@ stanag_30rd = Item(
     description='Standard 30 round capacity STANAG magazine',
     usable_properties=DetachableMagazine(
         magazine_type='STANAG',
-        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        compatible_bullet_type=('5.56x45', '.300 Blackout'),
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=300,
@@ -693,7 +892,7 @@ stanag_40rd = Item(
     description='40 round capacity STANAG magazine',
     usable_properties=DetachableMagazine(
         magazine_type='STANAG',
-        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        compatible_bullet_type=('5.56x45', '.300 Blackout'),
         mag_capacity=40,
         magazine_size='medium',
         ap_to_load=300,
@@ -714,7 +913,7 @@ stanag_50rd = Item(
     description='50 round capacity STANAG drum magazine designed by F5-MFG',
     usable_properties=DetachableMagazine(
         magazine_type='STANAG',
-        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        compatible_bullet_type=('5.56x45', '.300 Blackout'),
         mag_capacity=50,
         magazine_size='large',
         ap_to_load=400,
@@ -736,7 +935,7 @@ stanag_60rd = Item(
     description='60 round capacity STANAG quad stack magazine designed by SureFire',
     usable_properties=DetachableMagazine(
         magazine_type='STANAG',
-        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        compatible_bullet_type=('5.56x45', '.300 Blackout'),
         mag_capacity=60,
         magazine_size='large',
         ap_to_load=500,
@@ -758,7 +957,7 @@ stanag_100rd = Item(
     description='100 round capacity STANAG Beta C drum magazine',
     usable_properties=DetachableMagazine(
         magazine_type='STANAG',
-        compatible_bullet_type=['5.56x45', '.300 Blackout'],
+        compatible_bullet_type=('5.56x45', '.300 Blackout'),
         mag_capacity=60,
         magazine_size='large',
         ap_to_load=600,
@@ -785,7 +984,7 @@ ar10_20rd = Item(
     description='A polymer 20 round 7.62x51 magazine for AR-10 type rifles',
     usable_properties=DetachableMagazine(
         magazine_type='AR10 7.62x51',
-        compatible_bullet_type=['7.62x51', ],
+        compatible_bullet_type=('7.62x51', ),
         mag_capacity=20,
         magazine_size='medium',
         ap_to_load=300,
@@ -803,7 +1002,7 @@ ar10_25rd = Item(
     description='A polymer 25 round 7.62x51 magazine for AR-10 type rifles',
     usable_properties=DetachableMagazine(
         magazine_type='AR10 7.62x51',
-        compatible_bullet_type=['7.62x51', ],
+        compatible_bullet_type=('7.62x51', ),
         mag_capacity=25,
         magazine_size='medium',
         ap_to_load=300,
@@ -824,7 +1023,7 @@ ar10_40rd = Item(
     description='A polymer 40 round 7.62x51 magazine for AR-10 type rifles',
     usable_properties=DetachableMagazine(
         magazine_type='AR10 7.62x51',
-        compatible_bullet_type=['7.62x51', ],
+        compatible_bullet_type=('7.62x51', ),
         mag_capacity=40,
         magazine_size='large',
         ap_to_load=400,
@@ -846,7 +1045,7 @@ ar10_50rd = Item(
     description='A polymer 50 round 7.62x51 drum magazine for AR-10 type rifles',
     usable_properties=DetachableMagazine(
         magazine_type='AR10 7.62x51',
-        compatible_bullet_type=['7.62x51', ],
+        compatible_bullet_type=('7.62x51', ),
         mag_capacity=50,
         magazine_size='large',
         ap_to_load=500,
@@ -872,7 +1071,7 @@ calico_9mm_50rd = Item(
     description='50 round capacity 9mm helical magazine by Calico',
     usable_properties=DetachableMagazine(
         magazine_type='Calico 9mm',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=50,
         magazine_size='large',
         ap_to_load=500,
@@ -894,7 +1093,7 @@ calico_9mm_100rd = Item(
     description='100 round capacity 9mm helical magazine by Calico',
     usable_properties=DetachableMagazine(
         magazine_type='Calico 9mm',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=100,
         magazine_size='large',
         ap_to_load=700,
@@ -920,7 +1119,7 @@ m31_9mm_36rd = Item(
     description='36 round capacity 9mm magazine designed for the Suomi M31 submachinegun',
     usable_properties=DetachableMagazine(
         magazine_type='Suomi M31',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=36,
         magazine_size='medium',
         ap_to_load=300,
@@ -939,10 +1138,10 @@ m31_9mm_71rd = Item(
     name="Suomi M31 9mm 71 Round Drum",
     weight=0.68,
     stacking=None,
-    description='71 round capacity 9mm drug magazine designed for the Suomi M31 submachinegun',
+    description='71 round capacity 9mm drum magazine designed for the Suomi M31 submachinegun',
     usable_properties=DetachableMagazine(
         magazine_type='Suomi M31',
-        compatible_bullet_type=['9mm', ],
+        compatible_bullet_type=('9mm', ),
         mag_capacity=71,
         magazine_size='large',
         ap_to_load=500,
@@ -968,7 +1167,7 @@ m1_carbine_15rd = Item(
     description='15 round capacity .30 carbine magazine designed for the M1 and M2 carbine',
     usable_properties=DetachableMagazine(
         magazine_type='M1/M2 Carbine',
-        compatible_bullet_type=['.30 Carbine', ],
+        compatible_bullet_type=('.30 Carbine', ),
         mag_capacity=15,
         magazine_size='small',
         ap_to_load=300,
@@ -989,7 +1188,7 @@ m1_carbine_30rd = Item(
     description='30 round capacity .30 carbine magazine designed for the M1 and M2 carbine',
     usable_properties=DetachableMagazine(
         magazine_type='M1/M2 Carbine',
-        compatible_bullet_type=['.30 Carbine', ],
+        compatible_bullet_type=('.30 Carbine', ),
         mag_capacity=30,
         magazine_size='medium',
         ap_to_load=330,
@@ -1014,7 +1213,7 @@ m14_10rd = Item(
     description='10 round capacity 7.62x51 NATO magazine designed for the M14 and M1A rifles',
     usable_properties=DetachableMagazine(
         magazine_type='M14/M1A',
-        compatible_bullet_type=['7.62x51', ],
+        compatible_bullet_type=('7.62x51', ),
         mag_capacity=10,
         magazine_size='medium',
         ap_to_load=300,
@@ -1032,7 +1231,7 @@ m14_20rd = Item(
     description='20 round capacity 7.62x51 NATO magazine designed for the M14 and M1A rifles',
     usable_properties=DetachableMagazine(
         magazine_type='M14/M1A',
-        compatible_bullet_type=['7.62x51', ],
+        compatible_bullet_type=('7.62x51', ),
         mag_capacity=20,
         magazine_size='medium',
         ap_to_load=300,
@@ -1050,7 +1249,7 @@ m14_50rd = Item(
     description='50 round capacity 7.62x51 NATO polymer drum magazine designed by ProMag for the M14 and M1A rifles',
     usable_properties=DetachableMagazine(
         magazine_type='M14/M1A',
-        compatible_bullet_type=['7.62x51', ],
+        compatible_bullet_type=('7.62x51', ),
         mag_capacity=50,
         magazine_size='large',
         ap_to_load=500,
@@ -1076,7 +1275,7 @@ r870_6rd = Item(
     description='6 round box magazine for the magazine fed DM model of the Remington 870',
     usable_properties=DetachableMagazine(
         magazine_type='R870 DM',
-        compatible_bullet_type=['12 Gauge', ],
+        compatible_bullet_type=('12 Gauge', ),
         mag_capacity=6,
         magazine_size='medium',
         ap_to_load=400,

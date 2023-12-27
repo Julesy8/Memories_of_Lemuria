@@ -279,6 +279,9 @@ class Parts:
                             if round_type in gun_property:
                                 gun_property[round_type] = gun_property[round_type] * \
                                                            part_properties[property_str][round_type]
+                            else:
+                                gun_property[round_type] = part_properties[property_str][round_type]
+
                     else:
                         new_dict = {**getattr(self.parent, property_str), **part_properties[property_str]}
                         setattr(self.parent, property_str, new_dict)
