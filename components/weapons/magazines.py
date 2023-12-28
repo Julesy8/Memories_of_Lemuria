@@ -602,8 +602,6 @@ sks_mag_75rd = Item(
 Model 629
 """
 
-# TODO - new property for clips - whether they become part of the gun when it is loaded like a magazine
-
 m629_clip = Item(
     x=0, y=0,
     char="!",
@@ -618,6 +616,7 @@ m629_clip = Item(
         mag_capacity=6,
         magazine_size='small',
         ap_to_load=300,
+        requires_gun_empty=True
     )
 )
 
@@ -639,6 +638,7 @@ m610_clip = Item(
         mag_capacity=6,
         magazine_size='small',
         ap_to_load=300,
+        requires_gun_empty=True
     )
 )
 

@@ -22,9 +22,9 @@ class Inventory(BaseComponent):
         self.primary_weapon = None
         self.secondary_weapon = None
 
-        self.small_mag_capacity = 3
-        self.medium_mag_capacity = 3
-        self.large_mag_capacity = 3
+        self.small_mag_capacity = 4
+        self.medium_mag_capacity = 4
+        self.large_mag_capacity = 2
 
         self.small_magazines = []
         self.medium_magazines = []
@@ -89,7 +89,7 @@ class Inventory(BaseComponent):
                     equipment_list.append(part.equipped)
 
         for equipment in equipment_list:
-            current_weight += equipment.weight
+            current_weight += equipment.parent.weight
 
         return current_weight
 

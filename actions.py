@@ -333,7 +333,8 @@ class GunAttackAction(AttackAction):
 
         self.weapon = gun
         self.total_weight = self.weapon.parent.weight
-        self.proficiency = 1.0
+        self.guntype_proficiency = 1.0
+        self.action_proficiency = 1.0
         self.marksmanship = 1.0
         self.rounds_in_mag = 0
         self.target_acquisition_ap = self.weapon.target_acquisition_ap * self.entity.fighter.target_acquisition_ap
@@ -344,10 +345,15 @@ class GunAttackAction(AttackAction):
         return self.engine.game_map.check_los(start_x=self.entity.x, start_y=self.entity.y,
                                               end_x=self.targeted_actor.x, end_y=self.targeted_actor.y)
 
+    def get_mag_weight(self) -> None:
+        return
+
     def additional_ap_cost(self) -> int:
         return 0
 
     def calculate_ap_cost(self) -> int:
+
+        self.get_mag_weight()
 
         armour_ap_multiplier = 1.0
 
@@ -371,30 +377,31 @@ class GunAttackAction(AttackAction):
 
         # calculates AP modifier based on weight and weapon type
         if self.weapon.gun_type == 'pistol':
-            weight_handling_modifier = 0.4 + 0.6 * self.total_weight
-
+            weight_handling_modifier = 0.75 + 0.25 * self.total_weight
+        elif self.weapon.gun_type != 'pistol' and not self.weapon.has_stock:
+            weight_handling_modifier = 0.85 + 0.15 * (self.total_weight / 2)
         else:
-            weight_handling_modifier = 0.5 + 0.5 * (self.total_weight / 4)
+            weight_handling_modifier = 0.85 + 0.15 * (self.total_weight / 3)
 
         # adds cost of firing (pulling trigger)
-        ap_cost += self.weapon.firing_ap_cost * self.entity.fighter.firing_ap_cost * self.proficiency
+        ap_cost += self.weapon.firing_ap_cost * self.entity.fighter.firing_ap_cost * self.guntype_proficiency
 
         # ap cost for the given distance to the target
-        ap_cost += self.ap_distance_cost_modifier * self.distance * self.proficiency * self.marksmanship * \
-                   weight_handling_modifier
+        ap_cost += self.ap_distance_cost_modifier * self.distance * self.guntype_proficiency * self.marksmanship * \
+                   weight_handling_modifier * (2.0 - self.entity.fighter.style_range_accuracy)
 
         # if previous actor is different from the current target, adds cost of acquiring new target
         if self.entity.fighter.previous_target_actor != self.targeted_actor:
-            ap_cost += self.target_acquisition_ap * self.proficiency * weight_handling_modifier
+            ap_cost += self.target_acquisition_ap * self.guntype_proficiency * weight_handling_modifier
 
         # if previously targeted limb is different from currently targeted limb, adds cost of changing target
         elif self.entity.fighter.previously_targeted_part != self.targeted_bodypart:
-            ap_cost += 0.5 * self.target_acquisition_ap * self.proficiency * weight_handling_modifier
+            ap_cost += 0.5 * self.target_acquisition_ap * self.guntype_proficiency * weight_handling_modifier
 
         # adds AP cost of manually cycling action e.g. for bolt action
         if self.weapon.manual_action:
             if self.rounds_in_mag >= 1:
-                ap_cost += self.weapon.action_cycle_ap_cost * self.proficiency
+                ap_cost += self.weapon.action_cycle_ap_cost * self.action_proficiency
 
         # AP cost for the duration of fully automatic fire
         if self.weapon.fire_modes[self.weapon.current_fire_mode]['automatic']:
@@ -422,27 +429,46 @@ class GunAttackAction(AttackAction):
     def give_proficiency(self) -> None:
 
         fighter = self.entity.fighter
-        proficiency = 1.0
+
+        proficiency_actiontype = 1.0
+        proficiency_guntype = 1.0
 
         if self.entity.player:
             if self.weapon.gun_type == 'pistol':
-                proficiency = fighter.skill_pistol_proficiency
-                proficiency += 1
+                proficiency_guntype = fighter.skill_pistol_proficiency
+                proficiency_guntype += 1
             elif self.weapon.gun_type == 'pdw':
-                proficiency = fighter.skill_smg_proficiency
-                proficiency += 1
+                proficiency_guntype = fighter.skill_smg_proficiency
+                proficiency_guntype += 1
             elif self.weapon.gun_type == 'rifle':
-                proficiency = fighter.skill_rifle_proficiency
-                proficiency += 1
-            elif self.weapon.gun_type == 'bolt action':
-                proficiency = fighter.skill_bolt_action_proficiency
-                proficiency += 1
+                proficiency_guntype = fighter.skill_rifle_proficiency
+                proficiency_guntype += 1
 
-            self.proficiency = 1 - (proficiency / 4000)
+            if self.weapon.action_type == 'bolt action':
+                proficiency_actiontype = fighter.skill_bolt_action_proficiency
+                proficiency_actiontype += 1
+            elif self.weapon.action_type == 'revolver':
+                proficiency_actiontype = fighter.skill_revolver_proficiency
+                proficiency_actiontype += 1
+            elif self.weapon.action_type == 'semi-auto rifle':
+                proficiency_actiontype = fighter.skill_sa_rifle_proficiency
+                proficiency_actiontype += 1
+            elif self.weapon.action_type == 'semi-auto pistol':
+                proficiency_actiontype = fighter.skill_sa_pistol_proficiency
+                proficiency_actiontype += 1
+            elif self.weapon.action_type == 'pump action':
+                proficiency_actiontype = fighter.skill_pumpaction_proficiency
+                proficiency_actiontype += 1
+            elif self.weapon.action_type == 'break action':
+                proficiency_actiontype = fighter.skill_breakaction_proficiency
+                proficiency_actiontype += 1
 
-            if self.distance > 15:
-                self.marksmanship = fighter.skill_marksmanship
-                fighter.skill_marksmanship += ((self.distance - 15) // 10) + 1
+            self.guntype_proficiency = 1 - (proficiency_guntype / 4000)
+            self.action_proficiency = 1 - (proficiency_actiontype / 4000)
+
+            if self.distance > 7:
+                self.marksmanship = 1 - (fighter.skill_marksmanship / 4000)
+                fighter.skill_marksmanship += (self.distance // 7)
 
     def perform(self) -> None:
 
@@ -450,7 +476,7 @@ class GunAttackAction(AttackAction):
 
         self.weapon.attack_ranged(target=self.targeted_actor, attacker=self.entity,
                                   part_index=self.part_index, distance=self.distance,
-                                  proficiency=self.proficiency, skill_range_modifier=self.marksmanship)
+                                  proficiency=self.guntype_proficiency, skill_range_modifier=self.marksmanship)
 
         # prints splatter message
         if self.targeted_bodypart.show_splatter_message:
@@ -469,6 +495,19 @@ class GunMagFedAttack(GunAttackAction):
         super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart, handle_now=handle_now)
         self.weapon = gun
         self.total_weight = self.weapon.parent.weight
+
+    def get_mag_weight(self) -> None:
+
+        # adds weight of the magazine and loaded bullets to total weight for recoil calculations
+        if self.weapon.loaded_magazine is not None:
+            magazine = self.weapon.loaded_magazine.magazine
+            mag_weight = self.weapon.loaded_magazine.parent.weight
+            try:
+                ammo_weight = len(magazine) * self.weapon.chambered_bullet.parent.weight
+            except AttributeError:
+                ammo_weight = 0
+            self.total_weight += mag_weight + ammo_weight
+
 
     def additional_ap_cost(self) -> None:
 
@@ -495,6 +534,14 @@ class GunIntegratedMagAttack(GunAttackAction):
                  targeted_bodypart: Optional[Bodypart], handle_now: bool = False):
         super().__init__(distance, gun, entity, targeted_actor, targeted_bodypart, handle_now=handle_now)
         self.weapon = gun
+
+    def get_mag_weight(self) -> None:
+
+        magazine = self.weapon.magazine
+        try:
+            self.total_weight += len(magazine) * self.weapon.chambered_bullet.parent.weight
+        except AttributeError:
+            return
 
     def additional_ap_cost(self) -> None:
         rounds_in_mag = len(self.weapon.magazine)
@@ -523,14 +570,19 @@ class ClearJam(Action):
         proficiency = 1.0
 
         if self.entity.player:
-            if self.gun.gun_type == 'pistol':
-                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
-            elif self.gun.gun_type == 'pdw':
-                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
-            elif self.gun.gun_type == 'rifle':
-                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
-            elif self.gun.gun_type == 'bolt action':
+
+            if self.gun.action_type == 'bolt action':
                 proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
+            elif self.gun.action_type == 'revolver':
+                proficiency = copy(self.entity.fighter.skill_revolver_proficiency)
+            elif self.gun.action_type == 'semi-auto rifle':
+                proficiency = copy(self.entity.fighter.skill_sa_rifle_proficiency)
+            elif self.gun.action_type == 'semi-auto pistol':
+                proficiency = copy(self.entity.fighter.skill_sa_pistol_proficiency)
+            elif self.gun.action_type == 'pump action':
+                proficiency = copy(self.entity.fighter.skill_pumpaction_proficiency)
+            elif self.gun.action_type == 'break action':
+                proficiency = copy(self.entity.fighter.skill_breakaction_proficiency)
 
             proficiency = 1 - (proficiency / 4000)
 
@@ -562,14 +614,19 @@ class ReloadMagFed(Action):
         proficiency = 1.0
 
         if self.entity.player:
-            if self.gun.gun_type == 'pistol':
-                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
-            elif self.gun.gun_type == 'pdw':
-                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
-            elif self.gun.gun_type == 'rifle':
-                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
-            elif self.gun.gun_type == 'bolt action':
+
+            if self.gun.action_type == 'bolt action':
                 proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
+            elif self.gun.action_type == 'revolver':
+                proficiency = copy(self.entity.fighter.skill_revolver_proficiency)
+            elif self.gun.action_type == 'semi-auto rifle':
+                proficiency = copy(self.entity.fighter.skill_sa_rifle_proficiency)
+            elif self.gun.action_type == 'semi-auto pistol':
+                proficiency = copy(self.entity.fighter.skill_sa_pistol_proficiency)
+            elif self.gun.action_type == 'pump action':
+                proficiency = copy(self.entity.fighter.skill_pumpaction_proficiency)
+            elif self.gun.action_type == 'break action':
+                proficiency = copy(self.entity.fighter.skill_breakaction_proficiency)
 
             proficiency = 1 - (proficiency / 4000)
 
@@ -631,14 +688,18 @@ class ReloadFromClip(Action):
         proficiency = 1.0
 
         if self.entity.player:
-            if self.gun.gun_type == 'pistol':
-                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
-            elif self.gun.gun_type == 'pdw':
-                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
-            elif self.gun.gun_type == 'rifle':
-                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
-            elif self.gun.gun_type == 'bolt action':
+            if self.gun.action_type == 'bolt action':
                 proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
+            elif self.gun.action_type == 'revolver':
+                proficiency = copy(self.entity.fighter.skill_revolver_proficiency)
+            elif self.gun.action_type == 'semi-auto rifle':
+                proficiency = copy(self.entity.fighter.skill_sa_rifle_proficiency)
+            elif self.gun.action_type == 'semi-auto pistol':
+                proficiency = copy(self.entity.fighter.skill_sa_pistol_proficiency)
+            elif self.gun.action_type == 'pump action':
+                proficiency = copy(self.entity.fighter.skill_pumpaction_proficiency)
+            elif self.gun.action_type == 'break action':
+                proficiency = copy(self.entity.fighter.skill_breakaction_proficiency)
 
             proficiency = 1 - (proficiency / 4000)
 
@@ -656,6 +717,15 @@ class ReloadFromClip(Action):
     def perform(self) -> None:
         self.gun.load_from_clip(clip=self.clip)
 
+        if self.entity.player:
+
+            if self.gun.clip_stays_in_gun:
+                self.gun.clip_in_gun = self.clip
+
+                if self.gun.clip_in_gun is not None:
+                    self.entity.inventory.items.append(self.gun.clip_in_gun.parent)
+
+                self.entity.inventory.items.remove(self.clip.parent)
 
 class LoadBulletsIntoMagazine(Action):
     def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Bullet):
@@ -710,7 +780,7 @@ class LoadBulletsIntoMagazine(Action):
     def perform(self) -> None:
 
         # loads bullets into gun
-        self.magazine.load_magazine(ammo=self.bullet_type, load_amount=self.bullets_to_load)
+        self.magazine.load_magazine(entity=self.entity, ammo=self.bullet_type, load_amount=self.bullets_to_load)
 
 
 class MovementAction(ActionWithDirection):
@@ -856,7 +926,7 @@ class PickupAction(AddToInventory):
         entity.previous_target_actor = None
 
     def calculate_ap_cost(self) -> int:
-        return 100
+        return 300
 
     def action_viable(self) -> bool:
         if self.entity.x == self.item.x and self.entity.y == self.item.y:
@@ -879,7 +949,7 @@ class DropAction(Action):
         entity.previous_target_actor = None
 
     def calculate_ap_cost(self) -> int:
-        return 100
+        return 300
 
     def perform(self) -> None:
         if self.item.stacking:
@@ -1005,8 +1075,12 @@ class EquipWeaponToPrimary(EquipWeapon):
     def perform(self) -> None:
         self.entity.inventory.items.remove(self.weapon.parent)
         if self.entity.inventory.primary_weapon:
+            if self.entity.inventory.held == self.entity.inventory.primary_weapon:
+                self.entity.inventory.held = None
+
             self.entity.inventory.add_to_inventory(item=self.entity.inventory.primary_weapon,
                                                    item_container=None, amount=1)
+
         self.entity.inventory.primary_weapon = self.weapon.parent
 
 
@@ -1018,8 +1092,13 @@ class EquipWeaponToSecondary(EquipWeapon):
     def perform(self) -> None:
         self.entity.inventory.items.remove(self.weapon.parent)
         if self.entity.inventory.secondary_weapon:
+
+            if self.entity.inventory.held == self.entity.inventory.secondary_weapon:
+                self.entity.inventory.held = None
+
             self.entity.inventory.add_to_inventory(item=self.entity.inventory.secondary_weapon,
                                                    item_container=None, amount=1)
+
         self.entity.inventory.secondary_weapon = self.weapon.parent
 
 
@@ -1057,24 +1136,31 @@ class CheckRoundsInMag(Action):
             if part.equipped is not None:
                 armour_ap_multiplier *= part.equipped.ap_penalty
 
-        proficiency = 1.0
+        proficiency_actiontype = 1.0
 
         if self.entity.player:
-            if self.weapon.gun_type == 'pistol':
-                proficiency = copy(self.entity.fighter.skill_pistol_proficiency)
-            elif self.weapon.gun_type == 'pdw':
-                proficiency = copy(self.entity.fighter.skill_smg_proficiency)
-            elif self.weapon.gun_type == 'rifle':
-                proficiency = copy(self.entity.fighter.skill_rifle_proficiency)
-            elif self.weapon.gun_type == 'bolt action':
-                proficiency = copy(self.entity.fighter.skill_bolt_action_proficiency)
 
-            proficiency = 1 - (proficiency / 4000)
+            if self.weapon.action_type == 'bolt action':
+                proficiency_actiontype = copy(self.entity.fighter.skill_bolt_action_proficiency)
+            elif self.weapon.action_type == 'revolver':
+                proficiency_actiontype = copy(self.entity.fighter.skill_revolver_proficiency)
+            elif self.weapon.action_type == 'semi-auto rifle':
+                proficiency_actiontype = copy(self.entity.fighter.skill_sa_rifle_proficiency)
+            elif self.weapon.action_type == 'semi-auto pistol':
+                proficiency_actiontype = copy(self.entity.fighter.skill_sa_pistol_proficiency)
+            elif self.weapon.action_type == 'pump action':
+                proficiency_actiontype = copy(self.entity.fighter.skill_pumpaction_proficiency)
+            elif self.weapon.action_type == 'break action':
+                proficiency_actiontype = copy(self.entity.fighter.skill_breakaction_proficiency)
+
+
+            proficiency_actiontype = 1 - (proficiency_actiontype / 4000)
+
 
         # AP cost calculated
         ap_cost = \
             (self.entity.fighter.action_ap_modifier *
-             self.weapon.load_time_modifier * self.weapon.loaded_magazine.witness_check_ap * proficiency)
+             self.weapon.load_time_modifier * self.weapon.loaded_magazine.witness_check_ap * proficiency_actiontype)
 
         return round(ap_cost * armour_ap_multiplier)
 

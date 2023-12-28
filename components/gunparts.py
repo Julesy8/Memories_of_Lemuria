@@ -17,7 +17,8 @@ class Parts:
         # self.update_partlist(attachment_dict={})
 
         self.non_multiplicative_properties = ["barrel_length", "zero_range", "sight_height_above_bore",
-                                              "receiver_height_above_bore", "muzzle_break_efficiency"]
+                                              "receiver_height_above_bore", "muzzle_break_efficiency",
+                                              "sight_spread_modifier"]
 
         self.additive_properties = ["receiver_height_above_bore"]
 
@@ -82,7 +83,8 @@ class Parts:
                                                    zero_range=self.parent.zero_range,
                                                    ap_distance_cost_modifier=self.parent.ap_distance_cost_modifier,
                                                    receiver_height_above_bore=self.parent.receiver_height_above_bore,
-                                                   spread_modifier=self.parent.spread_modifier,
+                                                   sight_spread_modifier=self.parent.sight_spread_modifier,
+                                                   handling_spread_modifier=self.parent.handling_spread_modifier,
                                                    projectile_spread_modifier=self.parent.projectile_spread_modifier,
                                                    target_acquisition_ap=self.parent.target_acquisition_ap,
                                                    firing_ap_cost=self.parent.firing_ap_cost,
@@ -119,7 +121,8 @@ class Parts:
                                             zero_range=self.parent.zero_range,
                                             ap_distance_cost_modifier=self.parent.ap_distance_cost_modifier,
                                             receiver_height_above_bore=self.parent.receiver_height_above_bore,
-                                            spread_modifier=self.parent.spread_modifier,
+                                            sight_spread_modifier=self.parent.sight_spread_modifier,
+                                            handling_spread_modifier=self.parent.handling_spread_modifier,
                                             projectile_spread_modifier=self.parent.projectile_spread_modifier,
                                             target_acquisition_ap=self.parent.target_acquisition_ap,
                                             firing_ap_cost=self.parent.firing_ap_cost,
@@ -259,7 +262,7 @@ class Parts:
                     if property_str == "velocity_modifier" or property_str == "projectile_spread_modifier":
                         gun_property['single projectile'] = (gun_property['single projectile'] *
                                                              part_properties[property_str])
-                        
+
                     else:
 
                         if type(gun_property) is int:
@@ -267,7 +270,7 @@ class Parts:
                         else:
                             setattr(self.parent, property_str, (part_properties[property_str] * gun_property))
 
-                elif type(part_properties[property_str]) in (None, str, int, bool):
+                elif type(part_properties[property_str]) in (None, str, int, bool, tuple):
                     setattr(self.parent, property_str, part_properties[property_str])
 
                 elif type(part_properties[property_str]) is dict:
@@ -295,13 +298,6 @@ class Parts:
         if isinstance(inventory, Inventory):
             if gun_item in inventory.items:
                 for part in self.part_list:
-
-                    # really don't know if this ever did anything
-                    # resets all attachment points on parts to None
-                    # if hasattr(part.usable_properties, 'is_attachment_point_types'):
-                    #     for attachment_points in part.usable_properties.is_attachment_point_types.keys():
-                    #         part.usable_properties.is_attachment_point_types[attachment_points] = None
-
                     inventory.items.append(part)
 
                 if isinstance(gun_item.usable_properties, GunMagFed):

@@ -3,6 +3,14 @@ from components.consumables import GunComponent
 import colour
 
 """
+Distance from your eye to the front sight = D
+Width of post = W
+
+W / (D / 3600) = Width of post in MOA.
+"""
+
+
+"""
 OPTICS
 """
 
@@ -17,7 +25,7 @@ holosun503 = Item(
                                    ap_to_equip=1.04,
                                    optic_properties={'target_acquisition_ap': 0.9,
                                                      'ap_distance_cost_modifier': 0.83,
-                                                     'spread_modifier': 0.76,
+                                                     'sight_spread_modifier': 0.02,
                                                      'sight_height_above_bore': 1.63,
                                                      'zero_range': 25, },
                                    attachment_point_required=('Picrail Optics Mount - Long',
@@ -36,7 +44,7 @@ acog_ta01 = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    optic_properties={'target_acquisition_ap': 1.16,
                                                      'ap_distance_cost_modifier': 0.71,
-                                                     'spread_modifier': 0.65,
+                                                     'sight_spread_modifier': 0.01,
                                                      'sight_height_above_bore': 1.535,
                                                      'zero_range': 100, },
                                    ap_to_equip=1.07,
@@ -56,7 +64,7 @@ eotech_exps3 = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    optic_properties={'target_acquisition_ap': 0.84,
                                                      'ap_distance_cost_modifier': 0.89,
-                                                     'spread_modifier': 0.84,
+                                                     'sight_spread_modifier': 0.01,
                                                      'sight_height_above_bore': 1.59,
                                                      'zero_range': 50, },
                                    ap_to_equip=1.05,
@@ -76,7 +84,7 @@ aimpoint_comp = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    optic_properties={'target_acquisition_ap': 0.94,
                                                      'ap_distance_cost_modifier': 0.82,
-                                                     'spread_modifier': 0.69,
+                                                     'sight_spread_modifier': 0.02,
                                                      'sight_height_above_bore': 2.0,
                                                      'zero_range': 50, },
                                    ap_to_equip=1.07,
@@ -96,7 +104,7 @@ kobra_ekp = Item(
     usable_properties=GunComponent(part_type='optic',
                                    optic_properties={'target_acquisition_ap': 0.8,
                                                      'ap_distance_cost_modifier': 0.92,
-                                                     'spread_modifier': 0.87,
+                                                     'sight_spread_modifier': 0.018,
                                                      'sight_height_above_bore': 2.0,
                                                      'zero_range': 100, },
                                    ap_to_equip=1.03,
@@ -115,7 +123,7 @@ kobra_ekp_picrail = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    optic_properties={'target_acquisition_ap': 0.8,
                                                      'ap_distance_cost_modifier': 0.92,
-                                                     'spread_modifier': 0.87,
+                                                     'sight_spread_modifier': 0.018,
                                                      'sight_height_above_bore': 2.0,
                                                      'zero_range': 100, },
                                    ap_to_equip=1.03,
@@ -136,7 +144,7 @@ amguh1 = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    optic_properties={'target_acquisition_ap': 0.87,
                                                      'ap_distance_cost_modifier': 0.86,
-                                                     'spread_modifier': 0.74,
+                                                     'sight_spread_modifier': 0.01,
                                                      'sight_height_above_bore': 1.58,
                                                      'zero_range': 25, },
                                    ap_to_equip=1.02,
@@ -156,7 +164,7 @@ compactprism = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    optic_properties={'target_acquisition_ap': 0.96,
                                                      'ap_distance_cost_modifier': 0.77,
-                                                     'spread_modifier': 0.72,
+                                                     'sight_spread_modifier': 0.02,
                                                      'sight_height_above_bore': 2.19,
                                                      'zero_range': 50, },
                                    ap_to_equip=1.06,
@@ -174,9 +182,9 @@ pm2scope = Item(
     weight=0.86,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   optic_properties={'target_acquisition_ap': 1.25,
+                                   optic_properties={'target_acquisition_ap': 2.0,
                                                      'ap_distance_cost_modifier': 0.63,
-                                                     'spread_modifier': 0.62,
+                                                     'sight_spread_modifier': 0.0,
                                                      'sight_height_above_bore': 1.47,
                                                      'zero_range': 200, },
                                    ap_to_equip=1.11,
@@ -193,9 +201,9 @@ pso1 = Item(
     weight=0.6,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
-                                   optic_properties={'target_acquisition_ap': 1.21,
+                                   optic_properties={'target_acquisition_ap': 1.5,
                                                      'ap_distance_cost_modifier': 0.73,
-                                                     'spread_modifier': 0.66,
+                                                     'sight_spread_modifier': 0.0,
                                                      'sight_height_above_bore': 1.39,
                                                      'zero_range': 100, },
                                    ap_to_equip=1.06,
@@ -214,7 +222,7 @@ okp7 = Item(
     usable_properties=GunComponent(part_type='Optic',
                                    optic_properties={'target_acquisition_ap': 0.79,
                                                      'ap_distance_cost_modifier': 0.93,
-                                                     'spread_modifier': 0.87,
+                                                     'sight_spread_modifier': 0.02,
                                                      'sight_height_above_bore': 0.94,
                                                      'zero_range': 25, },
                                    ap_to_equip=1.04,
@@ -242,7 +250,7 @@ irons_sig_rear = Item(
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    optic_properties={'target_acquisition_ap': 0.98,
                                                      'ap_distance_cost_modifier': 0.97,
-                                                     'spread_modifier': 0.97,
+                                                     'sight_spread_modifier': 0.02,
                                                      'zero_range': 25, },
                                    attachment_point_required=('Picrail Optics Mount - Short',),
                                    sight_height_above_bore=1.4,
@@ -282,7 +290,7 @@ irons_magpul_rear = Item(
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    optic_properties={'target_acquisition_ap': 0.98,
                                                      'ap_distance_cost_modifier': 0.97,
-                                                     'spread_modifier': 0.97,
+                                                     'sight_spread_modifier': 0.02,
                                                      'zero_range': 25, },
                                    sight_height_above_bore=1.4,
                                    ),
@@ -321,7 +329,7 @@ irons_dd_rear = Item(
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    optic_properties={'target_acquisition_ap': 0.98,
                                                      'ap_distance_cost_modifier': 0.97,
-                                                     'spread_modifier': 0.97,
+                                                     'sight_spread_modifier': 0.02,
                                                      'zero_range': 25, },
                                    sight_height_above_bore=1.4,
                                    ),
@@ -360,7 +368,7 @@ irons_troy_rear = Item(
                                    prevents_attachment_of={'AR Handguard': ['Optic', ]},
                                    optic_properties={'target_acquisition_ap': 0.98,
                                                      'ap_distance_cost_modifier': 0.97,
-                                                     'spread_modifier': 0.97,
+                                                     'sight_spread_modifier': 0.02,
                                                      'zero_range': 25, },
                                    sight_height_above_bore=1.4,
                                    ),
@@ -399,7 +407,7 @@ grip_hera_cqr = Item(
                                    grip_properties={
                                        'felt_recoil': 0.82,
                                        'ap_distance_cost_modifier': 0.92,
-                                       'spread_modifier': 0.91,
+                                       'handling_spread_modifier': 0.91,
                                        'target_acquisition_ap': 0.8},),
     description="An ergonomic polymer front grip manufactured by HERA Arms designed for AR-type rifles"
 )
@@ -416,7 +424,7 @@ grip_promag_vertical = Item(
                                    grip_properties={
                                        'felt_recoil': 0.94,
                                        'ap_distance_cost_modifier': 0.78,
-                                       'spread_modifier': 0.75,
+                                       'handling_spread_modifier': 0.75,
                                        'target_acquisition_ap': 0.95},),
     description="A simple polymer front vertical grip designed by Pro Mag"
 )
@@ -433,7 +441,7 @@ grip_jem_vertical = Item(
                                    grip_properties={
                                        'felt_recoil': 0.75,
                                        'ap_distance_cost_modifier': 0.96,
-                                       'spread_modifier': 0.92,
+                                       'handling_spread_modifier': 0.92,
                                        'target_acquisition_ap': 0.79},),
     description="An ergonomic polymer pistol grip style vertical grip designed by JE Machine Tech"
 )
@@ -450,7 +458,7 @@ grip_magpul_angled = Item(
                                    grip_properties={
                                        'felt_recoil': 0.87,
                                        'ap_distance_cost_modifier': 0.89,
-                                       'spread_modifier': 0.87,
+                                       'handling_spread_modifier': 0.87,
                                        'target_acquisition_ap': 0.81},),
     description="An angled polymer foregrip designed by Magpul"
 )
@@ -467,7 +475,7 @@ grip_magpul_mvg = Item(
                                    grip_properties={
                                        'felt_recoil': 0.79,
                                        'ap_distance_cost_modifier': 0.93,
-                                       'spread_modifier': 0.89,
+                                       'handling_spread_modifier': 0.89,
                                        'target_acquisition_ap': 0.78},),
     description="A short polymer vertical fore grip designed by Magpul"
 )
@@ -484,7 +492,7 @@ grip_aimtac_short = Item(
                                    grip_properties={
                                        'felt_recoil': 0.77,
                                        'ap_distance_cost_modifier': 0.94,
-                                       'spread_modifier': 0.91,
+                                       'handling_spread_modifier': 0.91,
                                        'target_acquisition_ap': 0.76},),
     description="A short polymer vertical fore grip designed by AIM Sports Tactical"
 )
@@ -501,7 +509,7 @@ grip_magpul_handstop = Item(
                                    grip_properties={
                                        'felt_recoil': 0.85,
                                        'ap_distance_cost_modifier': 0.87,
-                                       'spread_modifier': 0.89,
+                                       'handling_spread_modifier': 0.89,
                                        'target_acquisition_ap': 0.75},),
     description="A polymer hand stop designed by Magpul"
 )
@@ -518,7 +526,7 @@ grip_hipoint_folding = Item(
                                    grip_properties={
                                        'felt_recoil': 0.91,
                                        'ap_distance_cost_modifier': 0.81,
-                                       'spread_modifier': 0.75,
+                                       'handling_spread_modifier': 0.75,
                                        'target_acquisition_ap': 0.93},),
     description="A slim, polymer folding vertical grip designed by HI Point"
 )

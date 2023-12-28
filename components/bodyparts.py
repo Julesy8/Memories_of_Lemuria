@@ -28,8 +28,8 @@ class Bodypart:
                  protection_ballistic: float,
                  protection_physical: int,
                  name: str,
-                 width: int,
-                 height: int,
+                 width: int,  # cm
+                 height: int,  # cm
                  depth: int,  # tissue depth (cm)
                  part_type: Optional[str],
                  # tissue strength and density probably don't need to be variables

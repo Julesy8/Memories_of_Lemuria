@@ -35,18 +35,23 @@ After that trading and other party options - reloading, ammo priority etc. Ammo 
 magazine class itself.
 
 Extended Goals
+-tactical and speed reloads
 -borderlands style weapon naming
--new weapon property - needs_mag_to_fire
--ability to single load rounds into guns for emergencies
 -grenades
 -dialogue
 -doors
--Better level progression - alternative levels
 -Trigger mods
 -unique enemies which spawn once per game
 -in the dungeon you find enemies using your looted equipment from previous runs
 -more room shapes on level generation
 -weapon graphics
+-tracer rounds (increase full auto accuracy)
+-ability to trade with players directly adjacent to you
+-random cover spawns in levels
+-enemies have side weapons and limited ammo, can change weapons
+-bullets going through enemies
+-adjustable sights
+
 -try reducing exe size - use UPX
 -grave yard (call it cemetary)
 

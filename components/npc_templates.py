@@ -38,7 +38,7 @@ class Fighter(BaseComponent):
                  ap: int = 100,
                  ap_per_turn: int = 100,
                  melee_accuracy: float = 0.5,  # more = more accurate
-                 ranged_accuracy: float = 5.0,  # less = more accurate
+                 ranged_accuracy: float = 8.0,  # less = more accurate
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  fears_death=True,
@@ -79,7 +79,6 @@ class Fighter(BaseComponent):
         self.move_success_chance = move_success_chance
 
         self.style_range_accuracy = 1.0
-        self.style_action_ap = 1.0
 
         # whether entity paths towards gunshot sounds
         self.responds_to_sound = responds_to_sound
@@ -112,7 +111,7 @@ class Fighter(BaseComponent):
 
     @property
     def action_ap_modifier(self) -> float:
-        return self._action_ap_modifier * self.style_action_ap
+        return self._action_ap_modifier
 
     @ranged_accuracy.setter
     def ranged_accuracy(self, value: float) -> None:
@@ -169,14 +168,15 @@ class Fighter(BaseComponent):
 
                         for y in range(randint(0, 2)):
                             clip_copy = deepcopy(clip.parent)
-                            clip_copy.load_magazine(ammo=weapon_properties.chambered_bullet,
+                            clip_copy.load_magazine(entity=self.parent, ammo=weapon_properties.chambered_bullet,
                                                     load_amount=(randint(1, clip.mag_capacity)))
                             self.parent.inventory.add_to_inventory(item=clip_copy.parent, item_container=None, amount=1)
                     else:
                         clip = gun.clip
                         for y in range(randint(0, 2)):
                             clip_copy = deepcopy(clip)
-                            clip_copy.usable_properties.load_magazine(ammo=weapon_properties.chambered_bullet,
+                            clip_copy.usable_properties.load_magazine(entity=self.parent,
+                                                                      ammo=weapon_properties.chambered_bullet,
                                                                      load_amount=(randint(1, clip_copy.
                                                                                           usable_properties.mag_capacity)))
                             self.parent.inventory.add_to_inventory(item=clip_copy, item_container=None, amount=1)
@@ -200,7 +200,8 @@ class Fighter(BaseComponent):
 
                         for y in range(randint(0, 2)):
                             mag_copy = deepcopy(magazine)
-                            mag_copy.usable_properties.load_magazine(ammo=weapon_properties.chambered_bullet,
+                            mag_copy.usable_properties.load_magazine(entity=self.parent,
+                                                                     ammo=weapon_properties.chambered_bullet,
                                                                      load_amount=(randint(1, mag_copy.
                                                                                           usable_properties.mag_capacity)))
                             self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
@@ -208,12 +209,14 @@ class Fighter(BaseComponent):
                         magazine = gun.magazine
                         for y in range(randint(0, 2)):
                             mag_copy = deepcopy(magazine)
-                            mag_copy.usable_properties.load_magazine(ammo=weapon_properties.chambered_bullet,
+                            mag_copy.usable_properties.load_magazine(entity=self.parent,
+                                                                     ammo=weapon_properties.chambered_bullet,
                                                                      load_amount=(randint(1, mag_copy.
                                                                                           usable_properties.mag_capacity)))
                             self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
 
             self.parent.inventory.held = held_weapon
+            self.parent.inventory.primary_weapon = held_weapon
             self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held
             self.parent.inventory.held.parent = self.parent.inventory
 
@@ -230,14 +233,14 @@ class GunFighter(Fighter):
                  ap: int = 100,
                  ap_per_turn: int = 100,
                  melee_accuracy: float = 0.5,
-                 ranged_accuracy: float = 5.0,
+                 ranged_accuracy: float = 8.0,
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  automatic_fire_duration: float = 0.5,
-                 felt_recoil: float = 2.0,
+                 felt_recoil: float = 1.0,
                  target_acquisition_ap: float = 2.0,
-                 firing_ap_cost: float = 1.5,
-                 ap_distance_cost_modifier: float = 2.0,
+                 firing_ap_cost: float = 1.0,
+                 ap_distance_cost_modifier: float = 1.5,
                  fears_death=True,
                  description: str = '',
                  active=False
@@ -293,21 +296,18 @@ class GunFighter(Fighter):
 
     def attack_style_precision(self):
         self.attack_style = 'PRECISION'
-        self.style_range_accuracy = 0.7
+        self.style_range_accuracy = 0.5
         self.automatic_fire_duration = 0.2
-        self.style_action_ap = 1.3
 
     def attack_style_cqc(self):
         self.attack_style = 'CLOSE QUARTERS'
         self.style_range_accuracy = 1.3
-        self.automatic_fire_duration = 0.7
-        self.style_action_ap = 0.7
+        self.automatic_fire_duration = 0.5
 
     def attack_style_measured(self):
         self.attack_style = 'MEASURED'
         self.style_range_accuracy = 1.0
-        self.automatic_fire_duration = 0.5
-        self.style_action_ap = 1.0
+        self.automatic_fire_duration = 0.35
 
 
 class PlayerFighter(GunFighter):
@@ -322,27 +322,40 @@ class PlayerFighter(GunFighter):
                  ap: int = 100,
                  ap_per_turn: int = 100,
                  melee_accuracy: float = 0.5,
-                 ranged_accuracy: float = 5.0,
+                 ranged_accuracy: float = 8.0,
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  automatic_fire_duration: float = 0.5,
-                 felt_recoil: float = 2.0,
+                 felt_recoil: float = 1.0,
                  target_acquisition_ap: float = 2.0,
-                 firing_ap_cost: float = 1.5,
-                 ap_distance_cost_modifier: float = 2.0,
+                 firing_ap_cost: float = 1.0,
+                 ap_distance_cost_modifier: float = 1.5,
+                 skill_recoil_control: int = 0,
                  skill_marksmanship: int = 0,
                  skill_pistol_proficiency: int = 0,
                  skill_smg_proficiency: int = 0,
                  skill_rifle_proficiency: int = 0,
+                 skill_revolver_proficiency: int = 0,
+                 skill_sa_rifle_proficiency: int = 0,
+                 skill_sa_pistol_proficiency: int = 0,
+                 skill_pumpaction_proficiency: int = 0,
+                 skill_breakaction_proficiency: int = 0,
                  skill_bolt_action_proficiency: int = 0,
                  fears_death=True,
                  description: str = '',
                  active=True
                  ):
+
+        self._skill_recoil_control = skill_recoil_control
         self._skill_marksmanship = skill_marksmanship
         self._skill_pistol_proficiency = skill_pistol_proficiency
         self._skill_smg_proficiency = skill_smg_proficiency
         self._skill_rifle_proficiency = skill_rifle_proficiency
+        self._skill_revolver_proficiency = skill_revolver_proficiency
+        self._skill_sa_rifle_proficiency = skill_sa_rifle_proficiency
+        self._skill_sa_pistol_proficiency = skill_sa_pistol_proficiency
+        self._skill_pumpaction_proficiency = skill_pumpaction_proficiency
+        self._skill_breakaction_proficiency = skill_breakaction_proficiency
         self._skill_bolt_action_proficiency = skill_bolt_action_proficiency
         self.visible_tiles = None
 
@@ -369,6 +382,62 @@ class PlayerFighter(GunFighter):
         self._skill_pistol_proficiency = min(value, 1000)
 
     @property
+    def skill_recoil_control(self):
+        return self._skill_recoil_control
+
+    @skill_recoil_control.setter
+    def skill_recoil_control(self, value):
+        self._skill_recoil_control = min(value, 1000)
+
+    @property
+    def skill_revolver_proficiency(self):
+        return self._skill_recoil_control
+
+    @skill_revolver_proficiency.setter
+    def skill_revolver_proficiency(self, value):
+        self._skill_revolver_proficiency = min(value, 1000)
+
+    @property
+    def skill_bolt_action_proficiency(self):
+        return self._skill_bolt_action_proficiency
+
+    @skill_bolt_action_proficiency.setter
+    def skill_bolt_action_proficiency(self, value):
+        self._skill_bolt_action_proficiency = min(value, 1000)
+
+    @property
+    def skill_sa_rifle_proficiency(self):
+        return self._skill_sa_rifle_proficiency
+
+    @skill_sa_rifle_proficiency.setter
+    def skill_sa_rifle_proficiency(self, value):
+        self._skill_sa_rifle_proficiency = min(value, 1000)
+
+    @property
+    def skill_sa_pistol_proficiency(self):
+        return self._skill_sa_pistol_proficiency
+
+    @skill_sa_pistol_proficiency.setter
+    def skill_sa_pistol_proficiency(self, value):
+        self._skill_sa_pistol_proficiency = min(value, 1000)
+
+    @property
+    def skill_pumpaction_proficiency(self):
+        return self._skill_pumpaction_proficiency
+
+    @skill_pumpaction_proficiency.setter
+    def skill_pumpaction_proficiency(self, value):
+        self._skill_pumpaction_proficiency = min(value, 1000)
+
+    @property
+    def skill_breakaction_proficiency(self):
+        return self._skill_breakaction_proficiency
+
+    @skill_breakaction_proficiency.setter
+    def skill_breakaction_proficiency(self, value):
+        self._skill_breakaction_proficiency = min(value, 1000)
+
+    @property
     def skill_smg_proficiency(self):
         return self._skill_smg_proficiency
 
@@ -383,11 +452,3 @@ class PlayerFighter(GunFighter):
     @skill_rifle_proficiency.setter
     def skill_rifle_proficiency(self, value):
         self._skill_rifle_proficiency = min(value, 1000)
-
-    @property
-    def skill_bolt_action_proficiency(self):
-        return self._skill_bolt_action_proficiency
-
-    @skill_bolt_action_proficiency.setter
-    def skill_bolt_action_proficiency(self, value):
-        self._skill_bolt_action_proficiency = min(value, 1000)

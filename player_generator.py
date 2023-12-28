@@ -8,17 +8,25 @@ from components.weapons.gun_maker import (ar15_weapon, ar10_weapon, ak47_weapon,
                                           m1911_10mm, m1911_40sw, m1_carbine_gun, m2_carbine_gun, m14_gun, m1a_gun,
                                           r870_gun, supershorty_gun, g_17)
 
+from components.armour import (helmet_riot, helmet_ssh68, helmet_m1, helmet_pasgt, helmet_ech, helmet_ronin,
+                               helmet_altyn, bodyarmour_pasgt, bodyarmour_interceptor, bodyarmour_improved,
+                               platecarrier_3a, platecarrier_3, platecarrier_4)
+
 from entity import Actor
 from components.inventory import Inventory
 from components.ai import PlayerCharacter
-from random import choice
+from random import choice, randint, choices
 from components.npc_templates import PlayerFighter
 from components.bodyparts import Body, Arm, Leg, Head
-from copy import copy
+from copy import copy, deepcopy
 
 if TYPE_CHECKING:
     from engine import Engine
 
+
+helmets_leveled = {0: {None: 1, helmet_riot: 20, helmet_ssh68: 4 ,helmet_m1: 4 ,helmet_pasgt: 2}}
+
+bodyarmour_leveled = {0: {None: 50, bodyarmour_pasgt: 1}}
 
 def generate_player(current_level: int, players: list):
 
@@ -28,7 +36,7 @@ def generate_player(current_level: int, players: list):
 
     first_names = ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles',
                    'Christopher', 'Daniel', 'Matthew', 'Anthony', 'Donald', 'Mark', 'Paul', 'Steven', 'Andrew',
-                   'Kenneth', 'George', 'Joshua', 'Kevin', 'Brian', 'Edward', 'William', 'Nicholas', 'Tyler', 'Brandon',
+                   'Kenneth', 'George', 'Joshua', 'Kevin', 'Brian', 'Edward', 'Nicholas', 'Tyler', 'Brandon',
                    'Jacob', 'Ryan', 'Justin', 'Jonathan', 'Austin', 'Cody', 'Eric', 'Benjamin', 'Adam', 'Samuel',
                    'Jeremy', 'Patrick', 'Alexander', 'Jesse', 'Zachary', 'Dylan', 'Nathan', 'Scott', 'Kyle', 'Jeffrey',
                    'Sean', 'Travis', 'Bryan', 'Ethan', 'Luke', 'Carlos', 'Ian', 'Peter', 'Christian', 'Cameron',
@@ -36,7 +44,8 @@ def generate_player(current_level: int, players: list):
                    'Seth', 'Adrian', 'Jorge', 'Trevor', 'Dustin', 'Mario', 'Derek', 'Devin', 'Javier', 'Miguel',
                    'Julian', 'Oscar', 'Blake', 'Cole', 'Joel', 'Ronald', 'Francisco', 'Bradley', 'Eduardo', 'Devon',
                    'Maxwell', 'Ruben', 'Ricardo', 'Derrick', 'Tanner', 'Angel', 'Brett', 'Martin', 'Spencer', 'Gavin',
-                   'Henry', 'Troy', 'Victor', 'Darius', 'Drew', ]
+                   'Henry', 'Troy', 'Victor', 'Darius', 'Drew', 'Jack', 'Beau', 'Liam', 'Oliver', 'Max', 'Angus',
+                   'Ryley', 'Carl', 'Hamish', 'Mitch', 'Ben', 'Xavier']
 
     last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Martinez',
                   'Taylor', 'Anderson', 'Wilson', 'Jackson', 'Wright',
@@ -107,6 +116,25 @@ def generate_player(current_level: int, players: list):
                    )
 
     player.fighter.give_weapon()
+
+    helmet = deepcopy(choices(population=list(helmets_leveled[current_level].keys()),
+                           weights=list(helmets_leveled[current_level].values()),
+                           k=1)[0])
+
+    bodyarmour = deepcopy(choices(population=list(bodyarmour_leveled[current_level].keys()),
+                           weights=list(bodyarmour_leveled[current_level].values()),
+                           k=1)[0])
+
+    if bodyarmour is not None:
+        player.inventory.small_mag_capacity += bodyarmour.usable_properties.small_mag_slots
+        player.inventory.medium_mag_capacity += bodyarmour.usable_properties.medium_mag_slots
+        player.inventory.large_mag_capacity += bodyarmour.usable_properties.large_mag_slots
+
+    for armour in (helmet, bodyarmour):
+        if armour is not None:
+            for bodypart in player.bodyparts:
+                if bodypart.part_type == armour.usable_properties.fits_bodypart:
+                    bodypart.equipped = armour.usable_properties
 
     player.fighter.attack_style_measured()
 

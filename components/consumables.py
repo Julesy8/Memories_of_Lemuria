@@ -6,7 +6,7 @@ from exceptions import Impossible
 
 from numpy import random
 from math import sqrt, e, pi, cos, sin
-from random import uniform, choices
+from random import uniform, choices, choice
 from copy import deepcopy
 from pydantic.utils import deep_update
 
@@ -184,11 +184,13 @@ class Weapon(Usable):
                 total_weight += len(magazine) * magazine[0].parent.weight
 
             # calculates AP modifier based on weight and weapon type
-            if self.gun_type == 'pistol':
-                weight_handling_modifier = 0.4 + 0.6 * total_weight
 
+            if self.gun_type == 'pistol':
+                weight_handling_modifier = 0.75 + 0.25 * total_weight
+            elif self.gun_type != 'pistol' and not self.has_stock:
+                weight_handling_modifier = 0.85 + 0.15 * (total_weight / 2)
             else:
-                weight_handling_modifier = 0.5 + 0.5 * (total_weight / 4)
+                weight_handling_modifier = 0.85 + 0.15 * (total_weight / 3)
 
         equip_time = self.ap_to_equip * inventory.parent.fighter.action_ap_modifier * weight_handling_modifier
 
@@ -302,7 +304,7 @@ class Magazine(Usable):
     def loading_ap(self):
         return 0, 1.0, 1.0
 
-    def load_magazine(self, ammo: Bullet, load_amount: int) -> None:
+    def load_magazine(self, entity: Actor, ammo: Bullet, load_amount: int) -> None:
 
         # loads bullets into magazine
         single_round = deepcopy(ammo)
@@ -316,11 +318,14 @@ class Magazine(Usable):
         if isinstance(self, GunIntegratedMag):
             self.chamber_round()
 
+        if isinstance(self, Gun):
+            if self.clip_stays_in_gun:
+
+                if self.clip_in_gun is not None:
+                    entity.inventory.items.append(self.clip_in_gun.parent)
+
     def unload_magazine(self, entity: Actor) -> None:
         # unloads bullets from magazine
-
-        # bullets_unloaded = []
-
         inventory = entity.inventory
 
         if isinstance(inventory, components.inventory.Inventory):
@@ -336,22 +341,6 @@ class Magazine(Usable):
                                            entity=inventory.parent).handle_action()
 
                 self.magazine = []
-
-                # for bullet in self.magazine:
-                #
-                #     if bullet not in bullets_unloaded:
-                #         bullets_unloaded.append(bullet.parent.name)b
-                #         bullet_counter = 0
-                #         for i in self.magazine:
-                #             if i.parent.name == bullet.parent.name:
-                #                 bullet_counter += 1
-                #                 print(f'bullet counter {bullet_counter}')
-                #
-                #         bullet.parent.stacking.stack_size = bullet_counter
-                #
-                #         actions.AddToInventory(item=bullet.parent, amount=bullet_counter,
-                #                                entity=inventory.parent).perform()
-                # self.magazine = []
 
             else:
                 return self.engine.message_log.add_message(f"{self.parent.name} is already empty", colour.RED)
@@ -411,18 +400,24 @@ class Clip(Magazine):
                  mag_capacity: int,
                  magazine_size: str,
                  ap_to_load: int,
+                 requires_gun_empty: bool = False
                  ):
         super().__init__(compatible_bullet_type=compatible_bullet_type, mag_capacity=mag_capacity)
 
         self.magazine_type = magazine_type
         self.magazine_size = magazine_size
         self.ap_to_load = ap_to_load
+        self.requires_gun_empty = requires_gun_empty
 
+# y, x
+recoil_patterns = ((1.0, 0.0), (0.9, 0.1), (0.8, 0.2), (0.7, 0.3), (0.6, 0.4), (0.5, 0.5), (0.5, 0.5), (0.4, 0.6),
+                   (0.3, 0.7))
 
 class Gun(Weapon):
     def __init__(self,
                  parts: Parts,
                  gun_type: str,
+                 action_type: str,
                  compatible_bullet_type: tuple,
                  velocity_modifier: dict,
                  ap_to_equip: int,
@@ -437,7 +432,8 @@ class Gun(Weapon):
                  receiver_height_above_bore: float,  # inches
                  target_acquisition_ap: int,  # ap cost for acquiring new target
                  ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
-                 spread_modifier: float,  # spread due to purely non-ballistic factors i.e. handling
+                 sight_spread_modifier: float,  # accuracy of the weapon's sighting system (MoA / 100)
+                 handling_spread_modifier: float , # spread purely due to accuracy of the sights themselves (MoA / 100)
                  projectile_spread_modifier: dict,  # spread due to ballistic factors i.e. barrel length, choke
                  manual_action: bool = False,
                  action_cycle_ap_cost: int = 100,
@@ -447,6 +443,8 @@ class Gun(Weapon):
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
+                 clip_stays_in_gun: bool = False,
+                 clip_in_gun: Optional[Clip] = None,
                  compatible_clip: str = None,
                  previously_loaded_clip: Optional[Clip] = None,
                  chambered_bullet: Optional[Bullet] = None,
@@ -467,9 +465,9 @@ class Gun(Weapon):
         ap_distance_cost_modifier - decreased w/ increased optic zoom, decreased weight, ergonomics
         load_time_modifier - decreased w/ increased ergonomics
         """
-
         self.parts = parts
         self.gun_type = gun_type
+        self.action_type = action_type
         self.has_stock = has_stock
         self.short_barrel = short_barrel
         self.compatible_bullet_type = compatible_bullet_type
@@ -481,8 +479,11 @@ class Gun(Weapon):
         self.receiver_height_above_bore = receiver_height_above_bore
         self.sight_height_above_bore = sight_height_above_bore
         self.barrel_length = barrel_length
-        self.spread_modifier = spread_modifier
+        self.sight_spread_modifier = sight_spread_modifier
+        self.handling_spread_modifier = handling_spread_modifier
         self.projectile_spread_modifier = projectile_spread_modifier
+        self.clip_stays_in_gun = clip_stays_in_gun
+        self.clip_in_gun = clip_in_gun
         self.previously_loaded_clip = previously_loaded_clip
         self.chambered_bullet = chambered_bullet
         self.keep_round_chambered = keep_round_chambered
@@ -522,6 +523,11 @@ class Gun(Weapon):
         if self.jammed:
             self.engine.message_log.add_message("Attack failed: gun jammed.", colour.RED)
 
+        recoil_control = 1.0
+
+        if attacker.player:
+            recoil_control = 1.0 - (attacker.fighter.skill_recoil_control / 4000)
+
         self.momentum_gun = 0
         self.time_in_barrel = 0
 
@@ -540,7 +546,6 @@ class Gun(Weapon):
         if distance < 1:
             distance = 1
 
-        spread_angle = uniform(0, 1) * 2 * pi
         dist_yards = distance * 1.09361
 
         # list of the shot sound radius of each shot fired
@@ -601,24 +606,25 @@ class Gun(Weapon):
                 # if the sound radius of the fired round is not already in the list, appends it to the list for
                 sound_radius_list.append(sound_radius)
 
-                # calculates AP modifier based on weight and weapon type
-                # TODO - should be affected by a 'strength' stat
-                if self.gun_type == 'pistol':
-                    weight_handling_modifier = 0.75 + 0.25 * (self.parent.weight + total_weight)
+                # aim location coordinates (inches)
+                standard_deviation_aim = (dist_yards * attacker.fighter.ranged_accuracy * proficiency *
+                                      skill_range_modifier * (self.handling_spread_modifier * 0.01) * 1.047)
 
-                else:
-                    weight_handling_modifier = 0.85 + 0.15 * ((self.parent.weight + total_weight) / 4)
+                aim_location_x = random.normal(scale=standard_deviation_aim, size=1)[0]
+                aim_location_y = random.normal(scale=standard_deviation_aim, size=1)[0]
 
-                # aim location coordinates
-                standard_deviation = (0.1 * dist_yards * attacker.fighter.ranged_accuracy * proficiency *
-                                      skill_range_modifier * weight_handling_modifier)
-                hit_location_x = random.normal(scale=standard_deviation, size=1)[0]
-                hit_location_y = random.normal(scale=standard_deviation, size=1)[0]
+                standard_deviation_sight = dist_yards * self.sight_spread_modifier * 1.047
+
+                hit_location_x = random.normal(scale=standard_deviation_sight, size=1)[0]
+                hit_location_y = random.normal(scale=standard_deviation_sight, size=1)[0]
+
+                hit_location_x += aim_location_x
+                hit_location_y += aim_location_y
 
                 # projectile hit locations from ballistic factors
                 projectile_spread_modifier = (self.projectile_spread_modifier[self.chambered_bullet.projectile_type] *
                                               self.chambered_bullet.spread_modifier *
-                                              min((5 / self.condition_accuracy), 2) * dist_yards)
+                                              min((5 / self.condition_accuracy), 2) * dist_yards) * 1.047
 
                 # Pejsa's projectile drop formula
                 retardation_coefficient = \
@@ -642,17 +648,22 @@ class Gun(Weapon):
                         1 / 0.5)
 
                 for i in range(self.chambered_bullet.projectile_no):
+                    spread_angle = uniform(0, 1) * 2 * pi
 
-                    radius_projectile = (projectile_spread_modifier * 0.523) * sqrt(uniform(0, 1))
+                    radius_projectile = (projectile_spread_modifier * 0.5) * sqrt(uniform(0, 1))
                     spread_x_projectile = radius_projectile * cos(spread_angle)
                     spread_y_projectile = radius_projectile * sin(spread_angle)
 
-                    # checks if hit
-                    hit_location_x += spread_x_projectile
-                    hit_location_y += (recoil_penalty * dist_yards) + projectile_path + spread_y_projectile
+                    recoil_pattern = choice(recoil_patterns)
+                    recoil_x = recoil_pattern[1] * recoil_penalty
+                    recoil_y = recoil_pattern[0] * recoil_penalty
 
-                    if not hit_location_x > (target.bodyparts[part_index].width * 0.3937 / 2) or hit_location_x < 0 or \
-                            hit_location_y > (target.bodyparts[part_index].height * 0.3937 / 2) or hit_location_y < 0:
+                    # checks if hit
+                    hit_location_x += (recoil_x * dist_yards) + spread_x_projectile
+                    hit_location_y += (recoil_y * dist_yards) + projectile_path + spread_y_projectile
+
+                    if (not abs(hit_location_x) > (target.bodyparts[part_index].width * 0.3937 / 2) or not
+                            abs(hit_location_y) > (target.bodyparts[part_index].height * 0.3937 / 2)):
                         # does damage to given bodypart
                         target.bodyparts[part_index].deal_damage_gun(
                             diameter_bullet=self.chambered_bullet.diameter,
@@ -711,7 +722,8 @@ class Gun(Weapon):
                     # and pistol grip reducing felt recoil by 70% shooting 55gr bullets.
                     # arbitrary but almost impossible to calculate actual muzzle rise for all guns and conifgurations
                     recoil_spread = \
-                        velocity_gun * self.felt_recoil * attacker.fighter.felt_recoil * 0.0019634 * proficiency
+                        (velocity_gun * self.felt_recoil * attacker.fighter.felt_recoil * 0.008 * proficiency *
+                         recoil_control)
 
                     recoil_spread_list.append(recoil_spread)
 
@@ -725,13 +737,17 @@ class Gun(Weapon):
                     else:
                         recoil_penalty = sum(recoil_spread_list)
 
+                    if attacker.player:
+                        attacker.fighter.skill_recoil_control += round((recoil_penalty * 50))
+
+
             else:
                 self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
                 if attacker.player:
                     self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
                 break
 
-        attacker.fighter.ap -= round(150 * recoil_penalty)
+        attacker.fighter.ap -= round(75 * recoil_penalty)
 
         self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
 
@@ -825,11 +841,15 @@ class Gun(Weapon):
                 return True
 
             elif inventory.parent.player:
-                self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from stripper clip",
+                self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from clip",
                                                     colour.RED)
 
         elif inventory.parent.player:
-            self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from stripper clip",
+            self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from clip",
+                                                colour.RED)
+
+        if len(magazine.magazine) > 0 and clip.requires_gun_empty:
+            self.engine.message_log.add_message(f"{inventory.parent.name}: rounds still loaded",
                                                 colour.RED)
 
         return False
@@ -876,6 +896,7 @@ class GunMagFed(Gun):
     def __init__(self,
                  parts: Parts,
                  gun_type: str,
+                 action_type: str,
                  compatible_magazine_type: str,
                  compatible_bullet_type: tuple,
                  velocity_modifier: dict,
@@ -891,7 +912,8 @@ class GunMagFed(Gun):
                  felt_recoil: float,
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
-                 spread_modifier: float,  # MoA / 100
+                 sight_spread_modifier: float,
+                 handling_spread_modifier: float,
                  projectile_spread_modifier: dict,
                  manual_action: bool = False,
                  action_cycle_ap_cost: int = 100,
@@ -903,6 +925,8 @@ class GunMagFed(Gun):
                  load_time_modifier: float = 1.0,
                  chambered_bullet: Optional[Bullet] = None,
                  loaded_magazine: Optional[DetachableMagazine] = None,
+                 clip_stays_in_gun: bool = False,
+                 clip_in_gun: Optional[Clip] = None,
                  compatible_clip: str = None,
                  has_stock: bool = False,
                  pdw_stock: bool = False,
@@ -917,6 +941,7 @@ class GunMagFed(Gun):
 
         super().__init__(
             parts=parts,
+            action_type=action_type,
             velocity_modifier=velocity_modifier,
             ap_to_equip=ap_to_equip,
             fire_modes=fire_modes,
@@ -929,7 +954,10 @@ class GunMagFed(Gun):
             load_time_modifier=load_time_modifier,
             compatible_bullet_type=compatible_bullet_type,
             zero_range=zero_range,
-            spread_modifier=spread_modifier,
+            sight_spread_modifier=sight_spread_modifier,
+            handling_spread_modifier=handling_spread_modifier,
+            clip_stays_in_gun=clip_stays_in_gun,
+            clip_in_gun=clip_in_gun,
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
             target_acquisition_ap=target_acquisition_ap,
@@ -995,6 +1023,7 @@ class GunIntegratedMag(Gun, Magazine):
     def __init__(self,
                  parts: Parts,
                  gun_type: str,
+                 action_type: str,
                  velocity_modifier: dict,
                  ap_to_equip: int,
                  fire_modes: dict,
@@ -1010,7 +1039,8 @@ class GunIntegratedMag(Gun, Magazine):
                  receiver_height_above_bore: float,
                  target_acquisition_ap: int,
                  ap_distance_cost_modifier: float,
-                 spread_modifier: float,
+                 sight_spread_modifier: float,
+                 handling_spread_modifier: float,
                  projectile_spread_modifier: dict,
                  manual_action: bool = False,
                  action_cycle_ap_cost: int = 100,
@@ -1020,6 +1050,8 @@ class GunIntegratedMag(Gun, Magazine):
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
+                 clip_stays_in_gun: bool = False,
+                 clip_in_gun: Optional[Clip] = None,
                  compatible_clip: str = None,
                  chambered_bullet: Optional[Item] = None,
                  has_stock: bool = False,
@@ -1035,6 +1067,7 @@ class GunIntegratedMag(Gun, Magazine):
 
         super().__init__(
             parts=parts,
+            action_type=action_type,
             velocity_modifier=velocity_modifier,
             ap_to_equip=ap_to_equip,
             fire_modes=fire_modes,
@@ -1047,7 +1080,8 @@ class GunIntegratedMag(Gun, Magazine):
             load_time_modifier=load_time_modifier,
             compatible_bullet_type=compatible_bullet_type,
             zero_range=zero_range,
-            spread_modifier=spread_modifier,
+            sight_spread_modifier=sight_spread_modifier,
+            handling_spread_modifier=handling_spread_modifier,
             felt_recoil=felt_recoil,
             sight_height_above_bore=sight_height_above_bore,
             target_acquisition_ap=target_acquisition_ap,
@@ -1058,6 +1092,8 @@ class GunIntegratedMag(Gun, Magazine):
             condition_function=condition_function,
             manual_action=manual_action,
             action_cycle_ap_cost=action_cycle_ap_cost,
+            clip_stays_in_gun=clip_stays_in_gun,
+            clip_in_gun=clip_in_gun,
             compatible_clip=compatible_clip,
             gun_type=gun_type,
             has_stock=has_stock,
@@ -1090,14 +1126,18 @@ class GunIntegratedMag(Gun, Magazine):
                 actions.AddToInventory(item=self.chambered_bullet.parent, amount=1, entity=inventory.parent)
 
                 if inventory.parent.player:
-                    if self.gun_type == 'pistol':
-                        proficiency = inventory.parent.fighter.skill_pistol_proficiency
-                    elif self.gun_type == 'pdw':
-                        proficiency = inventory.parent.fighter.skill_smg_proficiency
-                    elif self.gun_type == 'rifle':
-                        proficiency = inventory.parent.fighter.skill_rifle_proficiency
-                    elif self.gun_type == 'bolt action':
+                    if self.action_type == 'bolt action':
                         proficiency = inventory.parent.fighter.skill_bolt_action_proficiency
+                    elif self.action_type == 'revolver':
+                        proficiency = inventory.parent.fighter.skill_revolver_proficiency
+                    elif self.action_type == 'semi-auto rifle':
+                        proficiency = inventory.parent.fighter.skill_sa_rifle_proficiency
+                    elif self.action_type == 'semi-auto pistol':
+                        proficiency = inventory.parent.fighter.skill_sa_pistol_proficiency
+                    elif self.action_type == 'pump action':
+                        proficiency = inventory.parent.fighter.skill_pumpaction_proficiency
+                    elif self.action_type == 'break action':
+                        proficiency = inventory.parent.fighter.skill_breakaction_proficiency
 
             proficiency = 1 - (proficiency / 4000)
 

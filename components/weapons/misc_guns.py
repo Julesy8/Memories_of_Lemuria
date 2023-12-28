@@ -38,7 +38,7 @@ sw629_barrel = Item(
     usable_properties=GunComponent(part_type='S&W .44 Barrel',
                                    optic_properties={'target_acquisition_ap': 0.9,
                                                      'ap_distance_cost_modifier': 1.07,
-                                                     'spread_modifier': 1.09, },
+                                                     'sight_spread_modifier': 0.04, },
                                    is_optic=True,
                                    barrel_length=6.5,
                                    velocity_modifier={'.44 Magnum': 0.95},
@@ -55,9 +55,10 @@ sw629_barrel_stealth = Item(
     weight=0.63,
     stacking=None,
     usable_properties=GunComponent(part_type='S&W .44 Barrel',
+                                   ap_to_equip=1.02,
                                    optic_properties={'target_acquisition_ap': 0.905,
                                                      'ap_distance_cost_modifier': 1.065,
-                                                     'spread_modifier': 1.085, },
+                                                     'sight_spread_modifier': 0.04, },
                                    is_attachment_point_types=['Picrail Optics Mount - Long', ],
                                    optic_mount_properties={'receiver_height_above_bore': 0.0},
                                    is_optic=True,
@@ -80,7 +81,8 @@ sw629_barrel_5in = Item(
     usable_properties=GunComponent(part_type='S&W .44 Barrel',
                                    optic_properties={'target_acquisition_ap': 0.885,
                                                      'ap_distance_cost_modifier': 1.085,
-                                                     'spread_modifier': 1.085, },
+                                                     'sight_spread_modifier': 0.04, },
+                                   ap_to_equip=0.98,
                                    is_optic=True,
                                    barrel_length=5,
                                    velocity_modifier={'.44 Magnum': 0.89},
@@ -99,7 +101,8 @@ sw629_barrel_4in = Item(
     usable_properties=GunComponent(part_type='S&W .44 Barrel',
                                    optic_properties={'target_acquisition_ap': 0.88,
                                                      'ap_distance_cost_modifier': 1.08,
-                                                     'spread_modifier': 1.08, },
+                                                     'sight_spread_modifier': 0.04, },
+                                   ap_to_equip=0.97,
                                    is_optic=True,
                                    barrel_length=4,
                                    velocity_modifier={'.44 Magnum': 0.8},
@@ -138,8 +141,6 @@ sw629_optic_pistol_picrail = Item(
     description='A picatinny rail optics mount for the Smith & Wesson Model 629, replacing the rear sight.'
 )
 
-# TODO - pistols should take far less AP to equip than rifles
-
 sw629 = Item(
     x=0, y=0,
     char="r",
@@ -153,7 +154,7 @@ sw629 = Item(
     usable_properties=GunIntegratedMag(
         chambered_bullet=None,
         keep_round_chambered=False,
-        ap_to_equip=75,
+        ap_to_equip=100,
         compatible_clip='S&W Model 629 Moon Clip',
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}, },
         current_fire_mode='single shot',
@@ -164,15 +165,17 @@ sw629 = Item(
         velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         target_acquisition_ap=50,
-        firing_ap_cost=70,
+        firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
         zero_range=25,
         receiver_height_above_bore=0.55,
         sight_height_above_bore=0.31,
-        spread_modifier=1.0,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pistol',
+        action_type='revolver',
         barrel_length=6.5
     )
 )
@@ -222,7 +225,7 @@ sw610_barrel = Item(
     usable_properties=GunComponent(part_type='S&W 10mm Barrel',
                                    optic_properties={'target_acquisition_ap': 0.9,
                                                      'ap_distance_cost_modifier': 1.07,
-                                                     'spread_modifier': 1.09, },
+                                                     'sight_spread_modifier': 0.04, },
                                    is_optic=True,
                                    barrel_length=6.5,
                                    velocity_modifier={'10mm': 1.016, '40 S&W': 1.093},
@@ -242,16 +245,15 @@ sw610_barrel_4in = Item(
     usable_properties=GunComponent(part_type='S&W 10mm Barrel',
                                    optic_properties={'target_acquisition_ap': 0.88,
                                                      'ap_distance_cost_modifier': 1.08,
-                                                     'spread_modifier': 1.08, },
+                                                     'sight_spread_modifier': 0.04, },
                                    velocity_modifier={'10mm': 0.93, '40 S&W': 1.0},
+                                   ap_to_equip=0.98,
                                    is_optic=True,
                                    barrel_length=4,
                                    accuracy_part=True,
                                    ),
     description='4 inch Smith & Wesson Model 610 barrel.'
 )
-
-# TODO - pistols should take far less AP to equip than rifles
 
 sw610 = Item(
     x=0, y=0,
@@ -265,7 +267,7 @@ sw610 = Item(
     usable_properties=GunIntegratedMag(
         chambered_bullet=None,
         keep_round_chambered=False,
-        ap_to_equip=75,
+        ap_to_equip=100,
         compatible_clip='S&W Model 610 Moon Clip',
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}, },
         current_fire_mode='single shot',
@@ -276,15 +278,17 @@ sw610 = Item(
         velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         target_acquisition_ap=50,
-        firing_ap_cost=70,
+        firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
         zero_range=25,
         receiver_height_above_bore=0.55,
         sight_height_above_bore=0.31,
-        spread_modifier=1.0,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pistol',
+        action_type='revolver',
         barrel_length=6.5
     )
 )
@@ -338,7 +342,7 @@ de44_barrel = Item(
     usable_properties=GunComponent(part_type='DE .44 Barrel',
                                    optic_properties={'target_acquisition_ap': 0.9,
                                                      'ap_distance_cost_modifier': 1.07,
-                                                     'spread_modifier': 1.09, },
+                                                     'sight_spread_modifier': 0.04, },
                                    is_attachment_point_types=['Picrail Optics Mount - Long', ],
                                    optic_mount_properties={'receiver_height_above_bore': 0.0},
                                    is_optic=True,
@@ -360,7 +364,7 @@ de44_barrel_imb = Item(
     usable_properties=GunComponent(part_type='DE .44 Barrel',
                                    optic_properties={'target_acquisition_ap': 0.9,
                                                      'ap_distance_cost_modifier': 1.07,
-                                                     'spread_modifier': 1.09, },
+                                                     'sight_spread_modifier': 0.04, },
                                    is_attachment_point_types=['Picrail Optics Mount - Long', ],
                                    optic_mount_properties={'receiver_height_above_bore': 0.0},
                                    barrel_length=6,
@@ -385,8 +389,9 @@ de44_barrel_10in = Item(
                                    optic_mount_properties={'receiver_height_above_bore': 0.0},
                                    optic_properties={'target_acquisition_ap': 0.92,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.06, },
+                                                     'sight_spread_modifier': 0.035, },
                                    barrel_length=10,
+                                   ap_to_equip=1.06,
                                    velocity_modifier=1.057,
                                    functional_part=True,
                                    accuracy_part=True,
@@ -409,8 +414,9 @@ de44_barrel_10in_threaded = Item(
                                    optic_mount_properties={'receiver_height_above_bore': 0.0},
                                    optic_properties={'target_acquisition_ap': 0.92,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.06, },
+                                                     'sight_spread_modifier': 0.035, },
                                    barrel_length=10,
+                                   ap_to_equip=1.06,
                                    velocity_modifier=1.057,
                                    functional_part=True,
                                    accuracy_part=True,
@@ -455,7 +461,7 @@ de44 = Item(
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
-        ap_to_equip=75,
+        ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
         current_fire_mode='single shot',
         parts=Parts(),
@@ -470,10 +476,12 @@ de44 = Item(
         target_acquisition_ap=30,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=1.0,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pistol',
-        barrel_length=4.6
+        barrel_length=4.6,
+        action_type='semi-auto pistol',
     )
 )
 
@@ -548,7 +556,7 @@ tt33_slide = Item(
     usable_properties=GunComponent(part_type='Tokarev TT Slide',
                                    optic_properties={'target_acquisition_ap': 0.92,
                                                      'ap_distance_cost_modifier': 1.08,
-                                                     'spread_modifier': 1.1, },
+                                                     'sight_spread_modifier': 0.12, },
                                    is_optic=True,
                                    functional_part=True,
                                    accuracy_part=True
@@ -639,13 +647,13 @@ tt33 = Item(
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
-        ap_to_equip=75,
+        ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
         current_fire_mode='single shot',
         parts=Parts(),
         velocity_modifier={'single projectile': 1.0},
         compatible_bullet_type=('7.62x25 Tokarev',),
-        felt_recoil=1.1,
+        felt_recoil=1.0,
         load_time_modifier=1.1,
         receiver_height_above_bore=0.33,
         sight_height_above_bore=0.22,
@@ -654,9 +662,11 @@ tt33 = Item(
         target_acquisition_ap=30,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        spread_modifier=1.0,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pistol',
+        action_type='semi-auto pistol',
         barrel_length=4.6
     )
 )
@@ -700,7 +710,7 @@ single_shot_reciever = Item(
                                    grip_properties={
                                        'felt_recoil': 0.86,
                                        'ap_distance_cost_modifier': 0.92,
-                                       'spread_modifier': 0.92,
+                                       'handling_spread_modifier': 0.92,
                                        'target_acquisition_ap': 0.81},
                                    ),
     description='Receiver for a Henry H015 single shot shotgun.'
@@ -721,12 +731,12 @@ single_shot_barrel = Item(
                                    is_attachment_point_types=['Remington 12 Ga Choke', ],
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.20,
-                                                     'spread_modifier': 1.10, },
+                                                     'sight_spread_modifier': 0.08, },
                                    barrel_length=28,
                                    is_optic=True,
                                    accuracy_part=True,
                                    ),
-    description='28 inch 12 Guage barrel for the Henry H015.'
+    description='28 inch 12 Guage barrel with bead front sight for the Henry H015.'
 )
 
 single_shot_barrel_short = Item(
@@ -741,12 +751,13 @@ single_shot_barrel_short = Item(
                                    velocity_modifier={'12 Gauge': 1.0, 'single projectile': 0.9, 'buckshot': 0.92},
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.20,
-                                                     'spread_modifier': 1.10, },
+                                                     'sight_spread_modifier': 0.08, },
+                                   ap_to_equip=0.94,
                                    barrel_length=14,
                                    is_optic=True,
                                    accuracy_part=True,
                                    ),
-    description='A cut down 14 inch 12 Guage barrel for the Henry H015.'
+    description='A cut down 14 inch 12 Guage barrel with bead front sight for the Henry H015.'
 )
 
 # stocks
@@ -761,9 +772,9 @@ single_shot_stock = Item(
     usable_properties=GunComponent(part_type='H015 Stock',
                                    felt_recoil=0.5,
                                    ap_distance_cost_modifier=0.69,
-                                   spread_modifier=0.85,
+                                   handling_spread_modifier=0.85,
                                    target_acquisition_ap=0.77,
-                                   equip_time=1.3,
+                                   ap_to_equip=1.3,
                                    has_stock=True,
                                    ),
     description='A wooden buttstock for the Henry H015.'
@@ -779,7 +790,7 @@ h015_birdshead = Item(
     usable_properties=GunComponent(part_type='H015 Stock',
                                    felt_recoil=0.92,
                                    ap_distance_cost_modifier=0.9,
-                                   spread_modifier=0.89,
+                                   handling_spread_modifier=0.89,
                                    target_acquisition_ap=0.7,
                                    ),
     description='A wooden, cut down birds head type pistol grip for the Henry H015 shotgun.'
@@ -814,7 +825,7 @@ singleshot = Item(
     usable_properties=GunIntegratedMag(
         chambered_bullet=None,
         keep_round_chambered=False,
-        ap_to_equip=75,
+        ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}, },
         current_fire_mode='single shot',
         parts=Parts(),
@@ -824,16 +835,18 @@ singleshot = Item(
         mag_capacity=1,
         target_acquisition_ap=50,
         manual_action=True,
-        action_cycle_ap_cost=350,
+        action_cycle_ap_cost=300,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
         sound_modifier=1.0,
         zero_range=25,
         receiver_height_above_bore=0.63,
         sight_height_above_bore=0.12,
-        spread_modifier=1.0,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0, 'buckshot': 1.0},
         gun_type='rifle',
+        action_type='break action',
         barrel_length=20
     )
 )
@@ -877,7 +890,7 @@ m3_reciever = Item(
                                    incompatibilities=(("Iron Sight",),),
                                    optic_properties={'target_acquisition_ap': 1.05,
                                                      'ap_distance_cost_modifier': 1.12,
-                                                     'spread_modifier': 1.08, },
+                                                     'sight_spread_modifier': 0.08, },
                                    is_optic=True,
                                    compatible_magazine_type='Grease Gun',
                                    functional_part=True,
@@ -885,7 +898,7 @@ m3_reciever = Item(
                                    grip_properties={
                                        'felt_recoil': 0.96,
                                        'ap_distance_cost_modifier': 0.8,
-                                       'spread_modifier': 0.77,
+                                       'handling_spread_modifier': 0.77,
                                        'target_acquisition_ap': 0.95}
                                    ),
     description='Receiver for an M3 submachine gun.'
@@ -908,7 +921,7 @@ m3_reciever_picrail = Item(
                                    grip_properties={
                                        'felt_recoil': 0.96,
                                        'ap_distance_cost_modifier': 0.8,
-                                       'spread_modifier': 0.77,
+                                       'handling_spread_modifier': 0.77,
                                        'target_acquisition_ap': 0.95}
                                    ),
     description='Receiver for an M3 submachine gun. A picatinny rail has been attached for optics mounting.'
@@ -963,7 +976,7 @@ m3_stock = Item(
     usable_properties=GunComponent(part_type='M3 Stock',
                                    felt_recoil=0.8,
                                    ap_distance_cost_modifier=0.9,
-                                   spread_modifier=0.74,
+                                   handling_spread_modifier=0.74,
                                    target_acquisition_ap=0.78,
                                    has_stock=True,
                                    pdw_stock=True,
@@ -987,13 +1000,13 @@ m3_greasegun = Item(
         chambered_bullet=None,
         keep_round_chambered=False,
         loaded_magazine=None,
-        ap_to_equip=75,
+        ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
                     'automatic': {'fire rate': 450, 'automatic': True}},
         current_fire_mode='single shot',
         parts=Parts(),
         compatible_bullet_type=('.45 ACP',),
-        firing_ap_cost=60,
+        firing_ap_cost=50,
         velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         ap_distance_cost_modifier=1.1,
@@ -1002,9 +1015,11 @@ m3_greasegun = Item(
         sound_modifier=1.0,
         target_acquisition_ap=50,
         zero_range=100,
-        spread_modifier=1.2,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pdw',
+        action_type='semi-auto rifle',
         barrel_length=8
     )
 )
@@ -1043,7 +1058,7 @@ ppsh_reciever = Item(
                                    grip_properties={
                                        'felt_recoil': 0.96,
                                        'ap_distance_cost_modifier': 0.82,
-                                       'spread_modifier': 0.8,
+                                       'handling_spread_modifier': 0.8,
                                        'target_acquisition_ap': 0.95},
                                    is_optic=True,
                                    compatible_magazine_type='PPSh',
@@ -1101,7 +1116,7 @@ ppsh_cover = Item(
                                    sound_radius=1.07,
                                    optic_properties={'target_acquisition_ap': 1.08,
                                                      'ap_distance_cost_modifier': 0.96,
-                                                     'spread_modifier': 0.95, },
+                                                     'sight_spread_modifier': 0.08, },
                                    is_optic=True,
                                    ),
     description='A dust cover and barrel shroud for a PPSh-41')
@@ -1119,7 +1134,7 @@ ppsh_cover_obrez = Item(
                                    zero_range=27,
                                    optic_properties={'target_acquisition_ap': 1.03,
                                                      'ap_distance_cost_modifier': 1.07,
-                                                     'spread_modifier': 1.06, },
+                                                     'sight_spread_modifier': 0.12, },
                                    is_optic=True,
                                    ),
     description='A shorted "obrez" style dust cover and barrel shroud for a PPSh-41, accomdating a shorter barrel')
@@ -1170,8 +1185,9 @@ ppsh_stock = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='PPSh Stock',
                                    felt_recoil=0.46,
+                                   ap_to_equip=1.2,
                                    ap_distance_cost_modifier=0.71,
-                                   spread_modifier=0.87,
+                                   handling_spread_modifier=0.87,
                                    target_acquisition_ap=0.81,
                                    has_stock=True,
                                    ),
@@ -1188,7 +1204,7 @@ ppsh_stock_obrez = Item(
     usable_properties=GunComponent(part_type='PPSh Stock',
                                    felt_recoil=0.94,
                                    ap_distance_cost_modifier=0.87,
-                                   spread_modifier=0.87,
+                                   handling_spread_modifier=0.87,
                                    target_acquisition_ap=0.68,
                                    has_stock=False,
                                    ),
@@ -1209,13 +1225,13 @@ ppsh_41 = Item(
         chambered_bullet=None,
         keep_round_chambered=False,
         loaded_magazine=None,
-        ap_to_equip=75,
+        ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
                     'automatic': {'fire rate': 1000, 'automatic': True}},
         current_fire_mode='single shot',
         parts=Parts(),
         compatible_bullet_type=('7.62x25 Tokarev',),
-        firing_ap_cost=60,
+        firing_ap_cost=50,
         velocity_modifier={'single projectile': 1.0},
         felt_recoil=1.0,
         ap_distance_cost_modifier=1.08,
@@ -1224,9 +1240,11 @@ ppsh_41 = Item(
         sound_modifier=1.0,
         target_acquisition_ap=50,
         zero_range=109,
-        spread_modifier=1.15,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0},
         gun_type='pdw',
+        action_type='semi-auto rifle',
         barrel_length=8
     )
 )
@@ -1266,15 +1284,15 @@ stock_svt = Item(
     usable_properties=GunComponent(part_type='SVT Stock',
                                    felt_recoil=0.55,
                                    ap_distance_cost_modifier=0.71,
-                                   spread_modifier=0.86,
+                                   handling_spread_modifier=0.86,
                                    target_acquisition_ap=0.8,
-                                   equip_time=1.4,
+                                   ap_to_equip=1.3,
                                    accuracy_part=True,
                                    has_stock=True,
                                    grip_properties={
                                        'felt_recoil': 0.88,
                                        'ap_distance_cost_modifier': 0.91,
-                                       'spread_modifier': 0.93,
+                                       'handling_spread_modifier': 0.93,
                                        'target_acquisition_ap': 0.82}),
     description='A standard wooden stock for SVT-40 rifles.'
 )
@@ -1292,7 +1310,7 @@ svt_barrel = Item(
                                    velocity_modifier={'7.62x54R': 1.05},
                                    optic_properties={'target_acquisition_ap': 1.11,
                                                      'ap_distance_cost_modifier': 0.93,
-                                                     'spread_modifier': 0.93, },
+                                                     'sight_spread_modifier': 0.04, },
                                    barrel_length=24.6,
                                    is_optic=True,
                                    target_acquisition_ap=1.04,
@@ -1317,7 +1335,7 @@ svt_barrel_auto = Item(
                                    velocity_modifier={'7.62x54R': 1.05},
                                    optic_properties={'target_acquisition_ap': 1.11,
                                                      'ap_distance_cost_modifier': 0.93,
-                                                     'spread_modifier': 0.93, },
+                                                     'sight_spread_modifier': 0.04, },
                                    fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
                                    barrel_length=24.6,
                                    is_optic=True,
@@ -1360,7 +1378,7 @@ svt = Item(
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
-        ap_to_equip=75,
+        ap_to_equip=100,
         current_fire_mode='single shot',
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
         parts=Parts(),
@@ -1374,11 +1392,12 @@ svt = Item(
         target_acquisition_ap=50,
         firing_ap_cost=50,
         ap_distance_cost_modifier=1.0,
-        # TODO - redo spread modifiers for pretty much all guns
-        spread_modifier=1.0,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         compatible_clip='SVT-40 Clip',
         projectile_spread_modifier={'single projectile': 1.0},
         barrel_length=24.6,
+        action_type='semi-auto rifle',
         gun_type='rifle'
     )
 )

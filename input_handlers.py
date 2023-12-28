@@ -246,7 +246,7 @@ class MainGameEventHandler(EventHandler):
             return EquipmentEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_s:
             return AttackStyleMenu(self.engine, parent_handler=self)
-        elif key == tcod.event.K_l:
+        elif key == tcod.event.K_t:
             return Bestiary(self.engine, parent_handler=self)
         elif key == tcod.event.K_p:
             return ViewPlayer(self.engine, parent_handler=self)
@@ -298,7 +298,7 @@ class GameOverEventHandler(EventHandler):
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine, parent_handler=self)
-        elif key == tcod.event.K_l:
+        elif key == tcod.event.K_t:
             return Bestiary(self.engine, parent_handler=self)
 
 
@@ -679,19 +679,20 @@ class InventoryEventHandler(UserOptionsWithPages):
 
         options = []
 
+        print(item)
+
         if hasattr(item, 'usable_properties'):
             options.append('use')
 
-        options += ['drop', 'inspect']
-
-        if hasattr(item.usable_properties, 'fits_bodypart_type'):
+        if hasattr(item.usable_properties, 'fits_bodypart'):
             options.append('equip')
+
+        options += ['drop', 'inspect']
 
         if hasattr(item.usable_properties, 'gun_type'):
             options += ['equip to primary', 'equip to secondary', 'disassemble', 'rename']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine, parent_handler=self)
-
 
 class ItemInteractionHandler(UserOptionsEventHandler):  # options for interacting with an item
 
@@ -810,11 +811,11 @@ class EquipmentEventHandler(AskUserEventHandler):
 
             if bodypart.equipped is not None:
 
-                self.equipped_list.append(bodypart.equipped)
-                equipment_dictionary[bodypart.equipped.name] = bodypart.part_type
+                self.equipped_list.append(bodypart.equipped.parent)
+                equipment_dictionary[bodypart.equipped.parent.name] = bodypart.part_type
 
-                if len(bodypart.equipped.name) > longest_name_len:
-                    longest_name_len = len(bodypart.equipped.name)
+                if len(bodypart.equipped.parent.name) > longest_name_len:
+                    longest_name_len = len(bodypart.equipped.parent.name)
 
         self.equipped_list = list(dict.fromkeys(self.equipped_list))
 
@@ -903,6 +904,8 @@ class ViewPlayer(UserOptionsEventHandler):
         elif option == 'Crafting [c]':
             return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting',
                                      parent_handler=self)
+        elif option == 'Journal [t]':
+            return Bestiary(engine=self.engine, parent_handler=self)
 
 
 class RenamePlayer(TypeInputEventHandler):
@@ -1095,7 +1098,8 @@ class ChangeTargetActor(AskUserEventHandler):
 
             target_x, target_y = player.fighter.target_actor.x - cam_x, player.fighter.target_actor.y - cam_y
 
-            if 0 <= target_x < console.width and 0 <= target_y < console.height and blink_on:
+            if (0 <= target_x < console.width and 0 <= target_y < console.height and blink_on
+                    and self.engine.game_map.visible[player.fighter.target_actor.x, player.fighter.target_actor.y]):
                 console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('▼'), colour.LIGHT_RED
 
             target_str = f"Targeting: {player.fighter.target_actor.name} - {self.selected_bodypart.name}".upper()
@@ -1247,7 +1251,7 @@ class ChangeTargetActor(AskUserEventHandler):
             return EquipmentEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_s:
             return AttackStyleMenu(self.engine, parent_handler=self)
-        elif key == tcod.event.K_p:
+        elif key == tcod.event.K_t:
             return Bestiary(self.engine, parent_handler=self)
         elif key == tcod.event.K_z:
             return ViewPlayerStats(self.engine, parent_handler=self)
@@ -1469,10 +1473,11 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
         inventory = engine.player.inventory
         loadout = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
 
-        if magazine.parent in loadout:
-            options.append('remove from loadout')
-        else:
-            options.append('add to loadout')
+        if not hasattr(magazine, 'gun_type'):
+            if magazine.parent in loadout:
+                options.append('remove from loadout')
+            else:
+                options.append('add to loadout')
 
         super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
 
@@ -1973,7 +1978,7 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
     def ev_on_option_selected(self, item: Union[Clip, DetachableMagazine]):
 
-        if hasattr(item, 'mag_capacity'):
+        if hasattr(item, 'mag_capacity') and not hasattr(item, 'gun_type'):
             return MagazineOptionsHandler(engine=self.engine, magazine=item, parent_handler=self)
 
         elif hasattr(item, 'gun_type'):
@@ -2500,6 +2505,7 @@ class InspectItemViewer(AskUserEventHandler):
             "-- AP to Equip --": ('ap_to_equip', round(getattr(self.item.usable_properties, 'ap_to_equip', 1), 3)),
 
             "-- Gun Type --": ('gun_type', getattr(self.item.usable_properties, 'gun_type', 1)),
+            "-- Action Type --": ('action_type', getattr(self.item.usable_properties, 'action_type', 1)),
 
             # melee weapon
             "-- Damage --": ('base_meat_damage', getattr(self.item.usable_properties, 'base_meat_damage', 1)),
@@ -2515,8 +2521,9 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Bullet Velocity (Feet/Sec) --": ('velocity', getattr(self.item.usable_properties, 'velocity', 1)),
             "-- Shot Sound --": ('sound_modifier',
                                  round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
-            "-- Bullet Spread Modifier --": ('spread_modifier',
-                                             round(getattr(self.item.usable_properties, 'spread_modifier', 1), 3)),
+            "-- Bullet Spread Modifier (MoA) --": ('spread_modifier',
+                                             round(getattr(self.item.usable_properties, 'spread_modifier', 1) * 100,
+                                                   3)),
             "-- Ballistic Coefficient --": ('ballistic_coefficient',
                                             getattr(self.item.usable_properties, 'ballistic_coefficient', 1)),
             "-- Drag Coefficient --": ('drag_coefficient', getattr(self.item.usable_properties, 'drag_coefficient',
@@ -2535,6 +2542,15 @@ class InspectItemViewer(AskUserEventHandler):
             # gun
             "-- Felt Recoil Modifier --": ('felt_recoil', round(getattr(self.item.usable_properties, 'felt_recoil',
                                                                         1), 3)),
+
+            "-- Sight Accuracy (MoA) --": ('sight_spread_modifier',
+                                           round(getattr(self.item.usable_properties, 'sight_spread_modifier',
+                                                         1) * 100, 3)),
+
+            "-- Handling Accuracy Modifier (MoA) --":
+                ('handling_spread_modifier', round(getattr(self.item.usable_properties, 'handling_spread_modifier',
+                                                           1) * 100, 3)),
+
             "-- Reload AP Modifier --": ('load_time_modifier',
                                          round(getattr(self.item.usable_properties, 'load_time_modifier', 1), 3)),
             "-- Fire Rate Modifier --": ('fire_rate_modifier',
@@ -2789,6 +2805,7 @@ class ViewPlayerStats(EventHandler):
             "PDW & SMG Proficiency": skill_proficiency(engine.player.fighter.skill_pistol_proficiency, 1000),
             "Rifle Proficiency": skill_proficiency(engine.player.fighter.skill_rifle_proficiency, 1000),
             "Bolt Gun Proficiency": skill_proficiency(engine.player.fighter.skill_bolt_action_proficiency, 1000),
+            "Recoil Control": skill_proficiency(engine.player.fighter.skill_recoil_control, 1000),
         }
 
     def on_render(self, console: tcod.Console) -> None:
@@ -2865,7 +2882,7 @@ class AttackStyleMenu(UserOptionsEventHandler):
 class Bestiary(UserOptionsWithPages):
 
     def __init__(self, engine, parent_handler: BaseEventHandler):
-        title = f"Bestiary"
+        title = f"Journal"
 
         super().__init__(engine=engine, options=list(engine.bestiary.keys()), page=0, title=title,
                          parent_handler=parent_handler)

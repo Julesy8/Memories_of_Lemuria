@@ -24,7 +24,7 @@ reciever_akm = Item(
                                                                    'AK Pistol Barrel - 7.62x39']},
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.02, },
+                                                     'sight_spread_modifier': 0.02, },
                                    suffix='47',
                                    is_optic=True,
                                    functional_part=True,
@@ -50,7 +50,7 @@ reciever_ak74 = Item(
                                                                    'AK Pistol Barrel - 5.45x39']},
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.02, },
+                                                     'sight_spread_modifier': 0.02, },
                                    is_optic=True,
                                    functional_part=True,
                                    description="The AK-74 is an assault rifle developed by Mikhail Kalashnikov in the "
@@ -78,7 +78,7 @@ reciever_100556 = Item(
                                                                    'AK Pistol Barrel - 5.56x45']},
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.02, },
+                                                     'sight_spread_modifier': 0.02, },
                                    is_optic=True,
                                    functional_part=True,
                                    description="The AK-101 and AK-102 rifles are modern versions of the AK-47, "
@@ -108,7 +108,7 @@ reciever_akm_auto = Item(
                                                                    'AK Pistol Barrel - 7.62x39']},
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.02, },
+                                                     'sight_spread_modifier': 0.02, },
                                    suffix='47',
                                    is_optic=True,
                                    functional_part=True,
@@ -135,7 +135,7 @@ reciever_ak74_auto = Item(
                                                                    'AK Pistol Barrel - 5.45x39']},
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.02, },
+                                                     'sight_spread_modifier': 0.02, },
                                    is_optic=True,
                                    functional_part=True,
                                    description="The AK-74 is an assault rifle developed by Mikhail Kalashnikov in the "
@@ -164,7 +164,7 @@ reciever_100556_auto = Item(
                                                                    'AK Pistol Barrel - 5.56x45']},
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.04,
-                                                     'spread_modifier': 1.02, },
+                                                     'sight_spread_modifier': 0.02, },
                                    is_optic=True,
                                    functional_part=True,
                                    description="The AK-101 and AK-102 rifles are modern versions of the AK-47, "
@@ -191,7 +191,7 @@ handguard_akm = Item(
                                    grip_properties={
                                        'felt_recoil': 0.82,
                                        'ap_distance_cost_modifier': 0.91,
-                                       'spread_modifier': 0.9,
+                                       'handling_spread_modifier': 0.9,
                                        'target_acquisition_ap': 0.8},
                                    ),
     description='A wooden AKM-style hand guard'
@@ -208,7 +208,7 @@ handguard_amd65 = Item(
                                    grip_properties={
                                        'felt_recoil': 0.79,
                                        'ap_distance_cost_modifier': 0.95,
-                                       'spread_modifier': 0.93,
+                                       'handling_spread_modifier': 0.93,
                                        'target_acquisition_ap': 0.87},
                                    ),
     description='AMD-65 steel AK hand guard with vertical grip'
@@ -225,7 +225,7 @@ handguard_ak74 = Item(
                                    grip_properties={
                                        'felt_recoil': 0.86,
                                        'ap_distance_cost_modifier': 0.9,
-                                       'spread_modifier': 0.89,
+                                       'handling_spread_modifier': 0.89,
                                        'target_acquisition_ap': 0.78},
                                    ),
     description='Polymer hand guard such as that of the AK-74 and the AK-100 series'
@@ -242,7 +242,7 @@ handguard_romanian = Item(
                                    grip_properties={
                                        'felt_recoil': 0.81,
                                        'ap_distance_cost_modifier': 0.93,
-                                       'spread_modifier': 0.92,
+                                       'handling_spread_modifier': 0.92,
                                        'target_acquisition_ap': 0.89},
                                    ),
     description="A wooden hand guard featuring the signature romanian-style verticle grip"
@@ -275,7 +275,7 @@ handguard_ak100 = Item(
                                    grip_properties={
                                        'felt_recoil': 0.86,
                                        'ap_distance_cost_modifier': 0.9,
-                                       'spread_modifier': 0.9,
+                                       'handling_spread_modifier': 0.9,
                                        'target_acquisition_ap': 0.79},
                                    ),
     description="A polymer AK hand guard featuring picatinny rails on the underside"
@@ -296,7 +296,7 @@ handguard_B10M = Item(
                                    grip_properties={
                                        'felt_recoil': 0.82,
                                        'ap_distance_cost_modifier': 0.93,
-                                       'spread_modifier': 0.92,
+                                       'handling_spread_modifier': 0.92,
                                        'target_acquisition_ap': 0.78},
                                    ),
     description='An aftermarket AK hand guard by Zenitco, featuring picatinny rails on all sides'
@@ -321,7 +321,7 @@ handguard_leader = Item(
                                    grip_properties={
                                        'felt_recoil': 0.87,
                                        'ap_distance_cost_modifier': 0.88,
-                                       'spread_modifier': 0.87,
+                                       'handling_spread_modifier': 0.87,
                                        'target_acquisition_ap': 0.78},
                                    ),
     description='An aftermarket light weight long AK hand guard by Zenitco with MLOK rail attachment points'
@@ -341,7 +341,7 @@ handguard_magpul = Item(
                                    grip_properties={
                                        'felt_recoil': 0.83,
                                        'ap_distance_cost_modifier': 0.9,
-                                       'spread_modifier': 0.9,
+                                       'handling_spread_modifier': 0.9,
                                        'target_acquisition_ap': 0.8},
                                    ),
     description='An aftermarket light weight polymer hand guard by Magpul with attachment points on its underside'
@@ -361,8 +361,8 @@ stock_akm = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.53,
                                    ap_distance_cost_modifier=0.72,
-                                   spread_modifier=0.89,
-                                   equip_time=1.2,
+                                   handling_spread_modifier=0.89,
+                                   ap_to_equip=1.2,
                                    target_acquisition_ap=0.75,
                                    has_stock=True,
                                    ),
@@ -379,8 +379,8 @@ stock_rpk = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.49,
                                    ap_distance_cost_modifier=0.75,
-                                   spread_modifier=0.81,
-                                   equip_time=1.3,
+                                   handling_spread_modifier=0.81,
+                                   ap_to_equip=1.3,
                                    target_acquisition_ap=0.81,
                                    has_stock=True,
                                    ),
@@ -397,8 +397,8 @@ stock_ak74 = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.55,
                                    ap_distance_cost_modifier=0.71,
-                                   spread_modifier=0.86,
-                                   equip_time=1.16,
+                                   handling_spread_modifier=0.86,
+                                   ap_to_equip=1.16,
                                    target_acquisition_ap=0.75,
                                    has_stock=True,
                                    ),
@@ -415,8 +415,8 @@ stock_ak100 = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.56,
                                    ap_distance_cost_modifier=0.71,
-                                   spread_modifier=0.88,
-                                   equip_time=1.1,
+                                   handling_spread_modifier=0.88,
+                                   ap_to_equip=1.1,
                                    target_acquisition_ap=0.73,
                                    has_stock=True,
                                    ),
@@ -433,8 +433,8 @@ stock_ak_underfolder = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.78,
                                    ap_distance_cost_modifier=0.76,
-                                   spread_modifier=0.92,
-                                   equip_time=1.09,
+                                   handling_spread_modifier=0.92,
+                                   ap_to_equip=1.09,
                                    target_acquisition_ap=0.69,
                                    has_stock=True,
                                    pdw_stock=True,
@@ -452,8 +452,8 @@ stock_ak_triangle = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.78,
                                    ap_distance_cost_modifier=0.75,
-                                   spread_modifier=0.9,
-                                   equip_time=1.1,
+                                   handling_spread_modifier=0.9,
+                                   ap_to_equip=1.1,
                                    target_acquisition_ap=0.71,
                                    has_stock=True,
                                    pdw_stock=True,
@@ -471,8 +471,8 @@ stock_ak12 = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.61,
                                    ap_distance_cost_modifier=0.77,
-                                   spread_modifier=0.9,
-                                   equip_time=1.15,
+                                   handling_spread_modifier=0.9,
+                                   ap_to_equip=1.15,
                                    target_acquisition_ap=0.7,
                                    has_stock=True,
                                    ),
@@ -489,8 +489,8 @@ stock_amd65 = Item(
     usable_properties=GunComponent(part_type='AK Stock',
                                    felt_recoil=0.78,
                                    ap_distance_cost_modifier=0.76,
-                                   spread_modifier=0.92,
-                                   equip_time=1.02,
+                                   handling_spread_modifier=0.92,
+                                   ap_to_equip=1.02,
                                    target_acquisition_ap=0.69,
                                    has_stock=True,
                                    pdw_stock=True,
@@ -506,10 +506,10 @@ stock_pt1 = Item(
     weight=0.48,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   equip_time=1.19,
+                                   ap_to_equip=1.19,
                                    felt_recoil=0.69,
                                    ap_distance_cost_modifier=0.71,
-                                   spread_modifier=0.84,
+                                   handling_spread_modifier=0.84,
                                    target_acquisition_ap=0.76,
                                    has_stock=True,
                                    pdw_stock=True,
@@ -525,10 +525,10 @@ stock_moe = Item(
     weight=0.354,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   equip_time=1.2,
+                                   ap_to_equip=1.2,
                                    felt_recoil=0.56,
                                    ap_distance_cost_modifier=0.71,
-                                   spread_modifier=0.84,
+                                   handling_spread_modifier=0.84,
                                    target_acquisition_ap=0.73,
                                    has_stock=True,
                                    ),
@@ -543,10 +543,10 @@ stock_zhukov = Item(
     weight=0.421,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Stock',
-                                   equip_time=1.14,
+                                   ap_to_equip=1.14,
                                    felt_recoil=0.59,
                                    ap_distance_cost_modifier=0.68,
-                                   spread_modifier=0.85,
+                                   handling_spread_modifier=0.85,
                                    target_acquisition_ap=0.71,
                                    has_stock=True,
                                    ),
@@ -556,6 +556,9 @@ stock_zhukov = Item(
 """
 Barrel + Gas Tube
 """
+
+# 5.56 test barrel - 24 inches
+# 5.45 test barrel - 26 inches
 
 barrel_ak762 = Item(
     x=0, y=0,
@@ -578,7 +581,7 @@ barrel_ak762 = Item(
                                    barrel_length=16.3,
                                    velocity_modifier={'7.62x39': 0.937},
                                    target_acquisition_ap=0.96,
-                                   equip_time=0.9,
+                                   ap_to_equip=0.9,
                                    functional_part=True,
                                    accuracy_part=True,
                                    ),
@@ -604,9 +607,9 @@ barrel_ak545 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    barrel_length=16.3,
-                                   velocity_modifier={'5.45x39': 1.082},
+                                   velocity_modifier={'5.45x39': 0.93},
                                    target_acquisition_ap=0.96,
-                                   equip_time=0.9,
+                                   ap_to_equip=0.9,
                                    functional_part=True,
                                    accuracy_part=True,
                                    ),
@@ -633,9 +636,9 @@ barrel_ak556 = Item(
                                                                       ]},
                                    barrel_length=16.3,
                                    suffix='101',
-                                   velocity_modifier={'5.56x45': 1.082},  # TODO - this is fucked fix it
+                                   velocity_modifier={'5.56x45': 0.95},
                                    target_acquisition_ap=0.96,
-                                   equip_time=0.9,
+                                   ap_to_equip=0.9,
                                    functional_part=True,
                                    accuracy_part=True,
                                    ),
@@ -663,7 +666,7 @@ barrel_rpk762 = Item(
                                    velocity_modifier={'7.62x39': 1.0},
                                    barrel_length=23.2,
                                    target_acquisition_ap=1.04,
-                                   equip_time=1.13,
+                                   ap_to_equip=1.13,
                                    functional_part=True,
                                    accuracy_part=True,
                                    ),
@@ -689,9 +692,9 @@ barrel_rpk545 = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    barrel_length=23.2,
-                                   velocity_modifier={'5.45x39': 1.056},  # TODO - FIX - LOWER VELOCITY SOMEHOW
+                                   velocity_modifier={'5.45x39': 0.984},
                                    target_acquisition_ap=1.04,
-                                   equip_time=1.13,
+                                   ap_to_equip=1.13,
                                    functional_part=True,
                                    accuracy_part=True,
                                    ),
@@ -719,7 +722,7 @@ barrel_ak762_short = Item(
                                    barrel_length=12.4,
                                    velocity_modifier={'7.62x39': 0.87},
                                    target_acquisition_ap=0.95,
-                                   equip_time=0.79,
+                                   ap_to_equip=0.79,
                                    functional_part=True,
                                    accuracy_part=True,
                                    short_barrel=True,
@@ -747,9 +750,9 @@ barrel_ak545_short = Item(
                                                                       "MOE AK Handguard"
                                                                       ]},
                                    barrel_length=12.4,
-                                   velocity_modifier={'5.45x39': 0.81},
+                                   velocity_modifier={'5.45x39': 0.83},
                                    target_acquisition_ap=0.95,
-                                   equip_time=0.79,
+                                   ap_to_equip=0.79,
                                    functional_part=True,
                                    accuracy_part=True,
                                    short_barrel=True,
@@ -778,9 +781,9 @@ barrel_ak556_short = Item(
                                                                       ]},
                                    barrel_length=12.4,
                                    suffix='102',
-                                   velocity_modifier={'5.56x45': 0.95},
+                                   velocity_modifier={'5.56x45': 0.82},
                                    target_acquisition_ap=0.95,
-                                   equip_time=0.79,
+                                   ap_to_equip=0.79,
                                    functional_part=True,
                                    accuracy_part=True,
                                    short_barrel=True,
@@ -816,7 +819,7 @@ grip_ak12 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='AK Grip',
                                    felt_recoil=0.91,
-                                   spread_modifier=0.95,
+                                   handling_spread_modifier=0.95,
                                    ),
     description="AK-12 2016 model pistol grip"
 )
@@ -832,7 +835,7 @@ grip_sniper = Item(
     usable_properties=GunComponent(part_type='AK Grip',
                                    felt_recoil=0.9,
                                    target_acquisition_ap=1.06,
-                                   spread_modifier=0.94,
+                                   handling_spread_modifier=0.94,
                                    ap_distance_cost_modifier=0.93,
                                    ),
     description="Ergonomic AK pistol grip featuring a palm shelf manufactured by Custom Arms"
@@ -862,7 +865,7 @@ grip_rk3 = Item(
     usable_properties=GunComponent(part_type='AK Grip',
                                    target_acquisition_ap=0.98,
                                    felt_recoil=0.92,
-                                   spread_modifier=0.96,
+                                   handling_spread_modifier=0.96,
                                    ),
     description="Polymer AK grip manufactured by Zenitco"
 )
@@ -877,7 +880,7 @@ grip_tapco = Item(
     usable_properties=GunComponent(part_type='AK Grip',
                                    target_acquisition_ap=1.03,
                                    felt_recoil=0.88,
-                                   spread_modifier=0.97,
+                                   handling_spread_modifier=0.97,
                                    ),
     description="Polymer AK grip modelled after the SAW pistol grip manufactured by Tapco"
 )
@@ -920,7 +923,7 @@ grip_fab = Item(
     usable_properties=GunComponent(part_type='AK Grip',
                                    felt_recoil=0.94,
                                    target_acquisition_ap=0.97,
-                                   spread_modifier=0.96,
+                                   handling_spread_modifier=0.96,
                                    ap_distance_cost_modifier=0.98,
                                    ),
     description="A rubberised AK grip by FAB Defense"
@@ -1134,7 +1137,7 @@ ak = Item(
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
-        ap_to_equip=80,
+        ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
         current_fire_mode='single shot',
         parts=Parts(),
@@ -1148,10 +1151,12 @@ ak = Item(
         zero_range=25,
         receiver_height_above_bore=1.5,
         sight_height_above_bore=0.31,
-        spread_modifier=1.04,
+        sight_spread_modifier=1.0,
+        handling_spread_modifier=4.0,
         projectile_spread_modifier={'single projectile': 1.0},
         gun_type='rifle',
-        barrel_length=16
+        barrel_length=16,
+        action_type='semi-auto rifle',
     )
 )
 
