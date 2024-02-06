@@ -679,8 +679,6 @@ class InventoryEventHandler(UserOptionsWithPages):
 
         options = []
 
-        print(item)
-
         if hasattr(item, 'usable_properties'):
             options.append('use')
 
@@ -693,6 +691,7 @@ class InventoryEventHandler(UserOptionsWithPages):
             options += ['equip to primary', 'equip to secondary', 'disassemble', 'rename']
 
         return ItemInteractionHandler(item=item, options=options, engine=self.engine, parent_handler=self)
+
 
 class ItemInteractionHandler(UserOptionsEventHandler):  # options for interacting with an item
 

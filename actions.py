@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
-from math import ceil
+from math import ceil, atan2, sin, cos
 from random import randint
 from copy import deepcopy, copy
 
@@ -24,7 +24,6 @@ class Action:
         self.action_str = ''
         self.entity = entity
         self.queued = False
-        # self.turns_until_action = 0
 
     @property
     def engine(self) -> Engine:
@@ -69,7 +68,7 @@ class Action:
 
         # if not in squad mode and aciton queued, handles turns so the action can be completed instantly in real time
         # (still takes turns in game time)
-        elif self.queued and self.entity.fighter.ap <= 0 and not self.engine.squad_mode:
+        elif self.queued and self.entity.fighter.ap <= 0 and not self.engine.squad_mode and self.entity.player:
             self.engine.handle_turns()
 
         # entity has enough AP, performs action
@@ -88,7 +87,7 @@ class Action:
 
             # if not in squad mode, handles turns so the action can be completed instantly in real time
             # (still takes turns in game time)
-            if not self.engine.squad_mode:
+            if not self.engine.squad_mode and self.entity.player:
                 self.engine.handle_turns()
 
     def calculate_ap_cost(self) -> int:
@@ -123,7 +122,6 @@ class TakeStairsAction(Action):
         if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
             for player in self.engine.players:
                 if self.entity.distance_to(player) > 10:
-                    print('x')
                     raise exceptions.Impossible("Cannot move down stairs: players too far away")
 
             self.engine.game_map.generate_level()
@@ -137,23 +135,59 @@ class ActionWithDirection(Action):
     def __init__(self, entity: Actor, dx: int, dy: int, handle_now: bool = False):
         super().__init__(entity, handle_now)
 
-        positon_str_x = ''
-        position_str_y = ''
-
-        if dy == 1:
-            position_str_y = 'north'
-        elif dy == -1:
-            position_str_y = 'south'
-
-        if dx == 1:
-            positon_str_x = 'east'
-        elif dx == -1:
-            positon_str_x = 'west'
-
-        self.action_str = f'moving {position_str_y} {positon_str_x}'
+        # positon_str_x = ''
+        # position_str_y = ''
+        #
+        # if dy == 1:
+        #     position_str_y = 'north'
+        # elif dy == -1:
+        #     position_str_y = 'south'
+        #
+        # if dx == 1:
+        #     positon_str_x = 'east'
+        # elif dx == -1:
+        #     positon_str_x = 'west'
+        #
+        # self.action_str = f'moving {position_str_y} {positon_str_x}'
 
         self.dx = dx
         self.dy = dy
+
+        if self.entity.fighter.target_actor is None:
+            orientation = 0
+
+            # tcod.event.K_UP: (0, -1),
+            # tcod.event.K_DOWN: (0, 1),
+            # tcod.event.K_LEFT: (-1, 0),
+            # tcod.event.K_RIGHT: (1, 0),
+            # tcod.event.K_HOME: (-1, -1),
+            # tcod.event.K_END: (-1, 1),
+            # tcod.event.K_PAGEUP: (1, -1),
+            # tcod.event.K_PAGEDOWN: (1, 1),
+
+            # north
+            if self.dx == 0 and self.dy == -1:
+                orientation = 1.57
+            # south
+            elif self.dx == 0 and self.dy == 1:
+                orientation = -1.57
+            # east
+            elif self.dx == 1 and self.dy == 0:
+                orientation = 3.141
+            # north west
+            elif self.dx == -1 and self.dy == -1:
+                orientation = 0.785
+            # south west
+            elif self.dx == -1 and self.dy == 1:
+                orientation = - 0.785
+            # north east
+            elif self.dx == 1 and self.dy == -1:
+                orientation = -2.356
+            # south east
+            elif self.dx == 1 and self.dy == 1:
+                orientation = 2.356
+
+            self.entity.orientation = orientation
 
     @property
     def dest_xy(self) -> Tuple[int, int]:
@@ -337,9 +371,15 @@ class GunAttackAction(AttackAction):
         self.action_proficiency = 1.0
         self.marksmanship = 1.0
         self.rounds_in_mag = 0
-        self.target_acquisition_ap = self.weapon.target_acquisition_ap * self.entity.fighter.target_acquisition_ap
-        self.ap_distance_cost_modifier = self.weapon.ap_distance_cost_modifier * \
-                                         self.entity.fighter.ap_distance_cost_modifier
+
+        x = atan2(targeted_actor.y - self.entity.y,
+                  targeted_actor.x - self.entity.x)
+
+        self.target_acquisition_ap = ((self.weapon.target_acquisition_ap * self.entity.fighter.target_acquisition_ap) *
+                                      (abs(atan2(sin(x - entity.orientation), cos(x - entity.orientation))) / 4.711))
+
+        self.ap_distance_cost_modifier = (self.weapon.ap_distance_cost_modifier *
+                                          self.entity.fighter.ap_distance_cost_modifier)
 
     def action_viable(self) -> bool:
         return self.engine.game_map.check_los(start_x=self.entity.x, start_y=self.entity.y,
@@ -507,7 +547,6 @@ class GunMagFedAttack(GunAttackAction):
             except AttributeError:
                 ammo_weight = 0
             self.total_weight += mag_weight + ammo_weight
-
 
     def additional_ap_cost(self) -> None:
 
@@ -727,6 +766,7 @@ class ReloadFromClip(Action):
 
                 self.entity.inventory.items.remove(self.clip.parent)
 
+
 class LoadBulletsIntoMagazine(Action):
     def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Bullet):
         super().__init__(entity)
@@ -849,12 +889,14 @@ class BumpAction(ActionWithDirection):
                 item_held = self.entity.inventory.held
 
                 if item_held is not None:
+                    self.entity.fighter.previous_target_actor = self.target_actor
                     return item_held.usable_properties.get_attack_action(distance=1, entity=self.entity,
                                                                          targeted_actor=self.target_actor,
                                                                          targeted_bodypart=self.target_actor.bodyparts[
                                                                              0]).handle_action()
 
                 else:
+                    self.entity.fighter.previous_target_actor = self.target_actor
                     return UnarmedAttackAction(distance=1, entity=self.entity, targeted_actor=self.target_actor,
                                                targeted_bodypart=self.target_actor.bodyparts[0]).handle_action()
 
@@ -1153,9 +1195,7 @@ class CheckRoundsInMag(Action):
             elif self.weapon.action_type == 'break action':
                 proficiency_actiontype = copy(self.entity.fighter.skill_breakaction_proficiency)
 
-
             proficiency_actiontype = 1 - (proficiency_actiontype / 4000)
-
 
         # AP cost calculated
         ap_cost = \

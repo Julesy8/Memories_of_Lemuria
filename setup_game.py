@@ -251,6 +251,12 @@ def new_game() -> Engine:
 
     engine.game_map.camera_xy = (engine.player.x, engine.player.y)
 
+    engine.message_log.add_message(
+        "The country has been taken over by extraterrestrial forces and their occultist supporters. Mission: destroy "
+        "the underground military base!"
+        , LIGHT_MAGENTA
+    )
+
     engine.update_fov()
 
     return engine
@@ -279,7 +285,7 @@ def generate_subtext() -> str:
                      'Mysterious', 'Beloved', 'Romantic', 'Devious', 'Illuminati', 'Majestic', 'Sickening', 'Literal',
                      'Spooky', 'Undead', 'Criminal', 'Hyperborean', 'Forgotten', 'Perrenial', 'Latent', 'Final',
                      'Continental', 'Nihilistic', 'Eastern', 'Western', 'Sentient', 'Tragic', 'Melancholic',
-                     'Infernal', 'Serbian', 'Misanthropic'))
+                     'Infernal', 'Serbian', 'Misanthropic', 'Luminous'))
 
     verb_2 = choice(('Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',

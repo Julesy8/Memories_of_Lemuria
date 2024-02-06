@@ -78,7 +78,7 @@ m1_stock_springfield = Item(
     weight=1.021,
     stacking=None,
     usable_properties=GunComponent(part_type='M1/M2 Stock',
-                                   suffix='Tactical',
+                                   suffix='Folding Stock',
                                    compatible_parts={'M1/M2 Barrel': ['M1/M2 Carbine Barrel',
                                                                       'M1/M2 Carbine Barrel - Threaded'],
                                                      "M1/M2 Carbine Optic Mount": [
@@ -241,7 +241,7 @@ m1_barrel_enforcer_threaded = Item(
                                    is_optic=True,
                                    accuracy_part=True,
                                    ),
-    description="'A shortened 10 1/4 inch pistol barrel for the M1/M2 carbine designed for the 'Super Enforcer' M1 "
+    description="A shortened 10 1/4 inch pistol barrel for the M1/M2 carbine designed for the 'Super Enforcer' M1 "
                 "carbine pistols made by Iver Johnson Arms. It has been threaded to accept muzzle devices."
 )
 

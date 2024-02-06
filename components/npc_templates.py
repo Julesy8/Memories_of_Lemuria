@@ -32,6 +32,8 @@ class Fighter(BaseComponent):
                  # faction_allegiance: tuple,
                  item_drops: dict,
                  weapons: dict,
+                 bodyarmour: dict,
+                 helmet: dict,
                  spawn_group_amount: int,
                  unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
@@ -86,6 +88,8 @@ class Fighter(BaseComponent):
         self.active = active
         self.item_drops = item_drops
         self.weapons = weapons
+        self.bodyarmour = bodyarmour
+        self.helmet = helmet
         self.spawn_group_amount = spawn_group_amount
         self.fears_death = fears_death
         self.fleeing_turns = 0
@@ -93,9 +97,6 @@ class Fighter(BaseComponent):
         self.description = description
         self.turns_attack_inactive = 0
         self.turns_move_inactive = 0
-
-        # allegiance of the entity. hostile to entities of different factions.
-        # self.faction_allegiance = faction_allegiance
 
     @property
     def ap(self) -> int:
@@ -125,100 +126,137 @@ class Fighter(BaseComponent):
     def ap(self, value: int) -> None:
         self._ap = min(value, self.max_ap)
 
-    def give_weapon(self):
+    def give_weapon(self, current_level: int):
 
         # equips fighter with weapons
+        try:
 
-        if len(self.weapons.keys()) > 0:
-            gun = deepcopy(choices(population=list(self.weapons.keys()),
-                                   weights=list(self.weapons.values()),
-                                   k=1)[0])
-            held_weapon = deepcopy(gun)
-            held_weapon = held_weapon.update_properties()
-            weapon_properties = held_weapon.usable_properties
+            if len(self.weapons[current_level].keys()) > 0:
+                gun = deepcopy(choices(population=list(self.weapons[current_level].keys()),
+                                       weights=list(self.weapons[current_level].values()),
+                                       k=1)[0])
+                held_weapon = deepcopy(gun)
+                held_weapon = held_weapon.update_properties()
+                weapon_properties = held_weapon.usable_properties
 
-            if weapon_properties.chambered_bullet is None:
-                if hasattr(weapon_properties, 'compatible_magazine_type'):
-                    bullets = copy(weapon_properties.loaded_magazine.magazine[0].parent)
+                if weapon_properties.chambered_bullet is None:
+                    if hasattr(weapon_properties, 'compatible_magazine_type'):
+                        bullets = copy(weapon_properties.loaded_magazine.magazine[0].parent)
+                    else:
+                        bullets = copy(weapon_properties.magazine[0].parent)
                 else:
-                    bullets = copy(weapon_properties.magazine[0].parent)
-            else:
-                bullets = copy(weapon_properties.chambered_bullet.parent)
+                    bullets = copy(weapon_properties.chambered_bullet.parent)
 
-            amount = randint(10, 20)
-            if amount > 0:
-                bullets.stacking.stack_size = amount
-                self.parent.inventory.add_to_inventory(item=bullets, item_container=None, amount=amount)
+                amount = randint(10, 20)
+                if amount > 0:
+                    bullets.stacking.stack_size = amount
+                    self.parent.inventory.add_to_inventory(item=bullets, item_container=None, amount=amount)
 
-            # adds clips to inventory and loads them
-            if hasattr(weapon_properties, 'compatible_clip'):
-                compatible_clip_type = weapon_properties.compatible_clip
-                compatible_clips = copy(gun.clip)
-                if compatible_clips is not None:
-                    if isinstance(gun.clip, dict):
+                # adds clips to inventory and loads them
+                if hasattr(weapon_properties, 'compatible_clip'):
+                    compatible_clip_type = weapon_properties.compatible_clip
+                    compatible_clips = copy(gun.clip)
+                    if compatible_clips is not None:
+                        if isinstance(gun.clip, dict):
 
-                        for clip in gun.clip.keys():
-                            if clip.magazine_type != compatible_clip_type:
-                                compatible_clips.update({clip: gun.magazine[clip]})
-                                del compatible_clips[clip]
+                            for clip in gun.clip.keys():
+                                if clip.magazine_type != compatible_clip_type:
+                                    compatible_clips.update({clip: gun.magazine[clip]})
+                                    del compatible_clips[clip]
 
-                        # randomly selects clip
-                        clip = choices(population=list(compatible_clips.keys()),
-                                       weights=list(compatible_clips.values()), k=1)[0]
+                            # randomly selects clip
+                            clip = choices(population=list(compatible_clips.keys()),
+                                           weights=list(compatible_clips.values()), k=1)[0]
 
-                        for y in range(randint(0, 2)):
-                            clip_copy = deepcopy(clip.parent)
-                            clip_copy.load_magazine(entity=self.parent, ammo=weapon_properties.chambered_bullet,
-                                                    load_amount=(randint(1, clip.mag_capacity)))
-                            self.parent.inventory.add_to_inventory(item=clip_copy.parent, item_container=None, amount=1)
-                    else:
-                        clip = gun.clip
-                        for y in range(randint(0, 2)):
-                            clip_copy = deepcopy(clip)
-                            clip_copy.usable_properties.load_magazine(entity=self.parent,
-                                                                      ammo=weapon_properties.chambered_bullet,
-                                                                     load_amount=(randint(1, clip_copy.
-                                                                                          usable_properties.mag_capacity)))
-                            self.parent.inventory.add_to_inventory(item=clip_copy, item_container=None, amount=1)
+                            for y in range(randint(0, 2)):
+                                clip_copy = deepcopy(clip.parent)
+                                clip_copy.load_magazine(entity=self.parent, ammo=weapon_properties.chambered_bullet,
+                                                        load_amount=(randint(1, clip.mag_capacity)))
+                                self.parent.inventory.add_to_inventory(item=clip_copy.parent,
+                                                                       item_container=None, amount=1)
+                        else:
+                            clip = gun.clip
+                            for y in range(randint(0, 2)):
+                                clip_copy = deepcopy(clip)
+                                clip_copy.usable_properties.load_magazine(entity=self.parent,
+                                                                          ammo=weapon_properties.chambered_bullet,
+                                                                          load_amount=(
+                                                                              randint(
+                                                                                  1,
+                                                                                  clip_copy.usable_properties.
+                                                                                  mag_capacity)))
+                                self.parent.inventory.add_to_inventory(item=clip_copy, item_container=None, amount=1)
 
-            # adds magazines to inventory and loads them
+                # adds magazines to inventory and loads them
 
-            if hasattr(weapon_properties, 'compatible_magazine_type'):
-                compatible_magazine_type = weapon_properties.compatible_magazine_type
-                compatible_magazines = copy(gun.magazine)
-                if compatible_magazines is not None:
-                    if isinstance(gun.magazine, dict):
-                        for magazine in gun.magazine.keys():
-                            if magazine.usable_properties.magazine_type != compatible_magazine_type:
-                                compatible_magazines.update({magazine: gun.magazine[magazine]})
+                if hasattr(weapon_properties, 'compatible_magazine_type'):
+                    compatible_magazine_type = weapon_properties.compatible_magazine_type
+                    compatible_magazines = copy(gun.magazine)
+                    if compatible_magazines is not None:
+                        if isinstance(gun.magazine, dict):
+                            for magazine in gun.magazine.keys():
+                                if magazine.usable_properties.magazine_type != compatible_magazine_type:
+                                    compatible_magazines.update({magazine: gun.magazine[magazine]})
 
-                                del compatible_magazines[magazine]
+                                    del compatible_magazines[magazine]
 
-                        # randomly selects magazine
-                        magazine = choices(population=list(compatible_magazines.keys()),
-                                           weights=list(compatible_magazines.values()), k=1)[0]
+                            # randomly selects magazine
+                            magazine = choices(population=list(compatible_magazines.keys()),
+                                               weights=list(compatible_magazines.values()), k=1)[0]
 
-                        for y in range(randint(0, 2)):
-                            mag_copy = deepcopy(magazine)
-                            mag_copy.usable_properties.load_magazine(entity=self.parent,
-                                                                     ammo=weapon_properties.chambered_bullet,
-                                                                     load_amount=(randint(1, mag_copy.
-                                                                                          usable_properties.mag_capacity)))
-                            self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
-                    else:
-                        magazine = gun.magazine
-                        for y in range(randint(0, 2)):
-                            mag_copy = deepcopy(magazine)
-                            mag_copy.usable_properties.load_magazine(entity=self.parent,
-                                                                     ammo=weapon_properties.chambered_bullet,
-                                                                     load_amount=(randint(1, mag_copy.
-                                                                                          usable_properties.mag_capacity)))
-                            self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
+                            for y in range(randint(0, 2)):
+                                mag_copy = deepcopy(magazine)
+                                (mag_copy.usable_properties.
+                                 load_magazine(entity=self.parent,
+                                               ammo=weapon_properties.chambered_bullet,
+                                               load_amount=(randint(1, mag_copy.usable_properties.mag_capacity))))
+                                self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
+                        else:
+                            magazine = gun.magazine
+                            for y in range(randint(0, 2)):
+                                mag_copy = deepcopy(magazine)
+                                (mag_copy.usable_properties.
+                                 load_magazine(entity=self.parent, ammo=weapon_properties.chambered_bullet,
+                                               load_amount=(randint(1, mag_copy.
+                                                                    usable_properties.mag_capacity))))
+                                self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
 
-            self.parent.inventory.held = held_weapon
-            self.parent.inventory.primary_weapon = held_weapon
-            self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held
-            self.parent.inventory.held.parent = self.parent.inventory
+                self.parent.inventory.held = held_weapon
+                self.parent.inventory.primary_weapon = held_weapon
+                self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held
+                self.parent.inventory.held.parent = self.parent.inventory
+
+        except KeyError:
+            return
+
+    def give_armour(self, current_level: int):
+
+        helmet = None
+        bodyarmour = None
+
+        try:
+            if len(self.helmet[current_level].keys()) > 0:
+                helmet = deepcopy(choices(population=list(self.helmet[current_level].keys()),
+                                          weights=list(self.helmet[current_level].values()),
+                                          k=1)[0])
+
+            if len(self.bodyarmour[current_level].keys()) > 0:
+                bodyarmour = deepcopy(choices(population=list(self.bodyarmour[current_level].keys()),
+                                              weights=list(self.bodyarmour[current_level].values()),
+                                              k=1)[0])
+
+            if bodyarmour is not None:
+                self.parent.inventory.small_mag_capacity += bodyarmour.usable_properties.small_mag_slots
+                self.parent.inventory.medium_mag_capacity += bodyarmour.usable_properties.medium_mag_slots
+                self.parent.inventory.large_mag_capacity += bodyarmour.usable_properties.large_mag_slots
+
+            for armour in (helmet, bodyarmour):
+                if armour is not None:
+                    for bodypart in self.parent.bodyparts:
+                        if bodypart.part_type == armour.usable_properties.fits_bodypart:
+                            bodypart.equipped = armour.usable_properties
+        except KeyError:
+            return
 
 
 class GunFighter(Fighter):
@@ -227,6 +265,8 @@ class GunFighter(Fighter):
                  unarmed_armour_damage,
                  item_drops: dict,
                  weapons: dict,
+                 bodyarmour: dict,
+                 helmet: dict,
                  spawn_group_amount: int,
                  unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
@@ -258,9 +298,9 @@ class GunFighter(Fighter):
         self.ap_distance_cost_modifier_original = ap_distance_cost_modifier
         self.attack_style = ''
 
-        super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
-                         unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
-                         move_success_chance, responds_to_sound, fears_death, description, active)
+        super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, bodyarmour, helmet,
+                         spawn_group_amount, unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy,
+                         ranged_accuracy, move_success_chance, responds_to_sound, fears_death, description, active)
 
     @property
     def felt_recoil(self):
@@ -316,6 +356,8 @@ class PlayerFighter(GunFighter):
                  unarmed_armour_damage,
                  item_drops: dict,
                  weapons: dict,
+                 bodyarmour: dict,
+                 helmet: dict,
                  spawn_group_amount: int,
                  unarmed_ap_cost: int = 100,
                  move_ap_cost: int = 100,
@@ -345,7 +387,6 @@ class PlayerFighter(GunFighter):
                  description: str = '',
                  active=True
                  ):
-
         self._skill_recoil_control = skill_recoil_control
         self._skill_marksmanship = skill_marksmanship
         self._skill_pistol_proficiency = skill_pistol_proficiency
@@ -359,9 +400,9 @@ class PlayerFighter(GunFighter):
         self._skill_bolt_action_proficiency = skill_bolt_action_proficiency
         self.visible_tiles = None
 
-        super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, spawn_group_amount,
-                         unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy, ranged_accuracy,
-                         move_success_chance, responds_to_sound, automatic_fire_duration, felt_recoil,
+        super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, bodyarmour, helmet,
+                         spawn_group_amount, unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy,
+                         ranged_accuracy, move_success_chance, responds_to_sound, automatic_fire_duration, felt_recoil,
                          target_acquisition_ap, firing_ap_cost, ap_distance_cost_modifier, fears_death, description,
                          active)
 

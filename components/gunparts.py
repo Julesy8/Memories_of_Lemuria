@@ -91,7 +91,8 @@ class Parts:
                                                    condition_accuracy=self.parent.condition_accuracy,
                                                    condition_function=self.parent.condition_function,
                                                    compatible_clip=self.parent.compatible_clip,
-                                                   barrel_length=self.parent.barrel_length
+                                                   barrel_length=self.parent.barrel_length,
+                                                   action_type=self.parent.action_type
                                                    )
 
                     self.parent.parent = item
@@ -129,7 +130,8 @@ class Parts:
                                             condition_accuracy=self.parent.condition_accuracy,
                                             condition_function=self.parent.condition_function,
                                             compatible_clip=self.parent.compatible_clip,
-                                            barrel_length=self.parent.barrel_length
+                                            barrel_length=self.parent.barrel_length,
+                                            action_type=self.parent.action_type
                                             )
 
                     self.parent.parent = item

@@ -9,7 +9,6 @@ Width of post = W
 W / (D / 3600) = Width of post in MOA.
 """
 
-
 """
 OPTICS
 """
@@ -108,7 +107,7 @@ kobra_ekp = Item(
                                                      'sight_height_above_bore': 2.0,
                                                      'zero_range': 100, },
                                    ap_to_equip=1.03,
-                                   attachment_point_required=('AK Side Mount', ),
+                                   attachment_point_required=('AK Side Mount',),
                                    ),
     description='An unmagnified russian red dot sight designed to mount to AK and SVD type rifles'
 )
@@ -182,6 +181,7 @@ pm2scope = Item(
     weight=0.86,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
+                                   suffix='Scoped',
                                    optic_properties={'target_acquisition_ap': 2.0,
                                                      'ap_distance_cost_modifier': 0.63,
                                                      'sight_spread_modifier': 0.0,
@@ -201,6 +201,7 @@ pso1 = Item(
     weight=0.6,
     stacking=None,
     usable_properties=GunComponent(part_type='Optic',
+                                   suffix='Scoped',
                                    optic_properties={'target_acquisition_ap': 1.5,
                                                      'ap_distance_cost_modifier': 0.73,
                                                      'sight_spread_modifier': 0.0,
@@ -408,7 +409,7 @@ grip_hera_cqr = Item(
                                        'felt_recoil': 0.82,
                                        'ap_distance_cost_modifier': 0.92,
                                        'handling_spread_modifier': 0.91,
-                                       'target_acquisition_ap': 0.8},),
+                                       'target_acquisition_ap': 0.8}, ),
     description="An ergonomic polymer front grip manufactured by HERA Arms designed for AR-type rifles"
 )
 
@@ -425,7 +426,7 @@ grip_promag_vertical = Item(
                                        'felt_recoil': 0.94,
                                        'ap_distance_cost_modifier': 0.78,
                                        'handling_spread_modifier': 0.75,
-                                       'target_acquisition_ap': 0.95},),
+                                       'target_acquisition_ap': 0.95}, ),
     description="A simple polymer front vertical grip designed by Pro Mag"
 )
 
@@ -442,7 +443,7 @@ grip_jem_vertical = Item(
                                        'felt_recoil': 0.75,
                                        'ap_distance_cost_modifier': 0.96,
                                        'handling_spread_modifier': 0.92,
-                                       'target_acquisition_ap': 0.79},),
+                                       'target_acquisition_ap': 0.79}, ),
     description="An ergonomic polymer pistol grip style vertical grip designed by JE Machine Tech"
 )
 
@@ -459,7 +460,7 @@ grip_magpul_angled = Item(
                                        'felt_recoil': 0.87,
                                        'ap_distance_cost_modifier': 0.89,
                                        'handling_spread_modifier': 0.87,
-                                       'target_acquisition_ap': 0.81},),
+                                       'target_acquisition_ap': 0.81}, ),
     description="An angled polymer foregrip designed by Magpul"
 )
 
@@ -476,7 +477,7 @@ grip_magpul_mvg = Item(
                                        'felt_recoil': 0.79,
                                        'ap_distance_cost_modifier': 0.93,
                                        'handling_spread_modifier': 0.89,
-                                       'target_acquisition_ap': 0.78},),
+                                       'target_acquisition_ap': 0.78}, ),
     description="A short polymer vertical fore grip designed by Magpul"
 )
 
@@ -493,7 +494,7 @@ grip_aimtac_short = Item(
                                        'felt_recoil': 0.77,
                                        'ap_distance_cost_modifier': 0.94,
                                        'handling_spread_modifier': 0.91,
-                                       'target_acquisition_ap': 0.76},),
+                                       'target_acquisition_ap': 0.76}, ),
     description="A short polymer vertical fore grip designed by AIM Sports Tactical"
 )
 
@@ -510,7 +511,7 @@ grip_magpul_handstop = Item(
                                        'felt_recoil': 0.85,
                                        'ap_distance_cost_modifier': 0.87,
                                        'handling_spread_modifier': 0.89,
-                                       'target_acquisition_ap': 0.75},),
+                                       'target_acquisition_ap': 0.75}, ),
     description="A polymer hand stop designed by Magpul"
 )
 
@@ -527,7 +528,7 @@ grip_hipoint_folding = Item(
                                        'felt_recoil': 0.91,
                                        'ap_distance_cost_modifier': 0.81,
                                        'handling_spread_modifier': 0.75,
-                                       'target_acquisition_ap': 0.93},),
+                                       'target_acquisition_ap': 0.93}, ),
     description="A slim, polymer folding vertical grip designed by HI Point"
 )
 
@@ -545,6 +546,7 @@ suppressor_obsidian_45 = Item(
     weight=0.36,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
+                                   suffix='Suppressed',
                                    muzzle_break_efficiency=0.35,
                                    target_acquisition_ap=1.07,
                                    fire_rate_modifier=1.09,
@@ -555,7 +557,7 @@ suppressor_obsidian_45 = Item(
     description='A modular suppressor compatible with .578x28 barrel threading'
 )
 
-muzzle_nullifier= Item(
+muzzle_nullifier = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
@@ -570,7 +572,7 @@ muzzle_nullifier= Item(
     description="A compensator/muzzle brake for 0.578x28 threaded barrels"
 )
 
-muzzle_kak_45= Item(
+muzzle_kak_45 = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
@@ -585,7 +587,7 @@ muzzle_kak_45= Item(
     description="A compensator for 0.578x28 threaded barrels manufactured by KAK industries"
 )
 
-muzzle_kak_a2= Item(
+muzzle_kak_a2 = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_GRAY,
@@ -610,6 +612,7 @@ suppressor_wolfman_9mm = Item(
     weight=0.408,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
+                                   suffix='Suppressed',
                                    muzzle_break_efficiency=0.38,
                                    target_acquisition_ap=1.08,
                                    fire_rate_modifier=1.11,
@@ -628,6 +631,7 @@ suppressor_obsidian_9 = Item(
     weight=0.36,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
+                                   suffix='Suppressed',
                                    muzzle_break_efficiency=0.33,
                                    target_acquisition_ap=1.06,
                                    fire_rate_modifier=1.08,
@@ -648,6 +652,7 @@ suppressor_octane45 = Item(
     weight=0.34,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
+                                   suffix='Suppressed',
                                    muzzle_break_efficiency=0.35,
                                    target_acquisition_ap=1.07,
                                    fire_rate_modifier=1.08,
@@ -750,7 +755,7 @@ adapter_mlok_picrail = Item(
                                                                'MLOK Underbarrel - Long': 'Picrail Underbarrel - Long',
                                                                'MLOK Top Mount - Long': 'Picrail Top Mount - Long',
                                                                'MLOK Optics Mount - Long': 'Picrail Optics Mount - '
-                                                                                           'Long',},
+                                                                                           'Long', },
                                    attachment_point_required=('MLOK Side Mount - Long', 'MLOK Underbarrel - Long',
                                                               'MLOK Top Mount - Long', 'MLOK Optics Mount - Long'),
                                    ),

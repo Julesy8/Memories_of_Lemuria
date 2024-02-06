@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, Tuple, Optional, TYPE_CHECKING
 
+from math import atan2
 from random import randint, choice
 import numpy as np  # type: ignore
 import tcod
@@ -95,6 +96,14 @@ class PlayerCharacter(BaseAI):
                                                   end_x=self.entity.x, end_y=self.entity.y):
                 self.entity.previous_target_actor = None
                 self.entity.previously_targeted_part = None
+            else:
+                orientation = atan2(self.entity.fighter.previous_target_actor.y - self.entity.y,
+                                    self.entity.fighter.previous_target_actor.x - self.entity.x)
+
+                if orientation < 0:
+                    orientation += 6.283
+
+                self.entity.orientation = orientation
 
         if self.queued_action is not None:
             self.queued_action.handle_action()
@@ -163,6 +172,14 @@ class HostileEnemy(BaseAI):
                                                   end_x=self.entity.x, end_y=self.entity.y):
                 self.entity.previous_target_actor = None
                 self.entity.previously_targeted_part = None
+            else:
+                orientation = atan2(self.entity.fighter.previous_target_actor.y - self.entity.y,
+                                    self.entity.fighter.previous_target_actor.x - self.entity.x)
+
+                if orientation < 0:
+                    orientation += 6.283
+
+                self.entity.orientation = orientation
 
         # if no target, no current path and AI roams, paths to centre of a random room
         if self.entity.fighter.target_actor is None and self.roams and not self.path:

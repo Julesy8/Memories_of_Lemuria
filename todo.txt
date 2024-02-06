@@ -2,6 +2,64 @@
 TO DO
 -----
 
+ability to manually change orientation
+view based on orienation
+
+x = map x in inches
+y = map y in inches
+
+(x1, x2), (y1, y2)
+MUST ALSO TAKE INTO ACCOUNT ORIENTATION OF THE ENTITY
+
+use this first
+
+def rotate(origin, point, angle):
+    """
+    Rotate a point counterclockwise by a given angle around a given origin.
+
+    The angle should be given in radians.
+    """
+    ox, oy = origin.x, origin.y
+    px, py = point.x, point.y
+
+    qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
+    qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
+    return Point(qx, qy)
+
+
+depth: (0 + x, 0 + x) (0 + y, 10 + y)
+width: (0 + x, 20 + x) (10 + y, 0 + y)
+actually make for each face this way can determine depth
+
+DETERMINE COORDINATES OF POINTS PERPENDICULAR TO END OF THE LINE
+https://www.mathworks.com/matlabcentral/answers/484422-how-to-find-the-coordinates-of-a-point-perpendicular-to-a-line-knowing-the-distance
+
+whether offset x is used or offet y should depend on whether the calculated deviation from aim point is positive or negative
+positive - y, negative - x, although obviously offsets should not be negative
+
+bullet hit: (attacker x, offset x perpendicular to centre) (attacker y, offset y perpendicular to centre)
+
+def ccw(A,B,C):
+    return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
+
+for each surface:
+
+# Return true if line segments AB and CD intersect
+def intersect(A,B,C,D):
+    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+
+determine depth from angle - use slope of the line from attacker to hit position to determine where it intersects with
+the other body part faces, use pythagorus to determine length of this line
+
+https://stackoverflow.com/questions/20677795/how-do-i-compute-the-intersection-point-of-two-lines
+
+
+bullets can pass through entities, continue and hit others
+organ hits, tissue layers
+
+use the Y offset to deterime where the bullet intersects on the Y plane with the body part faces and use pythagoras
+theorem to determine actual depth of bodypart from where the bullet is passing through
+
 Ideal item action handling:
 
 Event handler --> consumable.get_action -> Action -> consumable.activate
@@ -34,14 +92,28 @@ input handler: reload (consumables class) -> calls action -> reloads
 After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
 magazine class itself.
 
+Custom Level Gen
+-BSP algo
+-Designate rooms
+-Generate rooms within those rooms (sub rooms)
+    - recusively split the rectangle in half
+    - every room and sub room must have at least one entrance
+-connect sub rooms
+-connect sub rooms to outside
+-dig out every wall tile that isnt a room
+
+-place walls as cover
+-idea: cavernous sniper duel maps with sparse buidlings but lots of pillars for cover and long engagement distances
+
+
 Extended Goals
 -tactical and speed reloads
--borderlands style weapon naming
 -grenades
 -dialogue
 -doors
 -Trigger mods
 -unique enemies which spawn once per game
+-each weapon part has a value. Total value of the weapon determines if it will be included in future runs.
 -in the dungeon you find enemies using your looted equipment from previous runs
 -more room shapes on level generation
 -weapon graphics

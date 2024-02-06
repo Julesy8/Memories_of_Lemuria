@@ -64,7 +64,6 @@ class MessyBSPTree:
                                                         self.colours_chars_tuple.floor_tile
                                                         )
 
-        # change debug_fov to True to disable fov, False to enable
         self.dungeon = GameMap(engine=engine, width=map_width, height=map_height, entities=[] + engine.players,
                                fov_radius=self.fov_radius)
 
@@ -222,7 +221,8 @@ class MessyBSPTree:
             if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities):
                 # place enemy
                 enemy.place(x, y, self.dungeon)
-                enemy.fighter.give_weapon()
+                enemy.fighter.give_weapon(self.current_level)
+                enemy.fighter.give_armour(self.current_level)
 
         for i in range(number_of_items):
             x = randint(room.x1 + 1, room.x2 - 1)

@@ -110,6 +110,7 @@ reciever_akm_auto = Item(
                                                      'ap_distance_cost_modifier': 1.04,
                                                      'sight_spread_modifier': 0.02, },
                                    suffix='47',
+                                   prefix='Automatic',
                                    is_optic=True,
                                    functional_part=True,
                                    ),
@@ -138,6 +139,7 @@ reciever_ak74_auto = Item(
                                                      'sight_spread_modifier': 0.02, },
                                    is_optic=True,
                                    functional_part=True,
+                                   prefix='Automatic',
                                    description="The AK-74 is an assault rifle developed by Mikhail Kalashnikov in the "
                                                "1970s as the successor to the AK-47. It is the is chambered for the "
                                                "5.45x39mm cartridge, which is lighter and faster than the AK-47's "
@@ -167,6 +169,7 @@ reciever_100556_auto = Item(
                                                      'sight_spread_modifier': 0.02, },
                                    is_optic=True,
                                    functional_part=True,
+                                   prefix='Automatic',
                                    description="The AK-101 and AK-102 rifles are modern versions of the AK-47, "
                                                "designed by Russian firearms manufacturer Kalashnikov Concern. "
                                                "Introduced in the 1990s, these rifles use the NATO standard 5.56x45mm "
@@ -653,6 +656,7 @@ barrel_rpk762 = Item(
     weight=0.53,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Barrel',
+                                   suffix='Long Barrel',
                                    is_attachment_point_types=['Barrel Thread 14x1', ],
                                    compatible_parts={'AK Handguard': ["Wood AK Handguard",
                                                                       "AMD-65 Handguard",
@@ -681,6 +685,7 @@ barrel_rpk545 = Item(
     weight=0.65,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Barrel',
+                                   suffix='Long Barrel',
                                    is_attachment_point_types=['Barrel Thread 24x1.5', ],
                                    compatible_parts={'AK Handguard': ["Wood AK Handguard",
                                                                       "AMD-65 Handguard",
@@ -709,6 +714,7 @@ barrel_ak762_short = Item(
     weight=0.28,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Barrel',
+                                   suffix='Carbine',
                                    is_attachment_point_types=['Barrel Thread 14x1', ],
                                    compatible_parts={'AK Handguard': ["Wood AK Handguard",
                                                                       "AMD-65 Handguard",
@@ -739,6 +745,7 @@ barrel_ak545_short = Item(
     weight=0.35,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Barrel',
+                                   suffix='Carbine',
                                    is_attachment_point_types=['Barrel Thread 24x1.5', ],
                                    compatible_parts={'AK Handguard': ["Wood AK Handguard",
                                                                       "AMD-65 Handguard",
@@ -1031,6 +1038,7 @@ muzzle_pbs4 = Item(
     weight=0.7,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
+                                   suffix='Suppressed',
                                    attachment_point_required=('Barrel Thread 24x1.5',),
                                    muzzle_break_efficiency=0.34,
                                    fire_rate_modifier=1.12,
@@ -1048,6 +1056,7 @@ muzzle_pbs1 = Item(
     weight=0.354,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
+                                   suffix='Suppressed',
                                    attachment_point_required=('Barrel Thread 14x1',),
                                    muzzle_break_efficiency=0.36,
                                    target_acquisition_ap=1.05,

@@ -2,7 +2,7 @@ from __future__ import annotations
 import lzma
 import pickle
 from typing import TYPE_CHECKING
-from random import choices
+from random import choices, randint
 
 from tcod import tileset
 
@@ -89,7 +89,6 @@ class Engine:
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
-
         fov = self.game_map.zeros
 
         # Could maybe make this faster by only recalculating the FOV for those players that have changed position since
@@ -104,18 +103,18 @@ class Engine:
 
             # activates entity when seen by player
             for entity in self.game_map.actors:
-                if entity.ai and player.fighter.visible_tiles[entity.x, entity.y] and not entity in self.players:
+                if entity.ai and player.fighter.visible_tiles[entity.x, entity.y] and entity not in self.players:
 
                     # selects new target if inactive or no target currently
                     if not entity.fighter.active or entity.fighter.target_actor is None:
                         dx = entity.x - player.x
                         dy = entity.y - player.y
                         distance = max(abs(dx), abs(dy))  # Chebyshev distance.
-                        # at 10 metres distance there's an equal chance of the enemy noticing you as not noticing you
-                        # TODO - this should be affected by a stealth skill and perception
 
-                        sees_player = choices((True, False), weights=(10, distance))
+                        # at 10 metres distance there's an equal chance of the enemy noticing you as not noticing you
+                        sees_player = choices((True, False), weights=(10, distance))[0]
                         if sees_player:
+                            entity.fighter.turns_attack_inactive = randint(2, 3)
                             entity.fighter.active = True
                             entity.fighter.target_actor = player
 
@@ -152,7 +151,7 @@ class Engine:
             console.print(x=0, y=0, string=f"MODE: INDIVIDUAL / COMBAT STYLE: {self.player.fighter.attack_style}",
                           fg=colour.WHITE)
 
-        console.print(x=0, y=console.height - 5, string=self.player.name, fg=colour.WHITE)
+        console.print(x=0, y=console.height - 5, string=self.player.name, fg=self.player.fg_colour)
 
         # render message log
         self.message_log.render(console=console, x=6, y=console.height - 4,
@@ -162,7 +161,7 @@ class Engine:
 
         if self.player.ai is not None:
             if self.player.ai.queued_action:
-                turns_remaining = ceil(abs(self.player.fighter.ap/self.player.fighter.ap_per_turn *
+                turns_remaining = ceil(abs(self.player.fighter.ap / self.player.fighter.ap_per_turn *
                                            self.player.fighter.ap_per_turn_modifier))
                 ap_str = f"/ {self.player.ai.queued_action.action_str} ({turns_remaining} turns remain)"
 

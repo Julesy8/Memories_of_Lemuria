@@ -58,6 +58,7 @@ round_9mm_115_fmj = Item(
         spread_modifier=0.0075,  # MoA / 100
         ballistic_coefficient=0.155,
         bullet_length=0.55,
+        round_type='pistol'
     )
 )
 
@@ -80,6 +81,7 @@ round_9mm_124_fmj = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.192,
         bullet_length=0.55,
+        round_type='pistol'
     )
 )
 
@@ -102,6 +104,7 @@ round_9mm_147_fp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.2,
         bullet_length=0.55,
+        round_type='pistol'
     )
 )
 
@@ -125,6 +128,7 @@ round_9mm_115_fmj_pp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.155,
         bullet_length=0.55,
+        round_type='pistol'
     )
 )
 
@@ -147,6 +151,7 @@ round_9mm_124_fmj_pp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.22,
         bullet_length=0.55,
+        round_type='pistol'
     )
 )
 
@@ -169,6 +174,7 @@ round_9mm_147_fp_pp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.2,
         bullet_length=0.55,
+        round_type='pistol'
     )
 )
 
@@ -196,6 +202,7 @@ round_9mm_115_jhp = Item(
         bullet_expands=True,
         max_expansion=1.57,
         max_expansion_velocity=1489,
+        round_type='pistol'
     )
 )
 
@@ -221,6 +228,7 @@ round_9mm_124_jhp = Item(
         bullet_expands=True,
         max_expansion=1.57,
         max_expansion_velocity=1489,
+        round_type='pistol'
     )
 )
 
@@ -246,6 +254,7 @@ round_9mm_147_jhp = Item(
         bullet_expands=True,
         max_expansion=1.57,
         max_expansion_velocity=1489,
+        round_type='pistol'
     )
 )
 
@@ -273,6 +282,7 @@ round_9mm_115_jhp_pp = Item(
         bullet_expands=True,
         max_expansion=1.57,
         max_expansion_velocity=1489,
+        round_type='pistol'
     )
 )
 
@@ -298,6 +308,7 @@ round_9mm_124_jhp_pp = Item(
         bullet_expands=True,
         max_expansion=1.57,
         max_expansion_velocity=1489,
+        round_type='pistol'
     )
 )
 
@@ -323,6 +334,7 @@ round_9mm_147_jhp_pp = Item(
         bullet_expands=True,
         max_expansion=1.57,
         max_expansion_velocity=1489,
+        round_type='pistol'
     )
 )
 
@@ -355,6 +367,7 @@ round_45_185_swc = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.09,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -377,6 +390,7 @@ round_45_200_swc = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.07,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -404,6 +418,7 @@ round_45_185_jhp = Item(
         bullet_expands=True,
         max_expansion=1.55,
         max_expansion_velocity=1150,
+        round_type='pistol'
     )
 )
 
@@ -429,6 +444,7 @@ round_45_200_jhp = Item(
         bullet_expands=True,
         max_expansion=1.55,
         max_expansion_velocity=1150,
+        round_type='pistol'
     )
 )
 
@@ -454,6 +470,7 @@ round_45_230_jhp = Item(
         bullet_expands=True,
         max_expansion=1.55,
         max_expansion_velocity=1150,
+        round_type='pistol'
     )
 )
 
@@ -478,6 +495,7 @@ round_45_200_fmj = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.15,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -500,6 +518,7 @@ round_45_230_fmj = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.205,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -524,6 +543,7 @@ round_45_185_swc_pp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.09,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -546,6 +566,7 @@ round_45_200_swc_pp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.07,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -573,6 +594,7 @@ round_45_185_jhp_pp = Item(
         bullet_expands=True,
         max_expansion=1.55,
         max_expansion_velocity=1150,
+        round_type='pistol'
     )
 )
 
@@ -598,6 +620,7 @@ round_45_230_jhp_pp = Item(
         bullet_expands=True,
         max_expansion=1.55,
         max_expansion_velocity=1150,
+        round_type='pistol'
     )
 )
 
@@ -622,6 +645,7 @@ round_45_200_fmj_pp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.15,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -644,6 +668,7 @@ round_45_230_fmj_pp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.205,
         bullet_length=0.602,
+        round_type='pistol'
     )
 )
 
@@ -677,6 +702,7 @@ round_10mm_155_jhp = Item(
         bullet_expands=True,
         max_expansion=1.64,
         max_expansion_velocity=1155,
+        round_type='pistol'
     )
 )
 
@@ -699,6 +725,7 @@ round_10mm_180_fmj = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.138,
         bullet_length=0.525,
+        round_type='pistol'
     )
 )
 
@@ -724,6 +751,7 @@ round_10mm_190_jhp = Item(
         bullet_expands=True,
         max_expansion=1.64,
         max_expansion_velocity=1155,
+        round_type='pistol'
     )
 )
 
@@ -746,6 +774,7 @@ round_10mm_220_fp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.137,
         bullet_length=0.525,
+        round_type='pistol'
     )
 )
 
@@ -779,6 +808,7 @@ round_40sw_155_jhp = Item(
         bullet_expands=True,
         max_expansion=1.64,
         max_expansion_velocity=1155,
+        round_type='pistol'
     )
 )
 
@@ -801,6 +831,7 @@ round_40sw_165_fmj = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.138,
         bullet_length=0.525,
+        round_type='pistol'
     )
 )
 
@@ -823,6 +854,7 @@ round_40sw_180_fmj = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.138,
         bullet_length=0.525,
+        round_type='pistol'
     )
 )
 
@@ -848,6 +880,7 @@ round_40sw_180_jhp = Item(
         bullet_expands=True,
         max_expansion=1.64,
         max_expansion_velocity=1155,
+        round_type='pistol'
     )
 )
 
@@ -870,6 +903,7 @@ round_40sw_220_fp = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.137,
         bullet_length=0.525,
+        round_type='pistol'
     )
 )
 
@@ -902,6 +936,7 @@ round_44_180_jhp = Item(
         bullet_expands=True,
         max_expansion=1.74,
         max_expansion_velocity=1300,
+        round_type='pistol'
     )
 )
 
@@ -927,6 +962,7 @@ round_44_200_jhp = Item(
         bullet_expands=True,
         max_expansion=1.74,
         max_expansion_velocity=1300,
+        round_type='pistol'
     )
 )
 
@@ -952,6 +988,7 @@ round_44_225_jhp = Item(
         bullet_expands=True,
         max_expansion=1.74,
         max_expansion_velocity=1300,
+        round_type='pistol'
     )
 )
 
@@ -977,6 +1014,7 @@ round_44_240_sp = Item(
         bullet_expands=True,
         max_expansion=1.74,
         max_expansion_velocity=1450,
+        round_type='pistol'
     )
 )
 
@@ -1002,6 +1040,7 @@ round_44_300_sp = Item(
         bullet_expands=True,
         max_expansion=1.74,
         max_expansion_velocity=1450,
+        round_type='pistol'
     )
 )
 
@@ -1033,6 +1072,7 @@ round_76225_85_rn = Item(
         spread_modifier=0.0075,
         ballistic_coefficient=0.113,
         bullet_length=0.525,
+        round_type='pistol'
     )
 )
 
@@ -1058,6 +1098,7 @@ round_76225_90_jhp = Item(
         bullet_expands=True,
         max_expansion=1.57,
         max_expansion_velocity=1500,
+        round_type='pistol'
     )
 )
 
@@ -1083,6 +1124,7 @@ round_76225_100_jhp = Item(
         bullet_expands=True,
         max_expansion=1.57,  # No data, educated guess
         max_expansion_velocity=1500,
+        round_type='pistol'
     )
 )
 
@@ -1116,6 +1158,7 @@ round_76239_123_fmj = Item(
         bullet_length=0.796,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1140,6 +1183,7 @@ round_76239_150_fmj = Item(
         bullet_length=0.796,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1167,6 +1211,7 @@ round_76239_123_sst = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1800,
+        round_type='rifle'
     )
 )
 
@@ -1194,6 +1239,7 @@ round_76239_150_sp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=2000,
+        round_type='rifle'
     )
 )
 
@@ -1228,6 +1274,7 @@ round_556_55_sp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=2000,
+        round_type='rifle'
     )
 )
 
@@ -1255,6 +1302,7 @@ round_556_60_fmj = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1800,
+        round_type='rifle'
     )
 )
 
@@ -1282,6 +1330,7 @@ round_556_75_fmj = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1800,
+        round_type='rifle'
     )
 )
 
@@ -1309,6 +1358,7 @@ round_556_69_jhp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1900,
+        round_type='rifle'
     )
 )
 
@@ -1336,6 +1386,7 @@ round_556_80_jhp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1900,
+        round_type='rifle'
     )
 )
 
@@ -1370,6 +1421,7 @@ round_300aac_150_jhp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1900,
+        round_type='rifle'
     )
 )
 
@@ -1394,6 +1446,7 @@ round_300aac_150_fmj = Item(
         bullet_length=1.013,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1418,6 +1471,7 @@ round_300aac_210_fmj = Item(
         bullet_length=1.013,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1445,6 +1499,7 @@ round_300aac_210_jhp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1900,
+        round_type='rifle'
     )
 )
 
@@ -1478,6 +1533,7 @@ round_545_56_fmj = Item(
         bullet_length=1.0,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1502,6 +1558,7 @@ round_545_63_fmj = Item(
         bullet_length=1.0,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1529,6 +1586,7 @@ round_545_60_jhp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1900,
+        round_type='rifle'
     )
 )
 
@@ -1564,6 +1622,7 @@ round_308_130_jhp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=1900,
+        round_type='rifle'
     )
 )
 
@@ -1588,6 +1647,7 @@ round_308_150_fmj = Item(
         bullet_length=1.4,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1615,6 +1675,7 @@ round_308_165_sp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=2000,
+        round_type='rifle'
     )
 )
 
@@ -1638,6 +1699,7 @@ round_308_180_tsx = Item(
         ballistic_coefficient=0.484,
         bullet_length=1.4,
         bullet_yaws=True,
+        round_type='rifle'
     )
 )
 
@@ -1671,6 +1733,7 @@ round_54r_174_jrn = Item(
         bullet_length=1.4,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1698,6 +1761,7 @@ round_54r_180_jsp = Item(
         bullet_expands=True,
         max_expansion=1.5,
         max_expansion_velocity=2000,
+        round_type='rifle'
     )
 )
 
@@ -1722,6 +1786,7 @@ round_54r_200_fmj = Item(
         bullet_length=1.4,
         bullet_yaws=True,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1757,6 +1822,7 @@ round_30carb_110_jhp = Item(
         bullet_expands=True,
         max_expansion=1.55,
         max_expansion_velocity=2000,
+        round_type='rifle'
     )
 )
 
@@ -1781,6 +1847,7 @@ round_30carb_110_fmj = Item(
         bullet_length=0.55,
         bullet_yaws=False,
         bullet_fragments=True,
+        round_type='rifle'
     )
 )
 
@@ -1814,6 +1881,7 @@ round_12ga_slug = Item(
         bullet_length=0.55,
         bullet_yaws=False,
         bullet_fragments=False,
+        round_type='shot shell'
     )
 )
 
@@ -1841,7 +1909,8 @@ round_12ga_00buck = Item(
         bullet_length=0.55,
         bullet_yaws=False,
         bullet_fragments=False,
-        projectile_no=9
+        projectile_no=9,
+        round_type='shot shell'
     )
 )
 

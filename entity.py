@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, TypeVar, TYPE_CHECKING, Union, Type
+from random import choice
 import copy
 import math
 
@@ -114,6 +115,7 @@ class Actor(Entity):
             render_order=RenderOrder.ACTOR,
         )
 
+        self.orientation = choice((0, 0.785, 1.57, 2.356, 3.141, 3.926, 4.712, 5.497))  # 2 pi, west
         self.ai = ai(self)
         self.speaks = speaks
         self.bleeds = bleeds

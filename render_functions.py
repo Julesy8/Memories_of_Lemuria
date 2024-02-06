@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-
+from math import atan2
 import tcod
 from entity import Item
 
@@ -102,6 +102,14 @@ def render_names_at_mouse_location(
     mouse_x += cam_x
     mouse_y += cam_y
 
+    # print(mouse_x)
+    # print(mouse_y)
+    # print(engine.player.x)
+    # print(engine.player.y)
+    # orientation = atan2(engine.player.y - mouse_y,
+    #                     engine.player.x - mouse_x)
+    # print(orientation)
+
     names_at_mouse_location = ""
 
     if game_map.in_bounds(mouse_x, mouse_y):
@@ -124,7 +132,6 @@ def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -
 
     if game_map.in_bounds(mouse_x, mouse_y):
         tcod.console_put_char_ex(console, mouse_x, mouse_y, 43, colour.YELLOW, colour.BLACK)
-
     else:
         return
 

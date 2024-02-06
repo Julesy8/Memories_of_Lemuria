@@ -78,11 +78,11 @@ Enemies_by_level = {
     0:
         (
             # (giant_snake, 5),
-            (large_rat, 5),
+            # (large_rat, 1),
             # (rat_king, 5),
             # (aligator, 5),
             # (maniac, 5),
-            # (outlaw, 100)
+            (outlaw, 100),
         ),
     # caverns
     1:
@@ -91,11 +91,7 @@ Enemies_by_level = {
             (maniac, 1),
             (outlaw, 1),
             (peacekeeper, 1),
-            (troglodyte, 1),
             (soldier, 1),
-            (wyrm, 1),
-            (chimera, 1),
-            (dogman, 1)
         ),
     # the nexion
     2:

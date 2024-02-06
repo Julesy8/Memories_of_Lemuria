@@ -7,7 +7,7 @@ from colour import RED
 from components.npc_templates import BaseComponent
 
 if TYPE_CHECKING:
-    from components.consumables import DetachableMagazine, Clip
+    from components.consumables import DetachableMagazine, Clip, Bullet
     from entity import Actor, Item
 
 
@@ -26,6 +26,13 @@ class Inventory(BaseComponent):
         self.medium_mag_capacity = 4
         self.large_mag_capacity = 2
 
+        # self.ammopouch_capacity_shot = 18
+        # self.ammopouch_capacity_rifle = 14
+        # self.ammopouch_capacity_pistol = 25
+        #
+        # self.ammo_pouch_shot = []
+        # self.ammo_pouch_rifle = []
+        # self.ammo_pouch_pistol = []
         self.small_magazines = []
         self.medium_magazines = []
         self.large_magazines = []
@@ -110,15 +117,42 @@ class Inventory(BaseComponent):
                 if len(self.large_magazines) < self.large_mag_capacity:
                     self.large_magazines.append(magazine.parent)
 
+    # def add_to_pouch(self, bullet: Bullet):
+    #     if bullet.round_type == 'pistol':
+    #         if bullet not in self.ammo_pouch_pistol:
+    #             if len(self.ammo_pouch_pistol) < self.ammopouch_capacity_pistol:
+    #                 self.ammo_pouch_pistol.append(bullet.parent)
+    #
+    #     elif bullet.round_type == 'rifle':
+    #         if bullet not in self.ammo_pouch_rifle:
+    #             if len(self.ammo_pouch_rifle) < self.ammopouch_capacity_rifle:
+    #                 self.ammo_pouch_rifle.append(bullet.parent)
+    #
+    #     elif bullet.round_type == 'shot shell':
+    #         if bullet not in self.ammo_pouch_shot:
+    #             if len(self.ammo_pouch_shot) < self.ammopouch_capacity_shot:
+    #                 self.ammo_pouch_shot.append(bullet.parent)
+    #
+    # # TODO - just decrease number or remove
+    # def remove_from_pouch(self, bullet: Bullet):
+    #     if bullet.parent in self.ammo_pouch_pistol:
+    #         self.ammo_pouch_pistol.remove(bullet.parent)
+    #
+    #     elif bullet.parent in self.ammo_pouch_rifle:
+    #         self.ammo_pouch_rifle.remove(bullet.parent)
+    #
+    #     elif bullet.parent in self.ammo_pouch_shot:
+    #         self.ammo_pouch_shot.remove(bullet.parent)
+    #
     def remove_from_magazines(self, magazine: Union[Clip, DetachableMagazine]):
 
-        if magazine in self.small_magazines:
+        if magazine.parent in self.small_magazines:
             self.small_magazines.remove(magazine.parent)
 
-        elif magazine in self.medium_magazines:
+        elif magazine.parent in self.medium_magazines:
             self.medium_magazines.remove(magazine.parent)
 
-        elif magazine in self.large_magazines:
+        elif magazine.parent in self.large_magazines:
             self.large_magazines.remove(magazine.parent)
 
     def update_magazines(self):

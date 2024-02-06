@@ -253,6 +253,7 @@ class Bullet(Usable):
 
     def __init__(self,
                  bullet_type: str,
+                 round_type: str,
                  mass: int,  # bullet mass in grains
                  charge_mass: float,  # mass of propellant in grains
                  diameter: float,  # inches
@@ -272,6 +273,7 @@ class Bullet(Usable):
                  projectile_no: int = 1,
                  ):
         self.bullet_type = bullet_type
+        self.round_type = round_type
         self.projectile_type = projectile_type
         self.mass = mass
         self.charge_mass = charge_mass
@@ -409,9 +411,11 @@ class Clip(Magazine):
         self.ap_to_load = ap_to_load
         self.requires_gun_empty = requires_gun_empty
 
+
 # y, x
 recoil_patterns = ((1.0, 0.0), (0.9, 0.1), (0.8, 0.2), (0.7, 0.3), (0.6, 0.4), (0.5, 0.5), (0.5, 0.5), (0.4, 0.6),
                    (0.3, 0.7))
+
 
 class Gun(Weapon):
     def __init__(self,
@@ -433,7 +437,7 @@ class Gun(Weapon):
                  target_acquisition_ap: int,  # ap cost for acquiring new target
                  ap_distance_cost_modifier: float,  # AP cost modifier for distance from target
                  sight_spread_modifier: float,  # accuracy of the weapon's sighting system (MoA / 100)
-                 handling_spread_modifier: float , # spread purely due to accuracy of the sights themselves (MoA / 100)
+                 handling_spread_modifier: float,  # spread purely due to accuracy of the sights themselves (MoA / 100)
                  projectile_spread_modifier: dict,  # spread due to ballistic factors i.e. barrel length, choke
                  manual_action: bool = False,
                  action_cycle_ap_cost: int = 100,
@@ -662,31 +666,23 @@ class Gun(Weapon):
                     hit_location_x += (recoil_x * dist_yards) + spread_x_projectile
                     hit_location_y += (recoil_y * dist_yards) + projectile_path + spread_y_projectile
 
-                    if (not abs(hit_location_x) > (target.bodyparts[part_index].width * 0.3937 / 2) or not
-                            abs(hit_location_y) > (target.bodyparts[part_index].height * 0.3937 / 2)):
-                        # does damage to given bodypart
-                        target.bodyparts[part_index].deal_damage_gun(
-                            diameter_bullet=self.chambered_bullet.diameter,
-                            mass_bullet=self.chambered_bullet.mass,
-                            velocity_bullet=velocity_at_distance,
-                            drag_bullet=self.chambered_bullet.drag_coefficient,
-                            config_bullet=self.chambered_bullet.proj_config,
-                            bullet_length=self.chambered_bullet.bullet_length,
-                            bullet_expands=self.chambered_bullet.bullet_expands,
-                            bullet_yaws=self.chambered_bullet.bullet_yaws,
-                            bullet_fragments=self.chambered_bullet.bullet_fragments,
-                            bullet_max_expansion=self.chambered_bullet.max_expansion,
-                            bullet_expansion_velocity=self.chambered_bullet.max_expansion_velocity,
-                            attacker=attacker
-                        )
-
-                    # miss
-                    else:
-                        if attacker.player:
-                            self.engine.message_log.add_message("Your shot misses.", colour.YELLOW)
-
-                        else:
-                            self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
+                    # does damage to given bodypart
+                    target.bodyparts[part_index].deal_damage_gun(
+                        diameter_bullet=self.chambered_bullet.diameter,
+                        mass_bullet=self.chambered_bullet.mass,
+                        velocity_bullet=velocity_at_distance,
+                        drag_bullet=self.chambered_bullet.drag_coefficient,
+                        config_bullet=self.chambered_bullet.proj_config,
+                        bullet_length=self.chambered_bullet.bullet_length,
+                        bullet_expands=self.chambered_bullet.bullet_expands,
+                        bullet_yaws=self.chambered_bullet.bullet_yaws,
+                        bullet_fragments=self.chambered_bullet.bullet_fragments,
+                        bullet_max_expansion=self.chambered_bullet.max_expansion,
+                        bullet_expansion_velocity=self.chambered_bullet.max_expansion_velocity,
+                        attacker=attacker,
+                        hit_location_x=hit_location_x,
+                        hit_location_y=hit_location_y,
+                    )
 
                 self.chambered_bullet = None
                 self.chamber_round()
@@ -740,7 +736,6 @@ class Gun(Weapon):
                     if attacker.player:
                         attacker.fighter.skill_recoil_control += round((recoil_penalty * 50))
 
-
             else:
                 self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
                 if attacker.player:
@@ -771,6 +766,9 @@ class Gun(Weapon):
                     try:
                         path = x.ai.get_path_to(attacker.x, attacker.y)
                     except AttributeError:
+                        continue
+                    # TODO - bandaid fix
+                    except RecursionError:
                         continue
                     if len(path) <= sound_radius:
                         setattr(x.ai, 'path', path)
@@ -862,7 +860,10 @@ class Wearable(Usable):
     def __init__(self,
                  ballistic_protection_level: str,
                  protection_ballistic: float,  # equivalent to inches of mild steel
-                 armour_coverage: int,  # chance that when an attack occurs, the armour will be hit
+                 coverage_v: float,  # chance that when an attack occurs, the armour will be hit
+                 coverage_d: float,
+                 coverage_l: float,
+                 coverage_r: float,
                  protection_physical: int,
                  fits_bodypart_type: str,
                  equip_ap_cost: int,
@@ -874,7 +875,10 @@ class Wearable(Usable):
         self.ap_penalty = ap_penalty
         self.ballistic_protection_level = ballistic_protection_level
         self.protection_ballistic = protection_ballistic
-        self.armour_coverage = armour_coverage
+        self.coverage_v = coverage_v
+        self.coverage_d = coverage_d
+        self.coverage_l = coverage_l
+        self.coverage_r = coverage_r
         self.protection_physical = protection_physical
         self.fits_bodypart = fits_bodypart_type  # bodypart types able to equip the item
 
