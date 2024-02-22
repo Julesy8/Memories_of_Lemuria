@@ -1,13 +1,12 @@
-import copy
-
 from random import random, randint, choice, choices
-from copy import deepcopy, copy
+from copy import deepcopy
+import numpy as np  # type: ignore
 
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
 from colours_and_chars import MapColoursChars
 from game_map import GameMap
 from level_parameters import Enemies_by_level, Items_by_level
-from tile_types import down_stairs
+from tile_types import down_stairs, new_wall
 from entity import Entity
 import colour
 from render_order import RenderOrder
@@ -15,6 +14,19 @@ from render_order import RenderOrder
 stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_GRAY, name='Stairs',
                        render_order=RenderOrder.ITEM)
 
+class RoomPattern:
+    def __init__(self,
+                 file: str,
+                 size_x: int,
+                 size_y: int,
+                 ):
+        self.file = file
+        self.size_x = size_x
+        self.size_y = size_y
+        self.rooms = open(file, 'r')
+
+    def give_lines(self):
+        return self.rooms.readlines()
 
 class MessyBSPTree:
     """
@@ -64,10 +76,123 @@ class MessyBSPTree:
                                                         self.colours_chars_tuple.floor_tile
                                                         )
 
+        # room_7x7 = RoomPattern(file='room_7x7.txt', size_x=7, size_y=7)
+        # room_7x14 = RoomPattern(file='room_7x14.txt', size_x=7, size_y=14)
+        # room_14x7 = RoomPattern(file='room_14x7.txt', size_x=14, size_y=7)
+        # room_14x14 = RoomPattern(file='room_14x14.txt', size_x=14, size_y=14)
+        # room_7x21 = RoomPattern(file='room_7x21.txt', size_x=7, size_y=21)
+        # room_21x7 = RoomPattern(file='room_21x7.txt', size_x=21, size_y=7)
+        # room_14x21 = RoomPattern(file='room_14x21.txt', size_x=14, size_y=21)
+        # room_21x14 = RoomPattern(file='room_21x14.txt', size_x=21, size_y=14)
+        # room_21x21 = RoomPattern(file='room_21x21.txt', size_x=21, size_y=21)
+        #
+        # self.room_pattern_files = {
+        #     (7, 7): room_7x7,
+        #     (7, 14): room_7x14,
+        #     (14, 7): room_14x7,
+        #     (14, 14): room_14x14,
+        #     (7, 21): room_7x21,
+        #     (21, 7): room_21x7,
+        #     (14, 21): room_14x21,
+        #     (21, 14): room_21x14,
+        #     (21, 21): room_21x21,
+        # }
+        #
+        # room_patterns_list = (room_7x7, room_7x14, room_14x7, room_14x14, room_7x21, room_21x7, room_14x21, room_21x14,
+        #                       room_21x21)
+        #
+        #
+        # self.room_patterns_split = {}
+        #
+        # for pattern in room_patterns_list:
+        #     pattern_index = 0
+        #     rooms_split = []
+        #     room_lines = pattern.give_lines()
+        #
+        #     for i in range(len(room_lines) // pattern.size_x):
+        #         rooms_split.append(room_lines[pattern_index:pattern_index + pattern.size_x])
+        #         pattern_index += pattern.size_x + 1
+        #
+        #     self.room_patterns_split[pattern.file] = rooms_split
+
         self.dungeon = GameMap(engine=engine, width=map_width, height=map_height, entities=[] + engine.players,
                                fov_radius=self.fov_radius)
 
     def generate_level(self):
+
+        """
+        generates caverns using random walk
+        """
+
+        number_of_caverns = 3
+        cavern_size = 500
+
+        for x in range(number_of_caverns):
+            cave_x = randint(20, 80)
+            cave_y = randint(20, 80)
+            self.dungeon.tiles[cave_x, cave_y] = select_random_tile(self.colours_chars_array)
+
+            cavern_tiles = 0
+
+            while cavern_tiles < cavern_size:
+
+                # moves in random direction
+                movement = randint(1, 4)
+
+                if movement == 1:  # up
+                    if cave_y + 1 < self.map_height - 2:
+                        cave_y += 1
+                    else:
+                        continue
+                elif movement == 2:  # down
+                    if cave_y - 1 > 2:
+                        cave_y -= 1
+                    else:
+                        continue
+                elif movement == 3:  # left
+                    if cave_x - 1 > 2:
+                        cave_x -= 1
+                    else:
+                        continue
+                elif movement == 4:  # right
+                    if cave_x + 1 < self.map_width - 2:
+                        cave_x += 1
+                    else:
+                        continue
+
+                if not self.dungeon.tiles["walkable"][cave_x, cave_y]:
+
+                    remove_tiles = randint(1, 4)
+
+                    if remove_tiles == 1:  # up right
+                        self.dungeon.tiles[cave_x, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x + 1, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x, cave_y + 1] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x + 1, cave_y + 1] = select_random_tile(self.colours_chars_array)
+
+                    if remove_tiles == 2:  # down right
+
+                        self.dungeon.tiles[cave_x, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x + 1, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x, cave_y - 1] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x + 1, cave_y - 1] = select_random_tile(self.colours_chars_array)
+
+                    if remove_tiles == 3:  # up left
+
+                        self.dungeon.tiles[cave_x, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x - 1, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x, cave_y + 1] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x - 1, cave_y + 1] = select_random_tile(self.colours_chars_array)
+
+                    if remove_tiles == 4:  # down left
+
+                        self.dungeon.tiles[cave_x, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x - 1, cave_y] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x, cave_y - 1] = select_random_tile(self.colours_chars_array)
+                        self.dungeon.tiles[cave_x - 1, cave_y - 1] = select_random_tile(self.colours_chars_array)
+
+                    cavern_tiles += 1
+
         # Creates an empty 2D array or clears existing array
         self._leafs = []
 
@@ -126,9 +251,48 @@ class MessyBSPTree:
     def create_room(self, room):
         # set all tiles within a rectangle to be floors
         self._rooms.append(room)
+
+        enclose_room = choice((True, False, False, False))
+
+        if enclose_room:
+            for x in range(room.x1, room.x2 + 1):
+                for y in range(room.y1, room.y2 + 1):
+                    self.dungeon.tiles[x, y] = (
+                                    new_wall(self.colours_chars_tuple.wall_fg_dark,
+                                             self.colours_chars_tuple.wall_bg_dark,
+                                             self.colours_chars_tuple.wall_fg_light,
+                                             self.colours_chars_tuple.wall_bg_light,
+                                             self.colours_chars_tuple.wall_tile
+                                             ))
+
         for x in range(room.x1 + 1, room.x2):
             for y in range(room.y1 + 1, room.y2):
                 self.dungeon.tiles[x, y] = select_random_tile(self.colours_chars_array)
+
+    def create_prefab_room(self, room, prefab, x, y):
+
+        self._rooms.append(room)
+
+        line_index = 0
+        for line in prefab:
+            line = line.rstrip()
+            char_index = 0
+            for char in line:
+
+                if not char == '.':
+                    self.dungeon.tiles[char_index + x,  # TODO - will sometimes get index error here
+                                       line_index + y] = (
+                        new_wall(self.colours_chars_tuple.wall_fg_dark,
+                                 self.colours_chars_tuple.wall_bg_dark,
+                                 self.colours_chars_tuple.wall_fg_light,
+                                 self.colours_chars_tuple.wall_bg_light,
+                                 ord(char)
+                                 ))
+                else:
+                    self.dungeon.tiles[char_index + x, line_index + y] = select_random_tile(self.colours_chars_array)
+
+                char_index += 1
+            line_index += 1
 
     def create_hall(self, room1, room2):
 
@@ -302,8 +466,30 @@ class Leaf:  # used for the BSP tree algorithm
 
         else:
             # Create rooms in the end branches of the bsp tree
-            w = randint(bsp_tree.room_min_size, min(bsp_tree.room_max_size, self.width - 1))
-            h = randint(bsp_tree.room_min_size, min(bsp_tree.room_max_size, self.height - 1))
+            # custom_room = choice((True, False, False, False, False))
+            #
+            # if custom_room:
+            #     w = choices((7, 14, 21), (15, 10, 2))[0]
+            #     h = choices((7, 14, 21), (15, 10, 2))[0]
+            #
+            #     if w >= self.width - 1 or h >= self.height - 1:
+            #         pass
+            #     else:
+            #         x = randint(self.x, self.x + (self.width - 1) - w)
+            #         y = randint(self.y, self.y + (self.height - 1) - h)
+            #         print(w)
+            #         print(h)
+            #         room_pattern = bsp_tree.room_pattern_files[(h, w)]
+            #         print(room_pattern.file)
+            #         prefab = choice(bsp_tree.room_patterns_split[room_pattern.file])
+            #         self.room = Rect(x + 1, y + 1, h - 1, w - 1)
+            #         # self.room = Rect(x, y, w, h)
+            #         return bsp_tree.create_prefab_room(prefab=prefab, room=self.room, x=x, y=y)
+
+            max_w = min(bsp_tree.room_max_size, self.width - 1)
+            max_h = min(bsp_tree.room_max_size, self.height - 1)
+            w = randint(bsp_tree.room_min_size, max_w)
+            h = randint(bsp_tree.room_min_size, max_h)
             x = randint(self.x, self.x + (self.width - 1) - w)
             y = randint(self.y, self.y + (self.height - 1) - h)
             self.room = Rect(x, y, w, h)

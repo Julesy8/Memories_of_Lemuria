@@ -75,7 +75,7 @@ def get_views(screen_shape, world_shape, anchor):
 
 class GameMap:
     def __init__(self, engine: Engine, width: int, height: int,
-                 entities: Iterable[Entity] = (), fov_radius: int = 15):
+                 entities: Iterable[Entity] = (), fov_radius: int = 15, fill_walls=True):
         self.engine = engine
         self.fov_radius = fov_radius
 
@@ -88,9 +88,19 @@ class GameMap:
                                         self.colours_chars.wall_bg_light,
                                         self.colours_chars.wall_tile)
 
+        self.floor = tile_types.new_floor(self.colours_chars.floor_fg_dark,
+                                          self.colours_chars.floor_bg_dark,
+                                          self.colours_chars.floor_fg_light,
+                                          self.colours_chars.floor_bg_light,
+                                          self.colours_chars.floor_tile[0])
+
         self.entities = set(entities)
         self.width, self.height = width, height
-        self.tiles = np.full((width, height), fill_value=self.wall, order="F")  # fills game map with wall tiles
+
+        if fill_walls:
+            self.tiles = np.full((width, height), fill_value=self.wall, order="F")  # fills game map with wall tiles
+        else:
+            self.tiles = np.full((width, height), fill_value=self.floor, order="F")
 
         self.zeros = np.zeros((width, height), dtype=bool)
 
@@ -262,3 +272,16 @@ class GameMap:
             current_level=self.engine.current_level,
             fov_radius=level_params[self.engine.current_level][7]
         ).generate_level()
+
+        # self.engine.game_map = MessyBSPTree(
+        #     messy_tunnels=level_params[self.engine.current_level][0],
+        #     map_width=level_params[self.engine.current_level][1],
+        #     map_height=level_params[self.engine.current_level][2],
+        #     max_leaf_size=level_params[self.engine.current_level][3],
+        #     room_max_size=level_params[self.engine.current_level][4],
+        #     room_min_size=level_params[self.engine.current_level][5],
+        #     max_items_per_room=level_params[self.engine.current_level][6],
+        #     engine=self.engine,
+        #     current_level=self.engine.current_level,
+        #     fov_radius=level_params[self.engine.current_level][7]
+        # ).generate_level()

@@ -15,10 +15,10 @@ from components.armour import (helmet_riot, helmet_ssh68, helmet_m1, helmet_pasg
 from entity import Actor
 from components.inventory import Inventory
 from components.ai import PlayerCharacter
-from random import choice, randint, choices
+from random import choice
 from components.npc_templates import PlayerFighter
 from components.bodyparts import Body, Arm, Leg, Head
-from copy import copy, deepcopy
+from copy import copy
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -92,18 +92,18 @@ def generate_player(current_level: int, players: list):
                                       bodyarmour=bodyarmour_leveled,
                                       )
 
-    head_part = Head(hp=60, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
+    head_part = Head(hp=180, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
                      connected_to={'body': (0, -41)})
-    body_part = Body(hp=20, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
+    body_part = Body(hp=60, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                      connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                    'right leg': (3, -78), 'left leg': (-3, -78)})
-    r_arm = Arm(hp=30, protection_ballistic=0, protection_physical=1,
+    r_arm = Arm(hp=90, protection_ballistic=0, protection_physical=1,
                 name='right arm', depth=10, width=10, height=78, connected_to={'body': (-23, 11)})
-    l_arm = Arm(hp=30, protection_ballistic=0, protection_physical=1,
+    l_arm = Arm(hp=90, protection_ballistic=0, protection_physical=1,
                 name='left arm', depth=10, width=10, height=78, connected_to={'left arm': (23, 11)})
-    r_leg = Leg(hp=40, protection_ballistic=0, protection_physical=1,
+    r_leg = Leg(hp=120, protection_ballistic=0, protection_physical=1,
                 name='right leg', depth=12, width=15, height=100, connected_to={'right leg': (-3, 78)})
-    l_leg = Leg(hp=40, protection_ballistic=0, protection_physical=1,
+    l_leg = Leg(hp=120, protection_ballistic=0, protection_physical=1,
                 name='left leg', depth=12, width=15, height=100, connected_to={'left leg': (3, 78)})
 
     body_parts = (body_part, head_part, r_arm, l_arm, r_leg, l_leg)

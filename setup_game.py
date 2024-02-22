@@ -98,14 +98,14 @@ class MainMenu(BaseEventHandler):
         self.change_fg_colour()
         console2.rgb["fg"] = self.fg_colour
 
-        console2.blit(dest=console, dest_x=console.width // 2 - 40, dest_y=console.height // 2 - 25, src_x=0, src_y=0,
+        console2.blit(dest=console, dest_x=console.width // 2 - 40, dest_y=console.height // 2 - 24, src_x=0, src_y=0,
                       width=80,
                       height=50)
 
         # noinspection PyTypeChecker
         console.print(
             console.width // 2,
-            console.height // 2 + 18,
+            console.height // 2 + 19,
             self.subtext,
             fg=self.fg_colour,
             alignment=tcod.CENTER,
@@ -118,7 +118,7 @@ class MainMenu(BaseEventHandler):
             # noinspection PyTypeChecker
             console.print(
                 console.width // 2,
-                console.height // 2 - 2 + i,
+                console.height // 2 - 1 + i,
                 text.ljust(menu_width),
                 fg=self.fg_colour,
                 alignment=tcod.CENTER,
@@ -126,11 +126,11 @@ class MainMenu(BaseEventHandler):
             )
 
         # noinspection PyTypeChecker
-        console.print(x=console.width // 2 - 6, y=console.height // 2 - 2 + self.option_selected, string='►',
+        console.print(x=console.width // 2 - 6, y=console.height // 2 - 1 + self.option_selected, string='►',
                       fg=self.fg_colour)
 
         # noinspection PyTypeChecker
-        console.print(x=console.width // 2 + 5, y=console.height // 2 - 2 + self.option_selected, string='◄',
+        console.print(x=console.width // 2 + 5, y=console.height // 2 - 1 + self.option_selected, string='◄',
                       fg=self.fg_colour)
 
         # noinspection PyTypeChecker
@@ -249,7 +249,7 @@ def new_game() -> Engine:
                                    current_level=current_level,
                                    ).generate_level()
 
-    engine.game_map.camera_xy = (engine.player.x, engine.player.y)
+    engine.game_map.camera_xy = (engine.player.x, engine.player.y + 3)
 
     engine.message_log.add_message(
         "The country has been taken over by extraterrestrial forces and their occultist supporters. Mission: destroy "

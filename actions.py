@@ -125,7 +125,7 @@ class TakeStairsAction(Action):
                     raise exceptions.Impossible("Cannot move down stairs: players too far away")
 
             self.engine.game_map.generate_level()
-            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
+            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y + 3)
             self.engine.update_floor_str()
         else:
             raise exceptions.Impossible("There is no way down from here")
@@ -858,7 +858,7 @@ class MovementAction(ActionWithDirection):
         self.entity.move(self.dx, self.dy)
 
         if self.entity.player:
-            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
+            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y + 3)
 
         # if chance for move action to fail
         """

@@ -8,11 +8,11 @@ from components.armour import helmet_ssh68, bodyarmour_pasgt
 level_params = {
 
     # sewers
-    0: array([False,  # messy tunnels (bool)
-              70,  # map width
-              70,  # map height
-              30,  # MAX_LEAF_SIZE
-              10,  # ROOM_MAX_SIZE
+    0: array([True,  # messy tunnels (bool)
+              100,  # map width
+              100,  # map height
+              40,  # MAX_LEAF_SIZE
+              14,  # ROOM_MAX_SIZE
               7,  # ROOM_MIN_SIZE
               1,  # Max items per room
               20,  # fov radius
@@ -64,9 +64,9 @@ level_params = {
 }
 
 level_names = {
-    0: 'Sewers',
-    1: 'Caverns',
-    2: 'The Nexion',
+    0: 'SEWERS',
+    1: 'CAVERNS',
+    2: 'THE NEXION',
     3: 'D.U.M.B',
     4: 'Reptilian Hive',
 }
@@ -77,21 +77,22 @@ Enemies_by_level = {
     # sewers
     0:
         (
-            # (giant_snake, 5),
+            (test_dummy, 5),
             # (large_rat, 1),
             # (rat_king, 5),
             # (aligator, 5),
             # (maniac, 5),
-            (outlaw, 100),
+            # (outlaw, 100),
         ),
     # caverns
     1:
         (
-            (large_rat, 3),
-            (maniac, 1),
-            (outlaw, 1),
-            (peacekeeper, 1),
-            (soldier, 1),
+            # (large_rat, 3),
+            # (maniac, 1),
+            # (outlaw, 1),
+            # (peacekeeper, 1),
+            (test_dummy, 1),
+
         ),
     # the nexion
     2:

@@ -1,7 +1,7 @@
 from components.npc_templates import Fighter, GunFighter
 from entity import Actor
 from components.commonitems import pda
-from components.ai import HostileEnemy, HostileAnimal, HostileEnemyArmed
+from components.ai import HostileEnemy, HostileAnimal, HostileEnemyArmed, DeadAI
 from components.weapons.gun_maker import g_17, ak47_weapon, ar15_weapon
 from components.bodyparts import Arm, Leg, Head, Body
 from components.inventory import Inventory
@@ -64,6 +64,7 @@ Hive Mother
 
 # health values scale with size of the animal roughly
 
+# TODO - beef up health numbers
 
 def placeholder_fighter():
     return Fighter(unarmed_meat_damage=5, unarmed_armour_damage=5, item_drops={}, spawn_group_amount=1, weapons={})
@@ -190,6 +191,40 @@ rat_king = Actor(
 #     inventory=Inventory(),
 # )
 
+test_dummy = Actor(
+    x=0, y=0,
+    char='☺',
+    fg_colour=colour.LIGHT_BROWN,
+    name='Test Dummy',
+    fighter=GunFighter(unarmed_meat_damage=5,
+                       unarmed_armour_damage=1,
+                       fears_death=True,
+                       item_drops={None: 500, pda: 100, },
+                       weapons={0: {g_17: 5, }, },
+                       helmet={},
+                       bodyarmour={},
+                       spawn_group_amount=1,
+                       description="Footsoldier of the Luciferian Volunteer Army, motivated to maintain the current "
+                                   "order. Not very well trained or equipped."
+                       ),
+    ai=DeadAI,
+    bodyparts=(Body(hp=180, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
+                    connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
+                                  'right leg': (3, -78), 'left leg': (-3, -78)}),
+               Head(hp=60, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
+                    connected_to={'body': (0, -41)}),
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
+                   name='right arm', depth=10, width=10, height=78, connected_to={'body': (-23, 11)}),
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
+                   name='left arm', depth=10, width=10, height=78, connected_to={'left arm': (23, 11)}),
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
+                   name='right leg', depth=12, width=15, height=100, connected_to={'right leg': (-3, 78)}),
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
+                   name='left leg', depth=12, width=15, height=100, connected_to={'left leg': (3, 78)})
+               ),
+    inventory=Inventory(),
+)
+
 outlaw = Actor(
     x=0, y=0,
     char='☺',
@@ -207,18 +242,18 @@ outlaw = Actor(
                                    "order. Not very well trained or equipped."
                        ),
     ai=HostileEnemyArmed,
-    bodyparts=(Body(hp=60, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
+    bodyparts=(Body(hp=180, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}),
-               Head(hp=20, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
+               Head(hp=60, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
                     connected_to={'body': (0, -41)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='right arm', depth=10, width=10, height=78, connected_to={'body': (-23, 11)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='left arm', depth=10, width=10, height=78, connected_to={'left arm': (23, 11)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='right leg', depth=12, width=15, height=100, connected_to={'right leg': (-3, 78)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=12, width=15, height=100, connected_to={'left leg': (3, 78)})
                ),
     inventory=Inventory(),
@@ -243,18 +278,18 @@ peacekeeper = Actor(
                                    "government elements."
                        ),
     ai=HostileEnemyArmed,
-    bodyparts=(Body(hp=60, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
+    bodyparts=(Body(hp=180, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}),
-               Head(hp=20, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
+               Head(hp=60, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
                     connected_to={'body': (0, -41)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='right arm', depth=10, width=10, height=78, connected_to={'body': (-23, 11)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='left arm', depth=10, width=10, height=78, connected_to={'left arm': (23, 11)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='right leg', depth=12, width=15, height=100, connected_to={'right leg': (-3, 78)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=12, width=15, height=100, connected_to={'left leg': (3, 78)})
                ),
     inventory=Inventory(),
@@ -278,18 +313,18 @@ maniac = Actor(
                                    "insanity. Often carrying knives, they are deadly to the inexperienced adventurer."
                        ),
     ai=HostileEnemy,
-    bodyparts=(Body(hp=60, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
+    bodyparts=(Body(hp=180, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}),
-               Head(hp=20, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
+               Head(hp=60, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
                     connected_to={'body': (0, -41)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='right arm', depth=10, width=10, height=78, connected_to={'body': (-23, 11)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='left arm', depth=10, width=10, height=78, connected_to={'left arm': (23, 11)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='right leg', depth=12, width=15, height=100, connected_to={'right leg': (-3, 78)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=12, width=15, height=100, connected_to={'left leg': (3, 78)})
                ),
     inventory=Inventory(),
@@ -349,18 +384,18 @@ soldier = Actor(
                                    "armed with heavy weaponry and permitted to use lethal force at their discretion."
                        ),
     ai=HostileEnemyArmed,
-    bodyparts=(Body(hp=60, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
+    bodyparts=(Body(hp=180, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}),
-               Head(hp=20, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
+               Head(hp=60, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
                     connected_to={'body': (0, -41)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='right arm', depth=10, width=10, height=78, connected_to={'body': (-23, 11)}),
-               Arm(hp=30, protection_ballistic=0, protection_physical=1,
+               Arm(hp=90, protection_ballistic=0, protection_physical=1,
                    name='left arm', depth=10, width=10, height=78, connected_to={'left arm': (23, 11)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='right leg', depth=12, width=15, height=100, connected_to={'right leg': (-3, 78)}),
-               Leg(hp=40, protection_ballistic=0, protection_physical=1,
+               Leg(hp=120, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=12, width=15, height=100, connected_to={'left leg': (3, 78)})
                ),
     inventory=Inventory(),

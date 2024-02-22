@@ -147,7 +147,7 @@ class Parts:
             if hasattr(part.usable_properties, 'prefix'):
                 prefixes += f"{part.usable_properties.prefix}"
             if hasattr(part.usable_properties, 'suffix'):
-                suffixes += f"{part.usable_properties.suffix}"
+                suffixes += f" {part.usable_properties.suffix}"
 
             # updates description
             if hasattr(part.usable_properties, 'description'):
@@ -211,7 +211,7 @@ class Parts:
         if not prefixes == '':
             self.parent.parent.name = f"{prefixes} {self.parent.parent.name}"
         if not suffixes == '':
-            self.parent.parent.name = f"{self.parent.parent.name} {suffixes}"
+            self.parent.parent.name = f"{self.parent.parent.name}{suffixes}"
 
         # sets appropriate properties given the weapon secondary grip
         if grip_properties is not None:

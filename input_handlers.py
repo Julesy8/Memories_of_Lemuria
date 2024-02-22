@@ -981,7 +981,7 @@ class ChangeTargetActor(AskUserEventHandler):
         self.tick_counter = 0
         self.max_tick = max_fps * 3
         self.players_selected = []
-        self.destinations = []
+        # self.destinations = []
         self.engine = engine
         self.targets = []
         self.target_index = None
@@ -1030,7 +1030,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
         if player.fighter.target_actor is not None:
             # centres camera on target
-            self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y)
+            self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
 
             # selects bodypart
             self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
@@ -1062,6 +1062,9 @@ class ChangeTargetActor(AskUserEventHandler):
 
         player_name_list = []
 
+        if len(self.players_selected) > 0:
+            console.print(x=0, y=4, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
+
         for player in self.players_selected:
             player_name_list.append(player.name)
             player_x = player.x - cam_x
@@ -1072,14 +1075,14 @@ class ChangeTargetActor(AskUserEventHandler):
         if len(player_name_list) > 0:
             console.print(x=0, y=3, string=f"PLAYERS SELECTED: {', '.join(player_name_list)}",
                           fg=colour.WHITE, bg=(0, 0, 0))
+        #
+        # for destination in self.destinations:
+        #     dest_x = destination[0] - cam_x
+        #     dest_y = destination[1] - cam_y
+        #     console.print(x=0, y=4, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
 
-        for destination in self.destinations:
-            dest_x = destination[0] - cam_x
-            dest_y = destination[1] - cam_y
-            console.print(x=0, y=4, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
-
-            if blink_on and 0 <= dest_x < console.width and 0 <= dest_y < console.height:
-                console.print(dest_x, dest_y, "X", colour.WHITE)
+            # if blink_on and 0 <= dest_x < console.width and 0 <= dest_y < console.height:
+            #     console.print(dest_x, dest_y, "X", colour.WHITE)
 
         player = self.engine.player
 
@@ -1161,7 +1164,7 @@ class ChangeTargetActor(AskUserEventHandler):
 
                     if self.engine.game_map.explored[mouse_x, mouse_y]:
                         player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
-                        self.destinations.append([mouse_x, mouse_y])
+                        # self.destinations.append([mouse_x, mouse_y])
                         self.players_selected = []
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
@@ -1177,13 +1180,13 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.bodypart_index = 0
                 self.target_index += 1
                 # centres camera on target
-                self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y)
+                self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
             except IndexError:
                 player.fighter.target_actor = self.targets[0]
                 self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
                 self.bodypart_index = 0
                 self.target_index = 0
-                self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y)
+                self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
             except TypeError:
                 if not self.in_squad_mode:
                     self.engine.squad_mode = False
@@ -1290,7 +1293,7 @@ class ChangeTargetActor(AskUserEventHandler):
             self.engine.game_map.move_camera(dx, dy)
 
         elif key == tcod.event.K_ESCAPE:
-            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y)
+            self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y + 3)
             if not self.in_squad_mode:
                 self.engine.squad_mode = False
             return self.parent_handler

@@ -47,7 +47,7 @@ class Engine:
 
         self.squad_mode: bool = False
 
-        self.floor_str = f"{level_names[self.current_level]} {self.current_floor + 1}"
+        self.floor_str = f"{level_names[self.current_level]}"
 
     def handle_queued_actions(self) -> None:
         for player in self.players:
@@ -64,10 +64,10 @@ class Engine:
         except IndexError:
             self.player = self.players[0]
 
-        self.game_map.camera_xy = (self.player.x, self.player.y)
+        self.game_map.camera_xy = (self.player.x, self.player.y + 3)
 
     def update_floor_str(self) -> None:
-        self.floor_str = f"{level_names[self.current_level]} {self.current_floor + 1}"
+        self.floor_str = f"{level_names[self.current_level]}"
 
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""
@@ -142,30 +142,32 @@ class Engine:
 
     def render(self, console: Console) -> None:
         self.game_map.render(console)
-        console.draw_rect(0, console.height - 4, console.width, 4, 219, bg=(0, 0, 0))
+        console.draw_rect(0, console.height - 7, console.width, 7, 219, bg=(0, 0, 0))
+        console.hline(0, console.height - 7, console.width)
 
         if self.squad_mode:
-            console.print(x=0, y=0, string=f"MODE: SQUAD / COMBAT STYLE: {self.player.fighter.attack_style}",
-                          fg=colour.WHITE)
+            console.print(x=0, y=0, string=f"MODE: SQUAD │ COMBAT STYLE: {self.player.fighter.attack_style}",
+                          fg=colour.WHITE, bg=(0, 0, 0))
         else:
-            console.print(x=0, y=0, string=f"MODE: INDIVIDUAL / COMBAT STYLE: {self.player.fighter.attack_style}",
-                          fg=colour.WHITE)
+            console.print(x=0, y=0, string=f"MODE: INDIVIDUAL │ COMBAT STYLE: {self.player.fighter.attack_style}",
+                          fg=colour.WHITE, bg=(0, 0, 0))
 
-        console.print(x=0, y=console.height - 5, string=self.player.name, fg=self.player.fg_colour)
+        console.print(x=0, y=console.height - 6, string=self.player.name, fg=self.player.fg_colour,
+                      bg=(0, 0, 0))
 
         # render message log
         self.message_log.render(console=console, x=6, y=console.height - 4,
                                 width=console.width - 16, height=4)
 
-        ap_str = f"/ AP: {round(self.player.fighter.ap)}/{self.player.fighter.max_ap}"
+        ap_str = f" │ AP: {round(self.player.fighter.ap)}/{self.player.fighter.max_ap}"
 
         if self.player.ai is not None:
             if self.player.ai.queued_action:
                 turns_remaining = ceil(abs(self.player.fighter.ap / self.player.fighter.ap_per_turn *
                                            self.player.fighter.ap_per_turn_modifier))
-                ap_str = f"/ {self.player.ai.queued_action.action_str} ({turns_remaining} turns remain)"
+                ap_str = f" │ {self.player.ai.queued_action.action_str} ({turns_remaining} turns remain)"
 
-        console.print(x=len(self.player.name) + 1, y=console.height - 5, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
+        console.print(x=len(self.player.name), y=console.height - 6, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
 
         # head
         render_part(console=console, x=2, y=console.height - 4, character="O",
@@ -198,8 +200,9 @@ class Engine:
         console.print(x=0, y=console.height - 4, string='R', fg=colour.WHITE)  # indicates right and left
         console.print(x=4, y=console.height - 4, string='L', fg=colour.WHITE)
 
-        console.print(x=console.width - len(self.floor_str), y=0,
-                      string=f"{level_names[self.current_level]} {self.current_floor + 1}", fg=colour.WHITE, bg_blend=1)
+        console.print(x=1, y=console.height - 7,
+                      string=f"┤{level_names[self.current_level]}├", fg=colour.WHITE,
+                      bg=(0, 0, 0))
 
         # displays current ammo
         if self.player.inventory.held is not None:
@@ -220,7 +223,7 @@ class Engine:
                     if len(self.player.inventory.held.usable_properties.magazine) == 0:
                         weapon_str += ' - Empty'
 
-            console.print(x=console.width - len(weapon_str) - 1, y=console.height - 5, string=weapon_str,
-                          fg=colour.WHITE, bg_blend=1)
+            console.print(x=console.width - len(weapon_str), y=console.height - 6, string=weapon_str,
+                          fg=colour.WHITE, bg=(0, 0, 0))
 
-        render_names_at_mouse_location(console=console, x=0, y=console.height - 6, engine=self, game_map=self.game_map)
+        render_names_at_mouse_location(console=console, x=0, y=console.height - 5, engine=self, game_map=self.game_map)
