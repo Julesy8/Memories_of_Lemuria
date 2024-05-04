@@ -339,8 +339,9 @@ class Magazine(Usable):
 
             if len(self.magazine) > 0:
                 for bullet in self.magazine:
-                    actions.AddToInventory(item=bullet.parent, amount=1,
-                                           entity=inventory.parent).handle_action()
+                    if bullet is not None:
+                        actions.AddToInventory(item=bullet.parent, amount=1,
+                                               entity=inventory.parent).handle_action()
 
                 self.magazine = []
 
@@ -413,8 +414,8 @@ class Clip(Magazine):
 
 
 # y, x
-recoil_patterns = ((1.0, 0.0), (0.9, 0.1), (0.8, 0.2), (0.7, 0.3), (0.6, 0.4), (0.5, 0.5), (0.5, 0.5), (0.4, 0.6),
-                   (0.3, 0.7))
+recoil_patterns = ((1.0, 0.0), (0.9, 0.1), (0.9, 0.1), (0.8, 0.2), (0.8, 0.2), (0.7, 0.3), (0.6, 0.4), (0.5, 0.5),
+                   (0.4, 0.6))
 
 
 class Gun(Weapon):
@@ -580,7 +581,11 @@ class Gun(Weapon):
                 velocity_modifier = (self.velocity_modifier[self.chambered_bullet.projectile_type] *
                                      self.velocity_modifier[self.chambered_bullet.bullet_type])
 
-                ammo_weight = len(magazine) * self.chambered_bullet.parent.weight
+                ammo_weight = 0
+
+                if magazine is not None:
+                    ammo_weight = len(magazine) * self.chambered_bullet.parent.weight
+
                 total_weight = self.parent.weight + mag_weight + ammo_weight
 
                 # if attacker is player, jams the gun depending on its functional condition
@@ -901,7 +906,7 @@ class GunMagFed(Gun):
                  parts: Parts,
                  gun_type: str,
                  action_type: str,
-                 compatible_magazine_type: str,
+                 compatible_magazine_type: tuple,
                  compatible_bullet_type: tuple,
                  velocity_modifier: dict,
                  ap_to_equip: int,
@@ -1142,6 +1147,9 @@ class GunIntegratedMag(Gun, Magazine):
                         proficiency = inventory.parent.fighter.skill_pumpaction_proficiency
                     elif self.action_type == 'break action':
                         proficiency = inventory.parent.fighter.skill_breakaction_proficiency
+                    elif self.action_type == 'belt fed':
+                        proficiency = inventory.parent.fighter.skill_belt_fed_proficiency
+
 
             proficiency = 1 - (proficiency / 4000)
 

@@ -1,180 +1,146 @@
 from numpy import array
 from components.enemies.caverns import *
-from components.commonitems import medkit, repair_kit
-from components.weapons.magazines import glock_mag_9mm
-from components.armour import helmet_ssh68, bodyarmour_pasgt
+from components.commonitems import medkit, bandages, repair_kit
+
 
 # this dictionary has the parameters for all the levels in the game
 level_params = {
 
-    # sewers
-    0: array([True,  # messy tunnels (bool)
+    0: array([False,  # messy tunnels (bool)
+              90,
+              90,
+              25,
+              21,
+              5,
+              1,
+              100,
+              6,  # min caverns
+              8,  # max caverns
+              150,  # cavern size
+              4,  # custom room chance
+              3,  # enclose room chance
+              ]),
+
+    # the caverns
+    1: array([True,  # messy tunnels (bool)
               100,  # map width
               100,  # map height
               40,  # MAX_LEAF_SIZE
               14,  # ROOM_MAX_SIZE
               7,  # ROOM_MIN_SIZE
               1,  # Max items per room
-              20,  # fov radius
+              100,  # fov radius
+              3,  # min caverns
+              3,  # max caverns
+              500,  # cavern size
+              4,  # custom room chance
+              3,  # enclose room chance
               ]),
 
-    # caves
-    1: array([True,
-              60,
-              60,
-              26,
-              15,
-              9,
-              1,
-              15,
-              ]),
-
-    # the nexion
+    # the temple
     2: array([False,
-              70,
-              70,
-              30,
-              18,
-              9,
+              90,
+              90,
+              25,
+              21,
+              5,
               1,
               100,
+              6,  # min caverns
+              8,  # max caverns
+              150,  # cavern size
+              4,  # custom room chance
+              3,  # enclose room chance
               ]),
 
-    # D.U.M.B
+    # the base
     3: array([False,
-              60,
-              60,
-              20,
-              13,
-              9,
-              1,
-              100,
+              120,  # map width
+              120,  # map height
+              70,  # MAX_LEAF_SIZE
+              14,  # ROOM_MAX_SIZE
+              3,  # ROOM_MIN_SIZE
+              1,  # Max items per room
+              100,  # fov radius
+              3,  # min caverns
+              5,  # max caverns
+              500,  # cavern size
+              4,  # custom room chance
+              3,  # enclose room chance
               ]),
 
-    # reptilian hive
+    # the labs
     4: array([True,
-              60,
-              60,
-              11,
-              17,
-              9,
-              1,
-              30,
+              100,  # map width
+              100,  # map height
+              25,  # MAX_LEAF_SIZE
+              20,  # ROOM_MAX_SIZE
+              4,  # ROOM_MIN_SIZE
+              1,  # Max items per room
+              100,  # fov radius
+              5,  # min caverns
+              5,  # max caverns
+              150,  # cavern size
+              4,  # custom room chance
+              3,  # enclose room chance
+              ]),
+
+    # the hive
+    5: array([True,
+              100,  # map width
+              100,  # map height
+              25,  # MAX_LEAF_SIZE
+              20,  # ROOM_MAX_SIZE
+              4,  # ROOM_MIN_SIZE
+              1,  # Max items per room
+              100,  # fov radius
+              8,  # min caverns
+              10,  # max caverns
+              50,  # cavern size
+              4,  # custom room chance
+              3,  # enclose room chance
               ]),
 }
 
 level_names = {
-    0: 'SEWERS',
-    1: 'CAVERNS',
-    2: 'THE NEXION',
-    3: 'D.U.M.B',
-    4: 'Reptilian Hive',
+    0: 'The Tunnels',
+    1: 'The Caverns',
+    2: 'The Temple',
+    3: 'The Base',
+    4: 'The Labs',
+    5: 'The Hive',
 }
 
 # these dictionaries contain lists of the enemies that should appear on a given level
 
 Enemies_by_level = {
     # sewers
-    0:
-        (
-            (test_dummy, 5),
-            # (large_rat, 1),
-            # (rat_king, 5),
-            # (aligator, 5),
-            # (maniac, 5),
-            # (outlaw, 100),
-        ),
-    # caverns
-    1:
-        (
-            # (large_rat, 3),
-            # (maniac, 1),
-            # (outlaw, 1),
-            # (peacekeeper, 1),
-            (test_dummy, 1),
+    0: {test_dummy: 1},
 
-        ),
+    # caverns
+    1: {test_dummy: 1},
+
     # the nexion
-    2:
-        (
-            [giant_snake, 1],
-            [large_rat, 3]
-        ),
+    2: {test_dummy: 1},
+
     # D.U.M.B
-    3:
-        (
-            [giant_snake, 1],
-            [large_rat, 3]
-        ),
+    3: {test_dummy: 1},
+
     # reptilian hive
-    4:
-        (
-            [giant_snake, 1],
-            [large_rat, 3]
-        ),
+    4: {test_dummy: 1},
 
 }
 
 Items_by_level = {
-    0:
-        (
-            [helmet_ssh68, 1],
-            [bodyarmour_pasgt, 1],
-            # [glock_17, 1],
-            # [round_9mm_124_fmj, 1],
-            # [glock_mag_9mm, 1],
-            # [glock17_frame, 1],
-            # [glock17_barrel, 1],
-            # [glock17_slide, 1],
-            # [glock_switch, 1],
-        ),
-    1:
-        (
-            [medkit, 1],
-            [medkit, 1],
-            # [glock_17, 1],
-            # [round_9mm_124_fmj, 1],
-            [glock_mag_9mm, 1],
-            # [glock17_frame, 1],
-            # [glock17_barrel, 1],
-            # [glock17_slide, 1],
-            # [glock_switch, 1],
-        ),
-    2:
-        (
-            [medkit, 1],
-            [medkit, 1],
-            # [glock_17, 1],
-            # [round_9mm_124_fmj, 1],
-            [glock_mag_9mm, 1],
-            # [glock17_frame, 1],
-            # [glock17_barrel, 1],
-            # [glock17_slide, 1],
-            # [glock_switch, 1],
-        ),
-    3:
-        (
-            [medkit, 1],
-            [medkit, 1],
-            # [glock_17, 1],
-            # [round_9mm_124_fmj, 1],
-            [glock_mag_9mm, 1],
-            # [glock17_frame, 1],
-            # [glock17_barrel, 1],
-            # [glock17_slide, 1],
-            # [glock_switch, 1],
-        ),
-    4:
-        (
-            [medkit, 1],
-            [medkit, 1],
-            # [glock_17, 1],
-            # [round_9mm_124_fmj, 1],
-            [glock_mag_9mm, 1],
-            # [glock17_frame, 1],
-            # [glock17_barrel, 1],
-            # [glock17_slide, 1],
-            # [glock_switch, 1],
-        ),
+    0: {
+        None: 100,
+        medkit: 5,
+        bandages: 10,
+        repair_kit: 5,
+        },
+    1: {medkit: 1},
+    2: {medkit: 1},
+    3: {medkit: 1},
+    4: {medkit: 1},
 }
 

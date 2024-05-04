@@ -14,6 +14,7 @@ from render_order import RenderOrder
 stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_GRAY, name='Stairs',
                        render_order=RenderOrder.ITEM)
 
+
 class RoomPattern:
     def __init__(self,
                  file: str,
@@ -28,6 +29,7 @@ class RoomPattern:
     def give_lines(self):
         return self.rooms.readlines()
 
+
 class MessyBSPTree:
     """
     A Binary Space Partition connected by a severely weighted
@@ -35,7 +37,11 @@ class MessyBSPTree:
     """
 
     def __init__(self, messy_tunnels, map_width, map_height, max_leaf_size, room_max_size,
-                 room_min_size, max_items_per_room, fov_radius, engine, current_level):
+                 room_min_size, max_items_per_room, fov_radius, engine, current_level, min_caverns, max_caverns,
+                 cavern_size, custom_room_chance, enclose_room_chance):
+        self.min_caverns = min_caverns
+        self.max_caverns = max_caverns
+        self.cavern_size = cavern_size
         self.messy_tunnels = messy_tunnels
         self.map_width = map_width
         self.map_height = map_height
@@ -44,6 +50,8 @@ class MessyBSPTree:
         self.max_leaf_size = max_leaf_size
         self.room_max_size = room_max_size
         self.room_min_size = room_min_size
+        self.custom_room_chance = custom_room_chance
+        self.enclose_room_chance = enclose_room_chance
         self.max_items_per_room = max_items_per_room
         self.fov_radius = fov_radius
         self.player = engine.player
@@ -51,19 +59,11 @@ class MessyBSPTree:
         self._rooms = []
         self._leafs = []
 
-        self.enemy_population = []
-        self.enemy_weight = []
+        self.enemy_population = list(Enemies_by_level[self.current_level].keys())
+        self.enemy_weight = list(Enemies_by_level[self.current_level].values())
 
-        self.item_population = []
-        self.item_weight = []
-
-        for i in Enemies_by_level[self.current_level]:
-            self.enemy_population.append(i[0])
-            self.enemy_weight.append(i[1])
-
-        for i in Items_by_level[self.current_level]:
-            self.item_population.append(i[0])
-            self.item_weight.append(i[1])
+        self.item_population = list(Items_by_level[self.current_level].keys())
+        self.item_weight = list(Items_by_level[self.current_level].values())
 
         # makes tuple of possible combinations of tile colours and characters
         self.colours_chars_tuple = MapColoursChars(current_level)
@@ -76,44 +76,43 @@ class MessyBSPTree:
                                                         self.colours_chars_tuple.floor_tile
                                                         )
 
-        # room_7x7 = RoomPattern(file='room_7x7.txt', size_x=7, size_y=7)
-        # room_7x14 = RoomPattern(file='room_7x14.txt', size_x=7, size_y=14)
-        # room_14x7 = RoomPattern(file='room_14x7.txt', size_x=14, size_y=7)
-        # room_14x14 = RoomPattern(file='room_14x14.txt', size_x=14, size_y=14)
-        # room_7x21 = RoomPattern(file='room_7x21.txt', size_x=7, size_y=21)
-        # room_21x7 = RoomPattern(file='room_21x7.txt', size_x=21, size_y=7)
-        # room_14x21 = RoomPattern(file='room_14x21.txt', size_x=14, size_y=21)
-        # room_21x14 = RoomPattern(file='room_21x14.txt', size_x=21, size_y=14)
-        # room_21x21 = RoomPattern(file='room_21x21.txt', size_x=21, size_y=21)
-        #
-        # self.room_pattern_files = {
-        #     (7, 7): room_7x7,
-        #     (7, 14): room_7x14,
-        #     (14, 7): room_14x7,
-        #     (14, 14): room_14x14,
-        #     (7, 21): room_7x21,
-        #     (21, 7): room_21x7,
-        #     (14, 21): room_14x21,
-        #     (21, 14): room_21x14,
-        #     (21, 21): room_21x21,
-        # }
-        #
-        # room_patterns_list = (room_7x7, room_7x14, room_14x7, room_14x14, room_7x21, room_21x7, room_14x21, room_21x14,
-        #                       room_21x21)
-        #
-        #
-        # self.room_patterns_split = {}
-        #
-        # for pattern in room_patterns_list:
-        #     pattern_index = 0
-        #     rooms_split = []
-        #     room_lines = pattern.give_lines()
-        #
-        #     for i in range(len(room_lines) // pattern.size_x):
-        #         rooms_split.append(room_lines[pattern_index:pattern_index + pattern.size_x])
-        #         pattern_index += pattern.size_x + 1
-        #
-        #     self.room_patterns_split[pattern.file] = rooms_split
+        room_7x7 = RoomPattern(file='room_7x7.txt', size_x=7, size_y=7)
+        room_7x14 = RoomPattern(file='room_7x14.txt', size_x=7, size_y=14)
+        room_14x7 = RoomPattern(file='room_14x7.txt', size_x=14, size_y=7)
+        room_14x14 = RoomPattern(file='room_14x14.txt', size_x=14, size_y=14)
+        room_7x21 = RoomPattern(file='room_7x21.txt', size_x=7, size_y=21)
+        room_21x7 = RoomPattern(file='room_21x7.txt', size_x=21, size_y=7)
+        room_14x21 = RoomPattern(file='room_14x21.txt', size_x=14, size_y=21)
+        room_21x14 = RoomPattern(file='room_21x14.txt', size_x=21, size_y=14)
+        room_21x21 = RoomPattern(file='room_21x21.txt', size_x=21, size_y=21)
+
+        self.room_pattern_files = {
+            (7, 7): room_7x7,
+            (7, 14): room_7x14,
+            (14, 7): room_14x7,
+            (14, 14): room_14x14,
+            (7, 21): room_7x21,
+            (21, 7): room_21x7,
+            (14, 21): room_14x21,
+            (21, 14): room_21x14,
+            (21, 21): room_21x21,
+        }
+
+        room_patterns_list = (room_7x7, room_7x14, room_14x7, room_14x14, room_7x21, room_21x7, room_14x21, room_21x14,
+                              room_21x21)
+
+        self.room_patterns_split = {}
+
+        for pattern in room_patterns_list:
+            pattern_index = 0
+            rooms_split = []
+            room_lines = pattern.give_lines()
+
+            for i in range(len(room_lines) // pattern.size_y):
+                rooms_split.append(room_lines[pattern_index:pattern_index + pattern.size_y])
+                pattern_index += pattern.size_y + 1
+
+            self.room_patterns_split[pattern.file] = rooms_split
 
         self.dungeon = GameMap(engine=engine, width=map_width, height=map_height, entities=[] + engine.players,
                                fov_radius=self.fov_radius)
@@ -124,12 +123,12 @@ class MessyBSPTree:
         generates caverns using random walk
         """
 
-        number_of_caverns = 3
-        cavern_size = 500
+        number_of_caverns = randint(self.min_caverns, self.max_caverns)
+        cavern_size = self.cavern_size
 
         for x in range(number_of_caverns):
-            cave_x = randint(20, 80)
-            cave_y = randint(20, 80)
+            cave_x = randint(20, self.map_width - 20)
+            cave_y = randint(20, self.map_height - 20)
             self.dungeon.tiles[cave_x, cave_y] = select_random_tile(self.colours_chars_array)
 
             cavern_tiles = 0
@@ -226,14 +225,19 @@ class MessyBSPTree:
         for room in self._rooms:
             if room == self._rooms[player_spawn_room]:
                 for player in self.engine.players:
-                    player_placed = False
-                    while not player_placed:
+                    finding_tile = True
+
+                    while finding_tile:
                         x = randint(room.x1 + 1, room.x2 - 1)
                         y = randint(room.y1 + 1, room.y2 - 1)
-                        if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities):
+                        # try:
+                        if (self.dungeon.tiles["walkable"][x, y]
+                                and not any(entity.x == x and entity.y == y for entity in self.dungeon.entities)
+                                and self.dungeon.tiles[x, y] != down_stairs):
+                            finding_tile = False
                             player.place(x, y, self.dungeon)
-                            player_placed = True
-
+                        # except IndexError:
+                        #     print(room.x1, room.x2, room.y1, room.y2, x, y)
             else:
                 self.place_entities(room)
 
@@ -252,7 +256,9 @@ class MessyBSPTree:
         # set all tiles within a rectangle to be floors
         self._rooms.append(room)
 
-        enclose_room = choice((True, False, False, False))
+        enclose_room = choices((True, False), (1, self.enclose_room_chance))[0]
+
+        # enclose_room = choice((True, False, False, False))
 
         if enclose_room:
             for x in range(room.x1, room.x2 + 1):
@@ -278,8 +284,9 @@ class MessyBSPTree:
             line = line.rstrip()
             char_index = 0
             for char in line:
-
-                if not char == '.':
+                if char == '/':
+                    pass
+                elif not char == '.':
                     self.dungeon.tiles[char_index + x,  # TODO - will sometimes get index error here
                                        line_index + y] = (
                         new_wall(self.colours_chars_tuple.wall_fg_dark,
@@ -379,23 +386,45 @@ class MessyBSPTree:
         number_of_items = randint(0, self.max_items_per_room)
 
         for i in range(number_of_monsters):
-            x = randint(room.x1 + 1, room.x2 - 1)
-            y = randint(room.y1 + 1, room.y2 - 1)
-
-            if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities):
-                # place enemy
-                enemy.place(x, y, self.dungeon)
-                enemy.fighter.give_weapon(self.current_level)
-                enemy.fighter.give_armour(self.current_level)
+            finding_tile = True
+            while finding_tile:
+                x = randint(room.x1 + 1, room.x2 - 1)
+                y = randint(room.y1 + 1, room.y2 - 1)
+                # try:
+                if (self.dungeon.tiles["walkable"][x, y]
+                        and not any(entity.x == x and entity.y == y for entity in self.dungeon.entities)
+                        and self.dungeon.tiles[x, y] != down_stairs):
+                    finding_tile = False
+                    enemy.place(x, y, self.dungeon)
+                    enemy.identifier = self.dungeon.identifiers
+                    self.dungeon.identifiers += 1
+                    enemy.fighter.give_weapon(self.current_level)
+                    enemy.fighter.give_armour(self.current_level)
+                # except IndexError:
+                #     print(room.x1, room.x2, room.y1, room.y2, x, y)
 
         for i in range(number_of_items):
-            x = randint(room.x1 + 1, room.x2 - 1)
-            y = randint(room.y1 + 1, room.y2 - 1)
+            selection = deepcopy(choices(population=self.item_population, weights=self.item_weight, k=1)[0])
+            if selection is not None:
+                finding_tile = True
+                while finding_tile:
+                    x = randint(room.x1 + 1, room.x2 - 1)
+                    y = randint(room.y1 + 1, room.y2 - 1)
+                    if (self.dungeon.tiles["walkable"][x, y]
+                            and not any(entity.x == x and entity.y == y for entity in self.dungeon.entities)
+                            and self.dungeon.tiles[x, y] != down_stairs):
+                        finding_tile = False
+                        selection.place(x, y, self.dungeon)
 
-            if not any(entity.x == x and entity.y == y for entity in self.dungeon.entities) and \
-                    self.dungeon.tiles[x, y] != down_stairs:
-                item = deepcopy(choices(population=self.item_population, weights=self.item_weight, k=1)[0])
-                item.place(x, y, self.dungeon)
+
+size_7_room = (7, )
+size_7_weight = (15, )
+
+size_14_room = (7, 14)
+size_14_weight = (15, 10)
+
+size_21_room = (7, 14, 21)
+size_21_weight = (15, 10, 2)
 
 
 class Leaf:  # used for the BSP tree algorithm
@@ -465,26 +494,70 @@ class Leaf:  # used for the BSP tree algorithm
                                      self.child_2.get_room())
 
         else:
-            # Create rooms in the end branches of the bsp tree
-            # custom_room = choice((True, False, False, False, False))
-            #
-            # if custom_room:
-            #     w = choices((7, 14, 21), (15, 10, 2))[0]
-            #     h = choices((7, 14, 21), (15, 10, 2))[0]
-            #
-            #     if w >= self.width - 1 or h >= self.height - 1:
-            #         pass
-            #     else:
-            #         x = randint(self.x, self.x + (self.width - 1) - w)
-            #         y = randint(self.y, self.y + (self.height - 1) - h)
-            #         print(w)
-            #         print(h)
-            #         room_pattern = bsp_tree.room_pattern_files[(h, w)]
-            #         print(room_pattern.file)
-            #         prefab = choice(bsp_tree.room_patterns_split[room_pattern.file])
-            #         self.room = Rect(x + 1, y + 1, h - 1, w - 1)
-            #         # self.room = Rect(x, y, w, h)
-            #         return bsp_tree.create_prefab_room(prefab=prefab, room=self.room, x=x, y=y)
+            custom_room = choices((True, False), (1, bsp_tree.custom_room_chance))[0]
+
+            if custom_room:
+                max_h = min(bsp_tree.room_max_size, self.height - 1)
+                max_w = min(bsp_tree.room_max_size, self.width - 1)
+
+                possible_w = 0
+                possible_h = 0
+                size_weight_w = 0
+                size_weight_h = 0
+
+                if max_w < 7:
+                    max_w = min(bsp_tree.room_max_size, self.width - 1)
+                    max_h = min(bsp_tree.room_max_size, self.height - 1)
+                    w = randint(bsp_tree.room_min_size, max_w)
+                    h = randint(bsp_tree.room_min_size, max_h)
+                    x = randint(self.x, self.x + (self.width - 1) - w)
+                    y = randint(self.y, self.y + (self.height - 1) - h)
+                    self.room = Rect(x, y, w, h)
+                    bsp_tree.create_room(self.room)
+
+                if max_w >= 7:
+                    possible_w = size_7_room
+                    size_weight_w = size_7_room
+
+                if max_w >= 14:
+                    possible_w = size_14_room
+                    size_weight_w = size_14_room
+
+                if max_w >= 21:
+                    possible_w = size_21_room
+                    size_weight_w = size_21_room
+
+                if max_h < 7:
+                    max_w = min(bsp_tree.room_max_size, self.width - 1)
+                    max_h = min(bsp_tree.room_max_size, self.height - 1)
+                    w = randint(bsp_tree.room_min_size, max_w)
+                    h = randint(bsp_tree.room_min_size, max_h)
+                    x = randint(self.x, self.x + (self.width - 1) - w)
+                    y = randint(self.y, self.y + (self.height - 1) - h)
+                    self.room = Rect(x, y, w, h)
+                    bsp_tree.create_room(self.room)
+
+                if max_h >= 7:
+                    possible_h = size_7_room
+                    size_weight_h = size_7_room
+
+                if max_h >= 14:
+                    possible_h = size_14_room
+                    size_weight_h = size_14_room
+
+                if max_h >= 21:
+                    possible_h = size_21_room
+                    size_weight_h = size_21_room
+
+                w = choices(possible_w, size_weight_w)[0]
+                h = choices(possible_h, size_weight_h)[0]
+                x = randint(self.x, self.x + (self.width - 1) - w)
+                y = randint(self.y, self.y + (self.height - 1) - h)
+
+                room_pattern = bsp_tree.room_pattern_files[(w, h)]
+                prefab = choice(bsp_tree.room_patterns_split[room_pattern.file])
+                self.room = Rect(x, y, w, h)
+                return bsp_tree.create_prefab_room(prefab=prefab, room=self.room, x=x, y=y)
 
             max_w = min(bsp_tree.room_max_size, self.width - 1)
             max_h = min(bsp_tree.room_max_size, self.height - 1)

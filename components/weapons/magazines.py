@@ -10,8 +10,8 @@ GLOCK 9mm
 
 glock_mag_9mm = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Glock Magazine 9mm - Standard Capacity",
     weight=0.096,
     stacking=None,
@@ -29,8 +29,8 @@ glock_mag_9mm = Item(
 
 glock_mag_9mm_33 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Glock Magazine 9mm - Extended",
     weight=0.15,
     stacking=None,
@@ -51,8 +51,8 @@ glock_mag_9mm_33 = Item(
 
 glock_mag_9mm_50 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Glock Drum 9mm - 50 Rounds",
     weight=0.6,
     stacking=None,
@@ -74,8 +74,8 @@ glock_mag_9mm_50 = Item(
 
 glock_mag_9mm_100 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Glock Beta Mag 9mm - 100 Rounds",
     weight=1.36,
     stacking=None,
@@ -95,14 +95,171 @@ glock_mag_9mm_100 = Item(
     )
 )
 
+"""Glock 10mm"""
+
+glock_mag_10mm = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="Glock Magazine 10mm - Standard Capacity",
+    weight=0.087,
+    stacking=None,
+    description='10mm Glock magazine - 15 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='Glock 10mm',
+        compatible_bullet_type=('10mm', ),
+        mag_capacity=15,
+        magazine_size='small',
+        ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
+    )
+)
+
+glock_mag_10mm_33 = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="Glock Magazine 10mm - Extended",
+    weight=0.215,
+    stacking=None,
+    description='10mm Glock-compatible Kriss vector magazine - 33 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='Glock 10mm',
+        compatible_bullet_type=('10mm', ),
+        mag_capacity=33,
+        magazine_size='medium',
+        ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
+        target_acquisition_ap_mod=1.03,
+        ap_distance_cost_mod=1.02,
+        equip_ap_mod=1.06,
+    )
+)
+
+glock_mag_10mm_50 = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="Glock Drum 10mm - 50 Rounds",
+    weight=0.79,
+    stacking=None,
+    description='10mm Glock drum - 50 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='Glock 10mm',
+        compatible_bullet_type=('10mm', ),
+        mag_capacity=50,
+        magazine_size='large',
+        ap_to_load=500,
+        target_acquisition_ap_mod=1.13,
+        ap_distance_cost_mod=1.15,
+        equip_ap_mod=1.18,
+        failure_chance=2,
+        witness=True,
+        witness_check_ap=200,
+    )
+)
+
+"""
+Glock .50 GI
+"""
+
+glock_mag_50gi = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="Glock Magazine .50 GI",
+    weight=0.09,
+    stacking=None,
+    description='.50 GI Glock magazine - 9 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='Glock .50 GI',
+        compatible_bullet_type=('.50 GI', ),
+        mag_capacity=9,
+        magazine_size='small',
+        ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
+    )
+)
+
+"""
+Glock .40 S&W
+"""
+
+glock_mag_40 = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="Glock Magazine .40 S&W - Standard Capacity",
+    weight=0.08,
+    stacking=None,
+    description='.40 S&W Glock magazine - 15 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='Glock .40 S&W',
+        compatible_bullet_type=('40 S&W', ),
+        mag_capacity=15,
+        magazine_size='small',
+        ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
+    )
+)
+
+glock_mag_40_22 = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="Glock Magazine .40 S&W - Extended",
+    weight=0.136,
+    stacking=None,
+    description='.40 S&W Glock magazine - 31 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='Glock .40 S&W',
+        compatible_bullet_type=('40 S&W', ),
+        mag_capacity=31,
+        magazine_size='medium',
+        ap_to_load=300,
+        witness=True,
+        witness_check_ap=300,
+        target_acquisition_ap_mod=1.03,
+        ap_distance_cost_mod=1.02,
+        equip_ap_mod=1.06,
+    )
+)
+
+glock_mag_40_50 = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="Glock Drum .40 S&W - 50 Rounds",
+    weight=0.68,
+    stacking=None,
+    description='.40 S&W Glock drum - 50 round capacity',
+    usable_properties=DetachableMagazine(
+        magazine_type='Glock .40 S&W',
+        compatible_bullet_type=('40 S&W', ),
+        mag_capacity=50,
+        magazine_size='large',
+        ap_to_load=500,
+        target_acquisition_ap_mod=1.13,
+        ap_distance_cost_mod=1.15,
+        equip_ap_mod=1.18,
+        failure_chance=2,
+        witness=True,
+        witness_check_ap=200,
+    )
+)
+
 """
 1911 45
 """
 
 m1911_mag_45_8 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="1911 .45 ACP Magazine - Standard Capacity",
     weight=0.0907,
     stacking=None,
@@ -120,8 +277,8 @@ m1911_mag_45_8 = Item(
 
 m1911_mag_45_10 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="1911 .45 ACP Magazine - 10 Rounds",
     weight=0.1,
     stacking=None,
@@ -140,8 +297,8 @@ m1911_mag_45_10 = Item(
 
 m1911_mag_45_15 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="1911 .45 ACP Extended Magazine - 15 Rounds",
     weight=0.17,
     stacking=None,
@@ -159,8 +316,8 @@ m1911_mag_45_15 = Item(
 
 m1911_mag_45_40 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="1911 .45 ACP Drum Magazine - 40 Rounds",
     weight=0.85,
     stacking=None,
@@ -186,8 +343,8 @@ m1911_mag_45_40 = Item(
 
 m1911_mag_9_10 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="1911 9mm Magazine - Standard Capacity",
     weight=0.075,
     stacking=None,
@@ -209,8 +366,8 @@ m1911_mag_9_10 = Item(
 
 m1911_mag_10_8 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="1911 10mm Magazine - Standard Capacity",
     weight=0.073,
     stacking=None,
@@ -232,8 +389,8 @@ m1911_mag_10_8 = Item(
 
 m1911_mag_40sw_8 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="1911 40 S&W Magazine - Standard Capacity",
     weight=0.073,
     stacking=None,
@@ -255,8 +412,8 @@ Tokarev TT-33
 
 tt33_magazine = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Tokarev TT-33 Magazine",
     weight=0.073,
     stacking=None,
@@ -278,15 +435,15 @@ PPSh-41
 
 ppsh_mag_35rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="PPSh 35 Round Magazine",
     weight=0.38,
     stacking=None,
     description='A steel, 35 round capacity 7.62x25 Tokarev magazine made for the PPSh-41',
     usable_properties=DetachableMagazine(
         magazine_type='PPSh-41',
-        compatible_bullet_type=('7.62x25 Tokarev',),
+        compatible_bullet_type=('7.62x25 Tokarev', '9mm'),
         mag_capacity=35,
         magazine_size='medium',
         ap_to_load=300,
@@ -299,15 +456,15 @@ ppsh_mag_35rd = Item(
 
 ppsh_71rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="PPSh 71 Round Drum",
     weight=0.68,
     stacking=None,
     description='71 round capacity 7.62x25 Tokarev drum magazine designed for the PPSh-41',
     usable_properties=DetachableMagazine(
         magazine_type='PPSh-41',
-        compatible_bullet_type=('7.62x25 Tokarev',),
+        compatible_bullet_type=('7.62x25 Tokarev', '9mm'),
         mag_capacity=71,
         magazine_size='large',
         ap_to_load=500,
@@ -325,8 +482,8 @@ Desert Eagle .44
 
 de44_mag = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="DE XIX .44 Magazine",
     weight=0.127,
     stacking=None,
@@ -348,8 +505,8 @@ MAC 10 45
 
 mac10_mag_45 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M10/45 Magazine",
     weight=0.34,
     stacking=None,
@@ -367,8 +524,8 @@ mac10_mag_45 = Item(
 
 mac10_mag_45_extended = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M10/45 Extended Magazine",
     weight=0.4,
     stacking=None,
@@ -388,8 +545,8 @@ mac10_mag_45_extended = Item(
 
 mac10_mag_9 = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M10/9 Magazine",
     weight=0.32,
     stacking=None,
@@ -410,8 +567,8 @@ Grease Gun
 
 greasegun_mag = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M3 Grease Gun Magazine",
     weight=0.34,
     stacking=None,
@@ -432,8 +589,8 @@ Mosin Nagant
 
 mosin_nagant = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Mosin-Nagant Magazine",
     weight=0.23,
     stacking=None,
@@ -454,8 +611,8 @@ mosin_nagant = Item(
 
 mosin_clip = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Mosin-Nagant Clip",
     weight=0.0085,
     stacking=None,
@@ -475,8 +632,8 @@ SVT-40
 
 svt_10rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="SVT-40 10 Round Magazine",
     weight=0.28,
     stacking=None,
@@ -493,8 +650,8 @@ svt_10rd = Item(
 
 svt_clip = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="SVT-40 Clip",
     weight=0.0085,
     stacking=None,
@@ -515,8 +672,8 @@ SKS
 
 sks_clip = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="SKS Clip",
     weight=0.011,
     stacking=None,
@@ -532,8 +689,8 @@ sks_clip = Item(
 
 sks_mag_20rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="SKS 20 Round Magazine",
     weight=0.112,
     stacking=None,
@@ -554,8 +711,8 @@ sks_mag_20rd = Item(
 
 sks_mag_35rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="SKS 35 Round Magazine",
     weight=0.23,
     stacking=None,
@@ -576,8 +733,8 @@ sks_mag_35rd = Item(
 
 sks_mag_75rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="SKS 75 Round Drum Magazine",
     weight=1.043,
     stacking=None,
@@ -604,8 +761,8 @@ Model 629
 
 m629_clip = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Model 629 Moon Clip",
     weight=0.005,
     stacking=None,
@@ -626,8 +783,8 @@ Model 610
 
 m610_clip = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Model 610 Moon Clip",
     weight=0.005,
     stacking=None,
@@ -646,10 +803,46 @@ m610_clip = Item(
 AK 7.62x39
 """
 
+ak762_10rd = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="AK 7.62x39 10 Round Magazine",
+    weight=0.205,
+    stacking=None,
+    description='A polymer 10 round capacity 7.62x39 AK magazine',
+    usable_properties=DetachableMagazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type=('7.62x39', ),
+        mag_capacity=10,
+        magazine_size='small',
+        ap_to_load=300,
+        witness_check_ap=300,
+    )
+)
+
+ak762_20rd = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="AK 7.62x39 20 Round Magazine",
+    weight=0.281,
+    stacking=None,
+    description='A steel 20 round capacity 7.62x39 AK magazine of hungarian origin',
+    usable_properties=DetachableMagazine(
+        magazine_type='AK 7.62x39',
+        compatible_bullet_type=('7.62x39', ),
+        mag_capacity=20,
+        magazine_size='medium',
+        ap_to_load=300,
+        witness_check_ap=300,
+    )
+)
+
 ak762_30rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AK 7.62x39 30 Round Magazine",
     weight=0.37,
     stacking=None,
@@ -666,8 +859,8 @@ ak762_30rd = Item(
 
 ak762_40rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AK 7.62x39 40 Round Magazine",
     weight=0.46,
     stacking=None,
@@ -687,8 +880,8 @@ ak762_40rd = Item(
 
 ak762_60rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AC-Unity AK 7.62x39 Quad Magazine",
     weight=0.35,
     stacking=None,
@@ -709,8 +902,8 @@ ak762_60rd = Item(
 
 ak762_75rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AK 7.62x39 75 Round Drum Magazine",
     weight=0.2,
     stacking=None,
@@ -731,8 +924,8 @@ ak762_75rd = Item(
 
 ak762_100rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AK 7.62x39 100 Round Drum",
     weight=1.3,
     stacking=None,
@@ -757,8 +950,8 @@ AK 5.45x39
 
 ak545_30rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AK 5.45x39 Magazine",
     weight=0.215,
     stacking=None,
@@ -775,8 +968,8 @@ ak545_30rd = Item(
 
 ak545_45rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="RPK-74 5.45x39 Magazine",
     weight=0.3,
     stacking=None,
@@ -796,8 +989,8 @@ ak545_45rd = Item(
 
 ak545_60rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AK 5.45x39 Quad Magazine",
     weight=0.3,
     stacking=None,
@@ -818,8 +1011,8 @@ ak545_60rd = Item(
 
 ak545_100rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="RPK-16 5.45x39 95 Round Drum",
     weight=0.68,
     stacking=None,
@@ -844,8 +1037,8 @@ AK 5.56x45
 
 ak556_30rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AK 5.56x45 Magazine",
     weight=0.215,
     stacking=None,
@@ -864,10 +1057,46 @@ ak556_30rd = Item(
 STANAG
 """
 
+stanag_10rd = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="STANAG 10 Round Magazine",
+    weight=0.070,
+    stacking=None,
+    description='10 round capacity polymer STANAG magazine',
+    usable_properties=DetachableMagazine(
+        magazine_type='STANAG',
+        compatible_bullet_type=('5.56x45', '.300 Blackout'),
+        mag_capacity=10,
+        magazine_size='small',
+        ap_to_load=300,
+        witness_check_ap=300,
+    )
+)
+
+stanag_20rd = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="STANAG 20 Round Magazine",
+    weight=0.090,
+    stacking=None,
+    description='20 round capacity polymer STANAG magazine',
+    usable_properties=DetachableMagazine(
+        magazine_type='STANAG',
+        compatible_bullet_type=('5.56x45', '.300 Blackout'),
+        mag_capacity=20,
+        magazine_size='medium',
+        ap_to_load=300,
+        witness_check_ap=300,
+    )
+)
+
 stanag_30rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="STANAG 30 Round Magazine",
     weight=0.117,
     stacking=None,
@@ -884,8 +1113,8 @@ stanag_30rd = Item(
 
 stanag_40rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="STANAG 40 Round Magazine",
     weight=0.2,
     stacking=None,
@@ -905,8 +1134,8 @@ stanag_40rd = Item(
 
 stanag_50rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="STANAG 50 Round Drum Magazine",
     weight=0.9,
     stacking=None,
@@ -927,8 +1156,8 @@ stanag_50rd = Item(
 
 stanag_60rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="STANAG 60 Round Magazine",
     weight=0.18,
     stacking=None,
@@ -949,8 +1178,8 @@ stanag_60rd = Item(
 
 stanag_100rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="STANAG Beta C 100 Round Drum Magazine",
     weight=1.81,
     stacking=None,
@@ -958,7 +1187,7 @@ stanag_100rd = Item(
     usable_properties=DetachableMagazine(
         magazine_type='STANAG',
         compatible_bullet_type=('5.56x45', '.300 Blackout'),
-        mag_capacity=60,
+        mag_capacity=100,
         magazine_size='large',
         ap_to_load=600,
         target_acquisition_ap_mod=1.18,
@@ -966,7 +1195,33 @@ stanag_100rd = Item(
         equip_ap_mod=1.25,
         failure_chance=3,
         witness=True,
-        witness_check_ap=200,
+        witness_check_ap=300,
+    )
+)
+
+"""
+MCR 
+"""
+
+mcr_100rd = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="MCR 200 Round Linked Ammunition Magazine",
+    weight=0.63,
+    stacking=None,
+    description='200 round capacity soft ammo pack for holding linked 5.56x45 ammunition.',
+    usable_properties=DetachableMagazine(
+        magazine_type='MCR Linked Ammunition Magazine',
+        compatible_bullet_type=('5.56x45',),
+        mag_capacity=200,
+        magazine_size='large',
+        ap_to_load=800,
+        target_acquisition_ap_mod=1.22,
+        ap_distance_cost_mod=1.22,
+        equip_ap_mod=1.25,
+        witness=True,
+        witness_check_ap=20,
     )
 )
 
@@ -974,10 +1229,28 @@ stanag_100rd = Item(
 AR-10
 """
 
+ar10_10rd = Item(
+    x=0, y=0,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
+    name="AR-10 7.62x51 10 Round Magazine",
+    weight=0.11,
+    stacking=None,
+    description='A polymer 10 round 7.62x51 magazine for AR-10 type rifles',
+    usable_properties=DetachableMagazine(
+        magazine_type='AR10 7.62x51',
+        compatible_bullet_type=('7.62x51', ),
+        mag_capacity=10,
+        magazine_size='medium',
+        ap_to_load=300,
+        witness_check_ap=300,
+    )
+)
+
 ar10_20rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AR-10 7.62x51 20 Round Magazine",
     weight=0.17,
     stacking=None,
@@ -988,14 +1261,14 @@ ar10_20rd = Item(
         mag_capacity=20,
         magazine_size='medium',
         ap_to_load=300,
-        witness_check_ap=200,
+        witness_check_ap=300,
     )
 )
 
 ar10_25rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AR-10 7.62x51 25 Round Magazine",
     weight=0.206,
     stacking=None,
@@ -1009,14 +1282,14 @@ ar10_25rd = Item(
         target_acquisition_ap_mod=1.02,
         ap_distance_cost_mod=1.01,
         equip_ap_mod=1.02,
-        witness_check_ap=200,
+        witness_check_ap=300,
     )
 )
 
 ar10_40rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AR-10 7.62x51 40 Round Magazine",
     weight=0.226,
     stacking=None,
@@ -1031,14 +1304,14 @@ ar10_40rd = Item(
         ap_distance_cost_mod=1.04,
         equip_ap_mod=1.06,
         failure_chance=1,
-        witness_check_ap=200,
+        witness_check_ap=300,
     )
 )
 
 ar10_50rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="AR-10 7.62x51 50 Round Drum Magazine",
     weight=0.771,
     stacking=None,
@@ -1053,7 +1326,7 @@ ar10_50rd = Item(
         ap_distance_cost_mod=1.06,
         equip_ap_mod=1.12,
         failure_chance=2,
-        witness_check_ap=200,
+        witness_check_ap=300,
     )
 )
 
@@ -1063,8 +1336,8 @@ Calico
 
 calico_9mm_50rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Calico 9mm 50 Round Magazine",
     weight=0.5,
     stacking=None,
@@ -1085,8 +1358,8 @@ calico_9mm_50rd = Item(
 
 calico_9mm_100rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Calico 9mm 100 Round Magazine",
     weight=1.03,
     stacking=None,
@@ -1111,8 +1384,8 @@ Suomi M31
 
 m31_9mm_36rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Suomi M31 9mm 36 Round Magazine",
     weight=0.34,
     stacking=None,
@@ -1133,8 +1406,8 @@ m31_9mm_36rd = Item(
 
 m31_9mm_71rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Suomi M31 9mm 71 Round Drum",
     weight=0.68,
     stacking=None,
@@ -1159,8 +1432,8 @@ M1 Carbine
 
 m1_carbine_15rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M1/M2 Carbine 15 Round Magazine",
     weight=0.0765,
     stacking=None,
@@ -1180,8 +1453,8 @@ m1_carbine_15rd = Item(
 
 m1_carbine_30rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M1/M2 Carbine 30 Round Magazine",
     weight=0.09,
     stacking=None,
@@ -1205,8 +1478,8 @@ M14
 
 m14_10rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M14/M1A 10 Round Magazine",
     weight=0.159,
     stacking=None,
@@ -1223,8 +1496,8 @@ m14_10rd = Item(
 
 m14_20rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M14/M1A 20 Round Magazine",
     weight=0.233,
     stacking=None,
@@ -1241,8 +1514,8 @@ m14_20rd = Item(
 
 m14_50rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="M14/M1A ProMag 50 Round Drum Magazine",
     weight=0.771,
     stacking=None,
@@ -1267,8 +1540,8 @@ R870 DM
 
 r870_6rd = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="/",
+    fg_colour=colour.LIGHT_BROWN,
     name="Model 870 DM 6 Round Magazine",
     weight=0.21,
     stacking=None,

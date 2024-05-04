@@ -17,8 +17,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
 
-new_player_chance = (True, False, False, False, False, False, False, False, False, False, False, False, False, False,
-                     False, False, False, False, False, False, False, False, False, False, False)
+new_player_chance = (True, False, False)
 
 
 def _get_view_slice(screen_width: int, world_width: int, anchor: int):
@@ -123,6 +122,8 @@ class GameMap:
 
         self.camera_xy = (0, 0)  # Camera center position.
 
+        self.identifiers = 1
+
     @property
     def gamemap(self) -> GameMap:
         return self
@@ -200,7 +201,8 @@ class GameMap:
                 if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
                     # non-player characters that cannot be seen directly by the player character currently being
                     # controlled by the player are printed in grey to indicate that they cannot be attacked
-                    if isinstance(entity, Actor) and entity not in self.engine.players:
+                    # if isinstance(entity, Actor) and entity not in self.engine.players:
+                    if entity not in self.engine.players:
                         if self.engine.player.fighter.visible_tiles[entity.x, entity.y]:
                             console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), entity.fg_colour
                         else:
@@ -241,24 +243,15 @@ class GameMap:
         from level_generator import MessyBSPTree
         from level_parameters import level_params
 
-        new_player = False
-
         self.engine.current_floor += 1
 
-        if len(self.engine.players) < 5:
-            # TODO - extend for other floors
-            if self.engine.current_level == 0:
-                if self.engine.current_floor == 2:
-                    new_player = generate_player(current_level=self.engine.current_level, players=self.engine.players)
-                    add_player(engine=self.engine, player=new_player)
-                if self.engine.current_floor == 5:
-                    self.engine.current_level += 1
-                    self.engine.current_floor = 0
+        if self.engine.current_floor % 5 == 0:
+            self.engine.current_level += 1
 
-                if not new_player:
-                    if choice(new_player_chance):
-                        generate_player(current_level=self.engine.current_level, players=self.engine.players)
-                        add_player(engine=self.engine, player=new_player)
+        if len(self.engine.players) < 5:
+            if choice(new_player_chance):
+                new_player = generate_player(current_level=self.engine.current_level, players=self.engine.players)
+                add_player(engine=self.engine, player=new_player)
 
         self.engine.game_map = MessyBSPTree(
             messy_tunnels=level_params[self.engine.current_level][0],
@@ -270,18 +263,10 @@ class GameMap:
             max_items_per_room=level_params[self.engine.current_level][6],
             engine=self.engine,
             current_level=self.engine.current_level,
-            fov_radius=level_params[self.engine.current_level][7]
+            fov_radius=level_params[self.engine.current_level][7],
+            min_caverns=level_params[self.engine.current_level][8],
+            max_caverns=level_params[self.engine.current_level][9],
+            cavern_size=level_params[self.engine.current_level][10],
+            custom_room_chance=level_params[self.engine.current_level][11],
+            enclose_room_chance=level_params[self.engine.current_level][12]
         ).generate_level()
-
-        # self.engine.game_map = MessyBSPTree(
-        #     messy_tunnels=level_params[self.engine.current_level][0],
-        #     map_width=level_params[self.engine.current_level][1],
-        #     map_height=level_params[self.engine.current_level][2],
-        #     max_leaf_size=level_params[self.engine.current_level][3],
-        #     room_max_size=level_params[self.engine.current_level][4],
-        #     room_min_size=level_params[self.engine.current_level][5],
-        #     max_items_per_room=level_params[self.engine.current_level][6],
-        #     engine=self.engine,
-        #     current_level=self.engine.current_level,
-        #     fov_radius=level_params[self.engine.current_level][7]
-        # ).generate_level()

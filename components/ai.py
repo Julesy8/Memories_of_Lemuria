@@ -72,9 +72,16 @@ class DeadAI(BaseAI):
 class PlayerCharacter(BaseAI):
     def __init__(self, entity: Actor):
         super().__init__(entity)
+        self.path_to_xy: Optional[Tuple[int, int]] = None
         self.path: List[Tuple[int, int]] = []
 
     def perform(self) -> None:
+
+        if self.path_to_xy is not None:
+            if not self.path_to_xy == (self.entity.x, self.entity.y):
+                self.path = self.get_path_to(self.path_to_xy[0], self.path_to_xy[1])
+            else:
+                self.path_to_xy = None
 
         fighter = self.entity.fighter
 
@@ -330,9 +337,9 @@ class HostileEnemyArmed(HostileEnemy):
                         ReloadMagFed(entity=self.entity, gun=held_item.usable_properties,
                                      magazine_to_load=held_item.usable_properties.previously_loaded_magazine). \
                             handle_action()
-                        self.entity.fighter.fleeing_turns = (
-                            round(held_item.usable_properties.previously_loaded_magazine.ap_to_load
-                                  / self.entity.fighter.ap_per_turn))
+                        # self.entity.fighter.fleeing_turns = (
+                        #     round(held_item.usable_properties.previously_loaded_magazine.ap_to_load
+                        #           / self.entity.fighter.ap_per_turn))
 
                     # round in chamber, attacks
                     else:
@@ -353,9 +360,9 @@ class HostileEnemyArmed(HostileEnemy):
                             ReloadFromClip(entity=self.entity,
                                            clip=held_item.usable_properties.previously_loaded_clip,
                                            gun=held_item.usable_properties).handle_action()
-                            self.entity.fighter.fleeing_turns = (
-                                round(held_item.usable_properties.previously_loaded_clip.ap_to_load
-                                      / self.entity.fighter.ap_per_turn))
+                            # self.entity.fighter.fleeing_turns = (
+                            #     round(held_item.usable_properties.previously_loaded_clip.ap_to_load
+                            #           / self.entity.fighter.ap_per_turn))
 
                         else:
                             no_bullets_to_load = held_item.usable_properties.mag_capacity - \
@@ -389,7 +396,7 @@ class HostileEnemyArmed(HostileEnemy):
                             LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
                                                     bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
                                                     bullets_to_load=no_bullets_to_load).handle_action()
-                            self.entity.fighter.fleeing_turns = (no_bullets_to_load * 2)
+                            # self.entity.fighter.fleeing_turns = (no_bullets_to_load * 2)
                             return True
 
                 # magazine fed gun
@@ -403,8 +410,8 @@ class HostileEnemyArmed(HostileEnemy):
                             (ReloadMagFed(entity=self.entity, gun=held_item,
                                           magazine_to_load=held_item.usable_properties.previously_loaded_magazine).
                              handle_action())
-                            self.entity.fighter.fleeing_turns = (
-                                round(held_item.usable_properties.previously_loaded_magazine.ap_to_load
-                                      / self.entity.fighter.ap_per_turn))
+                            # self.entity.fighter.fleeing_turns = (
+                            #     round(held_item.usable_properties.previously_loaded_magazine.ap_to_load
+                            #           / self.entity.fighter.ap_per_turn))
                             return True
         return False

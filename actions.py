@@ -9,6 +9,7 @@ import colour
 import exceptions
 from random import choices
 from exceptions import Impossible
+# from pydantic.utils import deep_update
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -304,7 +305,8 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
                 return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
 
             else:
-                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
+                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses"
+                                                           f" [ID {self.entity.identifier}]", colour.LIGHT_BLUE)
 
 
 class MeleeAttackAction(AttackAction):
@@ -314,7 +316,7 @@ class MeleeAttackAction(AttackAction):
                          targeted_bodypart=targeted_bodypart, handle_now=handle_now)
 
         if targeted_bodypart is not None:
-            self.action_str = f'attack on {targeted_actor.name}'
+            self.action_str = f'attack on {targeted_actor.name} [ID {targeted_actor.identifier}]'
         else:
             self.action_str = ''
 
@@ -361,7 +363,7 @@ class GunAttackAction(AttackAction):
                          targeted_bodypart=targeted_bodypart, handle_now=handle_now)
 
         if targeted_bodypart is not None:
-            self.action_str = f'shooting {targeted_actor.name}'
+            self.action_str = f'shooting {targeted_actor.name} [ID {targeted_actor.identifier}]'
         else:
             self.action_str = ''
 
@@ -502,6 +504,9 @@ class GunAttackAction(AttackAction):
             elif self.weapon.action_type == 'break action':
                 proficiency_actiontype = fighter.skill_breakaction_proficiency
                 proficiency_actiontype += 1
+            elif self.weapon.action_type == 'belt fed':
+                proficiency_actiontype = copy(self.entity.fighter.skill_belt_fed_proficiency)
+                proficiency_actiontype += 1
 
             self.guntype_proficiency = 1 - (proficiency_guntype / 4000)
             self.action_proficiency = 1 - (proficiency_actiontype / 4000)
@@ -622,6 +627,8 @@ class ClearJam(Action):
                 proficiency = copy(self.entity.fighter.skill_pumpaction_proficiency)
             elif self.gun.action_type == 'break action':
                 proficiency = copy(self.entity.fighter.skill_breakaction_proficiency)
+            elif self.gun.action_type == 'belt fed':
+                proficiency = copy(self.entity.fighter.skill_belt_fed_proficiency)
 
             proficiency = 1 - (proficiency / 4000)
 
@@ -666,6 +673,8 @@ class ReloadMagFed(Action):
                 proficiency = copy(self.entity.fighter.skill_pumpaction_proficiency)
             elif self.gun.action_type == 'break action':
                 proficiency = copy(self.entity.fighter.skill_breakaction_proficiency)
+            elif self.gun.action_type == 'belt fed':
+                proficiency = copy(self.entity.fighter.skill_belt_fed_proficiency)
 
             proficiency = 1 - (proficiency / 4000)
 
@@ -739,6 +748,8 @@ class ReloadFromClip(Action):
                 proficiency = copy(self.entity.fighter.skill_pumpaction_proficiency)
             elif self.gun.action_type == 'break action':
                 proficiency = copy(self.entity.fighter.skill_breakaction_proficiency)
+            elif self.gun.action_type == 'belt fed':
+                proficiency = copy(self.entity.fighter.skill_belt_fed_proficiency)
 
             proficiency = 1 - (proficiency / 4000)
 
@@ -977,6 +988,9 @@ class PickupAction(AddToInventory):
             return False
 
     def remove_from_container(self):
+        # if hasattr(self.item.usable_properties, 'crafting_dict'):
+        #     crafting_dict = getattr(self.item.usable_properties, 'crafting_dict')
+        #     self.engine.crafting_recipes = deep_update(self.engine.crafting_recipes, crafting_dict)
         self.engine.game_map.entities.remove(self.item)
 
 
@@ -1084,7 +1098,9 @@ class HealPart(Action):
             if part.equipped is not None:
                 armour_ap_multiplier *= part.equipped.ap_penalty
 
-        return round(1000 * armour_ap_multiplier)
+        heal_amount = abs(self.part_to_heal.hp - self.part_to_heal.max_hp)
+
+        return round(300 + heal_amount * 100 * armour_ap_multiplier)
 
     def perform(self) -> None:
         self.healing_item.usable_properties.activate(self)
@@ -1194,6 +1210,8 @@ class CheckRoundsInMag(Action):
                 proficiency_actiontype = copy(self.entity.fighter.skill_pumpaction_proficiency)
             elif self.weapon.action_type == 'break action':
                 proficiency_actiontype = copy(self.entity.fighter.skill_breakaction_proficiency)
+            elif self.weapon.action_type == 'belt fed':
+                proficiency_actiontype = copy(self.entity.fighter.skill_belt_fed_proficiency)
 
             proficiency_actiontype = 1 - (proficiency_actiontype / 4000)
 

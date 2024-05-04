@@ -125,6 +125,7 @@ class Actor(Entity):
         self.bodyparts = copy.deepcopy(bodyparts)
         self.inventory = inventory
         self.inventory.parent = self
+        self.identifier: int = 0
         for bodypart in self.bodyparts:
             bodypart.parent = self
 

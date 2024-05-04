@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
 
 def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
-    if not game_map.in_bounds(x, y) or not game_map.visible[x, y]:
+
+    if not game_map.in_bounds(x, y) or not game_map.engine.player.fighter.visible_tiles[x, y]:
         return ""
 
     names = []
@@ -22,27 +23,31 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
     for entity in set(game_map.entities) - {game_map.engine.player}:
         if entity.x == x and entity.y == y:
 
-            # omits player name from list
-            try:
+            names.append(entity.name)
 
-                weapon_name = None
-
-                if hasattr(entity, 'inventory'):
-                    if entity.inventory.held is not None:
-                        weapon_name = entity.inventory.held.name
-
-                if entity.ai:
-                    if weapon_name is None:
-                        names.append(f"{entity.name} │ Condition: {give_entity_condition(entity)}")
-                    else:
-                        names.append(f"{entity.name} │ Condition: {give_entity_condition(entity)} │ "
-                                     f"Held: {weapon_name}")
-
-                else:
-                    names.append(entity.name)
-
-            except AttributeError:
-                names.append(entity.name)
+            # # omits player name from list
+            # try:
+            #
+            #     weapon_name = None
+            #
+            #     if hasattr(entity, 'inventory'):
+            #         if entity.inventory.held is not None:
+            #             weapon_name = entity.inventory.held.name
+            #
+            #     if entity.ai:
+            #         distance_target = round(game_map.engine.player.distance(entity.x, entity.y))
+            #         if weapon_name is None:
+            #             names.append(f"{entity.name} │ Condition: {give_entity_condition(entity)} │ Distance: "
+            #                          f"{distance_target}M")
+            #         else:
+            #             names.append(f"{entity.name} │ Condition: {give_entity_condition(entity)} │ "
+            #                          f"Held: {weapon_name} │ Distance: {distance_target}M")
+            #
+            #     else:
+            #         names.append(entity.name)
+            #
+            # except AttributeError:
+            #     names.append(entity.name)
 
             # shows stack size for stackable items
             if isinstance(entity, Item):
@@ -110,21 +115,24 @@ def render_names_at_mouse_location(
     #                     engine.player.x - mouse_x)
     # print(orientation)
 
-    names_at_mouse_location = ""
-
-    if game_map.in_bounds(mouse_x, mouse_y):
-        names_at_mouse_location = get_names_at_location(
-            x=mouse_x, y=mouse_y, game_map=engine.game_map
-        )
+    # names_at_mouse_location = ""
+    #
+    # if game_map.in_bounds(mouse_x, mouse_y):
+    #     names_at_mouse_location = get_names_at_location(
+    #         x=mouse_x, y=mouse_y, game_map=engine.game_map
+    #     )
 
     names_at_player = get_names_at_location(
         x=engine.player.x, y=engine.player.y, game_map=engine.game_map
     )
 
-    if names_at_mouse_location == "":
-        console.print(x=x, y=y, string=names_at_player, fg=colour.WHITE, bg=(0, 0, 0))
-    else:
-        console.print(x=x, y=y, string=f"Mouse: {names_at_mouse_location}", fg=colour.WHITE, bg=(0, 0, 0))
+    if names_at_player != '':
+        console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
+
+    # if names_at_mouse_location == "":
+    # else:
+    # console.print(x=x, y=y, string=f"Mouse: {engine.mouse_location} {names_at_mouse_location}",
+    # fg=colour.WHITE, bg=(0, 0, 0))
 
 
 def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -> None:

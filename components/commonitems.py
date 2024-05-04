@@ -20,8 +20,8 @@ medkit = Item(
     name="Medkit",
     weight=0.4,
     stacking=Stacking(stack_size=1),
-    description='Effective for treating severe injuries. They are more effective than bandages, but less common.',
-    usable_properties=consumables.HealingConsumable(amount=50),
+    description='Effective for treating severe injuries.',
+    usable_properties=consumables.HealingConsumable(amount=60),
 )
 
 bandages = Item(

@@ -38,7 +38,7 @@ RECIEVER
 reciever_r870_4rd = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 Reciever - 4 Round Mag",
     weight=1.33,
     stacking=None,
@@ -55,7 +55,7 @@ reciever_r870_4rd = Item(
 reciever_r870dm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 DM Reciever",
     weight=1.46,
     stacking=None,
@@ -64,7 +64,7 @@ reciever_r870dm = Item(
                                                                           "Model 870 TAC-14 Barrel",
                                                                           "Model 870 TAC-14 Barrel - Blade Sight"]},
                                    incompatibilities=(("Model 870 Magazine Extension",),),
-                                   compatible_magazine_type='R870 DM',
+                                   compatible_magazine_type=('R870 DM', ),
                                    suffix='Mag Fed',
                                    is_optic=True,
                                    functional_part=True,
@@ -75,7 +75,7 @@ reciever_r870dm = Item(
 reciever_r870_6rd = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 Reciever - Tactical Express",
     weight=1.46,
     stacking=None,
@@ -95,7 +95,7 @@ reciever_r870_6rd = Item(
 reciever_r870_shorty = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 Reciever - Super Shorty",
     weight=1.43,
     stacking=None,
@@ -123,7 +123,7 @@ BARREL
 r870_barrel_26 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 26 Inch Barrel",
     weight=1.33,
     stacking=None,
@@ -134,7 +134,7 @@ r870_barrel_26 = Item(
                                    is_attachment_point_types=['Remington 12 Ga Choke', ],
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.2,
-                                                     'sight_spread_modifier': 0.08, },
+                                                     'sight_spread_modifier': 0.1, },
                                    barrel_length=26,
                                    ap_to_equip=1.1,
                                    is_optic=True,
@@ -148,7 +148,7 @@ r870_barrel_26 = Item(
 r870_barrel_18 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 'Tactical Express' 18.5 Inch Barrel",
     weight=0.98,
     stacking=None,
@@ -158,7 +158,7 @@ r870_barrel_18 = Item(
                                    is_attachment_point_types=['Remington 12 Ga Choke', ],
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.2,
-                                                     'sight_spread_modifier': 0.08, },
+                                                     'sight_spread_modifier': 0.1, },
                                    barrel_length=18.5,
                                    is_optic=True,
                                    accuracy_part=True,
@@ -171,7 +171,7 @@ r870_barrel_18 = Item(
 r870_barrel_t14 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 TAC-14 Barrel",
     weight=0.67,
     stacking=None,
@@ -182,7 +182,7 @@ r870_barrel_t14 = Item(
                                    is_attachment_point_types=['Remington 12 Ga Choke', ],
                                    optic_properties={'target_acquisition_ap': 0.95,
                                                      'ap_distance_cost_modifier': 1.2,
-                                                     'sight_spread_modifier': 0.08, },
+                                                     'sight_spread_modifier': 0.1, },
                                    barrel_length=14,
                                    ap_to_equip=0.94,
                                    is_optic=True,
@@ -196,17 +196,18 @@ r870_barrel_t14 = Item(
 r870_barrel_shorty = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 Super Shorty Barrel",
     weight=0.268,
     stacking=None,
     usable_properties=GunComponent(part_type='Model 870 Barrel',
+                                   suffix='Super Shorty',
                                    incompatibilities=(("Iron Sight",),),
                                    velocity_modifier={'12 Gauge': 1.0, 'single projectile': 0.62, 'buckshot': 0.77},
                                    is_attachment_point_types=['Remington 12 Ga Choke', ],
                                    optic_properties={'target_acquisition_ap': 1.1,
                                                      'ap_distance_cost_modifier': 3.0,
-                                                     'sight_spread_modifier': 0.12, },
+                                                     'sight_spread_modifier': 0.16, },
                                    ap_to_equip=0.9,
                                    barrel_length=6.5,
                                    is_optic=True,
@@ -220,7 +221,7 @@ r870_barrel_shorty = Item(
 r870_barrel_18_bead = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 18.5 Inch Barrel - Blade Sight",
     weight=0.98,
     stacking=None,
@@ -230,7 +231,7 @@ r870_barrel_18_bead = Item(
                                    is_attachment_point_types=['Remington 12 Ga Choke', ],
                                    optic_properties={'target_acquisition_ap': 0.97,
                                                      'ap_distance_cost_modifier': 1.0,
-                                                     'sight_spread_modifier': 0.02, },
+                                                     'sight_spread_modifier': 0.04, },
                                    barrel_length=18.5,
                                    is_optic=True,
                                    accuracy_part=True,
@@ -244,7 +245,7 @@ r870_barrel_18_bead = Item(
 r870_barrel_t14_bead = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 TAC-14 Barrel - Blade Sight",
     weight=0.67,
     stacking=None,
@@ -255,7 +256,7 @@ r870_barrel_t14_bead = Item(
                                    is_attachment_point_types=['Remington 12 Ga Choke', ],
                                    optic_properties={'target_acquisition_ap': 0.97,
                                                      'ap_distance_cost_modifier': 1.0,
-                                                     'sight_spread_modifier': 0.02, },
+                                                     'sight_spread_modifier': 0.04, },
                                    barrel_length=14,
                                    is_optic=True,
                                    accuracy_part=True,
@@ -272,7 +273,7 @@ STOCK
 r870_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Wood Stock",
     weight=0.476,
     stacking=None,
@@ -290,7 +291,7 @@ r870_stock = Item(
 r870_stock_polymer = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Polymer Stock",
     weight=0.476,
     stacking=None,
@@ -308,7 +309,7 @@ r870_stock_polymer = Item(
 r870_stock_magpul = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Magpul SGA Stock",
     weight=0.68,
     stacking=None,
@@ -327,7 +328,7 @@ r870_stock_magpul = Item(
 r870_stock_shockwave = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Raptor Grip",
     weight=0.283,
     stacking=None,
@@ -347,7 +348,7 @@ r870_stock_shockwave = Item(
 r870_stock_pistol = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 ATI Pistol Grip",
     weight=0.11,
     stacking=None,
@@ -365,7 +366,7 @@ r870_stock_pistol = Item(
 r870_stock_maverick = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Maverick 88 Stock",
     weight=0.9,
     stacking=None,
@@ -384,7 +385,7 @@ can't find weight for this one
 r870_stock_topfold = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Model 870 Top-Folding Stock",
     weight=,
     stacking=None,
@@ -404,7 +405,7 @@ r870_stock_topfold = Item(
 r870_stock_sterling = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Sterling Stock",
     weight=0.7,  # this is a guess
     stacking=None,
@@ -427,7 +428,7 @@ FOREND
 r870_forend = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Wood Forend",
     weight=0.27,
     stacking=None,
@@ -444,7 +445,7 @@ r870_forend = Item(
 r870_forend_polymer = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Polymer Forend",
     weight=0.26,
     stacking=None,
@@ -461,7 +462,7 @@ r870_forend_polymer = Item(
 r870_forend_magpul = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Magpul Forend",
     weight=0.26,
     stacking=None,
@@ -480,7 +481,7 @@ r870_forend_magpul = Item(
 r870_forend_tacstar = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 TacStar Forend",
     weight=0.23,
     stacking=None,
@@ -498,7 +499,7 @@ r870_forend_tacstar = Item(
 r870_forend_voa = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 VOA Forend",
     weight=0.23,
     stacking=None,
@@ -522,7 +523,7 @@ CHOKE
 r870_choke_im = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Improved Modified Choke",
     weight=0.01,
     stacking=None,
@@ -538,7 +539,7 @@ r870_choke_im = Item(
 r870_choke_modified = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Modified Choke",
     weight=0.01,
     stacking=None,
@@ -554,7 +555,7 @@ r870_choke_modified = Item(
 r870_choke_cylinder = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Cylinder Choke",
     weight=0.01,
     stacking=None,
@@ -568,7 +569,7 @@ r870_choke_cylinder = Item(
 r870_choke_improved_ported = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Tactical Breacher Choke",
     weight=0.023,
     stacking=None,
@@ -587,7 +588,7 @@ r870_choke_improved_ported = Item(
 r870_choke_cylinder_ported = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Tactical Muzzle Brake",
     weight=0.023,
     stacking=None,
@@ -608,7 +609,7 @@ ACCESSORIES
 r870_ar_stock_adapter = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mesa Tactical LEO M870 AR-15 Stock Adapter",
     weight=0.4,
     stacking=None,
@@ -622,7 +623,7 @@ r870_ar_stock_adapter = Item(
 r870_optic_picrail = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Picatinny Rail Optics Mount",
     weight=0.09,
     stacking=None,
@@ -637,7 +638,7 @@ r870_optic_picrail = Item(
 r870_optic_picrail_ghost = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 Ghost Sights w/ Picatinny Mount",
     weight=0.1,
     stacking=None,
@@ -655,7 +656,7 @@ r870_optic_picrail_ghost = Item(
 r870_extension_2rd = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 +2 Magazine Extension",
     weight=0.18,
     stacking=None,
@@ -669,7 +670,7 @@ r870_extension_2rd = Item(
 r870_extension_4rd = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 +4 Magazine Extension",
     weight=0.13,
     stacking=None,
@@ -683,7 +684,7 @@ r870_extension_4rd = Item(
 r870_extension_6rd = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M870 +6 Magazine Extension",
     weight=0.368,
     stacking=None,
@@ -701,7 +702,7 @@ GUN
 rem_870 = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="M870",
     weight=1,
     stacking=None,

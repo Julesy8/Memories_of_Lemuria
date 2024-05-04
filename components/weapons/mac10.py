@@ -6,7 +6,7 @@ import colour
 mac1045_lower = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Lower Receiver",
     weight=1.02,
     stacking=None,
@@ -24,7 +24,7 @@ mac1045_lower = Item(
 mac109_lower = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Lower Receiver",
     weight=1.02,
     stacking=None,
@@ -49,7 +49,7 @@ Uppers
 mac1045_upper = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Upper Receiver",
     weight=0.43,
     stacking=None,
@@ -58,14 +58,14 @@ mac1045_upper = Item(
                                                                     "M10/45 Carbine Barrel"],
                                                      'M10 Optics Mount': ['M10 Picatinny Optics Mount', ]},
                                    fire_modes={'automatic': {'fire rate': 1000, 'automatic': True}},
-                                   compatible_magazine_type='M10/45',
+                                   compatible_magazine_type=('M10/45',),
                                    additional_required_parts=('M10 Barrel',),
                                    suffix="M10/45",
                                    sight_height_above_bore=0.5,
                                    optic_mount_properties={'receiver_height_above_bore': 1.15, },
                                    is_optic=True,
                                    optic_properties={'target_acquisition_ap': 1.05,
-                                                     'sight_spread_modifier': 0.12,
+                                                     'sight_spread_modifier': 0.14,
                                                      'ap_distance_cost_modifier': 1.06},
                                    grip_properties={
                                        'handling_spread_modifier': 0.94,
@@ -80,7 +80,7 @@ mac1045_upper = Item(
 mac1045_upper_tactical = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Side Cocking Upper Receiver",
     weight=0.43,
     stacking=None,
@@ -92,7 +92,7 @@ mac1045_upper_tactical = Item(
                                    fire_modes={'automatic': {'fire rate': 1000, 'automatic': True}},
                                    additional_required_parts=('M10 Barrel',),
                                    suffix="M10/45 Side Cocking",
-                                   compatible_magazine_type='M10/45',
+                                   compatible_magazine_type=('M10/45',),
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
                                        'handling_spread_modifier': 0.94,
@@ -108,7 +108,7 @@ mac1045_upper_tactical = Item(
 mac1045_upper_max = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/45 mk2 Upper Receiver (M10/45)",
     weight=1.07,
     stacking=None,
@@ -121,7 +121,7 @@ mac1045_upper_max = Item(
                                    compatible_parts={'M10 Barrel': ['MAX-10/45 Barrel', ]},
                                    additional_required_parts=('Optic', 'M10 Barrel'),
                                    suffix='M10 MAX-10/45 mk2 Conversion',
-                                   compatible_magazine_type='M10/45',
+                                   compatible_magazine_type=('M10/45',),
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
                                        'handling_spread_modifier': 0.91,
@@ -146,7 +146,7 @@ mac1045_upper_max = Item(
 mac109_upper = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Upper Receiver",
     weight=0.43,
     stacking=None,
@@ -157,11 +157,11 @@ mac109_upper = Item(
                                                      'M10 Optics Mount': ['M10 Picatinny Optics Mount', ]
                                                      },
                                    additional_required_parts=('M10 Barrel',),
-                                   compatible_magazine_type='M10/9',
+                                   compatible_magazine_type=('M10/9',),
                                    sight_height_above_bore=0.5,
                                    optic_mount_properties={'receiver_height_above_bore': 1.15},
                                    optic_properties={'target_acquisition_ap': 1.05,
-                                                     'sight_spread_modifier': 0.12,
+                                                     'sight_spread_modifier': 0.14,
                                                      'ap_distance_cost_modifier': 1.06},
                                    is_optic=True,
                                    suffix="M10/9",
@@ -178,7 +178,7 @@ mac109_upper = Item(
 mac109_upper_tactical = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Side Cocking Upper Receiver",
     weight=0.43,
     stacking=None,
@@ -189,7 +189,7 @@ mac109_upper_tactical = Item(
                                    compatible_parts={'M10 Barrel': ['M10/9 Barrel', "MAX-10/9 Barrel",
                                                                     "M10/9 Carbine Barrel"]},
                                    additional_required_parts=('M10 Barrel',),
-                                   compatible_magazine_type='M10/9',
+                                   compatible_magazine_type=('M10/9',),
                                    suffix='M10/9 Side Cocking',
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
@@ -206,7 +206,7 @@ mac109_upper_tactical = Item(
 mac109_upper_max = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/9 mk2 Upper Receiver (M10/9)",
     weight=1.07,
     stacking=None,
@@ -218,7 +218,7 @@ mac109_upper_max = Item(
                                                               'Picrail Underbarrel - Short'],
                                    compatible_parts={'M10 Barrel': ['MAX-10/9 Barrel', ]},
                                    additional_required_parts=('Optic', 'M10 Barrel'),
-                                   compatible_magazine_type='M10/9',
+                                   compatible_magazine_type=('M10/9',),
                                    suffix='M10 MAX-10/9 mk2 Conversion',
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
                                    grip_properties={
@@ -241,13 +241,13 @@ mac109_upper_max = Item(
 mac109_calico_conv = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 'CalicoMac' Conversion Kit",
     weight=0.43,
     stacking=None,
     usable_properties=GunComponent(part_type='M10 Upper',
                                    fire_modes={'automatic': {'fire rate': 1100, 'automatic': True}},
-                                   compatible_magazine_type='Calico 9mm',
+                                   compatible_magazine_type=('Calico 9mm',),
                                    compatible_parts={'M10 Barrel': ['M10/9 Barrel', "MAX-10/9 Barrel",
                                                                     "M10/9 Carbine Barrel", ],
                                                      'Optic': []},
@@ -274,7 +274,7 @@ mac109_calico_conv = Item(
 mac109_upper_max31 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/31 Upper Receiver (M10)",
     weight=1.74,
     stacking=None,
@@ -288,7 +288,7 @@ mac109_upper_max31 = Item(
                                                                     "MAX-10/31k Barrel - 1/2-28 Threaded",
                                                                     "MAX-10/31 Barrel - 3/4-10 Threaded",
                                                                     "MAX-10/31k Barrel - 3/4-10 Threaded"]},
-                                   compatible_magazine_type='Suomi M31',
+                                   compatible_magazine_type=('Suomi M31',),
                                    additional_required_parts=('M10 Barrel',),
                                    suffix="M10 MAX-10/31 Conversion",
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
@@ -310,7 +310,7 @@ mac109_upper_max31 = Item(
 mac109_upper_max31k = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/31k Upper Receiver (M10)",
     weight=1.51,
     stacking=None,
@@ -324,7 +324,7 @@ mac109_upper_max31k = Item(
                                                                     "MAX-10/31k Barrel - 1/2-28 Threaded",
                                                                     "MAX-10/31 Barrel - 3/4-10 Threaded",
                                                                     "MAX-10/31k Barrel - 3/4-10 Threaded"]},
-                                   compatible_magazine_type='Suomi M31',
+                                   compatible_magazine_type=('Suomi M31',),
                                    additional_required_parts=('Optic', 'M10 Barrel'),
                                    suffix="M10 MAX-10/31k Conversion",
                                    optic_mount_properties={'receiver_height_above_bore': 1.59},
@@ -351,7 +351,7 @@ mac109_upper_max31k = Item(
 mac10_upper_max15 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/15 Upper Receiver (M10)",
     weight=1.07,
     stacking=None,
@@ -392,7 +392,7 @@ Barrels
 mac1045_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Barrel",
     weight=0.1,
     stacking=None,
@@ -409,7 +409,7 @@ mac1045_barrel = Item(
 mac1045_max_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/45 Barrel",
     weight=0.13,
     stacking=None,
@@ -428,7 +428,7 @@ mac1045_max_barrel = Item(
 mac1045_carbine_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Carbine Barrel",
     weight=0.22,
     stacking=None,
@@ -450,7 +450,7 @@ mac1045_carbine_barrel = Item(
 mac109_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Barrel",
     weight=0.1,
     stacking=None,
@@ -468,7 +468,7 @@ mac109_barrel = Item(
 mac109_max_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/9 Barrel",
     weight=0.13,
     stacking=None,
@@ -488,7 +488,7 @@ mac109_max_barrel = Item(
 mac109_carbine_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Carbine Barrel",
     weight=0.22,
     stacking=None,
@@ -509,7 +509,7 @@ mac109_carbine_barrel = Item(
 max1031_barrel_1228 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/31 Barrel - 1/2-28 Threaded",
     weight=0.12,
     stacking=None,
@@ -530,7 +530,7 @@ max1031_barrel_1228 = Item(
 max1031k_barrel_1228 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/31k Barrel - 1/2-28 Threaded",
     weight=0.1,
     stacking=None,
@@ -550,7 +550,7 @@ max1031k_barrel_1228 = Item(
 max1031_barrel_3410 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/31 Barrel - 3/4-10 Threaded",
     weight=0.12,
     stacking=None,
@@ -571,7 +571,7 @@ max1031_barrel_3410 = Item(
 max1031k_barrel_3410 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MAX-10/31k Barrel - 3/4-10 Threaded",
     weight=0.1,
     stacking=None,
@@ -595,7 +595,7 @@ Stocks
 mac1045_full_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10 Fixed Stock",
     weight=0.34,
     stacking=None,
@@ -615,7 +615,7 @@ mac1045_full_stock = Item(
 mac1045_folding_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10 'K' Folding Stock",
     weight=0.43,
     stacking=None,
@@ -635,7 +635,7 @@ mac1045_folding_stock = Item(
 mac1045_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10 Stock",
     weight=0.28,
     stacking=None,
@@ -657,7 +657,7 @@ Other
 mac10_carbine_handguard_m16a2 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Carbine A2 Style Handguard",
     weight=0.19,
     stacking=None,
@@ -674,7 +674,7 @@ mac10_carbine_handguard_m16a2 = Item(
 mac10_carbine_handguard_picatinny = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Carbine Tactical Handguard",
     weight=0.4,
     stacking=None,
@@ -698,7 +698,7 @@ mac10_carbine_handguard_picatinny = Item(
 mac109_carbine_handguard_m16a2 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Carbine A2 Style Handguard",
     weight=0.19,
     stacking=None,
@@ -716,7 +716,7 @@ mac109_carbine_handguard_m16a2 = Item(
 mac109_carbine_handguard_picatinny = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Carbine Tactical Handguard",
     weight=0.4,
     stacking=None,
@@ -741,7 +741,7 @@ mac109_carbine_handguard_picatinny = Item(
 mac10_vertical_grip = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10 Vertical Grip",
     weight=0.06,
     stacking=None,
@@ -759,7 +759,7 @@ mac10_vertical_grip = Item(
 mac10_optics_mount = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10 Picatinny Optics Mount",
     weight=0.19,
     stacking=None,
@@ -775,7 +775,7 @@ mac10_optics_mount = Item(
 mac10_trirail = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10 Tri Rail Mount",
     weight=0.1,
     stacking=None,
@@ -790,7 +790,7 @@ mac10_trirail = Item(
 mac10_ar_stock_adapter = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10 AR Buffertube Stock Adapter",
     weight=0.11,
     stacking=None,
@@ -805,7 +805,7 @@ mac10_ar_stock_adapter = Item(
 mac1045_sionics_suppressor = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 Sionics Suppressor",
     weight=0.54,
     stacking=None,
@@ -832,7 +832,7 @@ mac1045_sionics_suppressor = Item(
 mac109_sionics_suppressor = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 Sionics Suppressor",
     weight=0.54,
     stacking=None,
@@ -859,7 +859,7 @@ mac109_sionics_suppressor = Item(
 mac1045_extended_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/45 'Blackout' Barrel Extension",
     weight=0.4,
     stacking=None,
@@ -880,7 +880,7 @@ mac1045_extended_barrel = Item(
 mac109_extended_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M10/9 'Blackout' Barrel Extension",
     weight=0.4,
     stacking=None,
@@ -906,7 +906,7 @@ Guns
 mac10 = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="",
     weight=1,
     stacking=None,
@@ -915,7 +915,7 @@ mac10 = Item(
                 'high rate of fire. Models were produced chambered in both 9mm parabellum and .45 ACP. ',
     usable_properties=GunMagFed(
         compatible_bullet_type=('.45 ACP', ),
-        compatible_magazine_type='M10/45',
+        compatible_magazine_type=('M10/45',),
         chambered_bullet=None,
         keep_round_chambered=False,
         loaded_magazine=None,

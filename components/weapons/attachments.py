@@ -13,10 +13,28 @@ W / (D / 3600) = Width of post in MOA.
 OPTICS
 """
 
+holosun_reflex = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_MAGENTA,
+    name="Holosun HS509T RMR Sight",
+    weight=0.048,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Optic',
+                                   optic_properties={'target_acquisition_ap': 0.9,
+                                                     'ap_distance_cost_modifier': 0.83,
+                                                     'sight_spread_modifier': 0.02,
+                                                     'sight_height_above_bore': 1.63,
+                                                     'zero_range': 25, },
+                                   attachment_point_required=('Pistol Optics Mount',),
+                                   ),
+    description='A small unmagnified red dot optical sight by holosun designed for pistols'
+)
+
 holosun503 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Holosun HS503R Red Dot Sight",
     weight=0.106,
     stacking=None,
@@ -36,7 +54,7 @@ holosun503 = Item(
 acog_ta01 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Trijicon ACOG TA01 Optic",
     weight=0.297,
     stacking=None,
@@ -56,7 +74,7 @@ acog_ta01 = Item(
 eotech_exps3 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="EOTECH EXPS3 Holographic Sight",
     weight=0.317,
     stacking=None,
@@ -76,7 +94,7 @@ eotech_exps3 = Item(
 aimpoint_comp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Aimpoint CompM4",
     weight=0.376,
     stacking=None,
@@ -96,7 +114,7 @@ aimpoint_comp = Item(
 kobra_ekp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Kobra EKP-1S-O3M Optic",
     weight=0.410,
     stacking=None,
@@ -115,7 +133,7 @@ kobra_ekp = Item(
 kobra_ekp_picrail = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Kobra EKP-1S-O3M Optic - Picatinny Mount",
     weight=0.380,
     stacking=None,
@@ -136,7 +154,7 @@ kobra_ekp_picrail = Item(
 amguh1 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Vortex Razor AMG UH-1 Optic",
     weight=0.33,
     stacking=None,
@@ -156,7 +174,7 @@ amguh1 = Item(
 compactprism = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Monstrum Tactical Compact Prism Optic",
     weight=0.48,
     stacking=None,
@@ -176,7 +194,7 @@ compactprism = Item(
 pm2scope = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Schmidt and Bender PM II 5",
     weight=0.86,
     stacking=None,
@@ -196,7 +214,7 @@ pm2scope = Item(
 pso1 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="PSO-1 Optic",
     weight=0.6,
     stacking=None,
@@ -216,7 +234,7 @@ pso1 = Item(
 okp7 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="OKP7 Optic",
     weight=0.255,
     stacking=None,
@@ -239,7 +257,7 @@ Iron Sights
 irons_sig_rear = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Sig Sauer Flip Up Rear Sight",
     weight=0.1,
     stacking=None,
@@ -262,7 +280,7 @@ irons_sig_rear = Item(
 irons_sig_front = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Sig Sauer Flip Up Front Sight",
     weight=0.08,
     stacking=None,
@@ -278,7 +296,7 @@ irons_sig_front = Item(
 irons_magpul_rear = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul MBUS Pro Flip Up Rear Sight",
     weight=0.051,
     stacking=None,
@@ -301,7 +319,7 @@ irons_magpul_rear = Item(
 irons_magpul_front = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul MBUS Pro Flip Up Front Sight",
     weight=0.042,
     stacking=None,
@@ -317,7 +335,7 @@ irons_magpul_front = Item(
 irons_dd_rear = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Daniel Defense A1.5 Rear Iron Sight",
     weight=0.028,
     stacking=None,
@@ -340,7 +358,7 @@ irons_dd_rear = Item(
 irons_dd_front = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Daniel Defense A1.5 Front Iron Sight",
     weight=0.042,
     stacking=None,
@@ -356,7 +374,7 @@ irons_dd_front = Item(
 irons_troy_rear = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Troy M4 Rear Iron Sight",
     weight=0.048,
     stacking=None,
@@ -379,7 +397,7 @@ irons_troy_rear = Item(
 irons_troy_front = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Troy M4 Front Iron Sight",
     weight=0.042,
     stacking=None,
@@ -399,7 +417,7 @@ Grips
 grip_hera_cqr = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="HERA Arms CQR Front Grip",
     weight=0.14,
     stacking=None,
@@ -416,7 +434,7 @@ grip_hera_cqr = Item(
 grip_promag_vertical = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Pro Mag Vertical Grip",
     weight=0.09,
     stacking=None,
@@ -433,7 +451,7 @@ grip_promag_vertical = Item(
 grip_jem_vertical = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="JE Machine Tech Vertical Grip",
     weight=0.181,
     stacking=None,
@@ -450,7 +468,7 @@ grip_jem_vertical = Item(
 grip_magpul_angled = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul AFG2 Angled Foregrip",
     weight=0.072,
     stacking=None,
@@ -467,7 +485,7 @@ grip_magpul_angled = Item(
 grip_magpul_mvg = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul M-LOK MVG Vertical Grip",
     weight=0.039,
     stacking=None,
@@ -484,7 +502,7 @@ grip_magpul_mvg = Item(
 grip_aimtac_short = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AIM Sports Tactical Vertical Grip",
     weight=0.085,
     stacking=None,
@@ -501,7 +519,7 @@ grip_aimtac_short = Item(
 grip_magpul_handstop = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul M-LOK Hand Stop",
     weight=0.025,
     stacking=None,
@@ -518,7 +536,7 @@ grip_magpul_handstop = Item(
 grip_hipoint_folding = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="HI Point Folding Vertical Grip",
     weight=0.18,
     stacking=None,
@@ -541,7 +559,7 @@ Suppressor
 suppressor_obsidian_45 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Rugged Obsidian 45 Suppressor",
     weight=0.36,
     stacking=None,
@@ -560,7 +578,7 @@ suppressor_obsidian_45 = Item(
 muzzle_nullifier = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Nullifier Muzzle Brake 0.578x28",
     weight=0.081,
     stacking=None,
@@ -572,10 +590,25 @@ muzzle_nullifier = Item(
     description="A compensator/muzzle brake for 0.578x28 threaded barrels"
 )
 
+muzzle_maxtac = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_MAGENTA,
+    name="MAX-TAC Muzzle Brake",
+    weight=0.105,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   attachment_point_required=('Barrel Thread 9/16x24',),
+                                   muzzle_break_efficiency=0.38,
+                                   sound_radius=1.12,
+                                   ),
+    description="A three-ported muzzle brake for 9/16x24 threaded barrels"
+)
+
 muzzle_kak_45 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="KAK Compensator 0.578x28",
     weight=0.084,
     stacking=None,
@@ -590,7 +623,7 @@ muzzle_kak_45 = Item(
 muzzle_kak_a2 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="KAK Flash Hider 0.578x28",
     weight=0.084,
     stacking=None,
@@ -607,7 +640,7 @@ muzzle_kak_a2 = Item(
 suppressor_wolfman_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Dead Air Wolfman Suppresssor",
     weight=0.408,
     stacking=None,
@@ -626,7 +659,7 @@ suppressor_wolfman_9mm = Item(
 suppressor_obsidian_9 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Rugged Obsidian 9 Suppressor",
     weight=0.36,
     stacking=None,
@@ -647,7 +680,7 @@ suppressor_obsidian_9 = Item(
 suppressor_octane45 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Octane 45 2.0 Suppressor",
     weight=0.34,
     stacking=None,
@@ -663,6 +696,25 @@ suppressor_octane45 = Item(
     description='A suppressor compatible with 9/16x24 barrel threading'
 )
 
+suppressor_sandman = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_MAGENTA,
+    name="Dead Air Sandman-L ",
+    weight=0.62,
+    stacking=None,
+    usable_properties=GunComponent(part_type='Muzzle Device',
+                                   suffix='Suppressed',
+                                   muzzle_break_efficiency=0.42,
+                                   target_acquisition_ap=1.11,
+                                   fire_rate_modifier=1.08,
+                                   sound_radius=0.19,
+                                   attachment_point_required=('Barrel Thread 5/8x24',),
+                                   is_suppressor=True,
+                                   ),
+    description='A large suppressor compatible with 5/8x24 barrel threading'
+)
+
 """
 Accessories
 """
@@ -670,7 +722,7 @@ Accessories
 thread_adapter_m14_5824 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name='M14/M1A 5/8x24 Thread Adapter',
     weight=0.071,
     stacking=None,
@@ -685,7 +737,7 @@ thread_adapter_m14_5824 = Item(
 thread_adapter_sks = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name='SKS 14x1 Thread Adapter',
     weight=0.055,
     stacking=None,
@@ -700,7 +752,7 @@ thread_adapter_sks = Item(
 thread_adapter_mosin = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name='Mosin-Nagant 5/8x24 Thread Adapter',
     weight=0.175,
     stacking=None,
@@ -715,7 +767,7 @@ thread_adapter_mosin = Item(
 thread_adapter_141_24mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name='14x1 to 24x1.5 Thread Adapter',
     weight=0.04,
     stacking=None,
@@ -730,7 +782,7 @@ thread_adapter_141_24mm = Item(
 thread_adapter_2415_5824 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name='24x1.5 to 5/8×24 Thread Adapter',
     weight=0.045,
     stacking=None,
@@ -745,7 +797,7 @@ thread_adapter_2415_5824 = Item(
 adapter_mlok_picrail = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MLOK Picatinny Rail Adapter - Long Rails",
     weight=0.09,
     stacking=None,
@@ -766,7 +818,7 @@ adapter_mlok_picrail = Item(
 adapter_mlok_picrail_short = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MLOK Picatinny Rail Adapter - Short Rails",
     weight=0.048,
     stacking=None,

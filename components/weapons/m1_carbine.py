@@ -10,13 +10,13 @@ Reciever
 m1_reciever = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1 Carbine Reciever",
     weight=0.99,
     stacking=None,
     usable_properties=GunComponent(part_type='M1 Reciever',
                                    compatible_parts={"M1/M2 Carbine Optic Mount": ["M1/M2 Carbine S&K Optics Mount", ]},
-                                   compatible_magazine_type='M1/M2 Carbine',
+                                   compatible_magazine_type=('M1/M2 Carbine', ),
                                    functional_part=True,
                                    ),
     description='An unbarreled M1 carbine action'
@@ -25,13 +25,13 @@ m1_reciever = Item(
 m2_reciever = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M2 Carbine Reciever",
     weight=0.99,
     stacking=None,
     usable_properties=GunComponent(part_type='M2 Reciever',
                                    compatible_parts={"M1/M2 Carbine Optic Mount": ["M1/M2 Carbine S&K Optics Mount", ]},
-                                   compatible_magazine_type='M1/M2 Carbine',
+                                   compatible_magazine_type=('M1/M2 Carbine', ),
                                    functional_part=True,
                                    ),
     description='An unbarreled selective fire M2 carbine action'
@@ -44,7 +44,7 @@ STOCK
 m1_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine Stock",
     weight=0.795,
     stacking=None,
@@ -73,7 +73,7 @@ m1_stock = Item(
 m1_stock_springfield = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine Choate Folding Stock",
     weight=1.021,
     stacking=None,
@@ -103,7 +103,7 @@ m1_stock_springfield = Item(
 m1_stock_ebr = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine EBR Stock",
     weight=0.7,
     stacking=None,
@@ -131,7 +131,7 @@ m1_stock_ebr = Item(
 m1_stock_enforcer = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine 'Enforcer' Pistol Stock",
     weight=0.473,
     stacking=None,
@@ -163,7 +163,7 @@ BARREL
 m1_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine Barrel",
     weight=0.61,
     stacking=None,
@@ -182,7 +182,7 @@ m1_barrel = Item(
 m1_barrel_enforcer = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine 'Enforcer' Barrel",
     weight=0.347,
     stacking=None,
@@ -204,7 +204,7 @@ m1_barrel_enforcer = Item(
 m1_barrel_threaded = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine Barrel - Threaded",
     weight=0.61,
     stacking=None,
@@ -225,7 +225,7 @@ m1_barrel_threaded = Item(
 m1_barrel_enforcer_threaded = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine 'Enforcer' Barrel - Threaded",
     weight=0.347,
     stacking=None,
@@ -252,7 +252,7 @@ ACCESSORIES
 m1_m6b_mount = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine M6-B Optics Mount",
     weight=0.204,
     stacking=None,
@@ -268,7 +268,7 @@ m1_m6b_mount = Item(
 m1_sk_mount = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1/M2 Carbine S&K Optics Mount",
     weight=0.113,
     stacking=None,
@@ -284,7 +284,7 @@ m1_sk_mount = Item(
 m1_carbine = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="M1 Carbine",
     weight=2.4,
     stacking=None,
@@ -294,7 +294,7 @@ m1_carbine = Item(
                 'support personnel. It has since seen service in numerous conflicts including the Korean and Vietnam'
                 ' wars and is a favourite of civilian gun owners.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='M1/M2 Carbine',
+        compatible_magazine_type=('M1/M2 Carbine',),
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
@@ -324,7 +324,7 @@ m1_carbine = Item(
 m2_carbine = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="M2 Carbine",
     weight=2.4,
     stacking=None,
@@ -333,7 +333,7 @@ m2_carbine = Item(
                 'small but powerful .30 Carbine cartridge, making it ideal for non-frontline troops and support'
                 ' personnel.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='M1/M2 Carbine',
+        compatible_magazine_type=('M1/M2 Carbine',),
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,

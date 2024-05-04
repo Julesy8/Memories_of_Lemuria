@@ -17,13 +17,6 @@ VPAM 7 - 0.83 5.56/7.62x51
 VPAM 10 - 0.93 7.62x54r
 """
 
-# HHV ATE GEN2 helmet
-# Ops-Core FAST helmet
-# HighCom Striker ULACH IIIA helmet
-# Crye precision airframe helmet
-# diamond age bastion helmet
-# adept armour novasteel
-
 helmet_riot = Item(
     x=0, y=0,
     char="/",
@@ -38,7 +31,6 @@ helmet_riot = Item(
         coverage_l=0.8,
         coverage_r=0.8,
         equip_ap_cost=400,
-        ap_penalty=1.03,
         ballistic_protection_level="PM 1",
         protection_ballistic=0.1,
         protection_physical=4,
@@ -61,7 +53,6 @@ helmet_ssh68 = Item(
         coverage_l=0.6,
         coverage_r=0.6,
         equip_ap_cost=400,
-        ap_penalty=1.02,
         ballistic_protection_level="PM 3",
         protection_ballistic=0.2,
         protection_physical=5,
@@ -83,7 +74,6 @@ helmet_m1 = Item(
         coverage_l=0.6,
         coverage_r=0.6,
         equip_ap_cost=400,
-        ap_penalty=1.02,
         ballistic_protection_level="PM 2",
         protection_ballistic=0.16,
         protection_physical=5,
@@ -100,12 +90,11 @@ helmet_pasgt = Item(
     stacking=None,
     description='A kevlar helmet adopted by the US military in the 1980s and used until the mid 2000s.',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.5,
+        coverage_v=0.4,
         coverage_d=0.7,
         coverage_l=0.7,
         coverage_r=0.7,
         equip_ap_cost=400,
-        ap_penalty=1.02,
         ballistic_protection_level="PM 3",
         protection_ballistic=0.2,
         protection_physical=4,
@@ -124,12 +113,11 @@ helmet_ech = Item(
                 ' with improved ballistic protection through the use of advanced thermoplastics rather than ballistic '
                 'fibres.',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.5,
+        coverage_v=0.4,
         coverage_d=0.7,
         coverage_l=0.7,
         coverage_r=0.7,
         equip_ap_cost=400,
-        ap_penalty=1.03,
         ballistic_protection_level="PM 4",
         protection_ballistic=0.28,
         protection_physical=4,
@@ -152,7 +140,6 @@ helmet_ronin = Item(
         coverage_l=1,
         coverage_r=1,
         equip_ap_cost=800,
-        ap_penalty=1.05,
         ballistic_protection_level="PM 4",
         protection_ballistic=0.28,
         protection_physical=4,
@@ -170,12 +157,11 @@ helmet_altyn = Item(
     description='A large titanium helmet developed for the Soviet military. It has seen continued use with Russian '
                 'special forces.',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.6,
+        coverage_v=0.5,
         coverage_d=0.8,
         coverage_l=0.8,
         coverage_r=0.8,
         equip_ap_cost=800,
-        ap_penalty=1.07,
         ballistic_protection_level="PM 7",
         protection_ballistic=0.83,
         protection_physical=7,
@@ -192,11 +178,10 @@ bodyarmour_pasgt = Item(
     stacking=None,
     description='A kevlar ballistic vest developed for the US military in the 1980s.',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.9,
-        coverage_d=0.9,
+        coverage_v=0.8,
+        coverage_d=0.8,
         coverage_l=0,
         coverage_r=0,
-        ap_penalty=1.02,
         ballistic_protection_level="PM 2",
         protection_ballistic=0.16,
         protection_physical=5,
@@ -214,11 +199,10 @@ bodyarmour_interceptor = Item(
     stacking=None,
     description='A kevlar ballistic vest developed for the US military in the 2000s to replace the older PASGT design.',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.9,
-        coverage_d=0.9,
+        coverage_v=0.8,
+        coverage_d=0.8,
         coverage_l=0,
         coverage_r=0,
-        ap_penalty=1.01,
         ballistic_protection_level="PM 3",
         protection_ballistic=0.2,
         protection_physical=6,
@@ -237,11 +221,10 @@ bodyarmour_improved = Item(
     description='A kevlar ballistic vest developed for the US military in the early 2010s to replace the Interceptor '
                 'OTV, featuring greater ballsitic protection.',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.9,
-        coverage_d=0.9,
+        coverage_v=0.8,
+        coverage_d=0.8,
         coverage_l=0,
         coverage_r=0,
-        ap_penalty=1.03,
         ballistic_protection_level="PM 7",
         protection_ballistic=0.2,
         protection_physical=7,
@@ -260,10 +243,10 @@ platecarrier_3a = Item(
     description='A plate carrier with level IIIA plates, rated to protect against pistol calibre rounds up to '
                 '.44 Magnum.',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.4,
-        coverage_d=0,
-        coverage_l=0,
-        coverage_r=0,
+        coverage_v=0.7,
+        coverage_d=0.0,
+        coverage_l=0.05,
+        coverage_r=0.05,
         ballistic_protection_level="PM 4",
         protection_ballistic=0.28,
         protection_physical=5,
@@ -281,10 +264,10 @@ platecarrier_3 = Item(
     stacking=None,
     description='A plate carrier with level IIIA plates, rated to protect against rifle calibre rounds up to 7.62 NATO',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.4,
-        coverage_d=0,
-        coverage_l=0,
-        coverage_r=0,
+        coverage_v=0.7,
+        coverage_d=0.0,
+        coverage_l=0.05,
+        coverage_r=0.05,
         ballistic_protection_level="PM 7",
         protection_ballistic=0.28,
         protection_physical=7,
@@ -303,10 +286,10 @@ platecarrier_4 = Item(
     description='A plate carrier with level IV plates, rated to protect against rifle calibre rounds up to armour'
                 ' piercing 30-06',
     usable_properties=(consumables.Wearable(
-        coverage_v=0.4,
-        coverage_d=0,
-        coverage_l=0,
-        coverage_r=0,
+        coverage_v=0.7,
+        coverage_d=0.0,
+        coverage_l=0.05,
+        coverage_r=0.05,
         ballistic_protection_level="PM 10",
         protection_ballistic=0.93,
         protection_physical=10,

@@ -22,8 +22,8 @@ from random import choice
 from components.weapons.bullets import round_9mm_124_jhp
 
 # for crafting testing
-from pydantic.utils import deep_update
-from components.weapons.glock17 import glock17dict
+# from pydantic.utils import deep_update
+# from components.weapons.glock17 import glock17dict
 
 # from components.weapons.mosin import mosin_stock, mosin_archangel_stock, mosin_carbine_stock, mosin_obrez_stock, \
 #    mosin_barrel, mosin_carbine_barrel, mosin_obrez_barrel, mosin_pic_scope_mount, \
@@ -80,27 +80,36 @@ class MainMenu(BaseEventHandler):
         """Render the main menu on a background image."""
 
         path = "newmenu1.xp"  # REXPaint file with one layer.
+        path_ak = "akonly.xp"
         # Load a REXPaint file with a single layer.
         # The comma after console is used to unpack a single item tuple.
+        console3, = tcod.console.load_xp(path_ak, order="F")
         console2, = tcod.console.load_xp(path, order="F")
 
         # Convert tcod's Code Page 437 character mapping into a NumPy array.
         CP437_TO_UNICODE = np.asarray(tcod.tileset.CHARMAP_CP437)
 
         # Convert from REXPaint's CP437 encoding to Unicode in-place.
+        console3.ch[:] = CP437_TO_UNICODE[console3.ch]
         console2.ch[:] = CP437_TO_UNICODE[console2.ch]
 
         # Apply REXPaint's alpha key color.
         KEY_COLOR = (255, 0, 255)
         is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
+        is_transparent_3 = (console3.rgb["bg"] == KEY_COLOR).all(axis=2)
         console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
+        console3.rgba[is_transparent_3] = (ord(" "), (0,), (0,))
 
         self.change_fg_colour()
         console2.rgb["fg"] = self.fg_colour
 
-        console2.blit(dest=console, dest_x=console.width // 2 - 40, dest_y=console.height // 2 - 24, src_x=0, src_y=0,
-                      width=80,
-                      height=50)
+        console3.blit(dest=console, dest_x=console.width // 2 - 43, dest_y=console.height // 2 - 31, src_x=0, src_y=0,
+                      width=86,
+                      height=52)
+
+        console2.blit(dest=console, dest_x=console.width // 2 - 40, dest_y=console.height // 2 - 25, src_x=0, src_y=0,
+                      width=86,
+                      height=52)
 
         # noinspection PyTypeChecker
         console.print(
@@ -134,14 +143,14 @@ class MainMenu(BaseEventHandler):
                       fg=self.fg_colour)
 
         # noinspection PyTypeChecker
-        console.print(x=console.width // 2 - 19, y=console.height // 2 + 22,
-                      string='PRE-ALPHA - READ MANUAL BEFORE PLAYING',
+        console.print(x=console.width // 2 - 6, y=console.height // 2 + 22,
+                      string='Version 0.00',
                       fg=self.fg_colour)
 
         if music:
             # noinspection PyTypeChecker
             console.print(x=console.width // 2 - 26, y=console.height // 2 + 23,
-                          string='MUSIC BY BLAVATSKY -- HTTPS://BLAVATSKY.BANDCAMP.COM',
+                          string='Music by Blavatsky -- https://blavatsky.bandcamp.com',
                           fg=self.fg_colour)
 
     def ev_keydown(
@@ -211,7 +220,7 @@ def new_game() -> Engine:
     # inventory_items = [glock17_frame, glock17_barrel,
     #                    glock_switch, glock17_slide, glock_mag_9mm, bullets]
 
-    engine.crafting_recipes = deep_update(engine.crafting_recipes, glock17dict)
+    # engine.crafting_recipes = deep_update(engine.crafting_recipes, glock17dict)
 
     # inventory_items = [glock17_frame, glock17_barrel, glock17l_barrel,
     #                   glock17_barrel_ported, glock17l_barrel_ported, glock17_slide, glock17l_slide,
@@ -247,6 +256,11 @@ def new_game() -> Engine:
                                    fov_radius=level_params[current_level][7],
                                    engine=engine,
                                    current_level=current_level,
+                                   min_caverns=level_params[current_level][8],
+                                   max_caverns=level_params[current_level][9],
+                                   cavern_size=level_params[current_level][10],
+                                   custom_room_chance=level_params[current_level][11],
+                                   enclose_room_chance=level_params[current_level][12]
                                    ).generate_level()
 
     engine.game_map.camera_xy = (engine.player.x, engine.player.y + 3)
@@ -285,7 +299,8 @@ def generate_subtext() -> str:
                      'Mysterious', 'Beloved', 'Romantic', 'Devious', 'Illuminati', 'Majestic', 'Sickening', 'Literal',
                      'Spooky', 'Undead', 'Criminal', 'Hyperborean', 'Forgotten', 'Perrenial', 'Latent', 'Final',
                      'Continental', 'Nihilistic', 'Eastern', 'Western', 'Sentient', 'Tragic', 'Melancholic',
-                     'Infernal', 'Serbian', 'Misanthropic', 'Luminous'))
+                     'Infernal', 'Serbian', 'Misanthropic', 'Luminous', 'Extraterrestrial', 'Promethean',
+                     'Controversial', 'Poetic', 'Intoxicated', 'Toxic'))
 
     verb_2 = choice(('Underground', 'Technical', 'Cyphercore', 'Advanced', 'Modern', 'Ancient', 'Post-Modern',
                      'Extreme', 'Sinister', 'Gothic', 'Revolutionary', 'Reactionary', 'Officially Licensed',
@@ -296,7 +311,7 @@ def generate_subtext() -> str:
                      'Military', 'Sensory', 'Planetary', 'Radical', 'Chakra', 'Compassionate', 'Archaic', 'Arcane',
                      'Lawful', 'Royal', 'Sacrificial', 'Cubic', 'Elite', 'Satirical', 'Polemical', 'Sci-Fi',
                      'Fantasy', 'Post-Truth', 'Federal', 'Biographical', 'Reanimated', 'Existential', 'Paranoid',
-                     'Psychic', 'Enlightenment'))
+                     'Psychic', 'Enlightenment', 'Cancelled'))
 
     verb_3 = choice(('Combat', 'Gun Smithing', 'UFO-ology', 'Warfare', 'Conspiracy', 'CQC', 'Harm Prevention',
                      'Self Defense', 'Horror', 'Action', 'Time-War', 'Numerology', 'Sacred Geometry',

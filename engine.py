@@ -11,6 +11,7 @@ from numpy import logical_or
 from tcod.console import Console
 from tcod.map import compute_fov
 from math import ceil
+from components.weapons.gun_maker import crafting_dict
 import colour
 
 import exceptions
@@ -39,9 +40,7 @@ class Engine:
         self.current_floor = 0  # denotes the sublevel of the floor type
         self.player = player
         self.players: list[Actor] = [player]
-        self.crafting_recipes = {
-            "guns": {},
-        }
+        self.crafting_recipes = crafting_dict
 
         self.bestiary = {}
 
@@ -159,7 +158,7 @@ class Engine:
         self.message_log.render(console=console, x=6, y=console.height - 4,
                                 width=console.width - 16, height=4)
 
-        ap_str = f" │ AP: {round(self.player.fighter.ap)}/{self.player.fighter.max_ap}"
+        ap_str = f" | AP: {round(self.player.fighter.ap)}/{self.player.fighter.max_ap}"
 
         if self.player.ai is not None:
             if self.player.ai.queued_action:
@@ -216,14 +215,15 @@ class Engine:
 
             # for gun with integrated magazine
             elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):
+
                 if (self.player.inventory.held.usable_properties.chambered_bullet is not None and
                         self.player.inventory.held.usable_properties.keep_round_chambered):
                     weapon_str += ' - Empty'
                 elif not self.player.inventory.held.usable_properties.keep_round_chambered:
-                    if len(self.player.inventory.held.usable_properties.magazine) == 0:
+                    if (len(self.player.inventory.held.usable_properties.magazine) == 0
+                            and self.player.inventory.held.usable_properties.mag_capacity > 1):
                         weapon_str += ' - Empty'
 
             console.print(x=console.width - len(weapon_str), y=console.height - 6, string=weapon_str,
                           fg=colour.WHITE, bg=(0, 0, 0))
-
         render_names_at_mouse_location(console=console, x=0, y=console.height - 5, engine=self, game_map=self.game_map)

@@ -7,12 +7,77 @@ class MapColoursChars:
 
         level_colours_tiles = {
 
-            # Sewers
+            # The Tunnels
             0: {
                 "wall fg dark": colour.DARK_GRAY,
                 "wall bg dark": colour.BLACK,
-                "wall fg light": colour.DARK_GRAY,
+                "wall fg light": colour.LIGHT_GRAY,
+                "wall bg light": colour.BLACK,
+
+                "floor fg dark": colour.GUNMETAL,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                # "wall tile": 35,
+                "wall tile": 9619,
+                "floor tile": [46]
+            },
+
+            # Caverns
+            1: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.BROWN,
+                "wall bg light": colour.LIGHT_BROWN,
+
+                "floor fg dark": colour.DARK_GRAY,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 35,
+                "floor tile": [46, 46, 44]
+            },
+
+            # The Temple
+            2: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.RED,
+                "wall bg light": colour.BLACK,
+
+                "floor fg dark": colour.GUNMETAL,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.DARK_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 9619,
+                "floor tile": [43]
+            },
+
+            # the base
+            3: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.LIGHT_GUNMETAL,
                 "wall bg light": colour.LIGHT_GRAY,
+
+                "floor fg dark": colour.DARK_GRAY,
+                "floor bg dark": colour.BLACK,
+                "floor fg light": colour.LIGHT_GRAY,
+                "floor bg light": colour.BLACK,
+
+                "wall tile": 9617,
+                "floor tile": [43]
+            },
+
+            # the labs
+            4: {
+                "wall fg dark": colour.DARK_GRAY,
+                "wall bg dark": colour.BLACK,
+                "wall fg light": colour.WHITE,
+                "wall bg light": colour.BLACK,
 
                 "floor fg dark": colour.DARK_GRAY,
                 "floor bg dark": colour.BLACK,
@@ -23,68 +88,20 @@ class MapColoursChars:
                 "floor tile": [46]
             },
 
-            # Caverns
-            1: {
-                "wall fg dark": colour.DARK_GRAY,
-                "wall bg dark": colour.BLACK,
-                "wall fg light": colour.LIGHT_GRAY,
-                "wall bg light": colour.LIGHT_GUNMETAL,
-
-                "floor fg dark": colour.DARK_GRAY,
-                "floor bg dark": colour.BLACK,
-                "floor fg light": colour.LIGHT_GRAY,
-                "floor bg light": colour.BLACK,
-
-                "wall tile": 35,
-                "floor tile": [46, 46, 46, 44]
-            },
-
-            # The Nexion
-            2: {
-                "wall fg dark": colour.DARK_GRAY,
-                "wall bg dark": colour.BLACK,
-                "wall fg light": colour.RED,
-                "wall bg light": colour.DARK_GRAY,
-
-                "floor fg dark": colour.DARK_GRAY,
-                "floor bg dark": colour.BLACK,
-                "floor fg light": colour.LIGHT_GRAY,
-                "floor bg light": colour.BLACK,
-
-                "wall tile": 9619,
-                "floor tile": [43]
-            },
-
-            # DUMB
-            3: {
-                "wall fg dark": colour.DARK_GRAY,
-                "wall bg dark": colour.BLACK,
-                "wall fg light": colour.LIGHT_GRAY,
-                "wall bg light": colour.LIGHT_GRAY,
-
-                "floor fg dark": colour.DARK_GRAY,
-                "floor bg dark": colour.BLACK,
-                "floor fg light": colour.LIGHT_GRAY,
-                "floor bg light": colour.BLACK,
-
-                "wall tile": 9608,
-                "floor tile": [46]
-            },
-
             # Reptilian Hive
-            4: {
+            5: {
                 "wall fg dark": colour.DARK_GRAY,
                 "wall bg dark": colour.BLACK,
-                "wall fg light": colour.LIGHT_GRAY,
+                "wall fg light": colour.JADE,
                 "wall bg light": colour.LIGHT_GUNMETAL,
 
-                "floor fg dark": colour.DARK_GRAY,
+                "floor fg dark": colour.LIGHT_GUNMETAL,
                 "floor bg dark": colour.BLACK,
-                "floor fg light": colour.LIGHT_GRAY,
+                "floor fg light": colour.DARK_GRAY,
                 "floor bg light": colour.BLACK,
 
                 "wall tile": 35,
-                "floor tile": [46]
+                "floor tile": [46, 44, 44]
             },
 
         }

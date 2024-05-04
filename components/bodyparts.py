@@ -32,6 +32,7 @@ def rotate(origin_x, origin_y, point_x, point_y, angle):
     qy = origin_y + sin(angle) * (point_x - origin_x) + cos(angle) * (point_y - origin_y)
     return qx, qy
 
+
 # TODO - more body parts i.e. hands, feet, chest and abdomen.
 #  Chest and abdomen solves problem of aiming for middle of torso
 
@@ -50,6 +51,7 @@ class Bodypart:
                  depth: int,  # tissue depth (cm)
                  part_type: Optional[str],
                  # tissue strength and density probably don't need to be variables
+                 aim_location_offset: int = 0,
                  strength_tissue: int = 1000000,  # tissue tensile strength, newtons per square metre
                  density_tissue: int = 1040,  # density of tissue, kg/m^3
                  vital: bool = False,
@@ -58,6 +60,7 @@ class Bodypart:
         self.max_hp = hp
         self.hp_last_turn = hp
         self._hp = hp
+        self.aim_location_offset = aim_location_offset
         self.total_damage_taken = 0  # damage taken below 0 HP
         self._protection_ballistic = protection_ballistic
         self._protection_physical = protection_physical
@@ -117,20 +120,36 @@ class Bodypart:
             if self.total_damage_taken / limb_size >= 0.1:
                 show_cripple_message = False
                 self.show_splatter_message = True
-                self.splatter_message = choice([f"The {entity_name}'s {self.name} is split open",
-                                                f"The {entity_name}'s {self.name} splits into gore",
+                self.splatter_message = choice([f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
+                                                f"is split open",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
+                                                f"splits into gore",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
+                                                f"looks badly injured",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
+                                                f"is ripped apart",
                                                 ])
 
             if self.total_damage_taken / limb_size >= 0.2:
-                self.splatter_message = choice([f"The {entity_name}'s {self.name} is blown into pieces",
-                                                f"The {entity_name}'s {self.name} is mangled beyond recognition",
-                                                f"Bits of {entity_name}'s {self.name} splatter on the floor",
+                self.splatter_message = choice([f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
+                                                f"is blown into pieces",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"is blown apart",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"is mangled beyond recognition",
+                                                f"Bits of {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"splatter on the floor",
                                                 ])
 
             elif self.total_damage_taken / limb_size >= 0.3:
-                self.splatter_message = choice([f"The {entity_name}'s {self.name} explodes into gore",
-                                                f"The {entity_name}'s {self.name} is destroyed in a bloody mess",
-                                                f"The {entity_name}'s {self.name} erupts into a fine red mist",
+                self.splatter_message = choice([f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"explodes into gore",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"splatters into countless pieces",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"is reduced to a bloody pulp ",
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"erupts into a red mist",
                                                 ])
 
         self._hp = max(0, min(value, self.max_hp))
@@ -261,39 +280,56 @@ class Bodypart:
                                bullet_expansion_velocity: int, attacker: Actor, hit_location_x: float,
                                hit_location_y: float):
 
+        target_name = self.parent.name.replace(' remains', '')
+
+        hit = False
         # checks if each connected part hit
         for part_name, location_xy in self.connected_to.items():
             for part in self.parent.bodyparts:
                 if part.name == part_name:
-                    part.deal_damage_gun(diameter_bullet=diameter_bullet,
-                                         mass_bullet=mass_bullet,
-                                         velocity_bullet=velocity_bullet,
-                                         drag_bullet=drag_bullet,
-                                         config_bullet=config_bullet,
-                                         bullet_length=bullet_length,
-                                         bullet_expands=bullet_expands,
-                                         bullet_yaws=bullet_yaws,
-                                         bullet_fragments=bullet_fragments,
-                                         bullet_max_expansion=bullet_max_expansion,
-                                         bullet_expansion_velocity=bullet_expansion_velocity,
-                                         attacker=attacker,
-                                         hit_location_x=hit_location_x + (location_xy[0] * 0.3937),
-                                         hit_location_y=hit_location_y + (location_xy[1] * 0.3937),
-                                         connected_check=True
-                                         )
+                    hit = part.deal_damage_gun(diameter_bullet=diameter_bullet,
+                                               mass_bullet=mass_bullet,
+                                               velocity_bullet=velocity_bullet,
+                                               drag_bullet=drag_bullet,
+                                               config_bullet=config_bullet,
+                                               bullet_length=bullet_length,
+                                               bullet_expands=bullet_expands,
+                                               bullet_yaws=bullet_yaws,
+                                               bullet_fragments=bullet_fragments,
+                                               bullet_max_expansion=bullet_max_expansion,
+                                               bullet_expansion_velocity=bullet_expansion_velocity,
+                                               attacker=attacker,
+                                               hit_location_x=hit_location_x + (location_xy[0] * 0.3937),
+                                               hit_location_y=hit_location_y + (location_xy[1] * 0.3937),
+                                               connected_check=True,
+                                               )
+
+                    if hit:
+                        return
+
+        if not hit:
+            if attacker.player:
+                self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name}", colour.YELLOW)
+
+            else:
+                self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name}", colour.LIGHT_BLUE)
+            return
 
     def deal_damage_gun(self, diameter_bullet: float, mass_bullet: int, velocity_bullet: int,
                         drag_bullet: float, config_bullet: float, bullet_length: float, bullet_expands: bool,
                         bullet_yaws: bool, bullet_fragments: bool, bullet_max_expansion: float,
                         bullet_expansion_velocity: int, attacker: Actor, hit_location_x: float,
-                        hit_location_y: float, connected_check: bool = False):
+                        hit_location_y: float, connected_check: bool = False
+                        ):
 
         # source for amour penetration and wound mass : Quantitative Ammunition Selection
+
+        if not connected_check:
+            hit_location_y += self.aim_location_offset * 0.3937
 
         target_name = self.parent.name.replace(' remains', '')
 
         if abs(hit_location_y) > (self.height * 0.3937 / 2):
-
             # checks if hit a connected bodypart
             if len(self.connected_to.keys()) != 0 and not connected_check:
                 self.check_if_hit_connected(diameter_bullet=diameter_bullet,
@@ -311,13 +347,17 @@ class Bodypart:
                                             hit_location_x=hit_location_x,
                                             hit_location_y=hit_location_y
                                             )
+                return
+            elif connected_check:
+                return False
             else:
                 if attacker.player:
-                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.YELLOW)
+                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name}", colour.YELLOW)
 
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
-                return
+                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name}",
+                                                        colour.LIGHT_BLUE)
+                return False
 
         # metres to inches
         entity_x_inches = self.parent.x * 39.3701
@@ -415,27 +455,35 @@ class Bodypart:
         # plt.show()
 
         hit = False
+        hit_front = False
+        hit_rear = False
+        hit_left = False
+        hit_right = False
 
         armour_coverage = 0
 
         if v_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_v
+            hit_front = True
             hit = True
 
         if d_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_d
+            hit_rear = True
             hit = True
 
         if l_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_l
+            hit_left = True
             hit = True
 
         if r_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_r
+            hit_right = True
             hit = True
 
         # does not intersect with any body surface, miss
@@ -456,13 +504,17 @@ class Bodypart:
                                             hit_location_x=hit_location_x,
                                             hit_location_y=hit_location_y
                                             )
+            elif connected_check:
+                return False
             else:
                 if attacker.player:
-                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.YELLOW)
+                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name}",
+                                                        colour.YELLOW)
 
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
-                return
+                    self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name}",
+                                                        colour.LIGHT_BLUE)
+                return False
 
         # creates a point past the body and checks if and where line intersects with body surfaces
         slope_cardinal = (attacker_y_inches - hit_cardinal_y) / (attacker_x_inches - hit_cardinal_x)
@@ -501,13 +553,17 @@ class Bodypart:
         # calculates the maximum distance through the body the bullet can travel in cm
         if len(intersects) >= 2:
             wound_path_len = dist(intersects[0], intersects[1]) * 2.54  # converts to cm
+        elif connected_check:
+            return False
         else:
             if attacker.player:
-                self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.YELLOW)
+                self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name},"
+                                                    f" barely grazing the {self.name}", colour.YELLOW)
 
             else:
-                self.engine.message_log.add_message(f"{attacker.name}'s shot misses.", colour.LIGHT_BLUE)
-            return
+                self.engine.message_log.add_message(f"{attacker.name}'s shot misses {target_name},"
+                                                    f" barely grazing the {self.name}", colour.LIGHT_BLUE)
+            return False
 
         armour_protection = 0
 
@@ -561,7 +617,10 @@ class Bodypart:
                     (mass_bullet_metric / (pi * ((0.5 * (diameter_bullet_metric / 10)) ** 2)
                                            * (self.density_tissue / 1000) * drag_bullet)))
 
+            total_penetration = False
+
             if pen_depth > wound_path_len:
+                total_penetration = True
                 pen_depth = wound_path_len
 
             # bullet expands over 5 cm distance, so only calculates wound channel mass of area that it passed through
@@ -583,8 +642,6 @@ class Bodypart:
                 # depth at which bullet yaws in body part
                 yaw_depth = (0.28 / config_bullet) * (2600 / velocity_bullet) * (0.810 / bullet_length) * 12 * \
                             uniform(0.75, 1.25)
-
-                # print('yaw depth ', yaw_depth)
 
                 # only proceeds if bullet yaws within the body part
                 if not yaw_depth > wound_path_len:
@@ -657,30 +714,55 @@ class Bodypart:
                 damage = wound_mass * 0.875
 
                 self.hp -= damage
+
+                hit_dir_str = ''
+
+                if hit_front:
+                    hit_dir_str = ' front of the'
+                elif hit_rear:
+                    hit_dir_str = ' rear of the'
+                elif hit_left:
+                    hit_dir_str = ' left side of the'
+                elif hit_right:
+                    hit_dir_str = ' right side of the'
+
+                overpen_str = ''
+
+                if total_penetration:
+                    overpen_str = ' and ripping through the other side'
+
                 if attacker.player:
-                    self.engine.message_log.add_message(f"{attacker.name} shoots {target_name} in the {self.name}",
+                    self.engine.message_log.add_message(f"{attacker.name} shoots {target_name} "
+                                                        f"[ID {self.parent.identifier}], penetrating the"
+                                                        f"{hit_dir_str} {self.name}{overpen_str}",
                                                         colour.GREEN)
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name} shoots {target_name} in the {self.name}",
+                    self.engine.message_log.add_message(f"{attacker.name} shoots {target_name}, penetrating the"
+                                                        f"{hit_dir_str} {self.name}{overpen_str}",
                                                         colour.RED)
 
             # hit, no damage dealt
             else:
                 if attacker.player:
                     self.engine.message_log.add_message(f"{attacker.name}'s shot fails to penetrate "
-                                                        f"{self.parent.name}", colour.YELLOW)
+                                                        f"{self.parent.name}'s [ID {self.parent.identifier}] "
+                                                        f"{self.name}", colour.YELLOW)
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by {target_name}'s "
-                                                        f"armour!", colour.LIGHT_BLUE)
+                    self.engine.message_log.add_message(
+                        f"{attacker.name}'s shot fails to penetrate {target_name}'s {self.name}, stopped by armour!",
+                        colour.LIGHT_BLUE)
 
         # failed to penetrate armour
         else:
             if attacker.player:
-                self.engine.message_log.add_message(f"{attacker.name}'s shot fails to penetrate {target_name}",
+                self.engine.message_log.add_message(f"{attacker.name}'s shot fails to penetrate "
+                                                    f"{target_name} [ID {self.parent.identifier}]",
                                                     colour.YELLOW)
             else:
                 self.engine.message_log.add_message(f"{attacker.name}'s attack is stopped by {target_name}'s "
                                                     f"armour!", colour.LIGHT_BLUE)
+
+        return True
 
     def cripple(self) -> None:
         self.functional = False
@@ -728,12 +810,14 @@ class Arm(Bodypart):
                  width: int,
                  height: int,
                  depth: int,
+                 aim_location_offset: int = 0,
                  strength_tissue: int = 1000000,
                  density_tissue: int = 1040,
                  part_type: Optional[str] = 'Arms',
                  ):
         super().__init__(
             hp=hp,
+            aim_location_offset=aim_location_offset,
             protection_ballistic=protection_ballistic,
             protection_physical=protection_physical,
             name=name,
@@ -785,6 +869,7 @@ class Leg(Bodypart):
                  width: int,
                  height: int,
                  depth: int,
+                 aim_location_offset: int = 0,
                  strength_tissue: int = 1000000,
                  density_tissue: int = 1040,
                  part_type: Optional[str] = 'Legs',
@@ -792,6 +877,7 @@ class Leg(Bodypart):
 
         super().__init__(
             hp=hp,
+            aim_location_offset=aim_location_offset,
             protection_ballistic=protection_ballistic,
             protection_physical=protection_physical,
             name=name,
@@ -836,6 +922,7 @@ class Head(Bodypart):
                  width: int,
                  height: int,
                  depth: int,
+                 aim_location_offset: int = 0,
                  strength_tissue: int = 1000000,
                  density_tissue: int = 1040,
                  name: str = 'head',
@@ -843,6 +930,7 @@ class Head(Bodypart):
                  ):
         super().__init__(
             hp=hp,
+            aim_location_offset=aim_location_offset,
             protection_ballistic=protection_ballistic,
             protection_physical=protection_physical,
             name=name,
@@ -878,6 +966,7 @@ class Body(Bodypart):
                  width: int,
                  height: int,
                  depth: int,
+                 aim_location_offset: int = 0,
                  strength_tissue: int = 1000000,
                  density_tissue: int = 1040,
                  name: str = 'torso',
@@ -885,6 +974,7 @@ class Body(Bodypart):
                  ):
         super().__init__(
             hp=hp,
+            aim_location_offset=aim_location_offset,
             protection_ballistic=protection_ballistic,
             protection_physical=protection_physical,
             name=name,

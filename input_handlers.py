@@ -1104,7 +1104,11 @@ class ChangeTargetActor(AskUserEventHandler):
                     and self.engine.game_map.visible[player.fighter.target_actor.x, player.fighter.target_actor.y]):
                 console.tiles_rgb[["ch", "fg"]][target_x, target_y] = ord('▼'), colour.LIGHT_RED
 
-            target_str = f"Targeting: {player.fighter.target_actor.name} - {self.selected_bodypart.name}".upper()
+            distance_target = round(player.distance(player.fighter.target_actor.x, player.fighter.target_actor.y))
+
+            target_str = (f"Targeting: {player.fighter.target_actor.name} "
+                          f"[ID {player.fighter.target_actor.identifier}] - {self.selected_bodypart.name} "
+                          f"│ Distance: {distance_target}M").upper()
             # ap_str = f"AP: {player.fighter.ap}/{player.fighter.max_ap}"
 
             offset = 0
@@ -1112,15 +1116,16 @@ class ChangeTargetActor(AskUserEventHandler):
             # if wearing armour, shows what body armour the enemy is wearing
             # if displaying armour, offsets other display information
             if self.selected_bodypart.equipped is not None:
-                console.print(x=0, y=console.height - 6, string=f"ARMOUR: {self.selected_bodypart.equipped.name}",
+                console.print(x=0, y=console.height - 6, string=f"ARMOUR: "
+                                                                f"{self.selected_bodypart.equipped.parent.name}",
                               fg=colour.WHITE, bg=(0, 0, 0))
                 offset = 1
 
             # displays AP and enemy information
             # console.print(x=1, y=console.height - 8 + offset, string=ap_str, fg=colour.WHITE, bg=(0, 0, 0))
-            console.print(x=0, y=console.height - 8 + offset, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
-            console.print(x=0, y=console.height - 7 + offset, string="PART CONDITION:", fg=colour.WHITE, bg=(0, 0, 0))
-            console.print(x=17, y=console.height - 7 + offset, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
+            console.print(x=0, y=console.height - 9 + offset, string=target_str, fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=0, y=console.height - 8 + offset, string="PART CONDITION: ", fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=16, y=console.height - 8 + offset, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
                           bg=(0, 0, 0))
             console.print(x=0, y=2, string="PRESS [K] FOR ENEMY INFO", fg=colour.WHITE, bg=(0, 0, 0))
 
@@ -1163,7 +1168,8 @@ class ChangeTargetActor(AskUserEventHandler):
                 for player in self.players_selected:
 
                     if self.engine.game_map.explored[mouse_x, mouse_y]:
-                        player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
+                        player.ai.path_to_xy = (mouse_x, mouse_y)
+                        # player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
                         # self.destinations.append([mouse_x, mouse_y])
                         self.players_selected = []
 
@@ -1284,18 +1290,18 @@ class ChangeTargetActor(AskUserEventHandler):
 
         elif key in WAIT_KEYS:
             self.engine.handle_turns()
-            # return WaitAction(player)
-            # self.destinations = []
-            # self.engine.handle_queued_actions()
 
         elif key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
             self.engine.game_map.move_camera(dx, dy)
 
         elif key == tcod.event.K_ESCAPE:
+
+            for player in self.engine.players:
+                player.ai.path_to_xy = None
             self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y + 3)
-            if not self.in_squad_mode:
-                self.engine.squad_mode = False
+            # if not self.in_squad_mode:
+            self.engine.squad_mode = False
             return self.parent_handler
 
     def update_bodypart_list(self) -> None:
@@ -1629,7 +1635,7 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
         for item in loadout:
             if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_magazine_type'):
-                if item.usable_properties.magazine_type == self.gun.compatible_magazine_type:
+                if item.usable_properties.magazine_type not in self.gun.compatible_magazine_type:
                     mag_list.append(item)
 
         super().__init__(engine=engine, options=mag_list, page=0, title=title, parent_handler=parent_handler)

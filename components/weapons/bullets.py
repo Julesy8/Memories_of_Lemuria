@@ -41,8 +41,8 @@ cf_spitzer = 0.6385
 # FMJ
 round_9mm_115_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 115gr FMJ',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -64,8 +64,8 @@ round_9mm_115_fmj = Item(
 
 round_9mm_124_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr FMJ',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -87,8 +87,8 @@ round_9mm_124_fmj = Item(
 
 round_9mm_147_fp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr FP',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -111,8 +111,8 @@ round_9mm_147_fp = Item(
 # FMJ +P
 round_9mm_115_fmj_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 115gr FMJ +P',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -134,8 +134,8 @@ round_9mm_115_fmj_pp = Item(
 
 round_9mm_124_fmj_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr FMJ +P',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -157,8 +157,8 @@ round_9mm_124_fmj_pp = Item(
 
 round_9mm_147_fp_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr FP +P',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -182,8 +182,8 @@ round_9mm_147_fp_pp = Item(
 
 round_9mm_115_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 115gr JHP',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -208,8 +208,8 @@ round_9mm_115_jhp = Item(
 
 round_9mm_124_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr JHP',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -234,8 +234,8 @@ round_9mm_124_jhp = Item(
 
 round_9mm_147_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr JHP',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -262,8 +262,8 @@ round_9mm_147_jhp = Item(
 
 round_9mm_115_jhp_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 115gr JHP +P',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -288,8 +288,8 @@ round_9mm_115_jhp_pp = Item(
 
 round_9mm_124_jhp_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr JHP +P',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -314,8 +314,8 @@ round_9mm_124_jhp_pp = Item(
 
 round_9mm_147_jhp_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr JHP +P',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -350,8 +350,8 @@ round_9mm_147_jhp_pp = Item(
 
 round_45_185_swc = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr Jacketed SWC',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -373,8 +373,8 @@ round_45_185_swc = Item(
 
 round_45_200_swc = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr Jacketed SWC',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -398,8 +398,8 @@ round_45_200_swc = Item(
 
 round_45_185_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr JHP',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -424,8 +424,8 @@ round_45_185_jhp = Item(
 
 round_45_200_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr JHP',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -450,8 +450,8 @@ round_45_200_jhp = Item(
 
 round_45_230_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr JHP',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -478,8 +478,8 @@ round_45_230_jhp = Item(
 
 round_45_200_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr FMJ',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -501,8 +501,8 @@ round_45_200_fmj = Item(
 
 round_45_230_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr FMJ',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -526,8 +526,8 @@ round_45_230_fmj = Item(
 
 round_45_185_swc_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr Jacketed SWC +P',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -549,8 +549,8 @@ round_45_185_swc_pp = Item(
 
 round_45_200_swc_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr Jacketed SWC +P',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -574,8 +574,8 @@ round_45_200_swc_pp = Item(
 
 round_45_185_jhp_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr JHP +P',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -600,8 +600,8 @@ round_45_185_jhp_pp = Item(
 
 round_45_230_jhp_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr JHP +P',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -628,8 +628,8 @@ round_45_230_jhp_pp = Item(
 
 round_45_200_fmj_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr FMJ  +P',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -651,8 +651,8 @@ round_45_200_fmj_pp = Item(
 
 round_45_230_fmj_pp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr FMJ  +P',
     weight=0.0209,
     stacking=Stacking(stack_size=10),
@@ -682,8 +682,8 @@ round_45_230_fmj_pp = Item(
 
 round_10mm_155_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 155gr JHP',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -708,8 +708,8 @@ round_10mm_155_jhp = Item(
 
 round_10mm_180_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 180gr FMJ',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -731,8 +731,8 @@ round_10mm_180_fmj = Item(
 
 round_10mm_190_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 190gr JHP',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -757,8 +757,8 @@ round_10mm_190_jhp = Item(
 
 round_10mm_220_fp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 220gr FP',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -788,8 +788,8 @@ round_10mm_220_fp = Item(
 
 round_40sw_155_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 155gr JHP',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -814,8 +814,8 @@ round_40sw_155_jhp = Item(
 
 round_40sw_165_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 165gr FMJ',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -837,8 +837,8 @@ round_40sw_165_fmj = Item(
 
 round_40sw_180_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 180gr FMJ',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -860,8 +860,8 @@ round_40sw_180_fmj = Item(
 
 round_40sw_180_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 180gr JHP',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -886,8 +886,8 @@ round_40sw_180_jhp = Item(
 
 round_40sw_220_fp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 220gr FP',
     weight=0.015,
     stacking=Stacking(stack_size=10),
@@ -916,8 +916,8 @@ round_40sw_220_fp = Item(
 
 round_44_180_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 180gr JHP',
     weight=0.0245,
     stacking=Stacking(stack_size=10),
@@ -942,8 +942,8 @@ round_44_180_jhp = Item(
 
 round_44_200_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 200gr JHP',
     weight=0.0245,
     stacking=Stacking(stack_size=10),
@@ -968,8 +968,8 @@ round_44_200_jhp = Item(
 
 round_44_225_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 225gr SWC-JHP',
     weight=0.0245,
     stacking=Stacking(stack_size=10),
@@ -994,8 +994,8 @@ round_44_225_jhp = Item(
 
 round_44_240_sp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 240gr DCHP',
     weight=0.0245,
     stacking=Stacking(stack_size=10),
@@ -1020,8 +1020,8 @@ round_44_240_sp = Item(
 
 round_44_300_sp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 300gr DCHP',
     weight=0.0245,
     stacking=Stacking(stack_size=10),
@@ -1046,6 +1046,83 @@ round_44_300_sp = Item(
 
 
 """
+.50 GI
+"""
+
+round_50gi_255_swc = Item(
+    x=0, y=0,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
+    name='.50 GI - 255gr SWC',
+    weight=0.0245,
+    stacking=Stacking(stack_size=10),
+    description='.50 GI 255gr semi-wad cutter ammunition',
+    usable_properties=Bullet(
+        bullet_type='.50 GI',
+        mass=255,
+        charge_mass=7.0,
+        diameter=0.5,
+        velocity=925,
+        proj_config=cf_sem_wadcutter,
+        drag_coefficient=cd_sem_wadcutter,
+        spread_modifier=0.0075,
+        ballistic_coefficient=0.146,
+        bullet_length=0.525,
+        round_type='pistol'
+    )
+)
+
+round_50gi_275_jhp = Item(
+    x=0, y=0,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
+    name='.50 GI - 275gr JHP',
+    weight=0.0245,
+    stacking=Stacking(stack_size=10),
+    description='.50 GI 275gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='.50 GI',
+        mass=275,
+        charge_mass=7.0,
+        diameter=0.5,
+        velocity=868,
+        proj_config=cf_jhp,
+        drag_coefficient=cd_jhp,
+        spread_modifier=0.0075,
+        ballistic_coefficient=0.146,
+        bullet_length=0.525,
+        round_type='pistol',
+        bullet_expands=True,
+        max_expansion=1.74,
+        max_expansion_velocity=1300,
+    )
+)
+
+round_50gi_330_rn = Item(
+    x=0, y=0,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
+    name='.50 GI - 330gr RN',
+    weight=0.0245,
+    stacking=Stacking(stack_size=10),
+    description='.50 GI 275gr jacketed hollow point ammunition',
+    usable_properties=Bullet(
+        bullet_type='.50 GI',
+        mass=330,
+        charge_mass=5.4,
+        diameter=0.5,
+        velocity=748,
+        proj_config=cf_fmj_round_nose,
+        drag_coefficient=cf_fmj_round_nose,
+        spread_modifier=0.0075,
+        ballistic_coefficient=0.205,
+        bullet_length=0.525,
+        round_type='pistol',
+    )
+)
+
+
+"""
 7.62x25
 """
 
@@ -1055,8 +1132,8 @@ round_44_300_sp = Item(
 
 round_76225_85_rn = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x25 Tokarev - 85gr RN',
     weight=0.0105,
     stacking=Stacking(stack_size=10),
@@ -1078,8 +1155,8 @@ round_76225_85_rn = Item(
 
 round_76225_90_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x25 Tokarev - 90gr JHP',
     weight=0.0105,
     stacking=Stacking(stack_size=10),
@@ -1104,8 +1181,8 @@ round_76225_90_jhp = Item(
 
 round_76225_100_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x25 Tokarev - 100gr JHP',
     weight=0.0105,
     stacking=Stacking(stack_size=10),
@@ -1139,8 +1216,8 @@ round_76225_100_jhp = Item(
 
 round_76239_123_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x39mm - 123gr FMJ',
     weight=0.0172,
     stacking=Stacking(stack_size=10),
@@ -1164,8 +1241,8 @@ round_76239_123_fmj = Item(
 
 round_76239_150_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x39mm - 150gr FMJ',
     weight=0.0172,
     stacking=Stacking(stack_size=10),
@@ -1189,8 +1266,8 @@ round_76239_150_fmj = Item(
 
 round_76239_123_sst = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x39mm - 123gr SST',
     weight=0.0172,
     stacking=Stacking(stack_size=10),
@@ -1217,8 +1294,8 @@ round_76239_123_sst = Item(
 
 round_76239_150_sp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x39mm - 150gr SP',
     weight=0.0172,
     stacking=Stacking(stack_size=10),
@@ -1252,8 +1329,8 @@ round_76239_150_sp = Item(
 
 round_556_55_sp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 55gr SP',
     weight=0.011,
     stacking=Stacking(stack_size=10),
@@ -1280,8 +1357,8 @@ round_556_55_sp = Item(
 
 round_556_60_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 60gr V-Max',
     weight=0.011,
     stacking=Stacking(stack_size=10),
@@ -1308,8 +1385,8 @@ round_556_60_fmj = Item(
 
 round_556_75_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 75gr A-Max',
     weight=0.011,
     stacking=Stacking(stack_size=10),
@@ -1336,8 +1413,8 @@ round_556_75_fmj = Item(
 
 round_556_69_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 69gr HPBT',
     weight=0.011,
     stacking=Stacking(stack_size=10),
@@ -1364,8 +1441,8 @@ round_556_69_jhp = Item(
 
 round_556_80_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 80gr HPBT',
     weight=0.011,
     stacking=Stacking(stack_size=10),
@@ -1399,8 +1476,8 @@ round_556_80_jhp = Item(
 
 round_300aac_150_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 150gr HPBT',
     weight=0.0141,
     stacking=Stacking(stack_size=10),
@@ -1427,8 +1504,8 @@ round_300aac_150_jhp = Item(
 
 round_300aac_150_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 150gr FMJ',
     weight=0.0141,
     stacking=Stacking(stack_size=10),
@@ -1452,8 +1529,8 @@ round_300aac_150_fmj = Item(
 
 round_300aac_210_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 210gr FMJ',
     weight=0.0141,
     stacking=Stacking(stack_size=10),
@@ -1477,8 +1554,8 @@ round_300aac_210_fmj = Item(
 
 round_300aac_210_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 210gr HPBT',
     weight=0.0141,
     stacking=Stacking(stack_size=10),
@@ -1514,8 +1591,8 @@ round_300aac_210_jhp = Item(
 
 round_545_56_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.45x39 - 56gr FMJ',
     weight=0.0107,
     stacking=Stacking(stack_size=10),
@@ -1539,8 +1616,8 @@ round_545_56_fmj = Item(
 
 round_545_63_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.45x39 - 63gr FMJ',
     weight=0.0107,
     stacking=Stacking(stack_size=10),
@@ -1564,8 +1641,8 @@ round_545_63_fmj = Item(
 
 round_545_60_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='5.45x39 - 60gr JHP',
     weight=0.0107,
     stacking=Stacking(stack_size=10),
@@ -1600,8 +1677,8 @@ round_545_60_jhp = Item(
 
 round_308_130_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 130gr JHP',
     weight=0.0241,
     stacking=Stacking(stack_size=10),
@@ -1628,8 +1705,8 @@ round_308_130_jhp = Item(
 
 round_308_150_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 150gr FMJ',
     weight=0.0241,
     stacking=Stacking(stack_size=10),
@@ -1653,8 +1730,8 @@ round_308_150_fmj = Item(
 
 round_308_165_sp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 165gr FMJ',
     weight=0.0241,
     stacking=Stacking(stack_size=10),
@@ -1681,8 +1758,8 @@ round_308_165_sp = Item(
 
 round_308_180_tsx = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 180gr TSX',
     weight=0.0241,
     stacking=Stacking(stack_size=10),
@@ -1714,8 +1791,8 @@ round_308_180_tsx = Item(
 # 'original' ammunition, 210gr projectile travelling 2200fps, muzzle energy 2257
 round_54r_174_jrn = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x54R - 174gr Jacketed RN',
     weight=0.0241,
     stacking=Stacking(stack_size=10),
@@ -1739,8 +1816,8 @@ round_54r_174_jrn = Item(
 
 round_54r_180_jsp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x54R - 180gr Jacketed SP',
     weight=0.0241,
     stacking=Stacking(stack_size=10),
@@ -1767,8 +1844,8 @@ round_54r_180_jsp = Item(
 
 round_54r_200_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='7.62x54R - 200gr Jacketed RN',
     weight=0.0241,
     stacking=Stacking(stack_size=10),
@@ -1800,8 +1877,8 @@ round_54r_200_fmj = Item(
 
 round_30carb_110_jhp = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='.30 Carbine - 110gr Critical Defense',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -1828,8 +1905,8 @@ round_30carb_110_jhp = Item(
 
 round_30carb_110_fmj = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='.30 Carbine - 110gr FMJ',
     weight=0.0127,
     stacking=Stacking(stack_size=10),
@@ -1862,8 +1939,8 @@ round_30carb_110_fmj = Item(
 
 round_12ga_slug = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='12-Gauge - 1 Oz Slug',
     weight=0.04,  # approx 12 grams for wad, shell, primer etc
     stacking=Stacking(stack_size=10),
@@ -1889,8 +1966,8 @@ round_12ga_slug = Item(
 
 round_12ga_00buck = Item(
     x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    char="=",
+    fg_colour=colour.LIGHT_YELLOW,
     name='12-Gauge - 00 Buckshot',
     weight=0.04,  # approx 12 grams for wad, shell, primer etc
     stacking=Stacking(stack_size=10),

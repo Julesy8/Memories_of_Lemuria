@@ -9,7 +9,7 @@ special (death, descend floor, etc) - light magenta
 """
 
 
-BLACK = (10, 10, 12)  # custom
+BLACK = (10, 10, 12)
 BLUE = (13, 103, 196)  # "natural"
 GREEN = (68, 158, 53)  # "natural"
 CYAN = (42, 161, 152)  # solarized

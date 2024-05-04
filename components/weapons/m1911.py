@@ -7,14 +7,12 @@ import colour
 FRAMES
 """
 
-# TODO - 3011 frame that uses AR parts
-
 # SEMI-AUTO
 
 m1911_frame_gov_ss = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Frame - SS",
     weight=0.53,
     stacking=None,
@@ -29,7 +27,7 @@ m1911_frame_gov_ss = Item(
 m1911_frame_gov_alloy = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Frame - Alloy",
     weight=0.332,
     stacking=None,
@@ -46,7 +44,7 @@ m1911_frame_gov_alloy = Item(
 m1911_frame_gov_ss_tac = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Frame Tactical - SS",
     weight=0.578,
     stacking=None,
@@ -65,7 +63,7 @@ m1911_frame_gov_ss_tac = Item(
 m1911_frame_gov_alloy_tac = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Frame - Alloy",
     weight=0.361,
     stacking=None,
@@ -86,7 +84,7 @@ m1911_frame_gov_alloy_tac = Item(
 m1911_frame_gov_ss_auto = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Full-Auto Frame - SS",
     weight=0.53,
     stacking=None,
@@ -103,7 +101,7 @@ m1911_frame_gov_ss_auto = Item(
 m1911_frame_gov_alloy_auto = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Full-Auto Frame - Alloy",
     weight=0.332,
     stacking=None,
@@ -121,7 +119,7 @@ m1911_frame_gov_alloy_auto = Item(
 m1911_frame_gov_ss_tac_auto = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Full-Auto Frame Tactical - SS",
     weight=0.578,
     stacking=None,
@@ -141,7 +139,7 @@ m1911_frame_gov_ss_tac_auto = Item(
 m1911_frame_gov_alloy_tac_auto = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 Full-Auto Frame - Alloy",
     weight=0.361,
     stacking=None,
@@ -168,7 +166,7 @@ BARRELS
 m1911_barrel_gov = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 5 Inch Barrel 'Government'",
     weight=0.113,
     stacking=None,
@@ -177,7 +175,7 @@ m1911_barrel_gov = Item(
                                        'M1911 Slide': ['.45 Government Length Slide']},
                                    tags=['.45 Government Length Barrel', ],
                                    velocity_modifier={'.45 ACP': 1.0},
-                                   compatible_magazine_type='1911 .45 ACP',
+                                   compatible_magazine_type=('1911 .45 ACP', ),
                                    compatible_bullet_type=('.45 ACP',),
                                    suffix='.45',
                                    accuracy_part=True,
@@ -189,7 +187,7 @@ m1911_barrel_gov = Item(
 m1911_barrel_commander = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 4 Inch Barrel 'Commander'",
     weight=0.104,
     stacking=None,
@@ -198,7 +196,7 @@ m1911_barrel_commander = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['.45 Commander Length Slide', ]},
                                    tags=['.45 Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 .45 ACP',
+                                   compatible_magazine_type=('1911 .45 ACP', ),
                                    compatible_bullet_type=('.45 ACP',),
                                    velocity_modifier={'.45 ACP': 0.96},
                                    target_acquisition_ap=0.98,
@@ -212,7 +210,7 @@ m1911_barrel_commander = Item(
 m1911_barrel_long = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 6 Inch Long Barrel",
     weight=0.131,
     stacking=None,
@@ -222,7 +220,7 @@ m1911_barrel_long = Item(
                                        'M1911 Slide': ['.45 Commander Length Slide', '.45 Government Length Slide',
                                                        '.45 Long SLide']},
                                    tags=['.45 Long Barrel', ],
-                                   compatible_magazine_type='1911 .45 ACP',
+                                   compatible_magazine_type=('1911 .45 ACP', ),
                                    compatible_bullet_type=('.45 ACP',),
                                    target_acquisition_ap=1.02,
                                    ap_to_equip=1.03,
@@ -238,7 +236,7 @@ m1911_barrel_long = Item(
 m1911_barrel_gov_threaded = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 5 Inch Barrel 'Government' - Threaded",
     weight=0.113,
     stacking=None,
@@ -249,7 +247,7 @@ m1911_barrel_gov_threaded = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['.45 Government Length Slide']},
                                    tags=['.45 Government Length Barrel', ],
-                                   compatible_magazine_type='1911 .45 ACP',
+                                   compatible_magazine_type=('1911 .45 ACP', ),
                                    compatible_bullet_type=('.45 ACP',),
                                    accuracy_part=True,
                                    short_barrel=True
@@ -261,7 +259,7 @@ m1911_barrel_gov_threaded = Item(
 m1911_barrel_commander_threaded = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 4 Inch Barrel 'Commander' - Threaded",
     weight=0.104,
     stacking=None,
@@ -271,7 +269,7 @@ m1911_barrel_commander_threaded = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['.45 Commander Length Slide', ]},
                                    tags=['.45 Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 .45 ACP',
+                                   compatible_magazine_type=('1911 .45 ACP', ),
                                    compatible_bullet_type=('.45 ACP',),
                                    velocity_modifier={'.45 ACP': 0.96},
                                    target_acquisition_ap=0.98,
@@ -286,7 +284,7 @@ m1911_barrel_commander_threaded = Item(
 m1911_barrel_long_threaded = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 6 Inch Long Barrel - Threaded",
     weight=0.131,
     stacking=None,
@@ -297,7 +295,7 @@ m1911_barrel_long_threaded = Item(
                                        'M1911 Slide': ['.45 Commander Length Slide', '.45 Government Length Slide',
                                                        '.45 Long SLide']},
                                    tags=['.45 Long Barrel', ],
-                                   compatible_magazine_type='1911 .45 ACP',
+                                   compatible_magazine_type=('1911 .45 ACP', ),
                                    compatible_bullet_type=('.45 ACP',),
                                    velocity_modifier={'.45 ACP': 1.049},
                                    target_acquisition_ap=1.02,
@@ -317,7 +315,7 @@ m1911_barrel_long_threaded = Item(
 m1911_barrel_gov_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 5 Inch Barrel 'Government'",
     weight=0.163,
     stacking=None,
@@ -326,7 +324,7 @@ m1911_barrel_gov_9mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['9mm Government Length Slide']},
                                    tags=['9mm Government Length Barrel', ],
-                                   compatible_magazine_type='1911 9mm',
+                                   compatible_magazine_type=('1911 9mm',),
                                    compatible_bullet_type=('9mm',),
                                    barrel_length=5,
                                    velocity_modifier={'9mm': 1.0658},
@@ -339,7 +337,7 @@ m1911_barrel_gov_9mm = Item(
 m1911_barrel_commander_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 4 Inch Barrel 'Commander'",
     weight=0.145,
     stacking=None,
@@ -348,7 +346,7 @@ m1911_barrel_commander_9mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['9mm Commander Length Slide', ]},
                                    tags=['9mm Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 9mm',
+                                   compatible_magazine_type=('1911 9mm',),
                                    compatible_bullet_type=('9mm',),
                                    barrel_length=4,
                                    velocity_modifier={'9mm': 1.0},
@@ -362,7 +360,7 @@ m1911_barrel_commander_9mm = Item(
 m1911_barrel_long_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 6 Inch Long Barrel",
     weight=0.167,
     stacking=None,
@@ -372,7 +370,7 @@ m1911_barrel_long_9mm = Item(
                                        'M1911 Slide': ['9mm Commander Length Slide', '9mm Government Length Slide',
                                                        '9mm Long SLide']},
                                    tags=['9mm Long Barrel', ],
-                                   compatible_magazine_type='1911 9mm',
+                                   compatible_magazine_type=('1911 9mm',),
                                    compatible_bullet_type=('9mm',),
                                    barrel_length=6,
                                    target_acquisition_ap=1.02,
@@ -389,7 +387,7 @@ m1911_barrel_long_9mm = Item(
 m1911_barrel_gov_threaded_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 5 Inch Barrel 'Government' - Threaded",
     weight=0.163,
     stacking=None,
@@ -399,7 +397,7 @@ m1911_barrel_gov_threaded_9mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['9mm Government Length Slide']},
                                    tags=['9mm Government Length Barrel', ],
-                                   compatible_magazine_type='1911 9mm',
+                                   compatible_magazine_type=('1911 9mm',),
                                    compatible_bullet_type=('9mm',),
                                    barrel_length=5,
                                    velocity_modifier={'9mm': 1.0658},
@@ -413,7 +411,7 @@ m1911_barrel_gov_threaded_9mm = Item(
 m1911_barrel_commander_threaded_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 4 Inch Barrel 'Commander' - Threaded",
     weight=0.145,
     stacking=None,
@@ -423,7 +421,7 @@ m1911_barrel_commander_threaded_9mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['9mm Commander Length Slide', ]},
                                    tags=['9mm Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 9mm',
+                                   compatible_magazine_type=('1911 9mm',),
                                    compatible_bullet_type=('9mm',),
                                    velocity_modifier={'9mm': 1.0},
                                    barrel_length=4,
@@ -439,7 +437,7 @@ m1911_barrel_commander_threaded_9mm = Item(
 m1911_barrel_long_threaded_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 6 Inch Long Barrel - Threaded",
     weight=0.167,
     stacking=None,
@@ -451,7 +449,7 @@ m1911_barrel_long_threaded_9mm = Item(
                                                        '9mm Long SLide']},
                                    tags=['9mm Long Barrel', ],
                                    barrel_length=6,
-                                   compatible_magazine_type='1911 9mm',
+                                   compatible_magazine_type=('1911 9mm',),
                                    compatible_bullet_type=('9mm',),
                                    velocity_modifier={'9mm': 1.0859},
                                    target_acquisition_ap=1.02,
@@ -470,7 +468,7 @@ m1911_barrel_long_threaded_9mm = Item(
 m1911_barrel_gov_10mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm 5 Inch Barrel 'Government'",
     weight=0.163,
     stacking=None,
@@ -479,7 +477,7 @@ m1911_barrel_gov_10mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Government Length Slide']},
                                    tags=['10mm Government Length Barrel', ],
-                                   compatible_magazine_type='1911 10mm',
+                                   compatible_magazine_type=('1911 10mm',),
                                    compatible_bullet_type=('10mm',),
                                    velocity_modifier={'10mm': 1.0},
                                    barrel_length=5,
@@ -492,7 +490,7 @@ m1911_barrel_gov_10mm = Item(
 m1911_barrel_commander_10mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm 4 Inch Barrel 'Commander'",
     weight=0.145,
     stacking=None,
@@ -501,7 +499,7 @@ m1911_barrel_commander_10mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['10mm Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 10mm',
+                                   compatible_magazine_type=('1911 10mm',),
                                    compatible_bullet_type=('10mm',),
                                    barrel_length=4,
                                    velocity_modifier={'10mm': 0.94},
@@ -516,7 +514,7 @@ m1911_barrel_commander_10mm = Item(
 m1911_barrel_long_10mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm 6 Inch Long Barrel",
     weight=0.167,
     stacking=None,
@@ -527,7 +525,7 @@ m1911_barrel_long_10mm = Item(
                                                        '10mm/40 S&W Government Length Slide',
                                                        '10mm/40 S&W Long SLide']},
                                    tags=['10mm Long Barrel', ],
-                                   compatible_magazine_type='1911 10mm',
+                                   compatible_magazine_type=('1911 10mm',),
                                    compatible_bullet_type=('10mm',),
                                    barrel_length=6,
                                    target_acquisition_ap=1.02,
@@ -544,7 +542,7 @@ m1911_barrel_long_10mm = Item(
 m1911_barrel_gov_threaded_10mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm 5 Inch Barrel 'Government' - Threaded",
     weight=0.163,
     stacking=None,
@@ -554,7 +552,7 @@ m1911_barrel_gov_threaded_10mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Government Length Slide']},
                                    tags=['10mm Government Length Barrel', ],
-                                   compatible_magazine_type='1911 10mm',
+                                   compatible_magazine_type=('1911 10mm',),
                                    velocity_modifier={'10mm': 1.0},
                                    compatible_bullet_type=('10mm',),
                                    barrel_length=5,
@@ -568,7 +566,7 @@ m1911_barrel_gov_threaded_10mm = Item(
 m1911_barrel_commander_threaded_10mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm 4 Inch Barrel 'Commander' - Threaded",
     weight=0.145,
     stacking=None,
@@ -578,7 +576,7 @@ m1911_barrel_commander_threaded_10mm = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['10mm Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 10mm',
+                                   compatible_magazine_type=('1911 10mm',),
                                    compatible_bullet_type=('10mm',),
                                    barrel_length=4,
                                    velocity_modifier={'10mm': 0.94},
@@ -594,7 +592,7 @@ m1911_barrel_commander_threaded_10mm = Item(
 m1911_barrel_long_threaded_10mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm 6 Inch Long Barrel - Threaded",
     weight=0.167,
     stacking=None,
@@ -606,7 +604,7 @@ m1911_barrel_long_threaded_10mm = Item(
                                                        '10mm/40 S&W Government Length Slide',
                                                        '10mm/40 S&W Long SLide']},
                                    tags=['10mm Long Barrel', ],
-                                   compatible_magazine_type='1911 10mm',
+                                   compatible_magazine_type=('1911 10mm',),
                                    compatible_bullet_type=('10mm',),
                                    barrel_length=6,
                                    velocity_modifier={'10mm': 1.0318},
@@ -626,7 +624,7 @@ m1911_barrel_long_threaded_10mm = Item(
 m1911_barrel_gov_40sw = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 40 S&W 5 Inch Barrel 'Government'",
     weight=0.163,
     stacking=None,
@@ -635,7 +633,7 @@ m1911_barrel_gov_40sw = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Government Length Slide']},
                                    tags=['40 S&W Government Length Barrel', ],
-                                   compatible_magazine_type='1911 40 S&W',
+                                   compatible_magazine_type=('1911 40 S&W',),
                                    compatible_bullet_type=('40 S&W',),
                                    velocity_modifier={'40 S&W': 1.0508},
                                    barrel_length=5,
@@ -648,7 +646,7 @@ m1911_barrel_gov_40sw = Item(
 m1911_barrel_commander_40sw = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 40 S&W 4 Inch Barrel 'Commander'",
     weight=0.145,
     stacking=None,
@@ -657,7 +655,7 @@ m1911_barrel_commander_40sw = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['40 S&W Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 40 S&W',
+                                   compatible_magazine_type=('1911 40 S&W',),
                                    compatible_bullet_type=('40 S&W',),
                                    velocity_modifier={'40 S&W': 1.0},
                                    barrel_length=4,
@@ -672,7 +670,7 @@ m1911_barrel_commander_40sw = Item(
 m1911_barrel_long_40sw = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 40 S&W 6 Inch Long Barrel",
     weight=0.167,
     stacking=None,
@@ -683,7 +681,7 @@ m1911_barrel_long_40sw = Item(
                                                        '10mm/40 S&W Government Length Slide',
                                                        '10mm/40 S&W Long SLide']},
                                    tags=['40 S&W Long Barrel', ],
-                                   compatible_magazine_type='1911 40 S&W',
+                                   compatible_magazine_type=('1911 40 S&W',),
                                    compatible_bullet_type=('40 S&W',),
                                    barrel_length=6,
                                    target_acquisition_ap=1.02,
@@ -700,7 +698,7 @@ m1911_barrel_long_40sw = Item(
 m1911_barrel_gov_threaded_40sw = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 40 S&W 5 Inch Barrel 'Government' - Threaded",
     weight=0.163,
     stacking=None,
@@ -710,7 +708,7 @@ m1911_barrel_gov_threaded_40sw = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Government Length Slide']},
                                    tags=['40 S&W Government Length Barrel', ],
-                                   compatible_magazine_type='1911 40 S&W',
+                                   compatible_magazine_type=('1911 40 S&W',),
                                    compatible_bullet_type=('40 S&W',),
                                    barrel_length=5,
                                    velocity_modifier={'40 S&W': 1.0508},
@@ -724,7 +722,7 @@ m1911_barrel_gov_threaded_40sw = Item(
 m1911_barrel_commander_threaded_40sw = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 40 S&W 4 Inch Barrel 'Commander' - Threaded",
     weight=0.145,
     stacking=None,
@@ -734,7 +732,7 @@ m1911_barrel_commander_threaded_40sw = Item(
                                    compatible_parts={
                                        'M1911 Slide': ['10mm/40 S&W Commander Length Slide',]},
                                    tags=['40 S&W Commander Length Barrel', ],
-                                   compatible_magazine_type='1911 40 S&W',
+                                   compatible_magazine_type=('1911 40 S&W',),
                                    compatible_bullet_type=('40 S&W',),
                                    velocity_modifier={'40 S&W': 1.0},
                                    barrel_length=4,
@@ -750,7 +748,7 @@ m1911_barrel_commander_threaded_40sw = Item(
 m1911_barrel_long_threaded_40sw = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 40 S&W 6 Inch Long Barrel - Threaded",
     weight=0.167,
     stacking=None,
@@ -762,7 +760,7 @@ m1911_barrel_long_threaded_40sw = Item(
                                                        '10mm/40 S&W Government Length Slide',
                                                        '10mm/40 S&W Long SLide']},
                                    tags=['40 S&W Long Barrel', ],
-                                   compatible_magazine_type='1911 40 S&W',
+                                   compatible_magazine_type=('1911 40 S&W',),
                                    compatible_bullet_type=('40 S&W',),
                                    barrel_length=6,
                                    velocity_modifier={'40 S&W': 1.0806},
@@ -787,7 +785,7 @@ SLIDES
 m1911_slide_gov = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Government' Slide",
     weight=0.357,
     stacking=None,
@@ -808,7 +806,7 @@ m1911_slide_gov = Item(
 m1911_slide_commander = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Commander' Slide",
     weight=0.272,
     stacking=None,
@@ -829,7 +827,7 @@ m1911_slide_commander = Item(
 m1911_slide_long = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP Long Slide",
     weight=0.425,
     stacking=None,
@@ -852,7 +850,7 @@ m1911_slide_long = Item(
 m1911_slide_gov_light = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Government' Slide - Custom",
     weight=0.311,
     stacking=None,
@@ -875,7 +873,7 @@ m1911_slide_gov_light = Item(
 m1911_slide_commander_light = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Commander' Slide - Custom",
     weight=0.237,
     stacking=None,
@@ -898,7 +896,7 @@ m1911_slide_commander_light = Item(
 m1911_slide_long_light = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP Long Slide - Custom",
     weight=0.370,
     stacking=None,
@@ -926,7 +924,7 @@ m1911_slide_long_light = Item(
 m1911_slide_gov_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Government' Slide",
     weight=0.357,
     stacking=None,
@@ -947,7 +945,7 @@ m1911_slide_gov_9mm = Item(
 m1911_slide_commander_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Commander' Slide",
     weight=0.272,
     stacking=None,
@@ -968,7 +966,7 @@ m1911_slide_commander_9mm = Item(
 m1911_slide_long_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm Long Slide",
     weight=0.425,
     stacking=None,
@@ -991,7 +989,7 @@ m1911_slide_long_9mm = Item(
 m1911_slide_gov_light_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Government' Slide - Custom",
     weight=0.311,
     stacking=None,
@@ -1014,7 +1012,7 @@ m1911_slide_gov_light_9mm = Item(
 m1911_slide_commander_light_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Commander' Slide - Custom",
     weight=0.237,
     stacking=None,
@@ -1037,7 +1035,7 @@ m1911_slide_commander_light_9mm = Item(
 m1911_slide_long_light_9mm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm Long Slide - Custom",
     weight=0.370,
     stacking=None,
@@ -1064,7 +1062,7 @@ m1911_slide_long_light_9mm = Item(
 m1911_slide_gov_40 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Government' Slide",
     weight=0.363,
     stacking=None,
@@ -1085,7 +1083,7 @@ m1911_slide_gov_40 = Item(
 m1911_slide_commander_40 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Commander' Slide",
     weight=0.276,
     stacking=None,
@@ -1106,7 +1104,7 @@ m1911_slide_commander_40 = Item(
 m1911_slide_long_40 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W ACP Long Slide",
     weight=0.432,
     stacking=None,
@@ -1129,7 +1127,7 @@ m1911_slide_long_40 = Item(
 m1911_slide_gov_light_40 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Government' Slide - Custom",
     weight=0.316,
     stacking=None,
@@ -1152,7 +1150,7 @@ m1911_slide_gov_light_40 = Item(
 m1911_slide_commander_light_40 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Commander' Slide - Custom",
     weight=0.240,
     stacking=None,
@@ -1175,7 +1173,7 @@ m1911_slide_commander_light_40 = Item(
 m1911_slide_long_light_40 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W Long Slide - Custom",
     weight=0.376,
     stacking=None,
@@ -1205,7 +1203,7 @@ m1911_slide_long_light_40 = Item(
 m1911_slide_gov_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Government' Slide",
     weight=0.357,
     stacking=None,
@@ -1227,7 +1225,7 @@ m1911_slide_gov_optic = Item(
 m1911_slide_commander_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Commander' Slide",
     weight=0.272,
     stacking=None,
@@ -1249,7 +1247,7 @@ m1911_slide_commander_optic = Item(
 m1911_slide_long_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP Long Slide",
     weight=0.425,
     stacking=None,
@@ -1273,7 +1271,7 @@ m1911_slide_long_optic = Item(
 m1911_slide_gov_light_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Government' Slide - Custom",
     weight=0.311,
     stacking=None,
@@ -1297,7 +1295,7 @@ m1911_slide_gov_light_optic = Item(
 m1911_slide_commander_light_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP 'Commander' Slide - Custom",
     weight=0.237,
     stacking=None,
@@ -1321,7 +1319,7 @@ m1911_slide_commander_light_optic = Item(
 m1911_slide_long_light_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 .45 ACP Long Slide - Custom",
     weight=0.370,
     stacking=None,
@@ -1349,7 +1347,7 @@ m1911_slide_long_light_optic = Item(
 m1911_slide_gov_9mm_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Government' Slide w/ Optic Cut",
     weight=0.357,
     stacking=None,
@@ -1371,7 +1369,7 @@ m1911_slide_gov_9mm_optic = Item(
 m1911_slide_commander_9mm_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Commander' Slide w/ Optic Cut",
     weight=0.272,
     stacking=None,
@@ -1393,7 +1391,7 @@ m1911_slide_commander_9mm_optic = Item(
 m1911_slide_long_9mm_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm Long Slide w/ Optic Cut",
     weight=0.425,
     stacking=None,
@@ -1417,7 +1415,7 @@ m1911_slide_long_9mm_optic = Item(
 m1911_slide_gov_light_9mm_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Government' Slide - Custom w/ Optic Cut",
     weight=0.311,
     stacking=None,
@@ -1441,7 +1439,7 @@ m1911_slide_gov_light_9mm_optic = Item(
 m1911_slide_commander_light_9mm_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm 'Commander' Slide - Custom w/ Optic Cut",
     weight=0.237,
     stacking=None,
@@ -1465,7 +1463,7 @@ m1911_slide_commander_light_9mm_optic = Item(
 m1911_slide_long_light_9mm_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 9mm Long Slide - Custom w/ Optic Cut",
     weight=0.370,
     stacking=None,
@@ -1492,7 +1490,7 @@ m1911_slide_long_light_9mm_optic = Item(
 m1911_slide_gov_40_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Government' Slide w/ Optic Cut",
     weight=0.363,
     stacking=None,
@@ -1514,7 +1512,7 @@ m1911_slide_gov_40_optic = Item(
 m1911_slide_commander_40_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Commander' Slide w/ Optic Cut",
     weight=0.276,
     stacking=None,
@@ -1536,7 +1534,7 @@ m1911_slide_commander_40_optic = Item(
 m1911_slide_long_40_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W ACP Long Slide w/ Optic Cut",
     weight=0.432,
     stacking=None,
@@ -1560,7 +1558,7 @@ m1911_slide_long_40_optic = Item(
 m1911_slide_gov_light_40_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Government' Slide - Custom w/ Optic Cut",
     weight=0.316,
     stacking=None,
@@ -1584,7 +1582,7 @@ m1911_slide_gov_light_40_optic = Item(
 m1911_slide_commander_light_40_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W 'Commander' Slide - Custom w/ Optic Cut",
     weight=0.240,
     stacking=None,
@@ -1608,7 +1606,7 @@ m1911_slide_commander_light_40_optic = Item(
 m1911_slide_long_light_40_optic = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 10mm/40 S&W Long Slide - Custom w/ Optic Cut",
     weight=0.376,
     stacking=None,
@@ -1636,7 +1634,7 @@ Grip Panels
 m1911_grip_magpul = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul MOE 1911 Grip Panels",
     weight=0.0311,
     stacking=None,
@@ -1649,7 +1647,7 @@ m1911_grip_magpul = Item(
 m1911_grip_rectac = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Recover Tactica GR11l 1911 Grip Panels",
     weight=0.034,
     stacking=None,
@@ -1663,7 +1661,7 @@ m1911_grip_rectac = Item(
 m1911_grip_wood = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Wooden 1911 Grip Panels",
     weight=0.0302,
     stacking=None,
@@ -1675,7 +1673,7 @@ m1911_grip_wood = Item(
 m1911_grip_operator = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="VZ Operator II 1911 Grip Panels",
     weight=0.0618,
     stacking=None,
@@ -1689,7 +1687,7 @@ m1911_grip_operator = Item(
 m1911_grip_palmswell = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="VZ Palm Swell 1911 Grip Panels",
     weight=0.0697,
     stacking=None,
@@ -1704,7 +1702,7 @@ m1911_grip_palmswell = Item(
 m1911_grip_hogue = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Hogue Rubber 1911 Grip",
     weight=0.077,
     stacking=None,
@@ -1718,7 +1716,7 @@ m1911_grip_hogue = Item(
 m1911_rec_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Recover Tactical 20/11 1911 Stabilizer Kit",
     weight=0.720,
     stacking=None,
@@ -1743,7 +1741,7 @@ Muzzle Devices
 m1911_comp_tj = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 TJ's Custom Muzzle Brake",
     weight=0.198,
     stacking=None,
@@ -1768,7 +1766,7 @@ m1911_comp_tj = Item(
 m1911_comp_punisher = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 VD Punisher Muzzle Brake",
     weight=0.066,
     stacking=None,
@@ -1793,7 +1791,7 @@ m1911_comp_punisher = Item(
 m1911_comp_predator = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 VD Predator Muzzle Brake",
     weight=0.066,
     stacking=None,
@@ -1819,7 +1817,7 @@ m1911_comp_predator = Item(
 m1911_comp_castle = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="1911 VD Castle Muzzle Brake",
     weight=0.0297,
     stacking=None,
@@ -1848,7 +1846,7 @@ Accessories
 m1911_bridge_mount = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="GSG 1911 Bridge Mount",
     weight=0.077,
     stacking=None,
@@ -1869,7 +1867,7 @@ Gun
 m1911 = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="M1911",
     weight=1.1,
     stacking=None,
@@ -1877,7 +1875,7 @@ m1911 = Item(
                 'It was the standard-issue sidearm for the United States Armed Forces from 1911 to 1985 and remains a '
                 'popular firearm to this day.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='1911 .45 ACP',
+        compatible_magazine_type=('1911 .45 ACP',),
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,

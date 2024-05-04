@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from copy import deepcopy, copy
-from random import choices, randint
+from random import choices, randint, choice
+# from pydantic.utils import deep_update
 
 if TYPE_CHECKING:
     from entity import Entity, Actor
@@ -136,7 +137,12 @@ class Fighter(BaseComponent):
                                        weights=list(self.weapons[current_level].values()),
                                        k=1)[0])
                 held_weapon = deepcopy(gun)
-                held_weapon = held_weapon.update_properties()
+
+                if self.parent.player:
+                    held_weapon = held_weapon.update_properties(current_level, random_condition=False)
+                else:
+                    held_weapon = held_weapon.update_properties(current_level)
+
                 weapon_properties = held_weapon.usable_properties
 
                 if weapon_properties.chambered_bullet is None:
@@ -190,7 +196,13 @@ class Fighter(BaseComponent):
                 # adds magazines to inventory and loads them
 
                 if hasattr(weapon_properties, 'compatible_magazine_type'):
-                    compatible_magazine_type = weapon_properties.compatible_magazine_type
+
+                    # if weapon can take multiple types of magazines, selects one
+                    if len(weapon_properties.compatible_magazine_type) > 0:
+                        compatible_magazine_type = choice(weapon_properties.compatible_magazine_type)
+                    else:
+                        compatible_magazine_type = weapon_properties.compatible_magazine_type[0]
+
                     compatible_magazines = copy(gun.magazine)
                     if compatible_magazines is not None:
                         if isinstance(gun.magazine, dict):
@@ -201,8 +213,20 @@ class Fighter(BaseComponent):
                                     del compatible_magazines[magazine]
 
                             # randomly selects magazine
-                            magazine = choices(population=list(compatible_magazines.keys()),
-                                               weights=list(compatible_magazines.values()), k=1)[0]
+                            if isinstance(list(compatible_magazines.values())[0], tuple):
+                                magazine_weights = []
+                                for value in compatible_magazines.values():
+                                    try:
+                                        magazine_weights.append(value[current_level])
+                                    except IndexError:
+                                        magazine_weights.append(value[int(len(value + 1))])
+
+                                magazine = choices(population=list(compatible_magazines.keys()),
+                                                   weights=magazine_weights, k=1)[0]
+
+                            else:
+                                magazine = choices(population=list(compatible_magazines.keys()),
+                                                   weights=list(compatible_magazines.values()), k=1)[0]
 
                             for y in range(randint(0, 2)):
                                 mag_copy = deepcopy(magazine)
@@ -225,6 +249,10 @@ class Fighter(BaseComponent):
                 self.parent.inventory.primary_weapon = held_weapon
                 self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held
                 self.parent.inventory.held.parent = self.parent.inventory
+
+                # if hasattr(held_weapon.usable_properties, 'crafting_dict'):
+                #     crafting_dict = getattr(held_weapon.usable_properties, 'crafting_dict')
+                #     self.engine.crafting_recipes = deep_update(self.engine.crafting_recipes, crafting_dict)
 
         except KeyError:
             return
@@ -273,7 +301,7 @@ class GunFighter(Fighter):
                  ap: int = 100,
                  ap_per_turn: int = 100,
                  melee_accuracy: float = 0.5,
-                 ranged_accuracy: float = 8.0,
+                 ranged_accuracy: float = 10.0,
                  move_success_chance: float = 1.0,
                  responds_to_sound: bool = True,
                  automatic_fire_duration: float = 0.5,
@@ -383,6 +411,7 @@ class PlayerFighter(GunFighter):
                  skill_pumpaction_proficiency: int = 0,
                  skill_breakaction_proficiency: int = 0,
                  skill_bolt_action_proficiency: int = 0,
+                 skill_belt_fed_proficiency: int = 0,
                  fears_death=True,
                  description: str = '',
                  active=True
@@ -398,6 +427,7 @@ class PlayerFighter(GunFighter):
         self._skill_pumpaction_proficiency = skill_pumpaction_proficiency
         self._skill_breakaction_proficiency = skill_breakaction_proficiency
         self._skill_bolt_action_proficiency = skill_bolt_action_proficiency
+        self._skill_belt_fed_proficiency = skill_belt_fed_proficiency
         self.visible_tiles = None
 
         super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, bodyarmour, helmet,
@@ -445,6 +475,14 @@ class PlayerFighter(GunFighter):
     @skill_bolt_action_proficiency.setter
     def skill_bolt_action_proficiency(self, value):
         self._skill_bolt_action_proficiency = min(value, 1000)
+
+    @property
+    def skill_belt_fed_proficiency(self):
+        return self._skill_belt_fed_proficiency
+
+    @skill_belt_fed_proficiency.setter
+    def skill_belt_fed_proficiency(self, value):
+        self._skill_belt_fed_proficiency = min(value, 1000)
 
     @property
     def skill_sa_rifle_proficiency(self):

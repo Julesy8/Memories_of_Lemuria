@@ -10,7 +10,7 @@ STOCKS
 mosin_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant M91/30 Stock",
     weight=2.78,
     stacking=None,
@@ -35,7 +35,7 @@ mosin_stock = Item(
 mosin_stock_montecarlo = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant ATI Monte Carlo Stock",
     weight=2.27,
     stacking=None,
@@ -60,14 +60,14 @@ mosin_stock_montecarlo = Item(
 mosin_archangel_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant M91/30 Archangel Stock",
     weight=1.6,
     stacking=None,
     usable_properties=GunComponent(part_type='Mosin-Nagant Stock',
                                    prefix="Archangel",
                                    compatible_parts={'Mosin-Nagant Barrel': ["Mosin-Nagant M91/30 Barrel", ]},
-                                   compatible_magazine_type='Mosin-Nagant',
+                                   compatible_magazine_type=('Mosin-Nagant', ),
                                    felt_recoil=0.45,
                                    accuracy_part=True,
                                    ap_distance_cost_modifier=0.62,
@@ -87,7 +87,7 @@ mosin_archangel_stock = Item(
 mosin_carbine_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant Carbine Stock",
     weight=2.2,
     stacking=None,
@@ -113,7 +113,7 @@ mosin_carbine_stock = Item(
 mosin_obrez_stock = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant Obrez Stock",
     weight=0.2,
     stacking=None,
@@ -141,7 +141,7 @@ BARREL
 mosin_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant M91/30 Barrel",
     weight=1.22,
     stacking=None,
@@ -164,7 +164,7 @@ mosin_barrel = Item(
 mosin_carbine_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant Carbine Barrel",
     weight=1.14,
     stacking=None,
@@ -188,7 +188,7 @@ mosin_carbine_barrel = Item(
 mosin_obrez_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant Obrez Barrel",
     weight=0.5,
     stacking=None,
@@ -215,7 +215,7 @@ OTHER
 mosin_pic_scope_mount = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant Triple Picatinny Rail Mount",
     weight=0.26,
     stacking=None,
@@ -230,7 +230,7 @@ mosin_pic_scope_mount = Item(
 mosin_suppressor = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant Bramit Suppressor",
     weight=1.1,
     stacking=None,
@@ -249,7 +249,7 @@ mosin_suppressor = Item(
 mosin_muzzlebreak = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Mosin-Nagant Texas Precision Muzzle Break",
     weight=0.099,
     stacking=None,

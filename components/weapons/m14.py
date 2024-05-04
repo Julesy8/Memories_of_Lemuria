@@ -10,26 +10,42 @@ RECIEVERS
 m14_reciever = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14 Reciever",
     weight=1.719,
     stacking=None,
     usable_properties=GunComponent(part_type='M14 - Reciever',
-                                   compatible_magazine_type='M14/M1A',
+                                   compatible_magazine_type=('M14/M1A', ),
                                    functional_part=True,
                                    ),
     description='An unbarreled M14 action with gas system'
 )
 
+m14_reciever_auto = Item(
+    x=0, y=0,
+    char="!",
+    fg_colour=colour.LIGHT_MAGENTA,
+    name="M14 Reciever - Full Auto",
+    weight=1.719,
+    stacking=None,
+    usable_properties=GunComponent(part_type='M14 - Reciever',
+                                   suffix='Automatic',
+                                   compatible_magazine_type=('M14/M1A', ),
+                                   fire_modes={'automatic': {'fire rate': 750, 'automatic': True}},
+                                   functional_part=True,
+                                   ),
+    description='An unbarreled, select fire M14 action with gas system'
+)
+
 m1a_reciever = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M1A Reciever",
     weight=1.719,
     stacking=None,
     usable_properties=GunComponent(part_type='M1A - Reciever',
-                                   compatible_magazine_type='M14/M1A',
+                                   compatible_magazine_type=('M14/M1A', ),
                                    functional_part=True,
                                    ),
     description='An unbarreled M1A action with gas system'
@@ -42,7 +58,7 @@ BARRELS
 m14_barrel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A Standard Barrel",
     weight=0.91,
     stacking=None,
@@ -62,7 +78,7 @@ m14_barrel = Item(
 m14_barrel_18in = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A 18.5 Inch Barrel",
     weight=0.82,
     stacking=None,
@@ -84,7 +100,7 @@ m14_barrel_18in = Item(
 m14_barrel_socom = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A SOCOM Barrel",
     weight=0.77,
     stacking=None,
@@ -113,7 +129,7 @@ STOCKS
 m14_stock_fiberglass = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A USGI Fiberglass Stock",
     weight=1.449,
     stacking=None,
@@ -137,7 +153,7 @@ m14_stock_fiberglass = Item(
 m14_stock_wood = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A USGI Birch Wood Stock",
     weight=1.662,
     stacking=None,
@@ -161,7 +177,7 @@ m14_stock_wood = Item(
 m14_stock_archangel = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A 'Archangel' Stock",
     weight=1.974,
     stacking=None,
@@ -190,7 +206,7 @@ m14_stock_archangel = Item(
 m14_stock_vltor = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A VLTOR M1-S Stock",
     weight=0.874,
     stacking=None,
@@ -212,7 +228,7 @@ m14_stock_vltor = Item(
 m14_stock_ebr = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A M14ALCS/CV Stock",
     weight=1.33,
     stacking=None,
@@ -241,7 +257,7 @@ m14_stock_ebr = Item(
 m14_stock_bullpup = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A 'Rogue' Bullpup Stock",
     weight=2.85,
     stacking=None,
@@ -279,7 +295,7 @@ MUZZLE DEVICES
 m14_muzzle_usgi = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A USGI Flash Suppressor",
     weight=0.12,
     stacking=None,
@@ -294,7 +310,7 @@ m14_muzzle_usgi = Item(
 m14_muzzle_uscg_brake = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A USCG Muzzle Brake",
     weight=0.148,
     stacking=None,
@@ -309,7 +325,7 @@ m14_muzzle_uscg_brake = Item(
 m14_muzzle_vais_brake = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A Vais Muzzle Brake",
     weight=0.11,
     stacking=None,
@@ -324,7 +340,7 @@ m14_muzzle_vais_brake = Item(
 m14_muzzle_synergy_brake = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A SLR Synergy Muzzle Brake",
     weight=0.12,
     stacking=None,
@@ -343,7 +359,7 @@ ACCESSORIES
 m14_optic_mount = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="M14/M1A Picatinny Rail Optic Mount",
     weight=0.18,
     stacking=None,
@@ -359,7 +375,7 @@ m14_optic_mount = Item(
 m14 = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="M1A",
     weight=4.18,
     stacking=None,
@@ -367,7 +383,7 @@ m14 = Item(
                 'Its design pays homage to the M1 garand. It features detachable magazines and fires the '
                 'powerful 7.62x51mm NATO cartridge.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='M14/M1A',
+        compatible_magazine_type=('M14/M1A',),
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,
@@ -398,7 +414,7 @@ m14 = Item(
 m1a = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="M1A",
     weight=4.18,
     stacking=None,
@@ -406,7 +422,7 @@ m1a = Item(
                 'pays homage to the M1 garand. It features detachable magazines and fires the powerful 7.62x51mm '
                 'NATO cartridge.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='M14/M1A',
+        compatible_magazine_type=('M14/M1A',),
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,

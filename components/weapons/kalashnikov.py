@@ -10,14 +10,14 @@ Recievers
 reciever_akm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AKM Reciever",
     weight=2.34,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Reciever',
                                    incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
-                                   compatible_magazine_type='AK 7.62x39',
+                                   compatible_magazine_type=('AK 7.62x39', ),
                                    compatible_bullet_type=('7.62x39',),
                                    compatible_parts={'AK Barrel': ['AK Barrel - 7.62x39', 'RPK Barrel - 7.62x39',
                                                                    'AK Carbine Barrel - 7.62x39',
@@ -35,14 +35,14 @@ reciever_akm = Item(
 reciever_ak74 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK-74 Reciever",
     weight=2.11,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Reciever',
                                    incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
-                                   compatible_magazine_type='AK 5.45x39',
+                                   compatible_magazine_type=('AK 5.45x39', ),
                                    compatible_bullet_type=('5.45x39',),
                                    suffix='74',
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.45x39', 'RPK-74 Barrel - 5.45x39',
@@ -64,14 +64,14 @@ reciever_ak74 = Item(
 reciever_100556 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK 101/102 5.56 Reciever",
     weight=2.11,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Reciever',
                                    incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
-                                   compatible_magazine_type='AK 5.56x45',
+                                   compatible_magazine_type=('AK 5.56x45', ),
                                    compatible_bullet_type=('5.56x45',),
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.56x45',
                                                                    'AK Carbine Barrel - 5.56x45',
@@ -93,7 +93,7 @@ reciever_100556 = Item(
 reciever_akm_auto = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AKM Select Fire Reciever",
     weight=2.34,
     stacking=None,
@@ -101,7 +101,7 @@ reciever_akm_auto = Item(
                                    incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
                                    fire_modes={'automatic': {'fire rate': 600, 'automatic': True}},
-                                   compatible_magazine_type='AK 7.62x39',
+                                   compatible_magazine_type=('AK 7.62x39', ),
                                    compatible_bullet_type=('7.62x39',),
                                    compatible_parts={'AK Barrel': ['AK Barrel - 7.62x39', 'RPK Barrel - 7.62x39',
                                                                    'AK Carbine Barrel - 7.62x39',
@@ -120,7 +120,7 @@ reciever_akm_auto = Item(
 reciever_ak74_auto = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK-74 Select Fire Reciever",
     weight=2.11,
     stacking=None,
@@ -128,7 +128,7 @@ reciever_ak74_auto = Item(
                                    incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
                                    fire_modes={'automatic': {'fire rate': 600, 'automatic': True}},
-                                   compatible_magazine_type='AK 5.45x39',
+                                   compatible_magazine_type=('AK 5.45x39', ),
                                    compatible_bullet_type=('5.45x39',),
                                    suffix='74',
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.45x39', 'RPK-74 Barrel - 5.45x39',
@@ -151,7 +151,7 @@ reciever_ak74_auto = Item(
 reciever_100556_auto = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK 101/102 5.56 Select Fire Reciever",
     weight=2.11,
     stacking=None,
@@ -159,7 +159,7 @@ reciever_100556_auto = Item(
                                    incompatibilities=(("Iron Sight",),),
                                    is_attachment_point_types=['AK Side Mount', ],
                                    fire_modes={'automatic': {'fire rate': 600, 'automatic': True}},
-                                   compatible_magazine_type='AK 5.56x45',
+                                   compatible_magazine_type=('AK 5.56x45', ),
                                    compatible_bullet_type=('5.56x45',),
                                    compatible_parts={'AK Barrel': ['AK Barrel - 5.56x45',
                                                                    'AK Carbine Barrel - 5.56x45',
@@ -186,7 +186,7 @@ Handguards
 handguard_akm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Wood AK Handguard",
     weight=0.144,
     stacking=None,
@@ -203,7 +203,7 @@ handguard_akm = Item(
 handguard_amd65 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AMD-65 Handguard",
     weight=0.284,
     stacking=None,
@@ -220,7 +220,7 @@ handguard_amd65 = Item(
 handguard_ak74 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Polymer AK Handguard",
     weight=0.273,
     stacking=None,
@@ -237,7 +237,7 @@ handguard_ak74 = Item(
 handguard_romanian = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Romanian AK Handguard",
     weight=0.23,
     stacking=None,
@@ -255,7 +255,7 @@ handguard_romanian = Item(
 handguard_microdraco = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     bg_colour=None,
     name="Micro Draco AK Handguard",
     weight=1,
@@ -269,7 +269,7 @@ handguard_microdraco = Item(
 handguard_ak100 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK 100 Series Railed Handguard",
     weight=0.27,
     stacking=None,
@@ -287,7 +287,7 @@ handguard_ak100 = Item(
 handguard_B10M = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="B-10M and B-19 AK Handguard",
     weight=0.27,
     stacking=None,
@@ -308,7 +308,7 @@ handguard_B10M = Item(
 handguard_leader = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Leader AK Handguard",
     weight=0.385,
     stacking=None,
@@ -333,7 +333,7 @@ handguard_leader = Item(
 handguard_magpul = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="MOE AK Handguard",
     weight=0.415,
     stacking=None,
@@ -357,7 +357,7 @@ Stocks
 stock_akm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AKM Stock",
     weight=0.364,
     stacking=None,
@@ -375,7 +375,7 @@ stock_akm = Item(
 stock_rpk = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="RPK Stock",
     weight=0.88,
     stacking=None,
@@ -393,7 +393,7 @@ stock_rpk = Item(
 stock_ak74 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK-74 Stock",
     weight=0.273,
     stacking=None,
@@ -411,7 +411,7 @@ stock_ak74 = Item(
 stock_ak100 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK-100 Series Stock",
     weight=0.273,
     stacking=None,
@@ -429,7 +429,7 @@ stock_ak100 = Item(
 stock_ak_underfolder = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Underfolder Stock",
     weight=0.564,
     stacking=None,
@@ -448,7 +448,7 @@ stock_ak_underfolder = Item(
 stock_ak_triangle = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Triangle Sidefolding Stock",
     weight=0.45,
     stacking=None,
@@ -467,7 +467,7 @@ stock_ak_triangle = Item(
 stock_ak12 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK-12 Stock",
     weight=0.272,
     stacking=None,
@@ -485,7 +485,7 @@ stock_ak12 = Item(
 stock_amd65 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AMD-65 Sidefolding Stock",
     weight=0.38,
     stacking=None,
@@ -504,7 +504,7 @@ stock_amd65 = Item(
 stock_pt1 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="PT-1 AK Stock",
     weight=0.48,
     stacking=None,
@@ -523,7 +523,7 @@ stock_pt1 = Item(
 stock_moe = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul MOE AK Stock",
     weight=0.354,
     stacking=None,
@@ -541,7 +541,7 @@ stock_moe = Item(
 stock_zhukov = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Magpul Zhukov-S AK Stock",
     weight=0.421,
     stacking=None,
@@ -566,7 +566,7 @@ Barrel + Gas Tube
 barrel_ak762 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Barrel - 7.62x39",
     weight=0.377,
     stacking=None,
@@ -594,7 +594,7 @@ barrel_ak762 = Item(
 barrel_ak545 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Barrel - 5.45x39",
     weight=0.46,
     stacking=None,
@@ -622,7 +622,7 @@ barrel_ak545 = Item(
 barrel_ak556 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Barrel - 5.56x45",
     weight=0.46,
     stacking=None,
@@ -651,7 +651,7 @@ barrel_ak556 = Item(
 barrel_rpk762 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="RPK Barrel - 7.62x39",
     weight=0.53,
     stacking=None,
@@ -680,7 +680,7 @@ barrel_rpk762 = Item(
 barrel_rpk545 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="RPK-74 Barrel - 5.45x39",
     weight=0.65,
     stacking=None,
@@ -709,7 +709,7 @@ barrel_rpk545 = Item(
 barrel_ak762_short = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Carbine Barrel - 7.62x39",
     weight=0.28,
     stacking=None,
@@ -740,7 +740,7 @@ barrel_ak762_short = Item(
 barrel_ak545_short = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Carbine Barrel - 5.45x39",
     weight=0.35,
     stacking=None,
@@ -771,7 +771,7 @@ barrel_ak545_short = Item(
 barrel_ak556_short = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Carbine Barrel - 5.56x45",
     weight=0.35,
     stacking=None,
@@ -795,7 +795,7 @@ barrel_ak556_short = Item(
                                    accuracy_part=True,
                                    short_barrel=True,
                                    ),
-    description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.56x39 such as that of "
+    description="A shortened 314mm (12.4 inch) carbine AK barrel assembly chambered in 5.56x45 such as that of "
                 "the AK-102"
 )
 
@@ -806,7 +806,7 @@ Grips
 grip_akm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Grip",
     weight=0.08,
     stacking=None,
@@ -820,7 +820,7 @@ grip_akm = Item(
 grip_ak12 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK-12 Grip",
     weight=0.05,
     stacking=None,
@@ -835,7 +835,7 @@ grip_ak12 = Item(
 grip_sniper = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK AGS-74 Sniper Grip",
     weight=0.15,
     stacking=None,
@@ -851,7 +851,7 @@ grip_sniper = Item(
 grip_moe = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK MOE Grip",
     weight=0.08,
     stacking=None,
@@ -865,7 +865,7 @@ grip_moe = Item(
 grip_rk3 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK RK-3 Grip",
     weight=0.225,
     stacking=None,
@@ -880,7 +880,7 @@ grip_rk3 = Item(
 grip_tapco = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Tapco SAW Grip",
     weight=0.13,
     stacking=None,
@@ -895,7 +895,7 @@ grip_tapco = Item(
 grip_skeletonised = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Skeletonised Grip",
     weight=0.038,
     stacking=None,
@@ -909,7 +909,7 @@ grip_skeletonised = Item(
 grip_hogue = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK OverMolded Grip",
     weight=0.08,
     stacking=None,
@@ -923,7 +923,7 @@ grip_hogue = Item(
 grip_fab = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK FAB Defense Grip",
     weight=0.12,
     stacking=None,
@@ -943,7 +943,7 @@ Muzzle devices
 muzzle_ak74 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK-74 Compensator",
     weight=0.1,
     stacking=None,
@@ -958,7 +958,7 @@ muzzle_ak74 = Item(
 muzzle_dtk = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK DTK-1 Compensator",
     weight=0.128,
     stacking=None,
@@ -973,7 +973,7 @@ muzzle_dtk = Item(
 muzzle_amd65 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK AMD-65 Muzzle Brake",
     weight=0.201,
     stacking=None,
@@ -988,7 +988,7 @@ muzzle_amd65 = Item(
 muzzle_akm = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AKM Compensator",
     weight=0.02,
     stacking=None,
@@ -1003,7 +1003,7 @@ muzzle_akm = Item(
 muzzle_akml = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AKML Flash Hider",
     weight=0.05,
     stacking=None,
@@ -1018,7 +1018,7 @@ muzzle_akml = Item(
 muzzle_lantac = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Dragon Compensator",
     weight=0.09,
     stacking=None,
@@ -1033,7 +1033,7 @@ muzzle_lantac = Item(
 muzzle_pbs4 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="PBS-4 5.45x39 Suppressor",
     weight=0.7,
     stacking=None,
@@ -1051,7 +1051,7 @@ muzzle_pbs4 = Item(
 muzzle_pbs1 = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="Zenitco DTK-4M 7.62x39 Suppressor",
     weight=0.354,
     stacking=None,
@@ -1070,7 +1070,7 @@ muzzle_pbs1 = Item(
 muzzle_dynacomp = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Dynacomp Compensator",
     weight=0.076,
     stacking=None,
@@ -1089,7 +1089,7 @@ Other Accessories
 accessory_dustcoverrail = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Dust Cover W/ Picatinny Rail",
     weight=0.195,
     stacking=None,
@@ -1105,7 +1105,7 @@ accessory_dustcoverrail = Item(
 accessory_railsidemount = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK Side Mounted Picatinny Rail",
     weight=0.175,
     stacking=None,
@@ -1120,12 +1120,12 @@ accessory_railsidemount = Item(
 ak_ar_mag_adapter = Item(
     x=0, y=0,
     char="!",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_MAGENTA,
     name="AK STANAG Magazine Adapter",
     weight=0.153,
     stacking=None,
     usable_properties=GunComponent(part_type='AK Magazine Adapter',
-                                   compatible_magazine_type='STANAG 5.56x45',
+                                   compatible_magazine_type=('STANAG', ),
                                    compatible_parts={'AK Reciever': ['AK 100 series 5.56 Reciever', ]},
                                    ),
     description="Magazine adapter for 5.56 AK rifles providing compatibility with STANAG magazines by Shaffer Machining"
@@ -1134,7 +1134,7 @@ ak_ar_mag_adapter = Item(
 ak = Item(
     x=0, y=0,
     char="r",
-    fg_colour=colour.LIGHT_GRAY,
+    fg_colour=colour.LIGHT_BROWN,
     name="AK",
     weight=1,
     stacking=None,
@@ -1142,7 +1142,7 @@ ak = Item(
                 'the late 1940s. It was first adopted by the Soviet military in 1949 and has since become one of the '
                 'most widely used firearms in the world. It is renowned for its durability and ease of use.',
     usable_properties=GunMagFed(
-        compatible_magazine_type='AK 7.62x39',
+        compatible_magazine_type=('AK 7.62x39', ),
         chambered_bullet=None,
         keep_round_chambered=True,
         loaded_magazine=None,

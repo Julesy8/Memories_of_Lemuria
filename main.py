@@ -179,7 +179,7 @@ def main() -> None:
             while True:
                 console.clear()
                 handler.on_render(console=console)
-                context.present(console)
+                context.present(console, keep_aspect=True, integer_scaling=True)
                 clock.sync(fps=max_fps)
 
                 try:
@@ -208,6 +208,10 @@ def main() -> None:
         except exceptions.QuitWithoutSaving:
             raise
         except SystemExit:  # Save and quit.
+            try:
+                handler.engine.squad_mode = False
+            except AttributeError:
+                pass
             save_game(handler, "savegame.sav")
             for child in active_children():
                 child.kill()
