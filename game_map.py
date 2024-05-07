@@ -5,6 +5,7 @@ from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
 import tcod.los
 from tcod.console import Console
+import input_handlers
 
 import tile_types
 from colours_and_chars import MapColoursChars
@@ -247,6 +248,7 @@ class GameMap:
 
         if self.engine.current_floor % 5 == 0:
             self.engine.current_level += 1
+            self.engine.current_floor = 0
 
         if len(self.engine.players) < 5:
             if choice(new_player_chance):

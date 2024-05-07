@@ -115,24 +115,25 @@ def render_names_at_mouse_location(
     #                     engine.player.x - mouse_x)
     # print(orientation)
 
-    # names_at_mouse_location = ""
-    #
-    # if game_map.in_bounds(mouse_x, mouse_y):
-    #     names_at_mouse_location = get_names_at_location(
-    #         x=mouse_x, y=mouse_y, game_map=engine.game_map
-    #     )
+    names_at_mouse_location = ""
+
+    if game_map.in_bounds(mouse_x, mouse_y):
+        names_at_mouse_location = get_names_at_location(
+            x=mouse_x, y=mouse_y, game_map=engine.game_map
+        )
 
     names_at_player = get_names_at_location(
         x=engine.player.x, y=engine.player.y, game_map=engine.game_map
     )
 
-    if names_at_player != '':
-        console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
+    # if names_at_player != '':
+    #     console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
 
-    # if names_at_mouse_location == "":
-    # else:
-    # console.print(x=x, y=y, string=f"Mouse: {engine.mouse_location} {names_at_mouse_location}",
-    # fg=colour.WHITE, bg=(0, 0, 0))
+    if names_at_mouse_location == "" and not names_at_player == "":
+        console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
+    elif not names_at_mouse_location == "":
+        console.print(x=x, y=y, string=f"Mouse: {names_at_mouse_location}",
+        fg=colour.WHITE, bg=(0, 0, 0))
 
 
 def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -> None:

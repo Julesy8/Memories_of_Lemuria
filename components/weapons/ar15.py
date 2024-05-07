@@ -2053,32 +2053,6 @@ ar15 = Item(
         action_type='semi-auto rifle',
     ))
 
-ardict = {
-    "AR Pattern": {
-        "required parts": {
-            "AR Lower Receiver": 1,
-            "AR Upper Receiver": 1,
-            "AR Buffer Tube": 1,
-            "AR Buffer": 1,
-            "AR Barrel": 1,
-            "AR Handguard": 1,
-            "AR Grip": 1,
-        },
-        "compatible parts": {
-            "AR Stock": 1,
-            "Attachment Adapter": 1,
-            "Muzzle Adapter": 1,
-            "Front Sight": 1,
-            "AR Optics Mount": 1,
-            "Underbarrel Accessory": 1,
-            "Side Mounted Accessory": 1,
-            "Muzzle Device": 1,
-            "Optic": 1
-        },
-        "item": ar15
-    },
-}
-
 upper_mcr = Item(
     x=0, y=0,
     char="!",
@@ -2151,25 +2125,3 @@ fightlite_mcr = Item(
         gun_type='rifle',
         action_type='belt fed',
     ))
-
-mcrdict = {
-            "MCR": {
-                "required parts": {
-                    "AR Lower Receiver": 1,
-                    "MCR Upper Receiver": 1,
-                    "AR Buffer Tube": 1,
-                    "AR Grip": 1,
-                },
-                "compatible parts": {
-                    "AR Stock": 1,
-                    "Attachment Adapter": 1,
-                    "Muzzle Adapter": 1,
-                    "Front Sight": 1,
-                    "Underbarrel Accessory": 1,
-                    "Side Mounted Accessory": 1,
-                    "Muzzle Device": 1,
-                    "Optic": 1
-                },
-                "item": fightlite_mcr
-            }
-}

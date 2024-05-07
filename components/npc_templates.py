@@ -286,7 +286,49 @@ class Fighter(BaseComponent):
         except KeyError:
             return
 
+class MeleeFighter(Fighter):
+    def __init__(self,
+                 unarmed_meat_damage,
+                 unarmed_armour_damage,
+                 # faction_allegiance: tuple,
+                 item_drops: dict,
+                 weapons: dict,
+                 bodyarmour: dict,
+                 helmet: dict,
+                 spawn_group_amount: int,
+                 unarmed_ap_cost: int = 100,
+                 move_ap_cost: int = 100,
+                 ap: int = 100,
+                 ap_per_turn: int = 100,
+                 melee_accuracy: float = 0.5,  # more = more accurate
+                 ranged_accuracy: float = 8.0,  # less = more accurate
+                 move_success_chance: float = 1.0,
+                 responds_to_sound: bool = True,
+                 fears_death=True,
+                 description: str = '',
+                 active: bool = False
+                 ):
+        super().__init__(unarmed_meat_damage, unarmed_armour_damage, item_drops, weapons, bodyarmour, helmet,
+                         spawn_group_amount, unarmed_ap_cost, move_ap_cost, ap, ap_per_turn, melee_accuracy,
+                         ranged_accuracy, move_success_chance, responds_to_sound, fears_death, description, active)
 
+    def give_weapon(self, current_level: int):
+
+        try:
+
+            if len(self.weapons[current_level].keys()) > 0:
+                weapon = deepcopy(choices(population=list(self.weapons[current_level].keys()),
+                                       weights=list(self.weapons[current_level].values()),
+                                       k=1)[0])
+                held_weapon = deepcopy(weapon)
+
+                self.parent.inventory.held = held_weapon
+                self.parent.inventory.primary_weapon = held_weapon
+                self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held
+                self.parent.inventory.held.parent = self.parent.inventory
+
+        except KeyError:
+            return
 class GunFighter(Fighter):
     def __init__(self,
                  unarmed_meat_damage,

@@ -940,29 +940,3 @@ mac10 = Item(
         barrel_length=4
     )
 )
-
-mac10dict = {
-    "guns": {
-        "submachineguns": {
-            "MAC 10": {
-                "required parts": {
-                    "M10 Lower": 1,
-                    "M10 Upper": 1,
-                },
-                "compatible parts": {
-                    "Stock Adapter M10": 1,
-                    "Attachment Adapter": 1,
-                    "Muzzle Adapter": 1,
-                    "M10 Stock": 1,
-                    "M10 Optics Mount": 1,
-                    "Muzzle Device": 1,
-                    "Accessory Adapter M10": 1,
-                    "Side Mounted Accessory": 1,
-                    "Underbarrel Accessory": 1,
-                    "Optic": 1
-                },
-                "item": mac10
-            },
-        },
-    }
-}

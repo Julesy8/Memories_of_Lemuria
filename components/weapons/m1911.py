@@ -1903,26 +1903,3 @@ m1911 = Item(
         action_type='semi-auto pistol',
     )
 )
-
-m1911dict = {
-    "guns": {
-        "pistols": {
-            "1911": {
-                "required parts": {
-                    "M1911 Frame": 1,
-                    "M1911 Barrel": 1,
-                    "M1911 Slide": 1,
-                    "M1911 Grip Panels": 1,
-                },
-                "compatible parts": {
-                    "M1911 Optics Mount": 1,
-                    "Side Mounted Accessory": 1,
-                    "Underbarrel Accessory": 1,
-                    "Optic": 1,
-                    "Muzzle Device": 1,
-                },
-                "item": m1911
-            },
-        }
-    },
-}

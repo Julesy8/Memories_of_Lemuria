@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import Optional, TYPE_CHECKING, Union, Callable
 from configparser import ConfigParser
 from math import ceil
+import numpy as np
 import tcod
 import textwrap
 import tcod.event
@@ -150,6 +151,8 @@ class EventHandler(BaseEventHandler):
             if not self.engine.player.is_alive:
                 # The player was killed sometime during or after the action.
                 return GameOverEventHandler(self.engine)
+            if self.engine.game_won:
+                return GameWonEventHandler(self.engine)
 
             # checks if previous target actor is still visible, if not resets to None
             if self.engine.player.fighter.previous_target_actor is not None:
@@ -189,8 +192,7 @@ class EventHandler(BaseEventHandler):
         return True
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
-        if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
-            self.engine.mouse_location = event.tile.x, event.tile.y
+        self.engine.mouse_location = event.tile.x, event.tile.y
 
     def on_render(self, console: tcod.Console) -> None:
         self.engine.render(console)
@@ -301,6 +303,55 @@ class GameOverEventHandler(EventHandler):
         elif key == tcod.event.K_t:
             return Bestiary(self.engine, parent_handler=self)
 
+
+class GameWonEventHandler(EventHandler):
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)  # Draw the main state as the background.
+
+        path = "win_screen.xp"  # REXPaint file with one layer.
+        # Load a REXPaint file with a single layer.
+        # The comma after console is used to unpack a single item tuple.
+        console2, = tcod.console.load_xp(path, order="F")
+
+        # Convert tcod's Code Page 437 character mapping into a NumPy array.
+        CP437_TO_UNICODE = np.asarray(tcod.tileset.CHARMAP_CP437)
+
+        # Convert from REXPaint's CP437 encoding to Unicode in-place.
+        console2.ch[:] = CP437_TO_UNICODE[console2.ch]
+
+        # Apply REXPaint's alpha key color.
+        KEY_COLOR = (255, 0, 255)
+        is_transparent = (console2.rgb["bg"] == KEY_COLOR).all(axis=2)
+        console2.rgba[is_transparent] = (ord(" "), (0,), (0,))
+
+        console.draw_frame(
+            x=console.width // 2 - 46,
+            y=console.height // 2 - 27,
+            width=92,
+            height=29,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        console2.blit(dest=console, dest_x=console.width // 2 - 43, dest_y=console.height // 2 - 24, src_x=0, src_y=0,
+                      width=86,
+                      height=52)
+
+        console.print(x=console.width // 2 - 38, y=console.height // 2 - 4,
+                      string="YOUR TEAM DESTROYED THE EVIL EXTRATERRESTRIAL FORCES AND SAVED THE COUNTRY!",
+                      fg=colour.MAGENTA, bg=(0, 0, 0))
+
+        console.print(x=console.width // 2 - 14, y=console.height // 2 - 2, string="PRESS [ESC] TO QUIT TO MENU.",
+                      fg=colour.WHITE, bg=(0, 0, 0))
+
+    def ev_keydown(self, event: tcod.event.KeyDown):
+
+        key = event.sym
+
+        if key == tcod.event.K_ESCAPE:
+            raise exceptions.QuitToMenu
 
 CURSOR_Y_KEYS = {
     tcod.event.K_UP: -1,
@@ -1033,14 +1084,15 @@ class ChangeTargetActor(AskUserEventHandler):
             self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
 
             # selects bodypart
-            self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
+            if self.selected_bodypart is None or not self.selected_bodypart in player.fighter.target_actor.bodyparts:
+                self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
 
             self.update_bodypart_list()
+            self.update_part_str_colour()
+
 
             # sets targets index in target list
             self.target_index: int = self.targets.index(player.fighter.target_actor)
-
-            self.update_part_str_colour()
 
     def on_render(self, console: tcod.Console):
 
@@ -1075,14 +1127,14 @@ class ChangeTargetActor(AskUserEventHandler):
         if len(player_name_list) > 0:
             console.print(x=0, y=3, string=f"PLAYERS SELECTED: {', '.join(player_name_list)}",
                           fg=colour.WHITE, bg=(0, 0, 0))
-        #
+
         # for destination in self.destinations:
         #     dest_x = destination[0] - cam_x
         #     dest_y = destination[1] - cam_y
         #     console.print(x=0, y=4, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
-
-            # if blink_on and 0 <= dest_x < console.width and 0 <= dest_y < console.height:
-            #     console.print(dest_x, dest_y, "X", colour.WHITE)
+        #
+        #     if blink_on and 0 <= dest_x < console.width and 0 <= dest_y < console.height:
+        #         console.print(dest_x, dest_y, "X", colour.WHITE)
 
         player = self.engine.player
 
@@ -1157,10 +1209,12 @@ class ChangeTargetActor(AskUserEventHandler):
                                 self.players_selected.remove(entity)
                         # enemy selected
                         else:
-                            self.engine.player.fighter.target_actor = entity
-                            self.selected_bodypart = self.engine.player.fighter.target_actor.bodyparts[0]
-                            self.bodypart_index = 0
-                            self.target_index = 0
+                            if self.engine.game_map.check_los(self.engine.player.x, self.engine.player.y, entity.x,
+                                                              entity.y):
+                                self.engine.player.fighter.target_actor = entity
+                                self.selected_bodypart = self.engine.player.fighter.target_actor.bodyparts[0]
+                                self.bodypart_index = 0
+                                self.target_index = 0
 
             # moves players
             elif event.button == 3:
@@ -1188,17 +1242,19 @@ class ChangeTargetActor(AskUserEventHandler):
                 # centres camera on target
                 self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
             except IndexError:
-                player.fighter.target_actor = self.targets[0]
-                self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
-                self.bodypart_index = 0
-                self.target_index = 0
-                self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
+                if len(self.targets) > 0:
+                    player.fighter.target_actor = self.targets[0]
+                    self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
+                    self.bodypart_index = 0
+                    self.target_index = 0
+                    self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
             except TypeError:
                 if not self.in_squad_mode:
                     self.engine.squad_mode = False
                 return self.parent_handler
 
-            self.target_index = self.targets.index(player.fighter.target_actor)
+            if len(self.targets) > 0:
+                self.target_index = self.targets.index(player.fighter.target_actor)
 
             # updates list of target bodyparts
             self.update_bodypart_list()
@@ -1221,6 +1277,7 @@ class ChangeTargetActor(AskUserEventHandler):
             self.update_part_str_colour()
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
+            print(self.bodypart_index)
 
             if self.item is not None:
                 if hasattr(self.item.usable_properties, 'jammed'):
@@ -1249,7 +1306,8 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.engine.render(console=self.console)
 
         elif key == tcod.event.K_TAB:
-            return self.engine.switch_player()
+            self.engine.switch_player()
+            return self.get_targets()
         elif key == tcod.event.K_c:
             return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting',
                                      parent_handler=self)
@@ -1289,6 +1347,7 @@ class ChangeTargetActor(AskUserEventHandler):
             return ShowEnemyInfo(self.engine, entity=player.fighter.target_actor, parent_handler=self)
 
         elif key in WAIT_KEYS:
+            self.get_targets()
             self.engine.handle_turns()
 
         elif key in MOVE_KEYS:
@@ -1307,8 +1366,9 @@ class ChangeTargetActor(AskUserEventHandler):
     def update_bodypart_list(self) -> None:
         # updates bodypart list
         self.bodypartlist = []
-        for bodypart in self.engine.player.fighter.target_actor.bodyparts:
-            self.bodypartlist.append(bodypart)
+        if self.engine.player.fighter.target_actor is not None:
+            for bodypart in self.engine.player.fighter.target_actor.bodyparts:
+                self.bodypartlist.append(bodypart)
 
     def update_part_str_colour(self) -> None:
 

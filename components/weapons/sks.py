@@ -444,26 +444,3 @@ sks = Item(
         barrel_length=20
     )
 )
-
-sksdict = {
-    "guns": {
-        "automatic rifles": {
-            "SKS Rifle": {
-                "required parts": {
-                    "SKS Barrel": 1,
-                    "SKS Stock": 1,
-                },
-                "compatible parts": {
-                    "SKS Internal Magazine": 1,
-                    "Attachment Adapter": 1,
-                    "SKS Optics Mount": 1,
-                    "Underbarrel Accessory": 1,
-                    "Side Mounted Accessory": 1,
-                    "Muzzle Device": 1,
-                    "Optic": 1
-                },
-                "item": sks
-            },
-        }
-    },
-}

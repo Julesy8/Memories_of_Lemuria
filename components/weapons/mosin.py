@@ -301,25 +301,3 @@ mosin_nagant = Item(
         barrel_length=30
     )
 )
-
-mosindict = {
-    "guns": {
-        "rifles": {
-            "Mosin-Nagant 91/30": {
-                "required parts": {
-                    "Mosin-Nagant Stock": 1,
-                    "Mosin-Nagant Barrel": 1,
-                },
-                "compatible parts": {
-                    "Attachment Adapter": 1,
-                    "Muzzle Adapter": 1,
-                    "Mosin-Nagant Accessory Mount": 1,
-                    "Muzzle Device": 1,
-                    "Optic": 1,
-                    "Side Mounted Accessory": 1,
-                },
-                "item": mosin_nagant
-            },
-        }
-    },
-}

@@ -1168,30 +1168,3 @@ ak = Item(
         action_type='semi-auto rifle',
     )
 )
-
-akmdict = {
-    "guns": {
-        "automatic rifles": {
-            "Kalashnikov Rifle": {
-                "required parts": {
-                    "AK Reciever": 1,
-                    "AK Barrel": 1,
-                    "AK Handguard": 1,
-                    "AK Grip": 1,
-                },
-                "compatible parts": {
-                    "AK Stock": 1,
-                    "Attachment Adapter": 1,
-                    "Muzzle Adapter": 1,
-                    "AK Optics Mount": 1,
-                    "Side Mounted Accessory": 1,
-                    "Underbarrel Accessory": 1,
-                    "Muzzle Device": 1,
-                    "AK Magazine Adapter": 1,
-                    "Optic": 1
-                },
-                "item": ak
-            },
-        }
-    },
-}

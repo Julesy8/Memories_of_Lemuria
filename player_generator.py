@@ -296,7 +296,7 @@ def generate_player(current_level: int, players: list):
                    'Julian', 'Oscar', 'Blake', 'Cole', 'Joel', 'Ronald', 'Francisco', 'Bradley', 'Eduardo', 'Devon',
                    'Maxwell', 'Ruben', 'Ricardo', 'Derrick', 'Tanner', 'Angel', 'Brett', 'Martin', 'Spencer', 'Gavin',
                    'Henry', 'Troy', 'Victor', 'Darius', 'Drew', 'Jack', 'Beau', 'Liam', 'Oliver', 'Max', 'Angus',
-                   'Ryley', 'Carl', 'Mitch', 'Ben', 'Xavier', 'Stanley', 'Sigfried', 'Kenny', 'Hans', 'Ronnie'
+                   'Ryley', 'Carl', 'Mitch', 'Ben', 'Xavier', 'Stanley', 'Sigfried', 'Kenny', 'Hans', 'Ronnie',
                    'Simon', 'Skinny', 'Nelson', 'Willy', 'Theron', 'Clifford', 'Trey', 'Bertie', 'Craig', 'Vance',
                    'Tyrone', 'Otis', 'Kris', 'Randall', 'Brendan', 'Phillip', 'Warren', 'Arnold', 'Dean', 'Daryl',
                    'Glen', 'Harry', 'Tommy', 'Ted', ' Tony', 'Elijah', 'Dennis', 'Kurt', 'Brent', 'Dominic', 'Gary',

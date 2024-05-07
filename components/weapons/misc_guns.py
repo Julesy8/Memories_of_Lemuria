@@ -184,24 +184,6 @@ sw629 = Item(
     )
 )
 
-m629dict = {
-    "guns": {
-        "rifles": {
-            "S&W Model 629": {
-                "required parts": {
-                    "S&W .44 Frame": 1,
-                    "S&W .44 Barrel": 1,
-                },
-                "compatible parts": {
-                    "S&W N-Frame Optic Mount": 1,
-                    "Optic": 1,
-                },
-                "item": sw629
-            },
-        }
-    },
-}
-
 """S&W 610"""
 
 sw610_frame = Item(
@@ -298,24 +280,6 @@ sw610 = Item(
         barrel_length=6.5
     )
 )
-
-m610dict = {
-    "guns": {
-        "rifles": {
-            "S&W Model 610": {
-                "required parts": {
-                    "S&W 10mm Frame": 1,
-                    "S&W 10mm Frame Barrel": 1,
-                },
-                "compatible parts": {
-                    "S&W N-Frame Optic Mount": 1,
-                    "Optic": 1,
-                },
-                "item": sw610
-            },
-        }
-    },
-}
 
 """Desert Eagle XIX .44 Magnum"""
 
@@ -494,26 +458,6 @@ de44 = Item(
     )
 )
 
-de44_dict = {
-    "guns": {
-        "pistols": {
-            "Desert Eagle XIX .44 Magnum": {
-                "required parts": {
-                    "DE .44 Frame": 1,
-                    "DE .44 Barrel": 1,
-                    "DE .44 Slide": 1,
-                },
-                "compatible parts": {
-                    "Optic": 1,
-                    "Muzzle Device": 1,
-                },
-                "item": de44
-            },
-        }
-    },
-}
-
-
 """TT-33"""
 
 # frames
@@ -680,26 +624,6 @@ tt33 = Item(
     )
 )
 
-tt33_dict = {
-    "guns": {
-        "pistols": {
-            "TT-33": {
-                "required parts": {
-                    "Tokarev TT Frame": 1,
-                    "Tokarev TT Barrel": 1,
-                    "Tokarev TT Slide": 1,
-                    "Tokarev TT-33 Grip Panels": 1,
-                },
-                "compatible parts": {
-                    "Optic": 1,
-                    "Muzzle Device": 1,
-                },
-                "item": tt33
-            },
-        }
-    },
-}
-
 """
 Shotguns
 """
@@ -862,26 +786,6 @@ singleshot = Item(
     )
 )
 
-h015_dict = {
-    "guns": {
-        "shotguns": {
-            "Winchester H015": {
-                "required parts": {
-                    "H015 Reciever": 1,
-                    "H015 Barrel": 1,
-                    "H015 Stock": 1,
-                    "Model 870 Choke": 1,
-                },
-                "compatible parts": {
-                    "H015 Optic Mount": 1,
-                    "Optic": 1
-                },
-                "item": singleshot
-            },
-        }
-    },
-}
-
 """
 Submachineguns
 """
@@ -1034,25 +938,6 @@ m3_greasegun = Item(
         barrel_length=8
     )
 )
-
-m3_dict = {
-    "guns": {
-        "submachineguns": {
-            "M3 Submachine Gun": {
-                "required parts": {
-                    "M3 Reciever": 1,
-                    "M3 Barrel": 1,
-                },
-                "compatible parts": {
-                    "M3 Stock": 1,
-                    "Optic": 1,
-                    "Muzzle Device": 1,
-                },
-                "item": m3_greasegun
-            },
-        },
-    }
-}
 
 """PPSh"""
 
@@ -1296,25 +1181,6 @@ ppsh_41 = Item(
     )
 )
 
-ppsh_dict = {
-    "guns": {
-        "submachineguns": {
-            "PPSh-41": {
-                "required parts": {
-                    "PPSh Reciever": 1,
-                    "PPSh Barrel": 1,
-                    "PPSh Dust Cover": 1,
-                    "PPSh Stock": 1,
-                },
-                "compatible parts": {
-                    "Optic": 1
-                },
-                "item": ppsh_41
-            },
-        },
-    }
-}
-
 """
 Rifles
 """
@@ -1449,25 +1315,6 @@ svt = Item(
         gun_type='rifle'
     )
 )
-
-svt_dict = {
-    "guns": {
-        "automatic rifles": {
-            "SVT-40": {
-                "required parts": {
-                    "SVT Reciever": 1,
-                    "SVT Stock": 1,
-                },
-                "compatible parts": {
-                    "SVT Optics Mount": 1,
-                    "Optic": 1
-                },
-                "item": svt
-            },
-        }
-    },
-}
-
 
 """
 Carbines

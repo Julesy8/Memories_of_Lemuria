@@ -41,6 +41,7 @@ class Engine:
         self.player = player
         self.players: list[Actor] = [player]
         self.crafting_recipes = crafting_dict
+        self.game_won = False
 
         self.bestiary = {}
 

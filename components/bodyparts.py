@@ -11,9 +11,7 @@ from numpy import log
 from shapely.geometry import LineString
 
 import colour
-from components.consumables import RecipeUnlock
-from components.datapacks import datapackdict
-from entity import Actor, Item
+from entity import Actor
 from render_order import RenderOrder
 
 if TYPE_CHECKING:
@@ -31,10 +29,6 @@ def rotate(origin_x, origin_y, point_x, point_y, angle):
     qx = origin_x + cos(angle) * (point_x - origin_x) - sin(angle) * (point_y - origin_y)
     qy = origin_y + sin(angle) * (point_x - origin_x) + cos(angle) * (point_y - origin_y)
     return qx, qy
-
-
-# TODO - more body parts i.e. hands, feet, chest and abdomen.
-#  Chest and abdomen solves problem of aiming for middle of torso
 
 
 class Bodypart:
@@ -197,18 +191,18 @@ class Bodypart:
             item_drop = deepcopy(choices(population=drops, weights=drop_weight, k=1)[0])
 
             # gives PDA datapack properties
-            if isinstance(item_drop, Item):
-                if item_drop.name == 'PDA':
-
-                    data_pack_pop = []
-                    data_pack_weight = []
-
-                    for i in datapackdict[self.engine.current_level]:
-                        data_pack_pop.append(i[0])
-                        data_pack_weight.append(i[1])
-
-                    item_drop.usable_properties = RecipeUnlock(choices(population=data_pack_pop,
-                                                                       weights=data_pack_weight, k=1)[0])
+            # if isinstance(item_drop, Item):
+            #     if item_drop.name == 'PDA':
+            #
+            #         data_pack_pop = []
+            #         data_pack_weight = []
+            #
+            #         for i in datapackdict[self.engine.current_level]:
+            #             data_pack_pop.append(i[0])
+            #             data_pack_weight.append(i[1])
+            #
+            #         item_drop.usable_properties = RecipeUnlock(choices(population=data_pack_pop,
+            #                                                            weights=data_pack_weight, k=1)[0])
 
             if item_drop is not None:
                 item_drop.usable_properties.parent = item_drop
