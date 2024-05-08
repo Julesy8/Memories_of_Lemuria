@@ -197,6 +197,9 @@ def main() -> None:
                         context.convert_event(event)
                         handler = handler.handle_events(event)
                 except exceptions.QuitToMenu:
+                    save_game(handler, "savegame.sav")
+                    handler = MainMenu()
+                except exceptions.QuitToMenuWithoutSaving:
                     handler = MainMenu()
                 except Exception:  # Handle exceptions in game.
                     traceback.print_exc()  # Print error to stderr.

@@ -299,6 +299,7 @@ class GameOverEventHandler(EventHandler):
         if key == tcod.event.K_v:
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_ESCAPE:
+            os.remove('savegame.sav')
             return QuitEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_t:
             return Bestiary(self.engine, parent_handler=self)
@@ -1505,26 +1506,35 @@ class QuitEventHandler(AskUserEventHandler):
 
         console.draw_frame(
             x=console.width // 2 - 11,
-            y=console.height // 2 - 4,
-            width=18,
+            y=console.height // 2 - 2,
+            width=22,
             height=5,
             clear=True,
             fg=colour.WHITE,
             bg=(0, 0, 0),
         )
 
-        console.print(x=console.width // 2 - 9, y=console.height // 2 - 3, string="Quit to Menu ?",
+        console.print(x=console.width // 2 - 9, y=console.height // 2 - 1, string="1) Return to Game",
                       fg=colour.WHITE, bg=(0, 0, 0))
-        console.print(x=console.width // 2 - 9, y=console.height // 2 - 1, string="(Y) Yes (N) No",
+
+        console.print(x=console.width // 2 - 9, y=console.height // 2, string="2) Quit to Menu",
+                      fg=colour.WHITE, bg=(0, 0, 0))
+
+        console.print(x=console.width // 2 - 9, y=console.height // 2 + 1, string="3) Abandon Mission",
                       fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         key = event.sym
-        if key == tcod.event.K_y or key == tcod.event.K_ESCAPE:
+        if key == tcod.event.K_2:
             raise exceptions.QuitToMenu
 
-        elif key == tcod.event.K_n:
+        elif key == tcod.event.K_1:
             return self.parent_handler
+
+        elif key == tcod.event.K_3:
+            if os.path.exists("savegame.sav"):
+                os.remove("savegame.sav")  # Deletes the active save file.
+            raise exceptions.QuitToMenuWithoutSaving
 
 
 class MagazineOptionsHandler(UserOptionsEventHandler):

@@ -8,6 +8,8 @@ class Impossible(Exception):
 class QuitToMenu(Exception):
     """quit game to menu"""
 
+class QuitToMenuWithoutSaving(Exception):
+    """quit game to menu without creating a save file"""
 
 class QuitWithoutSaving(SystemExit):
     """Can be raised to exit the game without automatically saving."""

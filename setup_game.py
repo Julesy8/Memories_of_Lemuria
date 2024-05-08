@@ -9,6 +9,7 @@ from typing import Optional
 from configparser import ConfigParser
 import numpy as np
 import traceback
+import os.path
 from multiprocessing import Process
 import tcod
 
@@ -54,6 +55,11 @@ class MainMenu(BaseEventHandler):
         if music:
             self.music = Process(target=playmusic)
             self.music.start()
+
+        if os.path.isfile('savegame.sav'):
+            self.options = ["Continue", "  Quit"]
+        else:
+            self.options = ["New Game", "  Quit"]
 
     def change_fg_colour(self):
 
@@ -121,9 +127,7 @@ class MainMenu(BaseEventHandler):
         )
 
         menu_width = 8
-        for i, text in enumerate(
-                ["New Game", "Continue", "  Quit"]
-        ):
+        for i, text in enumerate(self.options):
             # noinspection PyTypeChecker
             console.print(
                 console.width // 2,
@@ -162,7 +166,7 @@ class MainMenu(BaseEventHandler):
         #     raise SystemExit()
 
         if event.sym == tcod.event.K_DOWN:
-            if self.option_selected < 2:
+            if self.option_selected < len(self.options) - 1:
                 self.option_selected += 1
             else:
                 self.option_selected = 0
@@ -171,19 +175,19 @@ class MainMenu(BaseEventHandler):
             if self.option_selected > 0:
                 self.option_selected -= 1
             else:
-                self.option_selected = 2
+                self.option_selected = len(self.options) - 1
 
         elif event.sym == tcod.event.K_F1:
             self.subtext = generate_subtext()
 
         elif event.sym == tcod.event.K_RETURN:
             # new game
-            if self.option_selected == 0:
+            if self.options[self.option_selected] == "New Game":
                 if music:
                     self.music.terminate()
                 return MainGameEventHandler(new_game())
             # continue game
-            elif self.option_selected == 1:
+            elif self.options[self.option_selected] == "Continue":
                 try:
                     # TODO show message here warning player that current save will be overwritten
                     if self.music is not None:
@@ -195,7 +199,7 @@ class MainMenu(BaseEventHandler):
                     traceback.print_exc()  # Print to stderr.
                     return PopupMessage(self, f"Failed to load save:\n{exc}", title='Error')
                 pass
-            elif self.option_selected == 2:
+            elif self.options[self.option_selected] == "  Quit":
                 if music:
                     self.music.terminate()
                 raise SystemExit()
