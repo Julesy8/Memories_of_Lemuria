@@ -353,7 +353,7 @@ class HostileEnemyArmed(HostileEnemy):
 
                     # reload weapon
                     if held_item.usable_properties.chambered_bullet is None and isinstance(
-                            held_item.usable_properties.previously_loaded_round.usable_properties, Bullet):
+                            held_item.usable_properties.previously_loaded_round, Bullet):
 
                         if held_item.usable_properties.previously_loaded_clip is not None:
                             # reload from clip
@@ -368,7 +368,7 @@ class HostileEnemyArmed(HostileEnemy):
                             no_bullets_to_load = held_item.usable_properties.mag_capacity - \
                                                  len(held_item.usable_properties.magazine)
                             LoadBulletsIntoMagazine(entity=self.entity, magazine=held_item,
-                                                    bullet_type=held_item.usable_properties.previously_loaded_round.usable_properties,
+                                                    bullet_type=held_item.usable_properties.previously_loaded_round,
                                                     bullets_to_load=no_bullets_to_load).handle_action()
 
                     # round in chamber, attacks

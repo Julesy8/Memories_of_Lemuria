@@ -219,7 +219,7 @@ class Fighter(BaseComponent):
                                     try:
                                         magazine_weights.append(value[current_level])
                                     except IndexError:
-                                        magazine_weights.append(value[int(len(value + 1))])
+                                        magazine_weights.append(value[int(len(value) - 1)])
 
                                 magazine = choices(population=list(compatible_magazines.keys()),
                                                    weights=magazine_weights, k=1)[0]
@@ -249,10 +249,6 @@ class Fighter(BaseComponent):
                 self.parent.inventory.primary_weapon = held_weapon
                 self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held
                 self.parent.inventory.held.parent = self.parent.inventory
-
-                # if hasattr(held_weapon.usable_properties, 'crafting_dict'):
-                #     crafting_dict = getattr(held_weapon.usable_properties, 'crafting_dict')
-                #     self.engine.crafting_recipes = deep_update(self.engine.crafting_recipes, crafting_dict)
 
         except KeyError:
             return

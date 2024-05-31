@@ -250,25 +250,30 @@ class GameMap:
             self.engine.current_level += 1
             self.engine.current_floor = 0
 
-        if len(self.engine.players) < 5:
-            if choice(new_player_chance):
-                new_player = generate_player(current_level=self.engine.current_level, players=self.engine.players)
-                add_player(engine=self.engine, player=new_player)
+        if self.engine.current_level == 6:
+            self.engine.game_won = True
 
-        self.engine.game_map = MessyBSPTree(
-            messy_tunnels=level_params[self.engine.current_level][0],
-            map_width=level_params[self.engine.current_level][1],
-            map_height=level_params[self.engine.current_level][2],
-            max_leaf_size=level_params[self.engine.current_level][3],
-            room_max_size=level_params[self.engine.current_level][4],
-            room_min_size=level_params[self.engine.current_level][5],
-            max_items_per_room=level_params[self.engine.current_level][6],
-            engine=self.engine,
-            current_level=self.engine.current_level,
-            fov_radius=level_params[self.engine.current_level][7],
-            min_caverns=level_params[self.engine.current_level][8],
-            max_caverns=level_params[self.engine.current_level][9],
-            cavern_size=level_params[self.engine.current_level][10],
-            custom_room_chance=level_params[self.engine.current_level][11],
-            enclose_room_chance=level_params[self.engine.current_level][12]
-        ).generate_level()
+        else:
+
+            if len(self.engine.players) < 5:
+                if choice(new_player_chance):
+                    new_player = generate_player(current_level=self.engine.current_level, players=self.engine.players)
+                    add_player(engine=self.engine, player=new_player)
+
+            self.engine.game_map = MessyBSPTree(
+                messy_tunnels=level_params[self.engine.current_level][0],
+                map_width=level_params[self.engine.current_level][1],
+                map_height=level_params[self.engine.current_level][2],
+                max_leaf_size=level_params[self.engine.current_level][3],
+                room_max_size=level_params[self.engine.current_level][4],
+                room_min_size=level_params[self.engine.current_level][5],
+                max_items_per_room=level_params[self.engine.current_level][6],
+                engine=self.engine,
+                current_level=self.engine.current_level,
+                fov_radius=level_params[self.engine.current_level][7],
+                min_caverns=level_params[self.engine.current_level][8],
+                max_caverns=level_params[self.engine.current_level][9],
+                cavern_size=level_params[self.engine.current_level][10],
+                custom_room_chance=level_params[self.engine.current_level][11],
+                enclose_room_chance=level_params[self.engine.current_level][12]
+            ).generate_level()

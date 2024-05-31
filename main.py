@@ -13,7 +13,7 @@ from typing import Deque, Optional
 import tcod
 import tcod.sdl.video
 
-# pyinstaller -F -i "new_icon.ico" main.py
+# pyinstaller -F -i "mol48.ico" main.py
 
 # to profile run times:
 # python -m cProfile main.py > cprofile_output.txt

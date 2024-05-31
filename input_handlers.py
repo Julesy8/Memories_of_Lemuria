@@ -299,7 +299,8 @@ class GameOverEventHandler(EventHandler):
         if key == tcod.event.K_v:
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_ESCAPE:
-            os.remove('savegame.sav')
+            if os.path.exists("savegame.sav"):
+                os.remove('savegame.sav')
             return QuitEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_t:
             return Bestiary(self.engine, parent_handler=self)
@@ -310,7 +311,7 @@ class GameWonEventHandler(EventHandler):
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)  # Draw the main state as the background.
 
-        path = "win_screen.xp"  # REXPaint file with one layer.
+        path = "assets/win_screen.xp"  # REXPaint file with one layer.
         # Load a REXPaint file with a single layer.
         # The comma after console is used to unpack a single item tuple.
         console2, = tcod.console.load_xp(path, order="F")
@@ -1418,7 +1419,7 @@ class ShowEnemyInfo(EventHandler):
         if entity.inventory.held is not None:
             self.strings.append(f"Held Weapon: {entity.inventory.held.name}")
 
-        equipped_armour = []
+        # equipped_armour = []
 
         for part in entity.bodyparts:
             string: str = "UNHARMED"
@@ -1444,13 +1445,13 @@ class ShowEnemyInfo(EventHandler):
             elif current_value == 0:
                 string = "Destroyed"
 
+            if part.equipped is not None:
+                # if part.equipped.parent.name not in equipped_armour:
+                string += f" ({part.equipped.parent.name})"
+
             self.strings.append(f"{part.name}: {string}")
 
-            if part.equipped is not None:
-                if part.equipped.name not in equipped_armour:
-                    equipped_armour.append(f"Worn - {part.equipped.name}")
-
-            self.strings += equipped_armour
+            # self.strings += equipped_armour
 
     def on_render(self, console: tcod.Console) -> None:
         """Render the parent and dim the result, then print the message on top."""

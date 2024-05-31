@@ -500,7 +500,7 @@ class PremadeWeapon:
                             try:
                                 part_weights.append(value[level])
                             except IndexError:
-                                part_weights.append(value[int(len(value + 1))])
+                                part_weights.append(value[int(len(value) - 1)])
 
                         selection = deepcopy(choices(population=list(compatible_possible_parts.keys()),
                                                      weights=part_weights, k=1)[0])
@@ -609,7 +609,7 @@ class PremadeWeapon:
                         try:
                             magazine_weights.append(value[level])
                         except IndexError:
-                            magazine_weights.append(value[int(len(value + 1))])
+                            magazine_weights.append(value[int(len(value) - 1)])
 
                     magazine = choices(population=list(compatible_magazines.keys()),
                                        weights=magazine_weights, k=1)[0]
@@ -634,7 +634,7 @@ class PremadeWeapon:
                     try:
                         bullet_weights.append(value[level])
                     except IndexError:
-                        bullet_weights.append(value[int(len(value + 1))])
+                        bullet_weights.append(value[int(len(value) - 1)])
 
                 self.bullet = choices(population=list(self.bullet.keys()),
                                       weights=bullet_weights, k=1)[0]
@@ -649,6 +649,7 @@ class PremadeWeapon:
             self.gun_item.usable_properties.current_fire_mode = 'automatic'
 
         # loads magazine with bullets
+
         bullets_to_load = [self.bullet.usable_properties] * self.magazine.mag_capacity
         self.magazine.magazine = bullets_to_load
 
@@ -669,7 +670,7 @@ class PremadeWeapon:
             self.magazine.magazine.pop()
 
         if self.clip is not None:
-            self.gun_item.usable_properties.previously_loaded_clip = self.clip
+            self.gun_item.usable_properties.previously_loaded_clip = self.clip.usable_properties
 
         # sets gun name
         if not self.name == '':
@@ -2432,7 +2433,7 @@ dexix_gun = PremadeWeapon(gun_item=misc.de44,
                           magazine=magazines.de44_mag,
                           optics=optics_test,
                           part_dict={
-                              "DE .44 Frame": misc.sw629_frame,
+                              "DE .44 Frame": misc.de44_frame,
                               "DE .44 Barrel": {misc.de44_barrel: 400,
                                                 misc.de44_barrel_imb: 20,
                                                 misc.de44_barrel_10in: 15,

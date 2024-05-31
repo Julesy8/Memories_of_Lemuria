@@ -1,35 +1,14 @@
 ---------------------------
-MEMORIES OF LEMURIA V. 1.0
+MEMORIES OF LEMURIA V. 0.0
 ---------------------------
-As this game is in active development, you may encounter bugs throughout the course of gameplay. Please submit bug
-reports and suggestions to EMAIL@EMAIL.COM.
 
 Thank you for downloading Memories of Lemuria. This is a rogue-like game centred on advanced firearms combat, ballistics
 simulation, gun crafting and squad tactics. Because of the complex nature of the gameplay, it is HIGHLY recommended
 that you read the tutorial section manual in its entirety before commencing play. It may be helpful to refer back to
-this document frequently during play.
+this document frequently during play. As this game is in active development, you may encounter bugs throughout the
+course of gameplay.
 
 Many thanks to Blavatsky (https://blavatsky.bandcamp.com) for graciously allowing me to use his music.
-
--------
-SETTING
--------
-
-Since the creation of the stars and the seeding of life in our galaxy, the forces of cosmic good and evil have waged
-genocidal war. The collective helmed by the Draconians of the Alpha Draconis star system, reptilian beings with many
-races subjugated below them, have sought to dominate the stars. Against them stands the Pleiadean forces; a race of
-tall humanoids in many ways indistinguishable from ourselves, and their allies.
-
-For thousands of years, earth has been host to many extraterrestrial civilisations, from the Annunaki to the Atlanteans
-and Lemurians. It has seen countless global and intergalactic conflicts, now forgotten and passed into mythology.
-In our time, these battles which have been fought for millions of years are still waged on Earth. Away from the prying
-eyes and orbital threats of the surface world, alien lifeforms, strange creatures, secret organizations and remnants of
-forgotten empires have retreated to the safety of Earth's vast caverns and tunnel systems.
-
-In the near future, war, economic collapse and civil strife have beset the world. Governments, desperate
-to restore order, have instituted strict martial law. Many civilians, rebels and criminals have retreated into sewer
-systems, tunnels and caves to escape persecution or prosecution. By your wits and by the gun, you must survive the
-perilous subterranean world, and on the way uncover its many ancient mysteries.
 
 -----------------
 ACTIONS AND MENUS
@@ -40,15 +19,16 @@ G: pick up item
 I: inventory
 E: interact with equipped items (i.e. armour, weapons etc)
 V: message history
-R: magazine loadout
+R: magazine / weapon loadout
 Q: interact with held weapon
 C: crafting
 S: change attack style
-P: bestiary
+P: player options
+T: view journal
 Z: view skills
+>: use stairs
 Tab: switch character
--: toggle squad mode
-Space: toggle attack mode
+Space: toggle squad mode
 Escape: save and exit
 
  - MENU NAVIGATION -
@@ -59,7 +39,6 @@ menu item to select.
  - WAIT KEYS -
 
 Period ('.'), Numpad 5, or Clear - skips players current turn
-
 
  - MOVEMENT KEYS -
 
@@ -91,11 +70,7 @@ the condition of the parts as it pertains to accuracy of the weapon, for example
 worse accuracy condition will be less accurate in combat. Function condition indicates the condition of the parts as it
 pertains to the cycling of the action and jamming. Guns with a worse functional condition will be more prone to
 jamming. Gun parts can be repaired through the use of weapon part repair kits, which can be found throughout the map
-and are dropped by enemies.
-
-To create a gun from parts, enter the crafting menu by pressing (C). Before you can craft a new type of weapon, you
-first have to collect and activate a PDA containing its schematics. PDAs can be found throughout the map and are
-dropped by enemies. Note that not all parts will be compatible with one another for a given gun.
+and are dropped by enemies. To create a gun from parts, enter the crafting menu by pressing (C).
 
 Skills govern performance when using certain weapon types, including accuracy, recoil control, reloading speed, and
 equip speed. Skills can be trained by using the associated weapon type. The weapons type is influenced by its parts,
@@ -127,7 +102,22 @@ COMBAT
 - SQUAD MODE -
 
 Squad mode allows you to control multiple player characters during a single turn. Squad mode can be enabled by pressing
-(-). When in squad mode, your turn will only end when you press (?).
+the space key.
+
+You can use this mode to attack enemies. On the bottom left of the screen, you can see how much AP (action points) the
+player has. Action points represent the remaining amount of time the player has to complete actions within that turn.
+Since one turn equates to one second, 1 AP = 1/100th of a second. Different actions take different amounts of time, and
+therefore AP, to complete.
+
+You can also move multiple players at once in squad mode by left clicking to select players, and selecting a
+destination in a seen area by pressing the right mouse button. Press any wait keys and the players will move towards
+the selected location.
+
+Alt: change target
+Change character controlled: change limb targeted
+Enter: attack
+Movement Keys: change camera position
+Wait Keys: skip turn
 
 - DAMAGE & HEALTH -
 
@@ -137,23 +127,6 @@ body parts, such as the head, are destroyed.The health of the players body parts
 bottom left of the screen. Green indicates that the body parts are unharmed, while yellow, orange and red indicate
 increasing levels of wounding.
 
-- ATTACK MODE -
-
-You can target enemies for ranged and melee attacks by entering attack mode by pressing (S). On the bottom left of the
-screen, you can see how much AP (action points) the player has. Action points represent the remaining amount of time
-the player has to complete actions within that turn. Since one turn equates to one second, 1 AP = 1/100th of a second.
-Different actions take different amounts of time, and therefore AP, to complete. If an action costs more AP than is
-available, player turns will be skipped until the action can be completed.
-
-Escape: exit attack mode
-Space: change target
-Tab: change limb targeted
-Enter: attack
-Movement Keys: change camera position
-Wait Keys: skip turn
-
-Tip - You can also use the movement keys while in attack mode to look around the map at areas you have already explored
-
 - ATTACK STYLES -
 
 You can change your attack style by pressing (S).The players attack style alters the AP cost of ranged attacks as well
@@ -161,27 +134,12 @@ as weapon accuracy with firearms. In the 'Precise' attack style, attacks cost ad
 suited for longer range engagements. In the 'Close Quarters' attack style, attacks cost less AP but are less
 accurate. 'Measured' serves as a compromise between the two.
 
---------
-BESTIARY
---------
-
-When you kill a new enemy, an entry appears in the bestiary, which can be viewed by pressing (P). This provides the
-player with background information on the enemy and is the main mechanism by which you discover more about the world.
-
 ---------------
 ITEM PROPERTIES
 ---------------
 
 Item properties can be viewed by selecting the 'inspect' option on an item. The following is a non-exhaustive list of
 item properties for reference.
-
-- MELEE WEAPONS -
-
-Damage: Amount of damage a melee weapon inflicts
-
-Armour Damage: The higher the armour damage value, the more physical protection is ignored
-
-Accuracy Modifier: Alters chance to hit
 
 - BULLETS -
 

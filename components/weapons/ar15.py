@@ -1773,7 +1773,7 @@ ar10_buffer_tube = Item(
     x=0, y=0,
     char="!",
     fg_colour=colour.LIGHT_MAGENTA,
-    name="AR1 Buffer Tube - Standard",
+    name="AR10 Buffer Tube - Standard",
     weight=0.13,
     stacking=None,
     usable_properties=GunComponent(part_type='AR Buffer Tube',

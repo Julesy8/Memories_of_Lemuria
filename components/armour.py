@@ -17,27 +17,6 @@ VPAM 7 - 0.83 5.56/7.62x51
 VPAM 10 - 0.93 7.62x54r
 """
 
-helmet_riot = Item(
-    x=0, y=0,
-    char="/",
-    fg_colour=colour.LIGHT_GRAY,
-    name="Riot Protection Helmet",
-    weight=1.6,
-    stacking=None,
-    description='A shock resistant polymer helmet designed for riot control. It features a polycarbonate face mask.',
-    usable_properties=(consumables.Wearable(
-        coverage_v=0.6,
-        coverage_d=0.8,
-        coverage_l=0.8,
-        coverage_r=0.8,
-        equip_ap_cost=400,
-        ballistic_protection_level="PM 1",
-        protection_ballistic=0.1,
-        protection_physical=4,
-        fits_bodypart_type='Head',
-    ))
-)
-
 helmet_ssh68 = Item(
     x=0, y=0,
     char="/",

@@ -2,9 +2,7 @@
 TO DO
 -----
 
-# TODO - ability to send squads to certain locations via arrow keys
-# TODO - menu under player info - includes blood type, state of birth, a quote, favourite camoflauge pattern,
-portrait, favourite gun
+Game saved.
 
 next weapons - Saiga 12, degtyrev, mini 14, M1 garand, BAR
 

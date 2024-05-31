@@ -76,15 +76,15 @@ class MessyBSPTree:
                                                         self.colours_chars_tuple.floor_tile
                                                         )
 
-        room_7x7 = RoomPattern(file='room_7x7.txt', size_x=7, size_y=7)
-        room_7x14 = RoomPattern(file='room_7x14.txt', size_x=7, size_y=14)
-        room_14x7 = RoomPattern(file='room_14x7.txt', size_x=14, size_y=7)
-        room_14x14 = RoomPattern(file='room_14x14.txt', size_x=14, size_y=14)
-        room_7x21 = RoomPattern(file='room_7x21.txt', size_x=7, size_y=21)
-        room_21x7 = RoomPattern(file='room_21x7.txt', size_x=21, size_y=7)
-        room_14x21 = RoomPattern(file='room_14x21.txt', size_x=14, size_y=21)
-        room_21x14 = RoomPattern(file='room_21x14.txt', size_x=21, size_y=14)
-        room_21x21 = RoomPattern(file='room_21x21.txt', size_x=21, size_y=21)
+        room_7x7 = RoomPattern(file='assets/room_7x7.txt', size_x=7, size_y=7)
+        room_7x14 = RoomPattern(file='assets/room_7x14.txt', size_x=7, size_y=14)
+        room_14x7 = RoomPattern(file='assets/room_14x7.txt', size_x=14, size_y=7)
+        room_14x14 = RoomPattern(file='assets/room_14x14.txt', size_x=14, size_y=14)
+        room_7x21 = RoomPattern(file='assets/room_7x21.txt', size_x=7, size_y=21)
+        room_21x7 = RoomPattern(file='assets/room_21x7.txt', size_x=21, size_y=7)
+        room_14x21 = RoomPattern(file='assets/room_14x21.txt', size_x=14, size_y=21)
+        room_21x14 = RoomPattern(file='assets/room_21x14.txt', size_x=21, size_y=14)
+        room_21x21 = RoomPattern(file='assets/room_21x21.txt', size_x=21, size_y=21)
 
         self.room_pattern_files = {
             (7, 7): room_7x7,
@@ -287,13 +287,13 @@ class MessyBSPTree:
                 if char == '/':
                     pass
                 elif not char == '.':
-                    self.dungeon.tiles[char_index + x,  # TODO - will sometimes get index error here
+                    self.dungeon.tiles[char_index + x,
                                        line_index + y] = (
                         new_wall(self.colours_chars_tuple.wall_fg_dark,
                                  self.colours_chars_tuple.wall_bg_dark,
                                  self.colours_chars_tuple.wall_fg_light,
                                  self.colours_chars_tuple.wall_bg_light,
-                                 ord(char)
+                                 self.colours_chars_tuple.wall_tile
                                  ))
                 else:
                     self.dungeon.tiles[char_index + x, line_index + y] = select_random_tile(self.colours_chars_array)

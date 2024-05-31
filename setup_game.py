@@ -38,7 +38,7 @@ music = config.getboolean('settings', 'music')
 
 def playmusic():
     while True:
-        playsound('stepinside.mp3')
+        playsound('assets/menumusic.mp3')
 
 
 class MainMenu(BaseEventHandler):
@@ -85,8 +85,8 @@ class MainMenu(BaseEventHandler):
     def on_render(self, console: tcod.Console) -> None:
         """Render the main menu on a background image."""
 
-        path = "newmenu1.xp"  # REXPaint file with one layer.
-        path_ak = "akonly.xp"
+        path = "assets/newmenu1.xp"  # REXPaint file with one layer.
+        path_ak = "assets/akonly.xp"
         # Load a REXPaint file with a single layer.
         # The comma after console is used to unpack a single item tuple.
         console3, = tcod.console.load_xp(path_ak, order="F")
@@ -189,7 +189,6 @@ class MainMenu(BaseEventHandler):
             # continue game
             elif self.options[self.option_selected] == "Continue":
                 try:
-                    # TODO show message here warning player that current save will be overwritten
                     if self.music is not None:
                         self.music.terminate()
                     return MainGameEventHandler(load_game("savegame.sav"))
@@ -212,9 +211,11 @@ def new_game() -> Engine:
 
     current_level = 0
 
-    player_1 = generate_player(current_level=0, players=[])
+    player_1 = generate_player(current_level=current_level, players=[])
+    player_2 = generate_player(current_level=current_level, players=[player_1])
+    # player_3 = generate_player(current_level=2, players=[player_1, player_2])
+    # player_4 = generate_player(current_level=2, players=[player_1, player_2, player_3])
 
-    player_2 = generate_player(current_level=0, players=[player_1])
 
     engine = Engine(player_1)
 
@@ -249,6 +250,8 @@ def new_game() -> Engine:
     #     itemcopy.parent = player_2.inventory
 
     engine.players.append(player_2)
+    # engine.players.append(player_3)
+    # engine.players.append(player_4)
 
     engine.game_map = MessyBSPTree(messy_tunnels=level_params[current_level][0],
                                    map_width=level_params[current_level][1],
