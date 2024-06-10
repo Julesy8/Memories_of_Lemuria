@@ -14,13 +14,15 @@ from components.armour import (helmet_ech, helmet_pasgt, helmet_m1,
                                helmet_ssh68, bodyarmour_pasgt, bodyarmour_improved, bodyarmour_interceptor,
                                platecarrier_3, platecarrier_4, platecarrier_3a)
 
+from components.commonitems import medkit, bandages
+
 from entity import Actor
 from components.inventory import Inventory
 from components.ai import PlayerCharacter
 from random import choice
 from components.npc_templates import PlayerFighter
 from components.bodyparts import Body, Arm, Leg, Head
-from copy import copy
+from copy import copy, deepcopy
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -591,11 +593,19 @@ def generate_player(current_level: int, players: list):
                    inventory=Inventory(capacity=15),
                    )
 
+    medkit_item = deepcopy(medkit)
+    bandage_item = deepcopy(bandages)
+
+    medkit_item.stacking.stack_size = 2
+    bandage_item.stacking.stack_size = 6
+
+    player.inventory.add_to_inventory(item=medkit_item, item_container=None, amount=2)
+    player.inventory.add_to_inventory(item=bandage_item, item_container=None, amount=4)
+
     player.fighter.give_weapon(current_level)
     player.fighter.give_armour(current_level)
 
     player.fighter.attack_style_measured()
-
     return player
 
 

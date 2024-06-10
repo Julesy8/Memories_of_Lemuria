@@ -2077,6 +2077,7 @@ upper_mcr = Item(
                                    compatible_bullet_type=('5.56x45',),
                                    velocity_modifier={'5.56x45': 0.921},
                                    target_acquisition_ap=0.96,
+                                   compatible_magazine_type=('STANAG', 'MCR Linked Ammunition Magazine'),
                                    grip_properties={
                                        'felt_recoil': 0.83,
                                        'ap_distance_cost_modifier': 0.92,

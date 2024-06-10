@@ -39,28 +39,28 @@ cf_spitzer = 0.6385
 # powder: sport pistol
 
 # FMJ
-round_9mm_115_fmj = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='9x19mm - 115gr FMJ',
-    weight=0.0127,
-    stacking=Stacking(stack_size=10),
-    description='9x19mm 115gr full metal jacket round point ammunition',
-    usable_properties=Bullet(
-        bullet_type='9mm',
-        mass=115,
-        charge_mass=4.8,
-        diameter=0.355,
-        velocity=1151,
-        proj_config=cf_fmj_round_nose,
-        drag_coefficient=cd_fmj_round_nose,
-        spread_modifier=0.0075,  # MoA / 100
-        ballistic_coefficient=0.155,
-        bullet_length=0.55,
-        round_type='pistol'
-    )
-)
+# round_9mm_115_fmj = Item(  # cull
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='9x19mm - 115gr FMJ',
+#     weight=0.0127,
+#     stacking=Stacking(stack_size=10),
+#     description='9x19mm 115gr full metal jacket round point ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='9mm',
+#         mass=115,
+#         charge_mass=4.8,
+#         diameter=0.355,
+#         velocity=1151,
+#         proj_config=cf_fmj_round_nose,
+#         drag_coefficient=cd_fmj_round_nose,
+#         spread_modifier=0.0075,  # MoA / 100
+#         ballistic_coefficient=0.155,
+#         bullet_length=0.55,
+#         round_type='pistol'
+#     )
+# )
 
 round_9mm_124_fmj = Item(
     x=0, y=0,
@@ -109,28 +109,28 @@ round_9mm_147_fp = Item(
 )
 
 # FMJ +P
-round_9mm_115_fmj_pp = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='9x19mm - 115gr FMJ +P',
-    weight=0.0127,
-    stacking=Stacking(stack_size=10),
-    description='Overpressure 9x19mm 115gr full metal jacket round point ammunition',
-    usable_properties=Bullet(
-        bullet_type='9mm',
-        mass=115,
-        charge_mass=5.1,
-        diameter=0.355,
-        velocity=1200,
-        proj_config=cf_fmj_round_nose,
-        drag_coefficient=cd_fmj_round_nose,
-        spread_modifier=0.0075,
-        ballistic_coefficient=0.155,
-        bullet_length=0.55,
-        round_type='pistol'
-    )
-)
+# round_9mm_115_fmj_pp = Item( # cull
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='9x19mm - 115gr FMJ +P',
+#     weight=0.0127,
+#     stacking=Stacking(stack_size=10),
+#     description='Overpressure 9x19mm 115gr full metal jacket round point ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='9mm',
+#         mass=115,
+#         charge_mass=5.1,
+#         diameter=0.355,
+#         velocity=1200,
+#         proj_config=cf_fmj_round_nose,
+#         drag_coefficient=cd_fmj_round_nose,
+#         spread_modifier=0.0075,
+#         ballistic_coefficient=0.155,
+#         bullet_length=0.55,
+#         round_type='pistol'
+#     )
+# )
 
 round_9mm_124_fmj_pp = Item(
     x=0, y=0,
@@ -180,31 +180,31 @@ round_9mm_147_fp_pp = Item(
 
 # HP
 
-round_9mm_115_jhp = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='9x19mm - 115gr JHP',
-    weight=0.0127,
-    stacking=Stacking(stack_size=10),
-    description='9x19mm 115gr full metal jacket hollow point ammunition',
-    usable_properties=Bullet(
-        bullet_type='9mm',
-        mass=115,
-        charge_mass=4.7,
-        diameter=0.355,
-        velocity=1147,
-        proj_config=cf_fmj_round_nose,
-        drag_coefficient=cd_fmj_round_nose,
-        spread_modifier=0.0075,
-        ballistic_coefficient=0.13,
-        bullet_length=0.55,
-        bullet_expands=True,
-        max_expansion=1.57,
-        max_expansion_velocity=1489,
-        round_type='pistol'
-    )
-)
+# round_9mm_115_jhp = Item( # cull
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='9x19mm - 115gr JHP',
+#     weight=0.0127,
+#     stacking=Stacking(stack_size=10),
+#     description='9x19mm 115gr full metal jacket hollow point ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='9mm',
+#         mass=115,
+#         charge_mass=4.7,
+#         diameter=0.355,
+#         velocity=1147,
+#         proj_config=cf_fmj_round_nose,
+#         drag_coefficient=cd_fmj_round_nose,
+#         spread_modifier=0.0075,
+#         ballistic_coefficient=0.13,
+#         bullet_length=0.55,
+#         bullet_expands=True,
+#         max_expansion=1.57,
+#         max_expansion_velocity=1489,
+#         round_type='pistol'
+#     )
+# )
 
 round_9mm_124_jhp = Item(
     x=0, y=0,
@@ -260,31 +260,31 @@ round_9mm_147_jhp = Item(
 
 # HP +P
 
-round_9mm_115_jhp_pp = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='9x19mm - 115gr JHP +P',
-    weight=0.0127,
-    stacking=Stacking(stack_size=10),
-    description='Overpressure 9x19mm 115gr full metal jacket hollow point ammunition',
-    usable_properties=Bullet(
-        bullet_type='9mm',
-        mass=115,
-        charge_mass=5.1,
-        diameter=0.355,
-        velocity=1208,
-        proj_config=cf_fmj_round_nose,
-        drag_coefficient=cd_fmj_round_nose,
-        spread_modifier=0.0075,
-        ballistic_coefficient=0.13,
-        bullet_length=0.55,
-        bullet_expands=True,
-        max_expansion=1.57,
-        max_expansion_velocity=1489,
-        round_type='pistol'
-    )
-)
+# round_9mm_115_jhp_pp = Item( # cull
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='9x19mm - 115gr JHP +P',
+#     weight=0.0127,
+#     stacking=Stacking(stack_size=10),
+#     description='Overpressure 9x19mm 115gr full metal jacket hollow point ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='9mm',
+#         mass=115,
+#         charge_mass=5.1,
+#         diameter=0.355,
+#         velocity=1208,
+#         proj_config=cf_fmj_round_nose,
+#         drag_coefficient=cd_fmj_round_nose,
+#         spread_modifier=0.0075,
+#         ballistic_coefficient=0.13,
+#         bullet_length=0.55,
+#         bullet_expands=True,
+#         max_expansion=1.57,
+#         max_expansion_velocity=1489,
+#         round_type='pistol'
+#     )
+# )
 
 round_9mm_124_jhp_pp = Item(
     x=0, y=0,
@@ -923,7 +923,7 @@ round_44_180_jhp = Item(
     stacking=Stacking(stack_size=10),
     description='44 Magnum 180gr jacketed hollow point ammunition',
     usable_properties=Bullet(
-        bullet_type='44 Magnum',
+        bullet_type='.44 Magnum',
         mass=180,
         charge_mass=14,
         diameter=0.429,
@@ -949,7 +949,7 @@ round_44_200_jhp = Item(
     stacking=Stacking(stack_size=10),
     description='44 Magnum 200gr jacketed hollow point ammunition',
     usable_properties=Bullet(
-        bullet_type='44 Magnum',
+        bullet_type='.44 Magnum',
         mass=200,
         charge_mass=15.5,
         diameter=0.429,
@@ -975,7 +975,7 @@ round_44_225_jhp = Item(
     stacking=Stacking(stack_size=10),
     description='44 Magnum 225gr semi-wad cutter jacketed hollow point ammunition',
     usable_properties=Bullet(
-        bullet_type='44 Magnum',
+        bullet_type='.44 Magnum',
         mass=225,
         charge_mass=21.4,
         diameter=0.429,
@@ -1001,7 +1001,7 @@ round_44_240_sp = Item(
     stacking=Stacking(stack_size=10),
     description='44 Magnum 240gr "deep curl" copper plated soft point ammunition',
     usable_properties=Bullet(
-        bullet_type='44 Magnum',
+        bullet_type='.44 Magnum',
         mass=240,
         charge_mass=21,
         diameter=0.429,
@@ -1027,7 +1027,7 @@ round_44_300_sp = Item(
     stacking=Stacking(stack_size=10),
     description='44 Magnum 300gr "deep curl" copper plated soft point ammunition',
     usable_properties=Bullet(
-        bullet_type='44 Magnum',
+        bullet_type='.44 Magnum',
         mass=300,
         charge_mass=22,
         diameter=0.429,
@@ -1130,28 +1130,28 @@ round_50gi_330_rn = Item(
 # test barrel length: 4.5 inches
 # powder: power pistol
 
-round_76225_85_rn = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='7.62x25 Tokarev - 85gr RN',
-    weight=0.0105,
-    stacking=Stacking(stack_size=10),
-    description='7.62x25 Tokarev 85gr jacketed round nose ammunition',
-    usable_properties=Bullet(
-        bullet_type='7.62x25 Tokarev',
-        mass=85,
-        charge_mass=6.0,
-        diameter=0.309,
-        velocity=1272,
-        proj_config=cf_fmj_round_nose,
-        drag_coefficient=cd_fmj_round_nose,
-        spread_modifier=0.0075,
-        ballistic_coefficient=0.113,
-        bullet_length=0.525,
-        round_type='pistol'
-    )
-)
+# round_76225_85_rn = Item(
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='7.62x25 Tokarev - 85gr RN',
+#     weight=0.0105,
+#     stacking=Stacking(stack_size=10),
+#     description='7.62x25 Tokarev 85gr jacketed round nose ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='7.62x25 Tokarev',
+#         mass=85,
+#         charge_mass=6.0,
+#         diameter=0.309,
+#         velocity=1272,
+#         proj_config=cf_fmj_round_nose,
+#         drag_coefficient=cd_fmj_round_nose,
+#         spread_modifier=0.0075,
+#         ballistic_coefficient=0.113,
+#         bullet_length=0.525,
+#         round_type='pistol'
+#     )
+# )
 
 round_76225_90_jhp = Item(
     x=0, y=0,
@@ -1214,30 +1214,30 @@ round_76225_100_jhp = Item(
 
 # FMJ
 
-round_76239_123_fmj = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='7.62x39mm - 123gr FMJ',
-    weight=0.0172,
-    stacking=Stacking(stack_size=10),
-    description='7.62x39mm 123gr full metal jacket ammunition',
-    usable_properties=Bullet(
-        bullet_type='7.62x39',
-        mass=123,
-        charge_mass=27.3,
-        diameter=0.311,
-        velocity=2445,
-        proj_config=cf_spitzer,
-        drag_coefficient=cd_spitzer,
-        spread_modifier=0.0075,
-        ballistic_coefficient=0.282,
-        bullet_length=0.796,
-        bullet_yaws=True,
-        bullet_fragments=True,
-        round_type='rifle'
-    )
-)
+# round_76239_123_fmj = Item(
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='7.62x39mm - 123gr FMJ',
+#     weight=0.0172,
+#     stacking=Stacking(stack_size=10),
+#     description='7.62x39mm 123gr full metal jacket ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='7.62x39',
+#         mass=123,
+#         charge_mass=27.3,
+#         diameter=0.311,
+#         velocity=2445,
+#         proj_config=cf_spitzer,
+#         drag_coefficient=cd_spitzer,
+#         spread_modifier=0.0075,
+#         ballistic_coefficient=0.282,
+#         bullet_length=0.796,
+#         bullet_yaws=True,
+#         bullet_fragments=True,
+#         round_type='rifle'
+#     )
+# )
 
 round_76239_150_fmj = Item(
     x=0, y=0,
@@ -1327,33 +1327,33 @@ round_76239_150_sp = Item(
 # test barrel length: 24 inches
 # powder: IMR-4198 or closest (Closest to N130)
 
-round_556_55_sp = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='5.56 NATO - 55gr SP',
-    weight=0.011,
-    stacking=Stacking(stack_size=10),
-    description='5.56x45mm NATO 55gr jacketed soft point ammunition',
-    usable_properties=Bullet(
-        bullet_type='5.56x45',
-        mass=55,
-        charge_mass=21.7,
-        diameter=0.224,
-        velocity=3067,
-        proj_config=cf_spitzer,
-        drag_coefficient=cd_spitzer,
-        spread_modifier=0.0075,
-        ballistic_coefficient=0.204,
-        bullet_length=0.810,
-        bullet_yaws=True,
-        bullet_fragments=True,
-        bullet_expands=True,
-        max_expansion=1.5,
-        max_expansion_velocity=2000,
-        round_type='rifle'
-    )
-)
+# round_556_55_sp = Item(
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='5.56 NATO - 55gr SP',
+#     weight=0.011,
+#     stacking=Stacking(stack_size=10),
+#     description='5.56x45mm NATO 55gr jacketed soft point ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='5.56x45',
+#         mass=55,
+#         charge_mass=21.7,
+#         diameter=0.224,
+#         velocity=3067,
+#         proj_config=cf_spitzer,
+#         drag_coefficient=cd_spitzer,
+#         spread_modifier=0.0075,
+#         ballistic_coefficient=0.204,
+#         bullet_length=0.810,
+#         bullet_yaws=True,
+#         bullet_fragments=True,
+#         bullet_expands=True,
+#         max_expansion=1.5,
+#         max_expansion_velocity=2000,
+#         round_type='rifle'
+#     )
+# )
 
 round_556_60_fmj = Item(
     x=0, y=0,
@@ -1589,30 +1589,30 @@ round_300aac_210_jhp = Item(
 # test barrel length: 26 inches
 # powder: IMR-4198
 
-round_545_56_fmj = Item(
-    x=0, y=0,
-    char="=",
-    fg_colour=colour.LIGHT_YELLOW,
-    name='5.45x39 - 56gr FMJ',
-    weight=0.0107,
-    stacking=Stacking(stack_size=10),
-    description='5.45x39 56 gr full metal jacket ammunition',
-    usable_properties=Bullet(
-        bullet_type='5.45x39',
-        mass=56,
-        charge_mass=19.5,
-        diameter=0.22,
-        velocity=2980,
-        proj_config=cf_spitzer,
-        drag_coefficient=cd_spitzer,
-        spread_modifier=0.0075,
-        ballistic_coefficient=0.209,
-        bullet_length=1.0,
-        bullet_yaws=True,
-        bullet_fragments=True,
-        round_type='rifle'
-    )
-)
+# round_545_56_fmj = Item(
+#     x=0, y=0,
+#     char="=",
+#     fg_colour=colour.LIGHT_YELLOW,
+#     name='5.45x39 - 56gr FMJ',
+#     weight=0.0107,
+#     stacking=Stacking(stack_size=10),
+#     description='5.45x39 56 gr full metal jacket ammunition',
+#     usable_properties=Bullet(
+#         bullet_type='5.45x39',
+#         mass=56,
+#         charge_mass=19.5,
+#         diameter=0.22,
+#         velocity=2980,
+#         proj_config=cf_spitzer,
+#         drag_coefficient=cd_spitzer,
+#         spread_modifier=0.0075,
+#         ballistic_coefficient=0.209,
+#         bullet_length=1.0,
+#         bullet_yaws=True,
+#         bullet_fragments=True,
+#         round_type='rifle'
+#     )
+# )
 
 round_545_63_fmj = Item(
     x=0, y=0,
@@ -1961,8 +1961,6 @@ round_12ga_slug = Item(
         round_type='shot shell'
     )
 )
-
-# TODO - more 12ga ammo types
 
 round_12ga_00buck = Item(
     x=0, y=0,

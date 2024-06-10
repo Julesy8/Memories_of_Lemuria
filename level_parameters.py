@@ -14,8 +14,8 @@ level_params = {
               25,
               21,
               5,
-              1,
-              100,
+              2,
+              25,
               6,  # min caverns
               8,  # max caverns
               150,  # cavern size
@@ -30,8 +30,8 @@ level_params = {
               40,  # MAX_LEAF_SIZE
               14,  # ROOM_MAX_SIZE
               7,  # ROOM_MIN_SIZE
-              1,  # Max items per room
-              100,  # fov radius
+              2,  # Max items per room
+              30,  # fov radius
               3,  # min caverns
               3,  # max caverns
               500,  # cavern size
@@ -46,8 +46,8 @@ level_params = {
               25,
               21,
               5,
-              1,
-              100,
+              2,
+              50,
               6,  # min caverns
               8,  # max caverns
               150,  # cavern size
@@ -62,7 +62,7 @@ level_params = {
               70,  # MAX_LEAF_SIZE
               14,  # ROOM_MAX_SIZE
               3,  # ROOM_MIN_SIZE
-              1,  # Max items per room
+              2,  # Max items per room
               100,  # fov radius
               3,  # min caverns
               5,  # max caverns
@@ -78,7 +78,7 @@ level_params = {
               25,  # MAX_LEAF_SIZE
               20,  # ROOM_MAX_SIZE
               4,  # ROOM_MIN_SIZE
-              1,  # Max items per room
+              2,  # Max items per room
               100,  # fov radius
               5,  # min caverns
               5,  # max caverns
@@ -94,7 +94,7 @@ level_params = {
               25,  # MAX_LEAF_SIZE
               20,  # ROOM_MAX_SIZE
               4,  # ROOM_MIN_SIZE
-              1,  # Max items per room
+              2,  # Max items per room
               100,  # fov radius
               8,  # min caverns
               10,  # max caverns
@@ -175,18 +175,18 @@ Enemies_by_level = {
 }
 
 Items_by_level = {
-    0: {None: 300,
-        medkit: 15,
-        bandages: 30,
-        repair_kit: 5,
-        bullets.round_9mm_115_fmj: 10,
-        bullets.round_9mm_115_jhp: 5,
-        bullets.round_76225_85_rn: 10,
+    0: {None: 50,
+        medkit: 20,
+        bandages: 40,
+        repair_kit: 15,
+        bullets.round_9mm_124_fmj: 10,
+        bullets.round_9mm_124_jhp: 5,
+        bullets.round_76225_90_jhp: 10,
         bullets.round_30carb_110_fmj: 8,
         bullets.round_40sw_165_fmj: 6,
         bullets.round_45_185_swc: 5,
         bullets.round_556_60_fmj: 5,
-        bullets.round_76239_123_fmj: 5,
+        bullets.round_76239_150_fmj: 5,
         bullets.round_308_130_jhp: 4,
         bullets.round_54r_200_fmj: 7,
         bullets.round_44_180_jhp: 4,
@@ -197,20 +197,20 @@ Items_by_level = {
         platecarrier_3a: 2
         },
 
-    1: {None: 300,
-        medkit: 10,
-        bandages: 20,
-        repair_kit: 5,
-        bullets.round_9mm_115_fmj: 10,
-        bullets.round_9mm_115_jhp: 5,
-        bullets.round_76225_85_rn: 10,
+    1: {None: 50,
+        medkit: 20,
+        bandages: 40,
+        repair_kit: 15,
+        bullets.round_9mm_124_fmj: 10,
+        bullets.round_9mm_124_jhp: 5,
+        bullets.round_76225_90_jhp: 10,
         bullets.round_30carb_110_fmj: 8,
         bullets.round_40sw_155_jhp: 6,
         bullets.round_45_200_swc: 5,
         bullets.round_54r_200_fmj: 7,
-        bullets.round_76239_123_fmj: 10,
-        bullets.round_556_55_sp: 10,
-        bullets.round_545_56_fmj: 6,
+        bullets.round_76239_150_fmj: 10,
+        bullets.round_556_60_fmj: 10,
+        bullets.round_545_63_fmj: 6,
         bullets.round_308_130_jhp: 5,
         bullets.round_44_200_jhp: 4,
         bullets.round_10mm_180_fmj: 4,
@@ -223,11 +223,11 @@ Items_by_level = {
         platecarrier_3: 1,
         },
 
-    2: {None: 300,
-        medkit: 15,
-        bandages: 30,
-        repair_kit: 5,
-        bullets.round_76239_123_fmj: 10,
+    2: {None: 50,
+        medkit: 20,
+        bandages: 40,
+        repair_kit: 15,
+        bullets.round_76239_150_fmj: 10,
         bullets.round_556_75_fmj: 10,
         bullets.round_54r_200_fmj: 8,
         bullets.round_545_63_fmj: 8,
@@ -249,10 +249,10 @@ Items_by_level = {
         platecarrier_3: 1,
         },
 
-    3: {None: 300,
-        medkit: 15,
-        bandages: 30,
-        repair_kit: 5,
+    3: {None: 50,
+        medkit: 20,
+        bandages: 40,
+        repair_kit: 15,
         bullets.round_76239_150_fmj: 10,
         bullets.round_556_75_fmj: 10,
         bullets.round_545_60_jhp: 8,
@@ -275,10 +275,10 @@ Items_by_level = {
         helmet_altyn: 1,
         },
 
-    4: {None: 300,
-        medkit: 15,
-        bandages: 30,
-        repair_kit: 5,
+    4: {None: 50,
+        medkit: 20,
+        bandages: 40,
+        repair_kit: 15,
         bullets.round_76239_150_fmj: 10,
         bullets.round_556_69_jhp: 10,
         bullets.round_545_60_jhp: 9,
@@ -302,10 +302,10 @@ Items_by_level = {
         helmet_ronin: 1,
         },
 
-    5: {None: 300,
-        medkit: 15,
-        bandages: 30,
-        repair_kit: 5,
+    5: {None: 50,
+        medkit: 20,
+        bandages: 40,
+        repair_kit: 15,
         bullets.round_76239_150_sp: 10,
         bullets.round_556_80_jhp: 10,
         bullets.round_545_60_jhp: 10,

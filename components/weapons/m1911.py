@@ -34,8 +34,7 @@ m1911_frame_gov_alloy = Item(
     usable_properties=GunComponent(part_type='M1911 Frame',
                                    incompatibilities=(("Iron Sight",),),
                                    functional_part=True,
-                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
-                                               'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
+                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False},},
                                    ),
     description='An unramped full-sized frame for 1911 Government/Commander type handguns. Made of aluminium alloy, '
                 'it is considerably lighter than a steel frame.'
@@ -52,8 +51,7 @@ m1911_frame_gov_ss_tac = Item(
                                    is_attachment_point_types=['Picrail Underbarrel - Short', ],
                                    incompatibilities=(("Iron Sight",),),
                                    functional_part=True,
-                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
-                                               'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
+                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False},},
                                    ),
     description='An unramped stainless steel full-sized frame for 1911 Government/Commander type handguns. This '
                 'tactical variant also has a picatinny rail attachment point for attachment of under barrel '
@@ -71,8 +69,7 @@ m1911_frame_gov_alloy_tac = Item(
                                    is_attachment_point_types=['Picrail Underbarrel - Short', ],
                                    incompatibilities=(("Iron Sight",),),
                                    functional_part=True,
-                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
-                                               'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
+                                   fire_modes={'single shot': {'fire rate': 1, 'automatic': False},},
                                    ),
     description='An unramped full-sized frame for 1911 Government/Commander type handguns. Made of aluminium alloy, '
                 'it is considerably lighter than a steel frame. This tactical variant also has a picatinny rail '
@@ -1880,8 +1877,7 @@ m1911 = Item(
         keep_round_chambered=True,
         loaded_magazine=None,
         ap_to_equip=100,
-        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},
-                    'rapid fire (semi-auto)': {'fire rate': 3, 'automatic': False}, },
+        fire_modes={'single shot': {'fire rate': 1, 'automatic': False},},
         current_fire_mode='single shot',
         parts=Parts(),
         velocity_modifier={'single projectile': 1.0},

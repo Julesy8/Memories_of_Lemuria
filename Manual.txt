@@ -4,9 +4,9 @@ MEMORIES OF LEMURIA V. 0.0
 
 Thank you for downloading Memories of Lemuria. This is a rogue-like game centred on advanced firearms combat, ballistics
 simulation, gun crafting and squad tactics. Because of the complex nature of the gameplay, it is HIGHLY recommended
-that you read the tutorial section manual in its entirety before commencing play. It may be helpful to refer back to
-this document frequently during play. As this game is in active development, you may encounter bugs throughout the
-course of gameplay.
+that you read the manual in its entirety before commencing play. It may be helpful to refer back to this document
+frequently during play. As this game is in active development, you may encounter bugs throughout the course of gameplay.
+
 
 Many thanks to Blavatsky (https://blavatsky.bandcamp.com) for graciously allowing me to use his music.
 
@@ -113,8 +113,9 @@ You can also move multiple players at once in squad mode by left clicking to sel
 destination in a seen area by pressing the right mouse button. Press any wait keys and the players will move towards
 the selected location.
 
-Alt: change target
-Change character controlled: change limb targeted
+Space: change target
+Tab: Change character controlled
+Alt: change limb targeted
 Enter: attack
 Movement Keys: change camera position
 Wait Keys: skip turn

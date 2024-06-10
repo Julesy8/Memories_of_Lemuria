@@ -2,16 +2,16 @@ from entity import Item, Stacking
 from components import consumables
 import colour
 
-pda = Item(
-    x=0, y=0,
-    char="{",
-    fg_colour=colour.JADE,
-    stacking=None,
-    name="PDA",
-    weight=0.3,
-    description='Contains part schematics for assembling firearms from parts',
-    usable_properties=consumables.Usable(),
-)
+# pda = Item(
+#     x=0, y=0,
+#     char="{",
+#     fg_colour=colour.JADE,
+#     stacking=None,
+#     name="PDA",
+#     weight=0.3,
+#     description='Contains part schematics for assembling firearms from parts',
+#     usable_properties=consumables.Usable(),
+# )
 
 medkit = Item(
     x=0, y=0,

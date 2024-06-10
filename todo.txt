@@ -2,6 +2,11 @@
 TO DO
 -----
 
+test weapon repair
+bugs
+when in squad mode and press quit while during turn can move around without advancing turns
+bug is caused by enemy exiting out of visible range while player is still locked on in attack mode?
+
 Game saved.
 
 next weapons - Saiga 12, degtyrev, mini 14, M1 garand, BAR

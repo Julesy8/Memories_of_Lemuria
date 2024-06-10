@@ -650,12 +650,12 @@ class PremadeWeapon:
 
         # loads magazine with bullets
 
-        bullets_to_load = [self.bullet.usable_properties] * self.magazine.mag_capacity
+        bullets_to_load = [self.bullet] * self.magazine.mag_capacity
         self.magazine.magazine = bullets_to_load
 
         # sets magazine if gun has internal magazine
         if hasattr(self.gun_item.usable_properties, 'magazine'):
-            self.gun_item.usable_properties.previously_loaded_round = deepcopy(self.bullet.usable_properties)
+            self.gun_item.usable_properties.previously_loaded_round = deepcopy(self.bullet)
 
         # sets magazine if gun if magazine fed
         if hasattr(self.gun_item.usable_properties, 'loaded_magazine'):
@@ -663,13 +663,15 @@ class PremadeWeapon:
             self.gun_item.usable_properties.previously_loaded_magazine = deepcopy(self.magazine)
 
         # sets chambered round
-        self.gun_item.usable_properties.chambered_bullet = self.bullet.usable_properties
+        self.gun_item.usable_properties.chambered_bullet = self.bullet
 
         # if not keep_round_chambered - i.e. gun is bolt action or open bolt, removes bullet from magazine
         if not self.gun_item.usable_properties.keep_round_chambered:
             self.magazine.magazine.pop()
 
         if self.clip is not None:
+            bullets_to_load = [self.bullet] * self.clip.usable_properties.mag_capacity
+            self.clip.usable_properties.magazine = bullets_to_load
             self.gun_item.usable_properties.previously_loaded_clip = self.clip.usable_properties
 
         # sets gun name

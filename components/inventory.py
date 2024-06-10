@@ -7,7 +7,7 @@ from colour import RED
 from components.npc_templates import BaseComponent
 
 if TYPE_CHECKING:
-    from components.consumables import DetachableMagazine, Clip, Bullet
+    from components.consumables import DetachableMagazine, Clip
     from entity import Actor, Item
 
 
@@ -76,9 +76,10 @@ class Inventory(BaseComponent):
                     item_container.remove(item)
 
     def current_item_weight(self) -> float:
+        loadout = self.small_magazines + self.medium_magazines + self.large_magazines
         #  returns current combined weight of items in inventory
         current_weight = 0
-        for item in self.items:
+        for item in self.items + loadout:
             if item.stacking:
                 current_weight += item.weight * item.stacking.stack_size
             else:
@@ -101,6 +102,8 @@ class Inventory(BaseComponent):
         return current_weight
 
     def add_to_magazines(self, magazine: Union[Clip, DetachableMagazine]):
+
+        self.items.remove(magazine.parent)
 
         if magazine.magazine_size == 'small':
             if magazine not in self.small_magazines:
@@ -133,7 +136,6 @@ class Inventory(BaseComponent):
     #             if len(self.ammo_pouch_shot) < self.ammopouch_capacity_shot:
     #                 self.ammo_pouch_shot.append(bullet.parent)
     #
-    # # TODO - just decrease number or remove
     # def remove_from_pouch(self, bullet: Bullet):
     #     if bullet.parent in self.ammo_pouch_pistol:
     #         self.ammo_pouch_pistol.remove(bullet.parent)

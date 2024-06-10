@@ -127,22 +127,22 @@ class Bodypart:
             if self.total_damage_taken / limb_size >= 0.2:
                 self.splatter_message = choice([f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"is blown into pieces",
-                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"is blown apart",
-                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"is mangled beyond recognition",
-                                                f"Bits of {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"Bits of {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"splatter on the floor",
                                                 ])
 
             elif self.total_damage_taken / limb_size >= 0.3:
-                self.splatter_message = choice([f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                self.splatter_message = choice([f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"explodes into gore",
-                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"splatters into countless pieces",
-                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"is reduced to a bloody pulp ",
-                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}]"
+                                                f"The {entity_name}'s {self.name} [ID {self.parent.identifier}] "
                                                 f"erupts into a red mist",
                                                 ])
 

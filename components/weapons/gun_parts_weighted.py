@@ -1,18 +1,18 @@
 import components.weapons.bullets as bullets
 
 bullets_9mm_weighted = {
-    bullets.round_9mm_115_fmj: (100, 90, 80, 75),
-    bullets.round_9mm_124_fmj: (50,  55, 60, 65),
+    # bullets.round_9mm_115_fmj: (100, 90, 80, 75),
+    bullets.round_9mm_124_fmj: (100, 90, 80, 75),
     bullets.round_9mm_147_fp:  (0,   10, 20, 25),
-    bullets.round_9mm_115_jhp: (30,  35, 40, 45),
-    bullets.round_9mm_124_jhp: (20,  25, 30, 35),
+    # bullets.round_9mm_115_jhp: (30,  35, 40, 45),
+    bullets.round_9mm_124_jhp: (30,  35, 40, 45),
     bullets.round_9mm_147_jhp: (0,   5,  10, 15),
 
-    bullets.round_9mm_115_fmj_pp: (0, 0, 20, 25),
-    bullets.round_9mm_124_fmj_pp: (0, 0, 15, 20),
+    # bullets.round_9mm_115_fmj_pp: (0, 0, 20, 25),
+    bullets.round_9mm_124_fmj_pp: (0, 0, 20, 25),
     bullets.round_9mm_147_fp_pp:  (0, 0, 7,  12),
-    bullets.round_9mm_115_jhp_pp: (0, 0, 15, 20),
-    bullets.round_9mm_124_jhp_pp: (0, 0, 7,  12),
+    # bullets.round_9mm_115_jhp_pp: (0, 0, 15, 20),
+    bullets.round_9mm_124_jhp_pp: (0, 0, 15, 20),
     bullets.round_9mm_147_jhp_pp: (0, 0, 4,  9),
 }
 
@@ -44,7 +44,7 @@ bullets_10mm_40sw_weighted = {
 }
 
 bullets_76225_weighted = {
-    bullets.round_76225_85_rn:   (5, 5, 5),
+    # bullets.round_76225_85_rn:   (5, 5, 5),
     bullets.round_76225_90_jhp:  (1, 2, 3),
     bullets.round_76225_100_jhp: (0, 1, 2),
 }
@@ -67,15 +67,15 @@ bullets_45_weighted = {
 }
 
 bullets_752_weighted = {
-    bullets.round_76239_123_fmj: (5,  10, 10, 10),
-    bullets.round_76239_150_fmj: (1,  3,  5,  5),
+    # bullets.round_76239_123_fmj: (5,  10, 10, 10),
+    bullets.round_76239_150_fmj: (5,  10, 10, 10),
     bullets.round_76239_123_sst: (0,  1,  3,  4),
     bullets.round_76239_150_sp:  (0,  0,  1,  3),
 }
 
 bullets_556_weighted = {
-    bullets.round_556_55_sp:  (10, 10, 5, 0, 0),
-    bullets.round_556_60_fmj: (5,  5,  5, 0, 0),
+    # bullets.round_556_55_sp:  (10, 10, 5, 0, 0),
+    bullets.round_556_60_fmj: (10, 10, 5, 0, 0),
     bullets.round_556_75_fmj: (1,  3,  3, 5, 5),
     bullets.round_556_69_jhp: (0,  1,  2, 5, 5),
     bullets.round_556_80_jhp: (0,  0,  1, 1, 3),
@@ -89,7 +89,7 @@ bullets_300aac_weighted = {
 }
 
 bullets_545_weighted = {
-    bullets.round_545_56_fmj: (10, 10, 5, 0, 0),
+    # bullets.round_545_56_fmj: (10, 10, 5, 0, 0),
     bullets.round_545_63_fmj: (1,  3,  3, 5, 5),
     bullets.round_545_60_jhp: (1,  2,  2, 3, 4),
 }

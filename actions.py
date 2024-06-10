@@ -9,7 +9,6 @@ import colour
 import exceptions
 from random import choices
 from exceptions import Impossible
-# from pydantic.utils import deep_update
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -548,7 +547,7 @@ class GunMagFedAttack(GunAttackAction):
             magazine = self.weapon.loaded_magazine.magazine
             mag_weight = self.weapon.loaded_magazine.parent.weight
             try:
-                ammo_weight = len(magazine) * self.weapon.chambered_bullet.parent.weight
+                ammo_weight = len(magazine) * self.weapon.chambered_bullet.weight
             except AttributeError:
                 ammo_weight = 0
             self.total_weight += mag_weight + ammo_weight
@@ -569,7 +568,7 @@ class GunMagFedAttack(GunAttackAction):
 
             # adds weight of rounds in magazine to total weight
             if rounds_in_mag >= 1:
-                self.total_weight += (len(magazine) * magazine[0].parent.weight)
+                self.total_weight += (len(magazine) * magazine[0].weight)
 
 
 class GunIntegratedMagAttack(GunAttackAction):
@@ -583,7 +582,7 @@ class GunIntegratedMagAttack(GunAttackAction):
 
         magazine = self.weapon.magazine
         try:
-            self.total_weight += len(magazine) * self.weapon.chambered_bullet.parent.weight
+            self.total_weight += len(magazine) * self.weapon.chambered_bullet.weight
         except AttributeError:
             return
 
@@ -593,7 +592,7 @@ class GunIntegratedMagAttack(GunAttackAction):
 
         # adds weight of rounds in magazine to total weight
         if rounds_in_mag >= 1:
-            self.total_weight += (len(magazine) * magazine[0].parent.weight)
+            self.total_weight += (len(magazine) * magazine[0].weight)
 
 
 class ClearJam(Action):
@@ -698,16 +697,18 @@ class ReloadMagFed(Action):
                 self.gun.loaded_magazine.magazine.append(self.gun.chambered_bullet)
                 self.gun.chambered_bullet = None
 
-            if self.entity.player:
+            if self.gun.loaded_magazine is not None:
                 self.entity.inventory.items.append(self.gun.loaded_magazine.parent)
-                self.entity.inventory.items.remove(self.magazine_to_load.parent)
+
+        if self.entity.player:
+            # self.entity.inventory.items.remove(self.magazine_to_load.parent)
+            self.entity.inventory.remove_from_magazines(self.magazine_to_load)
 
         self.gun.loaded_magazine = deepcopy(self.magazine_to_load)
 
         if len(self.gun.loaded_magazine.magazine) > 0:
             if self.gun.chambered_bullet is None:
                 self.gun.chambered_bullet = self.gun.loaded_magazine.magazine.pop()
-
 
 class ReloadFromClip(Action):
     def __init__(self, entity: Actor, gun: Gun, clip: Clip):
@@ -720,8 +721,8 @@ class ReloadFromClip(Action):
         if self.gun.clip_reload_check_viable(clip=self.clip):
             return True
 
-        elif self.entity.inventory.held != self.gun:
-            return False
+        # elif self.entity.inventory.held != self.gun:
+        #     return False
 
     def calculate_ap_cost(self):
 
@@ -779,36 +780,18 @@ class ReloadFromClip(Action):
 
 
 class LoadBulletsIntoMagazine(Action):
-    def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Bullet):
+    def __init__(self, entity: Actor, magazine: Magazine, bullets_to_load: int, bullet_type: Item):
         super().__init__(entity)
         self.action_str = f'loading magazine'
 
         self.magazine = magazine
-
+        self.entity = entity
         self.bullets_to_load = bullets_to_load
-        self.bullet_type = bullet_type
+        self.bullet_item = bullet_type
+        self.bullet_properties = bullet_type.usable_properties
 
-        inventory = entity.inventory
-
-        if bullets_to_load > bullet_type.parent.stacking.stack_size or bullets_to_load < 1:
+        if bullets_to_load > bullet_type.stacking.stack_size or bullets_to_load < 1:
             raise Impossible("Invalid entry.")
-
-        # amount to be loaded is greater than no. of rounds available
-        if bullets_to_load > bullet_type.parent.stacking.stack_size:
-            bullets_to_load = bullet_type.parent.stacking.stack_size
-
-        # amount to be loaded is greater than the magazine capacity
-        if bullets_to_load > self.magazine.mag_capacity - len(self.magazine.magazine):
-            bullets_to_load = self.magazine.mag_capacity - len(self.magazine.magazine)
-
-        # 1 or more stack left in inventory after loading
-        if bullet_type.parent.stacking.stack_size - bullets_to_load > 1:
-            bullet_type.parent.stacking.stack_size -= bullets_to_load
-
-        # no stacks left after loading
-        elif bullet_type.parent.stacking.stack_size - bullets_to_load <= 0:
-            if entity.player:
-                inventory.items.remove(bullet_type.parent)
 
     def calculate_ap_cost(self):
 
@@ -818,7 +801,7 @@ class LoadBulletsIntoMagazine(Action):
             if part.equipped is not None:
                 armour_ap_multiplier *= part.equipped.ap_penalty
 
-        ap_cost_modifier = self.entity.fighter.action_ap_modifier * self.bullet_type.load_time_modifier
+        ap_cost_modifier = self.entity.fighter.action_ap_modifier * self.bullet_properties.load_time_modifier
 
         # loading ap calculated
         ap_cost, mag_load_time_modifier, proficiency = self.magazine.loading_ap()
@@ -829,9 +812,26 @@ class LoadBulletsIntoMagazine(Action):
         return ap_cost
 
     def perform(self) -> None:
+        inventory = self.entity.inventory
+
+        # amount to be loaded is greater than no. of rounds available
+        if self.bullets_to_load > self.bullet_item.stacking.stack_size:
+            self.bullets_to_load = self.bullet_item.stacking.stack_size
+
+        # amount to be loaded is greater than the magazine capacity
+        if self.bullets_to_load > self.magazine.mag_capacity - len(self.magazine.magazine):
+            self.bullets_to_load = self.magazine.mag_capacity - len(self.magazine.magazine)
+
+        # 1 or more stack left in inventory after loading
+        if self.bullet_item.stacking.stack_size - self.bullets_to_load > 1:
+            self.bullet_item.stacking.stack_size -= self.bullets_to_load
+
+        # no stacks left after loading
+        elif self.bullet_item.stacking.stack_size - self.bullets_to_load <= 0 and self.entity.player:
+            inventory.items.remove(self.bullet_item)
 
         # loads bullets into gun
-        self.magazine.load_magazine(entity=self.entity, ammo=self.bullet_type, load_amount=self.bullets_to_load)
+        self.magazine.load_magazine(entity=self.entity, ammo=self.bullet_item, load_amount=self.bullets_to_load)
 
 
 class MovementAction(ActionWithDirection):

@@ -52,11 +52,10 @@ class Usable(BaseComponent):
 class HealingConsumable(Usable):
 
     def __init__(self, amount: int):
-        self.amount = amount
+        self.heal_amount = amount
 
     def get_action(self, user: Actor) -> Optional[ActionOrHandler]:
         options = []
-
         # appends injured body parts to options
         for bodypart in user.bodyparts:
             if bodypart.hp < bodypart.max_hp:
@@ -74,7 +73,7 @@ class HealingConsumable(Usable):
 
     def activate(self, action: actions.HealPart) -> BaseEventHandler:
         bodypart = action.part_to_heal
-        bodypart.heal(self.amount)
+        bodypart.heal(self.heal_amount)
 
         self.parent.stacking.stack_size -= 1
 
@@ -301,12 +300,12 @@ class Magazine(Usable):
                  ):
         self.compatible_bullet_type = compatible_bullet_type
         self.mag_capacity = mag_capacity
-        self.magazine: list[Bullet] = []
+        self.magazine: list[Item] = []
 
     def loading_ap(self):
         return 0, 1.0, 1.0
 
-    def load_magazine(self, entity: Actor, ammo: Bullet, load_amount: int) -> None:
+    def load_magazine(self, entity: Actor, ammo: Item, load_amount: int) -> None:
 
         # loads bullets into magazine
         single_round = deepcopy(ammo)
@@ -340,7 +339,7 @@ class Magazine(Usable):
             if len(self.magazine) > 0:
                 for bullet in self.magazine:
                     if bullet is not None:
-                        actions.AddToInventory(item=bullet.parent, amount=1,
+                        actions.AddToInventory(item=bullet, amount=1,
                                                entity=inventory.parent).handle_action()
 
                 self.magazine = []
@@ -452,7 +451,7 @@ class Gun(Weapon):
                  clip_in_gun: Optional[Clip] = None,
                  compatible_clip: str = None,
                  previously_loaded_clip: Optional[Clip] = None,
-                 chambered_bullet: Optional[Bullet] = None,
+                 chambered_bullet: Optional[Item] = None,
                  pdw_stock: bool = False,
                  has_stock: bool = False,
                  short_barrel: bool = False,
@@ -578,13 +577,13 @@ class Gun(Weapon):
 
             if self.chambered_bullet is not None:
 
-                velocity_modifier = (self.velocity_modifier[self.chambered_bullet.projectile_type] *
-                                     self.velocity_modifier[self.chambered_bullet.bullet_type])
+                velocity_modifier = (self.velocity_modifier[self.chambered_bullet.usable_properties.projectile_type] *
+                                     self.velocity_modifier[self.chambered_bullet.usable_properties.bullet_type])
 
                 ammo_weight = 0
 
                 if magazine is not None:
-                    ammo_weight = len(magazine) * self.chambered_bullet.parent.weight
+                    ammo_weight = len(magazine) * self.chambered_bullet.weight
 
                 total_weight = self.parent.weight + mag_weight + ammo_weight
 
@@ -604,12 +603,12 @@ class Gun(Weapon):
                         self.jammed = True
                         return
 
-                muzzle_velocity = self.chambered_bullet.velocity * velocity_modifier
+                muzzle_velocity = self.chambered_bullet.usable_properties.velocity * velocity_modifier
 
                 # calculates 'sound radius' based on barrel pressure relative to that of a glock 17 firing 115 gr
                 # bullets, which has an arbitrary sound radius of 20 when unsuppressed
-                sound_radius = ((self.chambered_bullet.mass * muzzle_velocity ** 2) /
-                                (2 * (pi * (self.chambered_bullet.diameter / 2) ** 2)
+                sound_radius = ((self.chambered_bullet.usable_properties.mass * muzzle_velocity ** 2) /
+                                (2 * (pi * (self.chambered_bullet.usable_properties.diameter / 2) ** 2)
                                  * self.barrel_length) / 181039271) * 20 * self.sound_modifier
 
                 # if the sound radius of the fired round is not already in the list, appends it to the list for
@@ -631,13 +630,14 @@ class Gun(Weapon):
                 hit_location_y += aim_location_y
 
                 # projectile hit locations from ballistic factors
-                projectile_spread_modifier = (self.projectile_spread_modifier[self.chambered_bullet.projectile_type] *
-                                              self.chambered_bullet.spread_modifier *
+                projectile_spread_modifier = (self.projectile_spread_modifier
+                                              [self.chambered_bullet.usable_properties.projectile_type] *
+                                              self.chambered_bullet.usable_properties.spread_modifier *
                                               min((5 / self.condition_accuracy), 2) * dist_yards) * 1.047
 
                 # Pejsa's projectile drop formula
                 retardation_coefficient = \
-                    self.chambered_bullet.ballistic_coefficient * 246 * muzzle_velocity ** 0.45
+                    self.chambered_bullet.usable_properties.ballistic_coefficient * 246 * muzzle_velocity ** 0.45
 
                 projectile_drop = ((41.68 / muzzle_velocity) / ((1 / dist_yards) -
                                                                 (1 / (retardation_coefficient -
@@ -656,7 +656,7 @@ class Gun(Weapon):
                 velocity_at_distance = muzzle_velocity * (1 - 3 * 0.5 * dist_yards / retardation_coefficient) ** (
                         1 / 0.5)
 
-                for i in range(self.chambered_bullet.projectile_no):
+                for i in range(self.chambered_bullet.usable_properties.projectile_no):
                     spread_angle = uniform(0, 1) * 2 * pi
 
                     radius_projectile = (projectile_spread_modifier * 0.5) * sqrt(uniform(0, 1))
@@ -673,17 +673,17 @@ class Gun(Weapon):
 
                     # does damage to given bodypart
                     target.bodyparts[part_index].deal_damage_gun(
-                        diameter_bullet=self.chambered_bullet.diameter,
-                        mass_bullet=self.chambered_bullet.mass,
+                        diameter_bullet=self.chambered_bullet.usable_properties.diameter,
+                        mass_bullet=self.chambered_bullet.usable_properties.mass,
                         velocity_bullet=velocity_at_distance,
-                        drag_bullet=self.chambered_bullet.drag_coefficient,
-                        config_bullet=self.chambered_bullet.proj_config,
-                        bullet_length=self.chambered_bullet.bullet_length,
-                        bullet_expands=self.chambered_bullet.bullet_expands,
-                        bullet_yaws=self.chambered_bullet.bullet_yaws,
-                        bullet_fragments=self.chambered_bullet.bullet_fragments,
-                        bullet_max_expansion=self.chambered_bullet.max_expansion,
-                        bullet_expansion_velocity=self.chambered_bullet.max_expansion_velocity,
+                        drag_bullet=self.chambered_bullet.usable_properties.drag_coefficient,
+                        config_bullet=self.chambered_bullet.usable_properties.proj_config,
+                        bullet_length=self.chambered_bullet.usable_properties.bullet_length,
+                        bullet_expands=self.chambered_bullet.usable_properties.bullet_expands,
+                        bullet_yaws=self.chambered_bullet.usable_properties.bullet_yaws,
+                        bullet_fragments=self.chambered_bullet.usable_properties.bullet_fragments,
+                        bullet_max_expansion=self.chambered_bullet.usable_properties.max_expansion,
+                        bullet_expansion_velocity=self.chambered_bullet.usable_properties.max_expansion_velocity,
                         attacker=attacker,
                         hit_location_x=hit_location_x,
                         hit_location_y=hit_location_y,
@@ -708,12 +708,12 @@ class Gun(Weapon):
 
                         gas_velocity = muzzle_velocity * 1.7
                         bullet_momentum = \
-                            self.chambered_bullet.mass * 0.000142857 * muzzle_velocity * \
-                            self.chambered_bullet.projectile_no
+                            self.chambered_bullet.usable_properties.mass * 0.000142857 * muzzle_velocity * \
+                            self.chambered_bullet.usable_properties.projectile_no
                         gas_momentum = \
-                            self.chambered_bullet.charge_mass * 0.000142857 * muzzle_velocity / 2
+                            self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * muzzle_velocity / 2
                         momentum_jet = \
-                            self.chambered_bullet.charge_mass * 0.000142857 * gas_velocity * \
+                            self.chambered_bullet.usable_properties.charge_mass * 0.000142857 * gas_velocity * \
                             ((1 - muzzle_break) ** (1 / sqrt(e)))
                         self.momentum_gun = bullet_momentum + gas_momentum + momentum_jet
 
@@ -816,7 +816,7 @@ class Gun(Weapon):
 
             if len(clip.magazine) <= magazine.mag_capacity - len(magazine.magazine):
                 if self.chambered_bullet:
-                    actions.AddToInventory(item=self.chambered_bullet.parent, amount=1, entity=inventory.parent)
+                    actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
                 magazine.magazine += clip.magazine
                 clip.magazine = []
                 self.chambered_bullet = magazine.magazine.pop()
@@ -851,7 +851,7 @@ class Gun(Weapon):
             self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from clip",
                                                 colour.RED)
 
-        if len(magazine.magazine) > 0 and clip.requires_gun_empty:
+        if len(magazine.magazine) > 0 and clip.requires_gun_empty and inventory.parent.player:
             self.engine.message_log.add_message(f"{inventory.parent.name}: rounds still loaded",
                                                 colour.RED)
 
@@ -932,7 +932,7 @@ class GunMagFed(Gun):
                  muzzle_break_efficiency: float = 0.0,
                  fire_rate_modifier: float = 1.0,
                  load_time_modifier: float = 1.0,
-                 chambered_bullet: Optional[Bullet] = None,
+                 chambered_bullet: Optional[Item] = None,
                  loaded_magazine: Optional[DetachableMagazine] = None,
                  clip_stays_in_gun: bool = False,
                  clip_in_gun: Optional[Clip] = None,
@@ -1015,7 +1015,7 @@ class GunMagFed(Gun):
 
         if self.loaded_magazine is not None:
             if len(self.loaded_magazine.magazine) > 0:
-                if self.loaded_magazine.magazine[-1].bullet_type in \
+                if self.loaded_magazine.magazine[-1].usable_properties.bullet_type in \
                         self.compatible_bullet_type:
                     self.chambered_bullet = self.loaded_magazine.magazine.pop()
                 else:
@@ -1132,7 +1132,7 @@ class GunIntegratedMag(Gun, Magazine):
 
         if not self.keep_round_chambered and self.chambered_bullet is not None:
             if isinstance(inventory, components.inventory.Inventory):
-                actions.AddToInventory(item=self.chambered_bullet.parent, amount=1, entity=inventory.parent)
+                actions.AddToInventory(item=self.chambered_bullet, amount=1, entity=inventory.parent)
 
                 if inventory.parent.player:
                     if self.action_type == 'bolt action':

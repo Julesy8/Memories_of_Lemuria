@@ -1279,7 +1279,6 @@ class ChangeTargetActor(AskUserEventHandler):
             self.update_part_str_colour()
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
-            print(self.bodypart_index)
 
             if self.item is not None:
                 if hasattr(self.item.usable_properties, 'jammed'):
@@ -1563,7 +1562,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         player = self.engine.player
-
+        # TODO - term 'bullets'technically incorrect here
         if option == 'load bullets':
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine,
                                               parent_handler=self.parent_handler)
@@ -1575,6 +1574,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
             player.inventory.add_to_magazines(magazine=self.magazine)
 
         elif option == 'remove from loadout':
+            player.inventory.items.append(self.magazine.parent)
             player.inventory.remove_from_magazines(magazine=self.magazine)
 
         return MainGameEventHandler(engine=self.engine)
@@ -1706,7 +1706,7 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
 
         for item in loadout:
             if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_magazine_type'):
-                if item.usable_properties.magazine_type not in self.gun.compatible_magazine_type:
+                if item.usable_properties.magazine_type in self.gun.compatible_magazine_type:
                     mag_list.append(item)
 
         super().__init__(engine=engine, options=mag_list, page=0, title=title, parent_handler=parent_handler)
@@ -1987,10 +1987,10 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
             except IndexError:
                 self.engine.message_log.add_message("Invalid entry.", colour.RED)
                 return None
-            return self.ev_on_option_selected(selected_item.usable_properties)
+            return self.ev_on_option_selected(selected_item)
         return super().ev_keydown(event)
 
-    def ev_on_option_selected(self, item: Bullet) -> Optional[ActionOrHandler]:
+    def ev_on_option_selected(self, item: Item) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         return SelectNumberOfBulletsToLoadHandler(engine=self.engine, magazine=self.magazine, ammo=item,
                                                   parent_handler=self.parent_handler)
@@ -1998,14 +1998,17 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
 
 class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
 
-    def __init__(self, engine: Engine, magazine: Magazine, ammo: Bullet, parent_handler: BaseEventHandler):
+    def __init__(self, engine: Engine, magazine: Magazine, ammo: Item, parent_handler: BaseEventHandler):
         self.magazine = magazine
         self.ammo = ammo
-        super().__init__(engine=engine, item=ammo.parent, prompt_string="amount to load (leave blank for maximum):",
+
+        super().__init__(engine=engine, item=ammo, prompt_string="amount to load (leave blank for maximum):",
                          parent_handler=parent_handler)
 
     def ev_on_option_selected(self):
-        LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo, bullets_to_load=int(self.buffer),
+
+        LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo,
+                                bullets_to_load=int(self.buffer),
                                 magazine=self.magazine).handle_action()
         return self.parent_handler
 
@@ -2026,9 +2029,9 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
         items = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
 
-        for item in items:
-            if item in inventory.items:
-                loadout_items.append(item)
+        # for item in items:
+        #     if item in inventory.items:
+        loadout_items += items
 
         super().__init__(engine=engine, options=loadout_items, page=0, title=title, parent_handler=parent_handler)
 

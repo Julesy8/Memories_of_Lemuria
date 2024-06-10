@@ -42,7 +42,7 @@ sw629_barrel = Item(
                                    is_optic=True,
                                    suffix='Classic',
                                    barrel_length=6.5,
-                                   velocity_modifier={'44 Magnum': 0.95},
+                                   velocity_modifier={'.44 Magnum': 0.95},
                                    accuracy_part=True,
                                    ),
     description='Standard 6.5 inch Smith & Wesson Model 629 Classic .44 Magnum barrel.'
@@ -65,7 +65,7 @@ sw629_barrel_stealth = Item(
                                    is_optic=True,
                                    suffix='Stealth Hunter',
                                    barrel_length=7.5,
-                                   velocity_modifier={'44 Magnum': 0.97},
+                                   velocity_modifier={'.44 Magnum': 0.97},
                                    accuracy_part=True,
                                    ),
     description='A 7 inch Smith & Wesson Model 629 Classic .44 Magnum barrel. It includes a weighted shroud to'
@@ -86,7 +86,7 @@ sw629_barrel_5in = Item(
                                    ap_to_equip=0.98,
                                    is_optic=True,
                                    barrel_length=5,
-                                   velocity_modifier={'44 Magnum': 0.89},
+                                   velocity_modifier={'.44 Magnum': 0.89},
                                    accuracy_part=True,
                                    ),
     description='5 inch Smith & Wesson Model 629 .44 Magnum barrel.'
@@ -107,7 +107,7 @@ sw629_barrel_4in = Item(
                                    ap_to_equip=0.97,
                                    is_optic=True,
                                    barrel_length=4,
-                                   velocity_modifier={'44 Magnum': 0.8},
+                                   velocity_modifier={'.44 Magnum': 0.8},
                                    accuracy_part=True,
                                    ),
     description='4 inch Smith & Wesson Model 629 .44 Magnum barrel.'
@@ -317,7 +317,7 @@ de44_barrel = Item(
                                    optic_mount_properties={'receiver_height_above_bore': 0.0},
                                    is_optic=True,
                                    barrel_length=6,
-                                   velocity_modifier=0.92,
+                                   velocity_modifier={'.44 Magnum': 0.92},
                                    functional_part=True,
                                    accuracy_part=True,
                                    ),
@@ -339,7 +339,7 @@ de44_barrel_imb = Item(
                                    optic_mount_properties={'receiver_height_above_bore': 0.0},
                                    suffix='IMB',
                                    barrel_length=6,
-                                   velocity_modifier=0.92,
+                                   velocity_modifier={'.44 Magnum': 0.92},
                                    muzzle_break_efficiency=0.5,
                                    sound_radius=1.11,
                                    functional_part=True,
@@ -364,7 +364,7 @@ de44_barrel_10in = Item(
                                    suffix='Long Barrel',
                                    barrel_length=10,
                                    ap_to_equip=1.06,
-                                   velocity_modifier=1.057,
+                                   velocity_modifier={'.44 Magnum': 1.057},
                                    functional_part=True,
                                    accuracy_part=True,
                                    target_acquisition_ap_mod=1.05,
@@ -390,7 +390,7 @@ de44_barrel_10in_threaded = Item(
                                    suffix='Long Barrel',
                                    barrel_length=10,
                                    ap_to_equip=1.06,
-                                   velocity_modifier=1.057,
+                                   velocity_modifier={'.44 Magnum': 1.057},
                                    functional_part=True,
                                    accuracy_part=True,
                                    target_acquisition_ap_mod=1.05,
@@ -415,7 +415,7 @@ de44_slide = Item(
                                    functional_part=True,
                                    accuracy_part=True
                                    ),
-    description='A standard TT-33 slide.'
+    description='A standard Desert Eagle XIX slide.'
 )
 
 de44 = Item(
