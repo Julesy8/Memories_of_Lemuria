@@ -947,7 +947,9 @@ class AddToInventory(Action):
 
     def perform(self) -> None:
 
-        if self.item.stacking:
+        self.item_copy.parent = self.entity.inventory
+
+        if self.item_copy.stacking:
 
             if self.item.stacking.stack_size >= self.amount > 0:
                 stack_amount = self.amount
@@ -965,8 +967,6 @@ class AddToInventory(Action):
 
             self.entity.inventory.items.append(self.item_copy)
             self.remove_from_container()
-
-        self.item_copy.parent = self.entity.inventory
 
     def remove_from_container(self):
         pass

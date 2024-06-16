@@ -42,12 +42,13 @@ class Engine:
         self.players: list[Actor] = [player]
         self.crafting_recipes = crafting_dict
         self.game_won = False
+        self.game_over = False
 
         self.bestiary = {}
 
         self.squad_mode: bool = False
 
-        self.floor_str = f"{level_names[self.current_level]}"
+        self.floor_str = f"{level_names[self.current_level]} [{self.current_floor}]"
 
     def handle_queued_actions(self) -> None:
         for player in self.players:
@@ -67,7 +68,7 @@ class Engine:
         self.game_map.camera_xy = (self.player.x, self.player.y + 3)
 
     def update_floor_str(self) -> None:
-        self.floor_str = f"{level_names[self.current_level]}"
+        self.floor_str = f"{level_names[self.current_level]} [{self.current_floor}]"
 
     def save_as(self, filename: str) -> None:
         """Save this Engine instance as a compressed file."""
@@ -201,7 +202,7 @@ class Engine:
         console.print(x=4, y=console.height - 4, string='L', fg=colour.WHITE)
 
         console.print(x=1, y=console.height - 7,
-                      string=f"┤{level_names[self.current_level]}├", fg=colour.WHITE,
+                      string=f"┤{self.floor_str}├", fg=colour.WHITE,
                       bg=(0, 0, 0))
 
         # displays current ammo

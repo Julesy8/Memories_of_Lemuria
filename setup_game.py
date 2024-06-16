@@ -147,13 +147,13 @@ class MainMenu(BaseEventHandler):
                       fg=self.fg_colour)
 
         # noinspection PyTypeChecker
-        console.print(x=console.width // 2 - 6, y=console.height // 2 + 22,
-                      string='Version 0.00',
+        console.print(x=console.width // 2 - 34, y=console.height // 2 + 22,
+                      string='Version 0.01 - Send Bug Reports & Suggestions to moldev196@gmail.com',
                       fg=self.fg_colour)
 
         if music:
             # noinspection PyTypeChecker
-            console.print(x=console.width // 2 - 26, y=console.height // 2 + 23,
+            console.print(x=console.width // 2 - 26, y=console.height // 2 + 24,
                           string='Music by Blavatsky -- https://blavatsky.bandcamp.com',
                           fg=self.fg_colour)
 

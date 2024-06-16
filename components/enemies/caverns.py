@@ -817,6 +817,7 @@ giant_snake = Actor(
                                 'reptilian creatures found in the depths.'
                     ),
     ai=HostileAnimal,
+    # ai=DeadAI,
     bodyparts=(Body(hp=40, protection_ballistic=0, protection_physical=0, depth=16, width=120, height=16,
                     connected_to={'head': (68, 0)}),
                Head(hp=5, protection_ballistic=0, protection_physical=0, depth=16, width=16, height=16,
@@ -842,6 +843,7 @@ wyrm = Actor(
                     description='An alien reptilian creature resemble a huge serpent, ten metres in length.'
                     ),
     ai=HostileAnimal,
+    # ai=DeadAI,
     bodyparts=(Body(hp=400, protection_ballistic=0.15, protection_physical=0, depth=160, width=1200, height=160,
                     connected_to={'head': (680, 0)}),
                Head(hp=120, protection_ballistic=0.25, protection_physical=0, depth=160, width=160, height=160,
@@ -868,6 +870,7 @@ large_rat = Actor(
                                 'serve a larger nuisance.'
                     ),
     ai=HostileAnimal,
+    # ai=DeadAI,
     bodyparts=(
         Body(hp=10, protection_ballistic=0, protection_physical=0, depth=15, width=20, height=15, connected_to={}),),
     inventory=Inventory(),
@@ -893,6 +896,7 @@ blob = Actor(
                                 'digesting its prey.'
                     ),
     ai=HostileAnimal,
+    # ai=DeadAI,
     bodyparts=(
         Body(hp=30, protection_ballistic=0, protection_physical=0, depth=100, width=100, height=100, connected_to={}),),
     inventory=Inventory(),
@@ -915,6 +919,7 @@ rat_king = Actor(
                     description='A writhing mass of rodents, their tails intertwined. As dangerous as it is disgusting.'
                     ),
     ai=HostileAnimal,
+    # ai=DeadAI,
     bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=0, depth=20, width=40, height=40,
                     name='writhing mass', connected_to={}),),
     inventory=Inventory(),
@@ -943,6 +948,7 @@ zombie_soldier = Actor(
                                    "some ability to use firearms."
                        ),
     ai=HostileEnemyArmed,
+    # ai=DeadAI,
     bodyparts=(Body(hp=140, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -976,6 +982,7 @@ zombie = Actor(
                     description="A corpse reanimated by dark magic or alien technology."
                     ),
     ai=HostileEnemy,
+    # ai=DeadAI,
     bodyparts=(Body(hp=140, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -1010,6 +1017,7 @@ fast_zombie = Actor(
                     description="A corpse reanimated by dark magic or alien technology. They're fast runners."
                     ),
     ai=HostileEnemy,
+    # ai=DeadAI,
     bodyparts=(Body(hp=140, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -1044,6 +1052,7 @@ hulk_zombie = Actor(
                                 "slow but terrifyingly strong."
                     ),
     ai=HostileEnemy,
+    # ai=DeadAI,
     bodyparts=(Body(hp=360, protection_ballistic=0, protection_physical=1, depth=40, width=72, height=112,
                     connected_to={'head': (0, 82), 'right arm': (46, -22), 'left arm': (-46, -22),
                                   'right leg': (6, -156), 'left leg': (-6, -156)}, aim_location_offset=28),
@@ -1079,6 +1088,7 @@ test_dummy = Actor(
                                    "order. Not very well trained or equipped."
                        ),
     ai=DeadAI,
+    # ai=DeadAI,
     bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -1119,6 +1129,7 @@ grunt = Actor(
                                    "order. Not very well trained or equipped."
                        ),
     ai=HostileEnemyArmed,
+    # ai=DeadAI,
     bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -1152,6 +1163,7 @@ reptilian = Actor(
                        description="A reptilian-type humanoid alien. They are tall and muscular."
                        ),
     ai=HostileEnemy,
+    # ai=DeadAI,
     bodyparts=(Body(hp=156, protection_ballistic=0.15, protection_physical=2, depth=26, width=46, height=72,
                     connected_to={'head': (0, 53), 'right arm': (29, -14), 'left arm': (-29, -14),
                                   'right leg': (3, -101), 'left leg': (-3, -101)}, aim_location_offset=18),
@@ -1190,6 +1202,7 @@ reptilian_soldier = Actor(
                        description="A reptilian-type humanoid alien. They are tall and muscular."
                        ),
     ai=HostileEnemyArmed,
+    # ai=DeadAI,
     bodyparts=(Body(hp=156, protection_ballistic=0.3, protection_physical=4, depth=26, width=46, height=72,
                     connected_to={'head': (0, 53), 'right arm': (29, -14), 'left arm': (-29, -14),
                                   'right leg': (3, -101), 'left leg': (-3, -101)}, aim_location_offset=18),
@@ -1225,6 +1238,7 @@ soldier = Actor(
                                    "equipped than conscripts."
                        ),
     ai=HostileEnemyArmed,
+    # ai=DeadAI,
     bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -1274,6 +1288,7 @@ soldier_gov = Actor(
                        description="A professional soldier of the Government's forces."
                        ),
     ai=HostileEnemyArmed,
+    # ai=DeadAI,
     bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -1314,6 +1329,7 @@ officer = Actor(
                                    "imminent death."
                        ),
     ai=HostileEnemyArmed,
+    # ai=DeadAI,
     bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
@@ -1350,6 +1366,7 @@ maniac = Actor(
                                    "insanity. Often carrying knives, they are deadly to the inexperienced adventurer."
                        ),
     ai=HostileEnemy,
+    # ai=DeadAI,
     bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
                     connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
                                   'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),

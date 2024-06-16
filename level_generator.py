@@ -381,6 +381,8 @@ class MessyBSPTree:
 
         enemy = deepcopy(choices(population=self.enemy_population, weights=self.enemy_weight,
                                  k=1)[0])
+        if enemy is None:
+            return
 
         number_of_monsters = randint(0, enemy.fighter.spawn_group_amount)
         number_of_items = randint(0, self.max_items_per_room)

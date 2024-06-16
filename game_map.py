@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
 
-new_player_chance = (True, False, False)
+new_player_chance = (True, False)
 
 
 def _get_view_slice(screen_width: int, world_width: int, anchor: int):
@@ -193,7 +193,11 @@ class GameMap:
 
             # entity is visible
             if self.visible[entity.x, entity.y]:
-                entity.seen = True
+                if not entity.seen:
+                    for player in self.engine.players:
+                        player.ai.path = []
+                        player.ai.path_to_xy = None
+                    entity.seen = True
                 # sets 'ghost position' at last seen location
                 entity.ghost_x = entity.x
                 entity.ghost_y = entity.y
@@ -240,13 +244,20 @@ class GameMap:
         if 0 <= camera_xy_updated[0] < self.width and 0 <= camera_xy_updated[1] < self.height:
             self.camera_xy = camera_xy_updated
 
+    def spawn_player(self):
+        new_player = generate_player(current_level=self.engine.current_level, players=self.engine.players)
+        add_player(engine=self.engine, player=new_player)
+
     def generate_level(self) -> None:
         from level_generator import MessyBSPTree
         from level_parameters import level_params
 
+        # clear messages
+        self.engine.message_log.messages = []
+
         self.engine.current_floor += 1
 
-        if self.engine.current_floor % 5 == 0:
+        if self.engine.current_floor % 3 == 0:
             self.engine.current_level += 1
             self.engine.current_floor = 0
 
@@ -255,10 +266,22 @@ class GameMap:
 
         else:
 
-            if len(self.engine.players) < 5:
+            spawned_player = False
+
+            # spawn a new player on the second floor of the first level
+            if self.engine.current_level == 0 and self.engine.current_floor == 1 and len(self.engine.players) < 5:
+                spawned_player = True
+                self.spawn_player()
+
+            # spawn a new player on the first floor of every new level except the first level
+            elif not self.engine.current_level == 0 and self.engine.current_floor == 0 and len(self.engine.players) < 5:
+                spawned_player = True
+                self.spawn_player()
+
+            # random chance to spawn a new player every floor
+            if len(self.engine.players) < 5 and not spawned_player:
                 if choice(new_player_chance):
-                    new_player = generate_player(current_level=self.engine.current_level, players=self.engine.players)
-                    add_player(engine=self.engine, player=new_player)
+                    self.spawn_player()
 
             self.engine.game_map = MessyBSPTree(
                 messy_tunnels=level_params[self.engine.current_level][0],

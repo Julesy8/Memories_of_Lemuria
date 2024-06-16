@@ -1,6 +1,7 @@
 import traceback
 from configparser import ConfigParser
 from multiprocessing import active_children, freeze_support
+import os
 import exceptions
 import input_handlers
 from setup_game import MainMenu
@@ -151,8 +152,6 @@ def save_game(handler: input_handlers.BaseEventHandler, filename: str) -> None:
     """If the current event handler has an active Engine then save it."""
     if isinstance(handler, input_handlers.EventHandler):
         handler.engine.save_as(filename)
-        print("Game saved.")
-
 
 def main() -> None:
     handler: input_handlers.BaseEventHandler = MainMenu()
@@ -208,14 +207,23 @@ def main() -> None:
                         handler.engine.message_log.add_message(
                             traceback.format_exc(), colour.RED
                         )
+
+                        f = open("error_log.txt", 'a')
+                        f.write(traceback.format_exc())
+                        f.close()
+
         except exceptions.QuitWithoutSaving:
             raise
         except SystemExit:  # Save and quit.
             try:
                 handler.engine.squad_mode = False
+                if handler.engine.game_over:
+                    if os.path.exists("savegame.sav"):
+                        os.remove("savegame.sav")
+                else:
+                    save_game(handler, "savegame.sav")
             except AttributeError:
                 pass
-            save_game(handler, "savegame.sav")
             for child in active_children():
                 child.kill()
             raise

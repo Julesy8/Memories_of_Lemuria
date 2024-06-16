@@ -366,7 +366,7 @@ weapons_levelled = {
         h015_gun: 2,
         tt33_gun: 3,
         m1045_weapon: 4,
-        m109_weapon: 8,\
+        m109_weapon: 8,
 
         ppsh_gun: 3,
         m2_carbine_gun: 5,

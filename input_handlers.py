@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import os
 from copy import deepcopy
 from typing import Optional, TYPE_CHECKING, Union, Callable
@@ -26,7 +25,7 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
-    from components.consumables import Magazine, Bullet, Gun, GunMagFed, GunIntegratedMag, Clip, DetachableMagazine
+    from components.consumables import Magazine, Gun, GunMagFed, GunIntegratedMag, Clip, DetachableMagazine
     from components.bodyparts import Bodypart
 
 config = ConfigParser()
@@ -148,7 +147,7 @@ class EventHandler(BaseEventHandler):
             return action_or_state
         if self.handle_action(action_or_state):
             # A valid action was performed.
-            if not self.engine.player.is_alive:
+            if self.engine.game_over:
                 # The player was killed sometime during or after the action.
                 return GameOverEventHandler(self.engine)
             if self.engine.game_won:
@@ -283,7 +282,7 @@ class GameOverEventHandler(EventHandler):
             x=console.width // 2 - 18,
             y=console.height // 2 - 4,
             width=36,
-            height=5,
+            height=6,
             clear=True,
             fg=colour.WHITE,
             bg=(0, 0, 0),
@@ -291,17 +290,18 @@ class GameOverEventHandler(EventHandler):
 
         console.print(x=console.width // 2 - 16, y=console.height // 2 - 2, string="Your team perished in the depths",
                       fg=colour.MAGENTA, bg=(0, 0, 0))
+        console.print(x=console.width // 2 - 15, y=console.height // 2 - 1, string="Press [ESC] to return to menu.",
+                      fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
-
         key = event.sym
 
         if key == tcod.event.K_v:
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_ESCAPE:
             if os.path.exists("savegame.sav"):
-                os.remove('savegame.sav')
-            return QuitEventHandler(self.engine, parent_handler=self)
+                os.remove("savegame.sav")
+            raise exceptions.QuitToMenuWithoutSaving
         elif key == tcod.event.K_t:
             return Bestiary(self.engine, parent_handler=self)
 
@@ -556,9 +556,12 @@ class UserOptionsWithPages(AskUserEventHandler):
                 stack_size = 0
 
                 if item.stacking:
-                    stack_size = 3 + item.stacking.stack_size
+                    stack_size = 3 + len(str(item.stacking.stack_size))
                 if len(item.name) + stack_size > longest_name_len:
                     longest_name_len = len(item.name) + stack_size
+
+                if hasattr(item.usable_properties, 'mag_capacity'):
+                    longest_name_len = len(item.name) + 4 + (len(str(item.usable_properties.mag_capacity)) * 2)
 
             # item is a string
             else:
@@ -589,10 +592,15 @@ class UserOptionsWithPages(AskUserEventHandler):
 
                 if isinstance(item, Item):
 
-                    if item.stacking:
-                        console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                    if hasattr(item.usable_properties, 'mag_capacity'):
+                        console.print(x + 1, y + i + 1,
+                                      f"({item_key}) {item.name} ({len(item.usable_properties.magazine)}"
+                                      f"/{item.usable_properties.mag_capacity})")
                     else:
-                        console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+                        if item.stacking:
+                            console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                        else:
+                            console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
 
                 else:
                     console.print(x + 1, y + i + 1, f"({item_key}) {item}")
@@ -702,6 +710,13 @@ class TypeAmountEventHandler(TypeInputEventHandler):
                             self.buffer = f'{self.item.stacking.stack_size}'
 
                         return self.ev_on_option_selected()
+
+                    elif key == tcod.event.K_a:
+
+                        self.buffer = f'{self.item.stacking.stack_size}'
+
+                        return self.ev_on_option_selected()
+
 
                 except AttributeError:
                     self.buffer = f'{self.item.stacking.stack_size}'
@@ -976,7 +991,7 @@ class DropItemEventHandler(TypeAmountEventHandler):
 
     def __init__(self, item, engine: Engine, parent_handler: BaseEventHandler):
         super().__init__(engine=engine, parent_handler=parent_handler, item=item,
-                         prompt_string="amount to drop (leave blank for all):")
+                         prompt_string="amount to drop (press [A] for all):")
 
     def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
         return actions.DropAction(entity=self.engine.player, item=self.item, drop_amount=int(self.buffer))
@@ -1005,7 +1020,7 @@ class PickUpEventHandler(UserOptionsWithPages):
 class AmountToPickUpMenu(TypeAmountEventHandler):
 
     def __init__(self, item, engine: Engine, parent_handler: BaseEventHandler):
-        super().__init__(engine=engine, item=item, prompt_string="amount to pick up (leave blank for all):",
+        super().__init__(engine=engine, item=item, prompt_string="amount to pick up (press [A] for all):",
                          parent_handler=parent_handler)
 
     def ev_on_option_selected(self) -> Optional[ActionOrHandler]:
@@ -1170,8 +1185,8 @@ class ChangeTargetActor(AskUserEventHandler):
             # if wearing armour, shows what body armour the enemy is wearing
             # if displaying armour, offsets other display information
             if self.selected_bodypart.equipped is not None:
-                console.print(x=0, y=console.height - 6, string=f"ARMOUR: "
-                                                                f"{self.selected_bodypart.equipped.parent.name}",
+                console.print(x=0, y=console.height - 8, string=f"ARMOUR: "
+                                                                 f"{self.selected_bodypart.equipped.parent.name}",
                               fg=colour.WHITE, bg=(0, 0, 0))
                 offset = 1
 
@@ -1529,6 +1544,7 @@ class QuitEventHandler(AskUserEventHandler):
             raise exceptions.QuitToMenu
 
         elif key == tcod.event.K_1:
+            self.engine.squad_mode = False
             return self.parent_handler
 
         elif key == tcod.event.K_3:
@@ -1562,7 +1578,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         player = self.engine.player
-        # TODO - term 'bullets'technically incorrect here
+        # TODO - term 'bullets' technically incorrect here
         if option == 'load bullets':
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine,
                                               parent_handler=self.parent_handler)
@@ -2002,7 +2018,7 @@ class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
         self.magazine = magazine
         self.ammo = ammo
 
-        super().__init__(engine=engine, item=ammo, prompt_string="amount to load (leave blank for maximum):",
+        super().__init__(engine=engine, item=ammo, prompt_string="amount to load (press [A] for maximum):",
                          parent_handler=parent_handler)
 
     def ev_on_option_selected(self):

@@ -77,8 +77,8 @@ class HealingConsumable(Usable):
 
         self.parent.stacking.stack_size -= 1
 
-        self.engine.message_log.add_message(f"{self.parent.name}s remaining: {self.parent.stacking.stack_size}",
-                                            colour.WHITE, )
+        # self.engine.message_log.add_message(f"{self.parent.name}s remaining: {self.parent.stacking.stack_size}",
+        #                                     colour.WHITE, )
 
         if self.parent.stacking.stack_size <= 0:
             self.consume()
@@ -176,7 +176,10 @@ class Weapon(Usable):
             if hasattr(self, 'loaded_magazine'):
                 if self.loaded_magazine is not None:
                     magazine = self.loaded_magazine.magazine
-                    total_weight += len(magazine) * magazine[0].parent.weight + self.loaded_magazine.parent.weight
+                    bullets_weight = 0
+                    if len(magazine) > 0:
+                        bullets_weight = len(magazine) * magazine[0].parent.weight
+                    total_weight += bullets_weight + self.loaded_magazine.parent.weight
             # integrated magazine gun
             elif isinstance(self, GunIntegratedMag):
                 magazine = self.magazine
@@ -329,23 +332,21 @@ class Magazine(Usable):
         # unloads bullets from magazine
         inventory = entity.inventory
 
-        if isinstance(inventory, components.inventory.Inventory):
+        if isinstance(self, GunIntegratedMag):
+            if not self.keep_round_chambered:
+                self.magazine.append(self.chambered_bullet)
+                setattr(self, "chambered_bullet", None)
 
-            if isinstance(self, GunIntegratedMag):
-                if not self.keep_round_chambered:
-                    self.magazine.append(self.chambered_bullet)
-                    setattr(self, "chambered_bullet", None)
+        if len(self.magazine) > 0:
+            for bullet in self.magazine:
+                if bullet is not None:
+                    actions.AddToInventory(item=bullet, amount=1,
+                                           entity=inventory.parent).handle_action()
 
-            if len(self.magazine) > 0:
-                for bullet in self.magazine:
-                    if bullet is not None:
-                        actions.AddToInventory(item=bullet, amount=1,
-                                               entity=inventory.parent).handle_action()
+            self.magazine = []
 
-                self.magazine = []
-
-            else:
-                return self.engine.message_log.add_message(f"{self.parent.name} is already empty", colour.RED)
+        else:
+            return self.engine.message_log.add_message(f"{self.parent.name} is already empty", colour.RED)
 
 
 class DetachableMagazine(Magazine):
@@ -772,7 +773,7 @@ class Gun(Weapon):
                         path = x.ai.get_path_to(attacker.x, attacker.y)
                     except AttributeError:
                         continue
-                    # TODO - bandaid fix
+                    # TODO - this is broken
                     except RecursionError:
                         continue
                     if len(path) <= sound_radius:

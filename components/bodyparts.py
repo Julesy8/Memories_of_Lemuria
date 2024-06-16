@@ -225,10 +225,19 @@ class Bodypart:
 
         # prints death message
         if self.parent.player:
+
+            inventory = (self.parent.inventory.small_magazines + self.parent.inventory.medium_magazines +
+                       self.parent.inventory.large_magazines + self.parent.inventory.items)
+
+            for item in inventory:
+                item.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+
             self.engine.players.remove(self.parent)
             if len(self.engine.players) > 0:
                 self.engine.player = self.engine.players[0]
                 return self.engine.message_log.add_message(f"{self.parent.name} is dead!", colour.LIGHT_MAGENTA)
+            else:
+                self.engine.game_over = True
 
         self.parent.name = f"{self.parent.name} remains"
 

@@ -118,7 +118,9 @@ level_names = {
 Enemies_by_level = {
 
     # tunnels
-    0: {large_rat: 10,
+    0: {
+        None: 10,
+        large_rat: 10,
         giant_snake: 8,
         grunt: 5,
         maniac: 6,
@@ -128,7 +130,9 @@ Enemies_by_level = {
         },
 
     # caverns
-    1: {zombie: 2,
+    1: {
+        None: 6,
+        zombie: 2,
         grunt: 10,
         fast_zombie: 1,
         maniac: 4,
@@ -137,7 +141,9 @@ Enemies_by_level = {
         },
 
     # the temple
-    2: {zombie: 10,
+    2: {
+        None: 10,
+        zombie: 10,
         fast_zombie: 5,
         grunt: 6,
         hulk_zombie: 1,
@@ -147,7 +153,9 @@ Enemies_by_level = {
         },
 
     # D.U.M.B
-    3: {grunt: 8,
+    3: {
+        None: 8,
+        grunt: 8,
         soldier: 6,
         officer: 4,
         reptilian: 5,
@@ -156,7 +164,9 @@ Enemies_by_level = {
         },
 
     # the labs
-    4: {grunt: 3,
+    4: {
+        None: 5,
+        grunt: 3,
         soldier: 4,
         officer: 2,
         blob: 1,
@@ -166,7 +176,9 @@ Enemies_by_level = {
         },
 
     # the hive
-    5: {grunt: 4,
+    5: {
+        None: 5,
+        grunt: 4,
         soldier: 8,
         officer: 2,
         reptilian_soldier: 2,
@@ -175,10 +187,10 @@ Enemies_by_level = {
 }
 
 Items_by_level = {
-    0: {None: 50,
-        medkit: 20,
-        bandages: 40,
-        repair_kit: 15,
+    0: {None: 100,
+        medkit: 15,
+        bandages: 10,
+        repair_kit: 10,
         bullets.round_9mm_124_fmj: 10,
         bullets.round_9mm_124_jhp: 5,
         bullets.round_76225_90_jhp: 10,
@@ -197,10 +209,10 @@ Items_by_level = {
         platecarrier_3a: 2
         },
 
-    1: {None: 50,
-        medkit: 20,
-        bandages: 40,
-        repair_kit: 15,
+    1: {None: 100,
+        medkit: 15,
+        bandages: 10,
+        repair_kit: 10,
         bullets.round_9mm_124_fmj: 10,
         bullets.round_9mm_124_jhp: 5,
         bullets.round_76225_90_jhp: 10,
@@ -223,10 +235,10 @@ Items_by_level = {
         platecarrier_3: 1,
         },
 
-    2: {None: 50,
-        medkit: 20,
-        bandages: 40,
-        repair_kit: 15,
+    2: {None: 100,
+        medkit: 15,
+        bandages: 10,
+        repair_kit: 10,
         bullets.round_76239_150_fmj: 10,
         bullets.round_556_75_fmj: 10,
         bullets.round_54r_200_fmj: 8,
@@ -249,10 +261,10 @@ Items_by_level = {
         platecarrier_3: 1,
         },
 
-    3: {None: 50,
-        medkit: 20,
-        bandages: 40,
-        repair_kit: 15,
+    3: {None: 100,
+        medkit: 15,
+        bandages: 10,
+        repair_kit: 10,
         bullets.round_76239_150_fmj: 10,
         bullets.round_556_75_fmj: 10,
         bullets.round_545_60_jhp: 8,
@@ -275,10 +287,10 @@ Items_by_level = {
         helmet_altyn: 1,
         },
 
-    4: {None: 50,
-        medkit: 20,
-        bandages: 40,
-        repair_kit: 15,
+    4: {None: 100,
+        medkit: 15,
+        bandages: 10,
+        repair_kit: 10,
         bullets.round_76239_150_fmj: 10,
         bullets.round_556_69_jhp: 10,
         bullets.round_545_60_jhp: 9,
@@ -302,10 +314,10 @@ Items_by_level = {
         helmet_ronin: 1,
         },
 
-    5: {None: 50,
-        medkit: 20,
-        bandages: 40,
-        repair_kit: 15,
+    5: {None: 100,
+        medkit: 15,
+        bandages: 10,
+        repair_kit: 10,
         bullets.round_76239_150_sp: 10,
         bullets.round_556_80_jhp: 10,
         bullets.round_545_60_jhp: 10,
