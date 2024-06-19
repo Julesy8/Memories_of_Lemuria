@@ -561,7 +561,9 @@ class UserOptionsWithPages(AskUserEventHandler):
                     longest_name_len = len(item.name) + stack_size
 
                 if hasattr(item.usable_properties, 'mag_capacity'):
-                    longest_name_len = len(item.name) + 4 + (len(str(item.usable_properties.mag_capacity)) * 2)
+                    name_len = len(item.name) + 4 + (len(str(item.usable_properties.mag_capacity)) * 2)
+                    if name_len > longest_name_len:
+                        longest_name_len = name_len
 
             # item is a string
             else:
@@ -583,6 +585,7 @@ class UserOptionsWithPages(AskUserEventHandler):
             bg=(0, 0, 0),
         )
 
+
         if number_of_options > 0:
             console.print(x + 1, y + height - 1,
                           f"Page {self.page + 1}/{ceil(len(self.options) / self.max_list_length)}")
@@ -592,10 +595,21 @@ class UserOptionsWithPages(AskUserEventHandler):
 
                 if isinstance(item, Item):
 
-                    if hasattr(item.usable_properties, 'mag_capacity'):
-                        console.print(x + 1, y + i + 1,
-                                      f"({item_key}) {item.name} ({len(item.usable_properties.magazine)}"
-                                      f"/{item.usable_properties.mag_capacity})")
+                    if (hasattr(item.usable_properties, 'mag_capacity') and not
+                    hasattr(item.usable_properties, 'part_type')):
+                        if hasattr(item.usable_properties, 'chambered_bullet'):
+                            if item.usable_properties.chambered_bullet is not None:
+                                console.print(x + 1, y + i + 1,
+                                              f"({item_key}) {item.name} ({len(item.usable_properties.magazine) + 1}"
+                                              f"/{item.usable_properties.mag_capacity})")
+                            else:
+                                console.print(x + 1, y + i + 1,
+                                              f"({item_key}) {item.name} ({len(item.usable_properties.magazine)}"
+                                              f"/{item.usable_properties.mag_capacity})")
+                        else:
+                            console.print(x + 1, y + i + 1,
+                                          f"({item_key}) {item.name} ({len(item.usable_properties.magazine)}"
+                                          f"/{item.usable_properties.mag_capacity})")
                     else:
                         if item.stacking:
                             console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
@@ -1610,6 +1624,7 @@ class GunOptionsMagFed(UserOptionsEventHandler):
 
         if self.gun.loaded_magazine:
             options += ["load magazine", "unload magazine", "check rounds in mag"]
+            # options += ["load magazine", "unload magazine"]
         else:
             options.append("load magazine")
 
@@ -1981,6 +1996,11 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
         title = f"Load {self.magazine.parent.name} - ({len(self.magazine.magazine)}/" \
                 f"{self.magazine.mag_capacity})"
 
+        if hasattr(magazine, 'chambered_bullet'):
+            if magazine.chambered_bullet is not None:
+                title = f"Load {self.magazine.parent.name} - ({len(self.magazine.magazine) + 1}/" \
+                        f"{self.magazine.mag_capacity})"
+
         super().__init__(engine=engine, page=0, title=title, options=ammo_list, parent_handler=parent_handler)
 
     def ev_keydown(self, event: tcod.event.KeyDown):
@@ -2022,10 +2042,16 @@ class SelectNumberOfBulletsToLoadHandler(TypeAmountEventHandler):
                          parent_handler=parent_handler)
 
     def ev_on_option_selected(self):
-
-        LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo,
-                                bullets_to_load=int(self.buffer),
-                                magazine=self.magazine).handle_action()
+        if 0 < int(self.buffer) < self.magazine.mag_capacity:
+            bullets_to_load = int(self.buffer)
+            LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo,
+                                    bullets_to_load=bullets_to_load,
+                                    magazine=self.magazine).handle_action()
+        elif int(self.buffer) >= self.magazine.mag_capacity:
+            bullets_to_load = self.magazine.mag_capacity
+            LoadBulletsIntoMagazine(entity=self.engine.player, bullet_type=self.ammo,
+                                    bullets_to_load=bullets_to_load,
+                                    magazine=self.magazine).handle_action()
         return self.parent_handler
 
 
@@ -2410,7 +2436,8 @@ class CraftGun(CraftItem):
             for i in range(5):
                 self.engine.handle_turns()
 
-            self.engine.player.inventory.add_to_inventory(item=item, item_container=None, amount=1)
+            # self.engine.player.inventory.add_to_inventory(item=item, amount=1)
+            self.engine.player.inventory.items.append(item)
             return self.parent_handler
 
         else:

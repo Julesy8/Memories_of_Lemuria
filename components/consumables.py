@@ -7,8 +7,6 @@ from exceptions import Impossible
 from numpy import random
 from math import sqrt, e, pi, cos, sin
 from random import uniform, choices, choice
-from copy import deepcopy
-from pydantic.utils import deep_update
 
 import actions
 import colour
@@ -178,12 +176,13 @@ class Weapon(Usable):
                     magazine = self.loaded_magazine.magazine
                     bullets_weight = 0
                     if len(magazine) > 0:
-                        bullets_weight = len(magazine) * magazine[0].parent.weight
+                        bullets_weight = len(magazine) * magazine[0].weight
                     total_weight += bullets_weight + self.loaded_magazine.parent.weight
             # integrated magazine gun
             elif isinstance(self, GunIntegratedMag):
                 magazine = self.magazine
-                total_weight += len(magazine) * magazine[0].parent.weight
+                if len(magazine) > 0:
+                    total_weight += len(magazine) * magazine[0].weight
 
             # calculates AP modifier based on weight and weapon type
 
@@ -271,7 +270,7 @@ class Bullet(Usable):
                  bullet_expands=False,  # whether bullet expands (hollow point / soft point)
                  bullet_yaws=False,  # whether bullet tumbles
                  bullet_fragments=False,  # whether bullet fragments
-                 load_time_modifier: int = 300,
+                 load_time_modifier: int = 100,
                  projectile_no: int = 1,
                  ):
         self.bullet_type = bullet_type
@@ -308,10 +307,13 @@ class Magazine(Usable):
     def loading_ap(self):
         return 0, 1.0, 1.0
 
+    def load_rounds_check_viable(self):
+        return True
+
     def load_magazine(self, entity: Actor, ammo: Item, load_amount: int) -> None:
 
         # loads bullets into magazine
-        single_round = deepcopy(ammo)
+        single_round = ammo
 
         for i in range(load_amount):
             self.magazine.append(single_round)
@@ -339,9 +341,9 @@ class Magazine(Usable):
 
         if len(self.magazine) > 0:
             for bullet in self.magazine:
-                if bullet is not None:
-                    actions.AddToInventory(item=bullet, amount=1,
-                                           entity=inventory.parent).handle_action()
+                # if bullet is not None:
+                actions.AddToInventory(item=bullet, amount=1,
+                                       entity=inventory.parent).handle_action()
 
             self.magazine = []
 
@@ -831,6 +833,9 @@ class Gun(Weapon):
         if isinstance(self, GunIntegratedMag):
             magazine = self
 
+            if len(magazine.magazine) == magazine.mag_capacity - 1:
+                return False
+
         if isinstance(self, GunMagFed):
             if self.loaded_magazine:
                 magazine = self.loaded_magazine
@@ -1122,6 +1127,12 @@ class GunIntegratedMag(Gun, Magazine):
         return actions.GunIntegratedMagAttack(distance=distance, entity=entity, targeted_actor=targeted_actor,
                                               gun=self, targeted_bodypart=targeted_bodypart)
 
+    def load_rounds_check_viable(self):
+        if len(self.magazine) == self.mag_capacity - 1 and self.chambered_bullet is not None:
+            return False
+        else:
+            return True
+
     def loading_ap(self):
 
         ap_cost = 0
@@ -1190,16 +1201,16 @@ class GunComponent(Usable):
         self.__dict__.update(kwargs)
 
 
-class RecipeUnlock(Usable):
-
-    def __init__(self, datapack: dict):
-        self.datapack = datapack
-
-    def activate(self, action: actions.ItemAction) -> None:
-        self.engine.crafting_recipes = deep_update(self.engine.crafting_recipes, self.datapack)
-        self.engine.message_log.add_message(
-            f"Crafting recipes unlocked - {list(self.datapack.keys())[0]}",
-            colour.GREEN,
-        )
-
-        self.consume()
+# class RecipeUnlock(Usable):
+#
+#     def __init__(self, datapack: dict):
+#         self.datapack = datapack
+#
+#     def activate(self, action: actions.ItemAction) -> None:
+#         self.engine.crafting_recipes = deep_update(self.engine.crafting_recipes, self.datapack)
+#         self.engine.message_log.add_message(
+#             f"Crafting recipes unlocked - {list(self.datapack.keys())[0]}",
+#             colour.GREEN,
+#         )
+#
+#         self.consume()

@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from math import sin, cos, asin, floor, sqrt, pi, dist
-from random import choices, uniform, choice
+from random import uniform, choice
 from random import randint
+from exceptions import GameOver
 from typing import Optional, TYPE_CHECKING
 
 from numpy import log
-# import matplotlib.pyplot as plt
 from shapely.geometry import LineString
 
 import colour
@@ -183,30 +182,31 @@ class Bodypart:
     def die(self) -> None:
 
         # drops random item from list and held item
-        if len(self.parent.fighter.item_drops.keys()) > 0:
-            drops = list(self.parent.fighter.item_drops.keys())
-            drop_weight = list(self.parent.fighter.item_drops.values())
 
-            # chooses item to drop from list
-            item_drop = deepcopy(choices(population=drops, weights=drop_weight, k=1)[0])
-
-            # gives PDA datapack properties
-            # if isinstance(item_drop, Item):
-            #     if item_drop.name == 'PDA':
-            #
-            #         data_pack_pop = []
-            #         data_pack_weight = []
-            #
-            #         for i in datapackdict[self.engine.current_level]:
-            #             data_pack_pop.append(i[0])
-            #             data_pack_weight.append(i[1])
-            #
-            #         item_drop.usable_properties = RecipeUnlock(choices(population=data_pack_pop,
-            #                                                            weights=data_pack_weight, k=1)[0])
-
-            if item_drop is not None:
-                item_drop.usable_properties.parent = item_drop
-                item_drop.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+        # if len(self.parent.fighter.item_drops.keys()) > 0:
+        #     drops = list(self.parent.fighter.item_drops.keys())
+        #     drop_weight = list(self.parent.fighter.item_drops.values())
+        #
+        #     # chooses item to drop from list
+        #     item_drop = deepcopy(choices(population=drops, weights=drop_weight, k=1)[0])
+        #
+        #     # gives PDA datapack properties
+        #     # if isinstance(item_drop, Item):
+        #     #     if item_drop.name == 'PDA':
+        #     #
+        #     #         data_pack_pop = []
+        #     #         data_pack_weight = []
+        #     #
+        #     #         for i in datapackdict[self.engine.current_level]:
+        #     #             data_pack_pop.append(i[0])
+        #     #             data_pack_weight.append(i[1])
+        #     #
+        #     #         item_drop.usable_properties = RecipeUnlock(choices(population=data_pack_pop,
+        #     #                                                            weights=data_pack_weight, k=1)[0])
+        #
+        #     if item_drop is not None:
+        #         item_drop.usable_properties.parent = item_drop
+        #         item_drop.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
         # drops held weapon
         if self.parent.inventory.held is not None:
@@ -223,21 +223,24 @@ class Bodypart:
         self.parent.render_order = RenderOrder.CORPSE
         self.parent.blocks_movement = False
 
+        inventory = self.parent.inventory.items
+
         # prints death message
         if self.parent.player:
 
-            inventory = (self.parent.inventory.small_magazines + self.parent.inventory.medium_magazines +
-                       self.parent.inventory.large_magazines + self.parent.inventory.items)
-
-            for item in inventory:
-                item.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
+            inventory += (self.parent.inventory.small_magazines + self.parent.inventory.medium_magazines +
+                          self.parent.inventory.large_magazines)
 
             self.engine.players.remove(self.parent)
             if len(self.engine.players) > 0:
                 self.engine.player = self.engine.players[0]
-                return self.engine.message_log.add_message(f"{self.parent.name} is dead!", colour.LIGHT_MAGENTA)
+                self.engine.message_log.add_message(f"{self.parent.name} is dead!", colour.LIGHT_MAGENTA)
             else:
                 self.engine.game_over = True
+                raise GameOver
+
+        for item in inventory:
+            item.place(x=self.parent.x, y=self.parent.y, gamemap=self.engine.game_map)
 
         self.parent.name = f"{self.parent.name} remains"
 
@@ -951,7 +954,7 @@ class Head(Bodypart):
         # crippling the head 'knocks out' the entity for a random amount of turns
         if not self.parent == self.engine.player:
             self.functional = False
-
+            self.engine.message_log.add_message(f"{self.parent.name} is knocked out!", colour.GREEN)
             turns_inactive = randint(3, 6)
             self.parent.fighter.turns_move_inactive = turns_inactive
             self.parent.fighter.turns_attack_inactive = turns_inactive

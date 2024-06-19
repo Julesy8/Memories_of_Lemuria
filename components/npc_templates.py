@@ -140,18 +140,22 @@ class Fighter(BaseComponent):
 
                 if self.parent.player:
                     held_weapon = held_weapon.update_properties(current_level, random_condition=False)
+                    lower_bound = 1
+                    upper_bound = 2
                 else:
                     held_weapon = held_weapon.update_properties(current_level)
+                    lower_bound = 0
+                    upper_bound = 1
 
                 weapon_properties = held_weapon.usable_properties
 
                 if weapon_properties.chambered_bullet is None:
                     if hasattr(weapon_properties, 'compatible_magazine_type'):
-                        bullets = copy(weapon_properties.loaded_magazine.magazine[0])
+                        bullets = deepcopy(weapon_properties.loaded_magazine.magazine[0])
                     else:
-                        bullets = copy(weapon_properties.magazine[0])
+                        bullets = deepcopy(weapon_properties.magazine[0])
                 else:
-                    bullets = copy(weapon_properties.chambered_bullet)
+                    bullets = deepcopy(weapon_properties.chambered_bullet)
 
                 if self.parent.player:
                     amount = 50
@@ -159,7 +163,8 @@ class Fighter(BaseComponent):
                     amount = randint(10, 15)
 
                 bullets.stacking.stack_size = amount
-                self.parent.inventory.add_to_inventory(item=bullets, item_container=None, amount=amount)
+                # self.parent.inventory.add_to_inventory(item=bullets, item_container=None, amount=amount)
+                self.parent.inventory.items.append(bullets)
 
                 # adds clips to inventory and loads them
                 if hasattr(weapon_properties, 'compatible_clip'):
@@ -177,21 +182,23 @@ class Fighter(BaseComponent):
                             clip = choices(population=list(compatible_clips.keys()),
                                            weights=list(compatible_clips.values()), k=1)[0]
 
-                            for y in range(randint(0, 2)):
+                            for y in range(randint(lower_bound, upper_bound)):
                                 clip_copy = deepcopy(clip.parent)
                                 clip_copy.load_magazine(entity=self.parent, ammo=weapon_properties.chambered_bullet,
                                                         load_amount=clip_copy.usable_properties.mag_capacity)
-                                self.parent.inventory.add_to_inventory(item=clip_copy.parent,
-                                                                       item_container=None, amount=1)
+                                # self.parent.inventory.add_to_inventory(item=clip_copy.parent,
+                                #                                        item_container=None, amount=1)
+                                self.parent.inventory.items.append(clip_copy)
                         else:
                             clip = gun.clip
-                            for y in range(randint(0, 2)):
+                            for y in range(randint(lower_bound, upper_bound)):
                                 clip_copy = deepcopy(clip)
                                 clip_copy.usable_properties.load_magazine(entity=self.parent,
                                                                           ammo=weapon_properties.chambered_bullet,
                                                                           load_amount=clip_copy.usable_properties.
                                                                                   mag_capacity)
-                                self.parent.inventory.add_to_inventory(item=clip_copy, item_container=None, amount=1)
+                                # self.parent.inventory.add_to_inventory(item=clip_copy, item_container=None, amount=1)
+                                self.parent.inventory.items.append(clip_copy)
 
                 # adds magazines to inventory and loads them
 
@@ -228,30 +235,32 @@ class Fighter(BaseComponent):
                                 magazine = choices(population=list(compatible_magazines.keys()),
                                                    weights=list(compatible_magazines.values()), k=1)[0]
 
-                            for y in range(randint(1, 2)):
+                            for y in range(randint(lower_bound, upper_bound)):
                                 mag_copy = deepcopy(magazine)
-                                if self.parent.player:
-                                    bullets_to_load = mag_copy.usable_properties.mag_capacity
-                                else:
-                                    bullets_to_load = randint(1, mag_copy.usable_properties.mag_capacity)
+                                # if self.parent.player:
+                                bullets_to_load = mag_copy.usable_properties.mag_capacity
+                                # else:
+                                #     bullets_to_load = randint(1, mag_copy.usable_properties.mag_capacity)
                                 (mag_copy.usable_properties.
                                  load_magazine(entity=self.parent,
                                                ammo=weapon_properties.chambered_bullet,
                                                load_amount=bullets_to_load))
-                                self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
+                                self.parent.inventory.items.append(mag_copy)
+                                # self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
                         else:
                             magazine = gun.magazine
-                            for y in range(randint(1, 2)):
+                            for y in range(randint(lower_bound, upper_bound)):
                                 mag_copy = deepcopy(magazine)
-                                if self.parent.player:
-                                    bullets_to_load = mag_copy.usable_properties.mag_capacity
-                                else:
-                                    bullets_to_load = randint(1, mag_copy.usable_properties.mag_capacity)
+                                # if self.parent.player:
+                                bullets_to_load = mag_copy.usable_properties.mag_capacity
+                                # else:
+                                #     bullets_to_load = randint(1, mag_copy.usable_properties.mag_capacity)
                                 (mag_copy.usable_properties.
                                  load_magazine(entity=self.parent,
                                                ammo=weapon_properties.chambered_bullet,
                                                load_amount=bullets_to_load))
-                                self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
+                                self.parent.inventory.items.append(mag_copy)
+                                # self.parent.inventory.add_to_inventory(item=mag_copy, item_container=None, amount=1)
 
                 self.parent.inventory.held = held_weapon
                 self.parent.inventory.primary_weapon = held_weapon
@@ -324,10 +333,9 @@ class MeleeFighter(Fighter):
                 weapon = deepcopy(choices(population=list(self.weapons[current_level].keys()),
                                        weights=list(self.weapons[current_level].values()),
                                        k=1)[0])
-                held_weapon = deepcopy(weapon)
 
-                self.parent.inventory.held = held_weapon
-                self.parent.inventory.primary_weapon = held_weapon
+                self.parent.inventory.held = weapon
+                self.parent.inventory.primary_weapon = weapon
                 self.parent.inventory.held.usable_properties.parent = self.parent.inventory.held
                 self.parent.inventory.held.parent = self.parent.inventory
 

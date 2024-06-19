@@ -256,7 +256,7 @@ weapons_levelled = {
         tt33_gun: 50,
         m1_carbine_gun: 40,
         mosin_weapon: 60,
-        sks_weapon: 100,
+        sks_weapon: 50,
         m629_gun: 15,
         g_17: 5,
         m1911_9mm: 30,
@@ -279,7 +279,7 @@ weapons_levelled = {
     },
 
     1: {
-        sks_weapon: 100,
+        sks_weapon: 50,
         svt40_gun: 40,
         g_17: 5,
         g_40sw: 3,
@@ -311,7 +311,7 @@ weapons_levelled = {
     },
 
     2: {
-        sks_weapon: 120,
+        sks_weapon: 70,
         ar15_weapon: 60,
         ar15_weapon_300: 3,
         ar_9mm: 2,
@@ -599,8 +599,14 @@ def generate_player(current_level: int, players: list):
     medkit_item.stacking.stack_size = 2
     bandage_item.stacking.stack_size = 6
 
-    player.inventory.add_to_inventory(item=medkit_item, item_container=None, amount=2)
-    player.inventory.add_to_inventory(item=bandage_item, item_container=None, amount=4)
+    medkit_item.parent = player.inventory
+    bandage_item.parent = player.inventory
+
+    player.inventory.items.append(medkit_item)
+    player.inventory.items.append(bandage_item)
+
+    # player.inventory.add_to_inventory(item=medkit_item, item_container=None, amount=2)
+    # player.inventory.add_to_inventory(item=bandage_item, item_container=None, amount=4)
 
     player.fighter.give_weapon(current_level)
     player.fighter.give_armour(current_level)

@@ -277,7 +277,7 @@ weapons_levelled_low = {
         tt33_gun: 50,
         m1_carbine_gun: 80,
         mosin_weapon: 60,
-        sks_weapon: 100,
+        sks_weapon: 90,
         m629_gun: 15,
         g_17: 5,
         m1911_9mm: 30,
@@ -288,7 +288,7 @@ weapons_levelled_low = {
 
     1: {
         # low tier
-        sks_weapon: 100,
+        sks_weapon: 50,
         svt40_gun: 40,
         g_17: 5,
         g_40sw: 3,
@@ -307,7 +307,7 @@ weapons_levelled_low = {
 
     2: {
         # low tier
-        sks_weapon: 120,
+        sks_weapon: 50,
         svt40_gun: 15,
         g_17: 5,
         g_40sw: 3,
@@ -404,7 +404,7 @@ weapons_levelled_mid = {
 
     1: {
         # mid tier
-        sks_weapon: 100,
+        sks_weapon: 90,
         m1_carbine_gun: 80,
         svt40_gun: 4,
         ar15_weapon: 5,
@@ -419,7 +419,7 @@ weapons_levelled_mid = {
     },
 
     2: {
-        sks_weapon: 120,
+        sks_weapon: 90,
         svt40_gun: 15,
         m14_gun: 6,
         ar15_weapon: 60,
@@ -1066,42 +1066,6 @@ hulk_zombie = Actor(
                    name='right leg', depth=24, width=30, height=200, connected_to={'right leg': (-6, 156)}),
                Leg(hp=240, protection_ballistic=0, protection_physical=1,
                    name='left leg', depth=24, width=30, height=200, connected_to={'left leg': (6, 156)})
-               ),
-    inventory=Inventory(),
-)
-
-test_dummy = Actor(
-    x=0, y=0,
-    char='☺',
-    fg_colour=colour.LIGHT_BROWN,
-    name='Test Dummy',
-    fighter=GunFighter(unarmed_meat_damage=5,
-                       unarmed_armour_damage=1,
-                       fears_death=True,
-                       item_drops={None: 100, medkit: 5, bandages: 10, repair_kit: 5},
-                       weapons=weapons_levelled_low,
-                       # weapons=weapons_levelled_test,
-                       helmet=helmets_levelled_low,
-                       bodyarmour=bodyarmour_levelled_low,
-                       spawn_group_amount=1,
-                       description="Footsoldier of the Luciferian Volunteer Army, motivated to maintain the current "
-                                   "order. Not very well trained or equipped."
-                       ),
-    ai=DeadAI,
-    # ai=DeadAI,
-    bodyparts=(Body(hp=120, protection_ballistic=0, protection_physical=1, depth=20, width=36, height=56,
-                    connected_to={'head': (0, 41), 'right arm': (23, -11), 'left arm': (-23, -11),
-                                  'right leg': (3, -78), 'left leg': (-3, -78)}, aim_location_offset=14),
-               Head(hp=40, protection_ballistic=0, protection_physical=0, depth=20, width=20, height=26,
-                    connected_to={'body': (0, -41)}),
-               Arm(hp=60, protection_ballistic=0, protection_physical=1,
-                   name='right arm', depth=10, width=10, height=78, connected_to={'body': (-23, 11)}),
-               Arm(hp=60, protection_ballistic=0, protection_physical=1,
-                   name='left arm', depth=10, width=10, height=78, connected_to={'left arm': (23, 11)}),
-               Leg(hp=80, protection_ballistic=0, protection_physical=1,
-                   name='right leg', depth=12, width=15, height=100, connected_to={'right leg': (-3, 78)}),
-               Leg(hp=80, protection_ballistic=0, protection_physical=1,
-                   name='left leg', depth=12, width=15, height=100, connected_to={'left leg': (3, 78)})
                ),
     inventory=Inventory(),
 )

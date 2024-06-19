@@ -58,6 +58,6 @@ def new_wall(fg_colour_d: Tuple[int, int, int], bg_colour_d: Tuple[int, int, int
 down_stairs = new_tile(
     walkable=True,
     transparent=True,
-    dark=(ord(">"), colour.DARK_GRAY, colour.BLACK),
-    light=(ord(">"), colour.LIGHT_GRAY, colour.BLACK),
+    dark=(ord(">"), colour.LIGHT_RED, colour.BLACK),
+    light=(ord(">"), colour.RED, colour.BLACK),
 )

@@ -198,6 +198,8 @@ def main() -> None:
                 except exceptions.QuitToMenu:
                     save_game(handler, "savegame.sav")
                     handler = MainMenu()
+                except exceptions.GameOver:
+                    handler = input_handlers.GameOverEventHandler(engine=handler.engine)
                 except exceptions.QuitToMenuWithoutSaving:
                     handler = MainMenu()
                 except Exception:  # Handle exceptions in game.

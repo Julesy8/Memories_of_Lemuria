@@ -704,7 +704,7 @@ class ReloadMagFed(Action):
             # self.entity.inventory.items.remove(self.magazine_to_load.parent)
             self.entity.inventory.remove_from_magazines(self.magazine_to_load)
 
-        self.gun.loaded_magazine = deepcopy(self.magazine_to_load)
+        self.gun.loaded_magazine = self.magazine_to_load
 
         if len(self.gun.loaded_magazine.magazine) > 0:
             if self.gun.chambered_bullet is None:
@@ -716,7 +716,7 @@ class ReloadFromClip(Action):
         self.action_str = f'reloading'
         self.gun = gun
         self.clip = clip
-
+        # TODO - shouldn't be able to reload if bullet chambered and magazine filled to max capacity - 1
     def action_viable(self) -> bool:
         if self.gun.clip_reload_check_viable(clip=self.clip):
             return True
@@ -792,6 +792,9 @@ class LoadBulletsIntoMagazine(Action):
 
         if bullets_to_load > bullet_type.stacking.stack_size or bullets_to_load < 1:
             raise Impossible("Invalid entry.")
+
+    def action_viable(self) -> bool:
+        return self.magazine.load_rounds_check_viable()
 
     def calculate_ap_cost(self):
 
@@ -925,20 +928,14 @@ class AddToInventory(Action):
         self.item = item
         self.amount = amount
         self.action_str = f'adding item to inventory'
-        self.item_copy = deepcopy(self.item)
 
     def calculate_ap_cost(self) -> int:
         return 0
 
     def action_viable(self) -> bool:
 
-        stack_size = 1
-
-        if self.item.stacking:
-            stack_size = self.item.stacking.stack_size
-
         # checks if there is enough capacity for the item
-        if self.entity.inventory.current_item_weight() + self.item.weight * stack_size > \
+        if self.entity.inventory.current_item_weight() + self.item.weight * self.amount > \
                 self.entity.inventory.capacity:
             self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
             return False
@@ -947,25 +944,26 @@ class AddToInventory(Action):
 
     def perform(self) -> None:
 
-        self.item_copy.parent = self.entity.inventory
+        # item is stackable
+        if self.item.stacking:
 
-        if self.item_copy.stacking:
-
-            if self.item.stacking.stack_size >= self.amount > 0:
-                stack_amount = self.amount
-            else:
-                stack_amount = self.item.stacking.stack_size
-
-            self.item_copy.stacking.stack_size = stack_amount
-            self.item.stacking.stack_size -= self.item_copy.stacking.stack_size
-            self.entity.inventory.add_to_inventory(item=self.item_copy, item_container=None, amount=self.amount)
-
-            if self.item.stacking.stack_size <= 0:
+            # the full stack of items is being transfered
+            if self.amount >= self.item.stacking.stack_size:
+                self.amount = self.item.stacking.stack_size
+                self.entity.inventory.add_to_inventory(item=self.item, amount=self.amount)
                 self.remove_from_container()
 
-        else:
+            # less than the full stack is being transfered
+            elif self.item.stacking.stack_size >= self.amount > 0:
+                item_copy = deepcopy(self.item)
+                item_copy.stacking.stack_size = self.amount
+                self.item.stacking.stack_size -= self.amount
+                self.entity.inventory.add_to_inventory(item=item_copy, amount=self.amount)
 
-            self.entity.inventory.items.append(self.item_copy)
+        # item not stacking, adds to inventory
+        else:
+            self.item.parent = self.entity.inventory
+            self.entity.inventory.items.append(self.item)
             self.remove_from_container()
 
     def remove_from_container(self):
@@ -1013,16 +1011,16 @@ class DropAction(Action):
 
                 try:
 
-                    # copy of the item to be dropped
-                    dropped_item = deepcopy(self.item)
-
-                    # sets dropped item to have correct stack size
-                    dropped_item.stacking.stack_size = self.drop_amount
-
                     if self.drop_amount > 0:
 
                         # more than 1 stack left in after drop
                         if self.item.stacking.stack_size - self.drop_amount > 1:
+                            # copy of the item to be dropped
+                            dropped_item = deepcopy(self.item)
+
+                            # sets dropped item to have correct stack size
+                            dropped_item.stacking.stack_size = self.drop_amount
+
                             self.item.stacking.stack_size -= self.drop_amount
                             dropped_item.place(self.entity.x, self.entity.y,
                                                self.engine.game_map)
@@ -1100,7 +1098,7 @@ class HealPart(Action):
 
         heal_amount = abs(self.part_to_heal.hp - self.part_to_heal.max_hp)
 
-        return round(300 + heal_amount * 100 * armour_ap_multiplier)
+        return round(heal_amount * 5 * armour_ap_multiplier)
 
     def perform(self) -> None:
         self.healing_item.usable_properties.activate(self)
@@ -1130,14 +1128,19 @@ class EquipWeaponToPrimary(EquipWeapon):
         super().__init__(entity, weapon)
         self.action_str = f'equipping {weapon.parent.name}'
 
+    def action_viable(self) -> bool:
+        if self.entity.inventory.primary_weapon is None:
+            return True
+        else:
+            return False
+
     def perform(self) -> None:
         self.entity.inventory.items.remove(self.weapon.parent)
         if self.entity.inventory.primary_weapon:
             if self.entity.inventory.held == self.entity.inventory.primary_weapon:
                 self.entity.inventory.held = None
 
-            self.entity.inventory.add_to_inventory(item=self.entity.inventory.primary_weapon,
-                                                   item_container=None, amount=1)
+            self.entity.inventory.add_to_inventory(item=self.entity.inventory.primary_weapon, amount=1)
 
         self.entity.inventory.primary_weapon = self.weapon.parent
 
@@ -1147,6 +1150,12 @@ class EquipWeaponToSecondary(EquipWeapon):
         super().__init__(entity, weapon)
         self.action_str = f'equipping {weapon.parent.name}'
 
+    def action_viable(self) -> bool:
+        if self.entity.inventory.secondary_weapon is None:
+            return True
+        else:
+            return False
+
     def perform(self) -> None:
         self.entity.inventory.items.remove(self.weapon.parent)
         if self.entity.inventory.secondary_weapon:
@@ -1154,8 +1163,7 @@ class EquipWeaponToSecondary(EquipWeapon):
             if self.entity.inventory.held == self.entity.inventory.secondary_weapon:
                 self.entity.inventory.held = None
 
-            self.entity.inventory.add_to_inventory(item=self.entity.inventory.secondary_weapon,
-                                                   item_container=None, amount=1)
+            self.entity.inventory.add_to_inventory(item=self.entity.inventory.secondary_weapon, amount=1)
 
         self.entity.inventory.secondary_weapon = self.weapon.parent
 

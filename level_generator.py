@@ -1,5 +1,5 @@
 from random import random, randint, choice, choices
-from copy import deepcopy
+from copy import copy, deepcopy
 import numpy as np  # type: ignore
 
 from level_gen_tools import generate_char_arrays, select_random_tile, Rect
@@ -11,7 +11,7 @@ from entity import Entity
 import colour
 from render_order import RenderOrder
 
-stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_GRAY, name='Stairs',
+stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_RED, name='Stairs',
                        render_order=RenderOrder.ITEM)
 
 
@@ -244,7 +244,7 @@ class MessyBSPTree:
             if room == self._rooms[stair_room]:
                 room_centre_x, room_centre_y = room.centre()
                 self.dungeon.tiles[room_centre_x, room_centre_y] = down_stairs
-                stairs = deepcopy(stairs_entity)
+                stairs = copy(stairs_entity)
                 stairs.place(x=room_centre_x, y=room_centre_y, gamemap=self.dungeon)
                 self.dungeon.downstairs_location = room_centre_x, room_centre_y
 

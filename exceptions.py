@@ -3,7 +3,8 @@ class Impossible(Exception):
 
     The reason is given as the exception message.
     """
-
+class GameOver(Exception):
+    """show game over screen"""
 
 class QuitToMenu(Exception):
     """quit game to menu"""

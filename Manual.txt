@@ -118,7 +118,7 @@ Tab: Change character controlled
 Alt: change limb targeted
 Enter: attack
 Movement Keys: change camera position
-Wait Keys: skip turn
+Wait Keys: advance to next turn
 
 - DAMAGE & HEALTH -
 
