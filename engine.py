@@ -43,6 +43,7 @@ class Engine:
         self.crafting_recipes = crafting_dict
         self.game_won = False
         self.game_over = False
+        self.selected_players_attack = False
 
         self.bestiary = {}
 
@@ -66,6 +67,13 @@ class Engine:
             self.player = self.players[0]
 
         self.game_map.camera_xy = (self.player.x, self.player.y + 3)
+
+    def switch_to_player(self, index: int) -> None:
+        try:
+            self.player = self.players[index]
+            self.game_map.camera_xy = (self.player.x, self.player.y + 3)
+        except IndexError:
+            pass
 
     def update_floor_str(self) -> None:
         self.floor_str = f"{level_names[self.current_level]} [{self.current_floor}]"
@@ -214,17 +222,29 @@ class Engine:
             if hasattr(self.player.inventory.held.usable_properties, "loaded_magazine"):
                 if self.player.inventory.held.usable_properties.loaded_magazine is None:
                     weapon_str += ' - No Mag'
+                else:
+                    weapon_str += (f" ({len(self.player.inventory.held.usable_properties.loaded_magazine.magazine)}/"
+                                   f"{self.player.inventory.held.usable_properties.loaded_magazine.mag_capacity})")
 
             # for gun with integrated magazine
             elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):
 
-                if (self.player.inventory.held.usable_properties.chambered_bullet is not None and
-                        self.player.inventory.held.usable_properties.keep_round_chambered):
-                    weapon_str += ' - Empty'
-                elif not self.player.inventory.held.usable_properties.keep_round_chambered:
-                    if (len(self.player.inventory.held.usable_properties.magazine) == 0
-                            and self.player.inventory.held.usable_properties.mag_capacity > 1):
-                        weapon_str += ' - Empty'
+                #
+                # if (self.player.inventory.held.usable_properties.chambered_bullet is not None and
+                #         self.player.inventory.held.usable_properties.keep_round_chambered):
+                #     weapon_str += ' - Empty'
+                # elif not self.player.inventory.held.usable_properties.keep_round_chambered:
+                #     if (len(self.player.inventory.held.usable_properties.magazine) == 0
+                #             and self.player.inventory.held.usable_properties.mag_capacity > 1):
+                #         weapon_str += ' - Empty'
+                if self.player.inventory.held.usable_properties.chambered_bullet is not None:
+                    weapon_str += (f" ({len(self.player.inventory.held.usable_properties.magazine) + 1}/"
+                                   f"{self.player.inventory.held.usable_properties.mag_capacity})")
+                else:
+                    weapon_str += (f" ({len(self.player.inventory.held.usable_properties.magazine)}/"
+                                   f"{self.player.inventory.held.usable_properties.mag_capacity})")
+
+
 
             console.print(x=console.width - len(weapon_str), y=console.height - 6, string=weapon_str,
                           fg=colour.WHITE, bg=(0, 0, 0))

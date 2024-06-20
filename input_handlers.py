@@ -180,7 +180,7 @@ class EventHandler(BaseEventHandler):
             action.handle_action()
         except exceptions.Impossible as exc:
             if not exc.args[0] == "Silent":  # if error is "Silent" as arg, doesn't print error to message log
-                self.engine.message_log.add_message(exc.args[0], colour.RED)
+                self.engine.message_log.add_message(exc.args[0], colour.WHITE)
             return False  # Skip enemy turn on exceptions.
 
         if not self.engine.squad_mode:
@@ -235,12 +235,23 @@ class MainGameEventHandler(EventHandler):
                     return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held.usable_properties,
                                                    parent_handler=self)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry: no held weapon", colour.RED)
+                self.engine.message_log.add_message(f"{self.engine.player.name}: no held weapon",
+                                                    colour.WHITE)
         elif key == tcod.event.K_ESCAPE:
             return QuitEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_c:
             return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting',
                                      parent_handler=self)
+        elif key == tcod.event.K_1:
+            self.engine.switch_to_player(index=0)
+        elif key == tcod.event.K_2:
+            self.engine.switch_to_player(index=1)
+        elif key == tcod.event.K_3:
+            self.engine.switch_to_player(index=2)
+        elif key == tcod.event.K_4:
+            self.engine.switch_to_player(index=3)
+        elif key == tcod.event.K_5:
+            self.engine.switch_to_player(index=4)
         elif key == tcod.event.K_i:
             return InventoryEventHandler(self.engine, parent_handler=self)
         elif key == tcod.event.K_e:
@@ -511,7 +522,7 @@ class UserOptionsEventHandler(AskUserEventHandler):
             try:
                 selected_option = self.options[index]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
                 return self
             return self.ev_on_option_selected(selected_option)
         return super().ev_keydown(event)
@@ -565,6 +576,11 @@ class UserOptionsWithPages(AskUserEventHandler):
                     if name_len > longest_name_len:
                         longest_name_len = name_len
 
+                elif hasattr(item.usable_properties, "loaded_magazine"):
+                    name_len = len(item.name) + 4 + (len(str(item.usable_properties.loaded_magazine.mag_capacity)) * 2)
+                    if name_len > longest_name_len:
+                        longest_name_len = name_len
+
             # item is a string
             else:
                 if len(item) > longest_name_len:
@@ -610,6 +626,17 @@ class UserOptionsWithPages(AskUserEventHandler):
                             console.print(x + 1, y + i + 1,
                                           f"({item_key}) {item.name} ({len(item.usable_properties.magazine)}"
                                           f"/{item.usable_properties.mag_capacity})")
+                    elif (hasattr(item.usable_properties, "loaded_magazine") and not
+                    hasattr(item.usable_properties, 'part_type')):
+                        if not item.usable_properties.loaded_magazine is None:
+                            console.print(x + 1, y + i + 1,
+                                          f"({item_key}) {item.name} "
+                                          f"({len(item.usable_properties.loaded_magazine.magazine)}"
+                                          f"/{item.usable_properties.loaded_magazine.mag_capacity})")
+
+                        else:
+                            console.print(x + 1, y + i + 1,
+                                          f"({item_key}) {item.name} - No Mag")
                     else:
                         if item.stacking:
                             console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
@@ -640,7 +667,7 @@ class UserOptionsWithPages(AskUserEventHandler):
             try:
                 selected_item = self.options[index + (self.page * self.max_list_length)]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                self.engine.message_log.add_message("Invalid entry.", colour.WHITE)
                 return None
             return self.ev_on_option_selected(selected_item)
         return super().ev_keydown(event)
@@ -799,9 +826,9 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                     return self.item.usable_properties.get_action(self.engine.player)
 
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
             except NotImplementedError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
         elif option == 'pick up':
             if self.item.stacking:
@@ -822,7 +849,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 return self.parent_handler
 
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
         elif option == 'equip to primary':
             try:
@@ -830,7 +857,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 return self.parent_handler
 
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
         elif option == 'equip to secondary':
             try:
@@ -838,20 +865,20 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
                 return self.parent_handler
 
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
         elif option == 'unequip':
             try:
                 self.item.usable_properties.unequip(user=self.engine.player)
                 return self.parent_handler
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
         elif option == 'drop':
             try:
                 return DropItemEventHandler(item=self.item, engine=self.engine, parent_handler=self.parent_handler)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
         elif option == 'disassemble':
             if hasattr(self.item.usable_properties, 'parts'):
@@ -864,7 +891,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
             return InspectItemViewer(engine=self.engine, item=self.item, parent_handler=self.parent_handler)
 
         else:
-            self.engine.message_log.add_message("Invalid entry", colour.RED)
+            self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
 
 class EquipmentEventHandler(AskUserEventHandler):
@@ -936,7 +963,7 @@ class EquipmentEventHandler(AskUserEventHandler):
             try:
                 selected_item = self.equipped_list[index]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
                 return EquipmentEventHandler(engine=self.engine, parent_handler=self)
             return self.on_item_selected(selected_item)
         return super().ev_keydown(event)
@@ -979,7 +1006,7 @@ class ViewPlayer(UserOptionsEventHandler):
                 elif hasattr(player.inventory.held.usable_properties, 'magazine'):
                     return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held, parent_handler=self)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry: no held weapon", colour.RED)
+                self.engine.message_log.add_message(f"{self.engine.player.name}: no held weapon", colour.WHITE)
         elif option == 'Attack Style [s]':
             return AttackStyleMenu(engine=self.engine, parent_handler=self)
         elif option == 'Crafting [c]':
@@ -1043,7 +1070,7 @@ class AmountToPickUpMenu(TypeAmountEventHandler):
             return actions.PickupAction(entity=self.engine.player, item=self.item, amount=int(self.buffer))
 
         except AttributeError:
-            self.engine.message_log.add_message("Invalid entry", colour.RED)
+            self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
         return self.parent_handler
 
@@ -1146,17 +1173,31 @@ class ChangeTargetActor(AskUserEventHandler):
         player_name_list = []
 
         if len(self.players_selected) > 0:
-            console.print(x=0, y=4, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
+            console.print(x=0, y=5, string="[PERIOD] - ADVANCE TURN", fg=colour.WHITE, bg=(0, 0, 0))
+
+        if self.engine.selected_players_attack:
+            console.print(x=0, y=3, string="SELECTED PLAYERS ATTACK - ON ([X] TO TOGGLE)", fg=colour.WHITE, bg=(0, 0,
+                                                                                                                0))
+        else:
+            console.print(x=0, y=3, string="SELECTED PLAYERS ATTACK - OFF ([X] TO TOGGLE)", fg=colour.WHITE, bg=(0,
+                                                                                                                 0, 0))
+
+        if blink_on:
+            for player in self.engine.players:
+                if player.ai.path_to_xy is not None:
+                    console.print(x=player.ai.path_to_xy[0] - cam_x, y=player.ai.path_to_xy[1] - cam_y, string='X',
+                                  fg=colour.YELLOW)
 
         for player in self.players_selected:
             player_name_list.append(player.name)
             player_x = player.x - cam_x
             player_y = player.y - cam_y
-            if blink_on:
-                console.print(player_x, player_y, player.char, player.fg_colour, (170, 255, 0))
+            # if blink_on:
+            # console.print(player_x, player_y, player.char, player.fg_colour, (170, 255, 0))
+            console.print(player_x, player_y, player.char, colour.WHITE, player.fg_colour)
 
         if len(player_name_list) > 0:
-            console.print(x=0, y=3, string=f"PLAYERS SELECTED: {', '.join(player_name_list)}",
+            console.print(x=0, y=4, string=f"PLAYERS SELECTED: {', '.join(player_name_list)}",
                           fg=colour.WHITE, bg=(0, 0, 0))
 
         # for destination in self.destinations:
@@ -1256,7 +1297,7 @@ class ChangeTargetActor(AskUserEventHandler):
                         player.ai.path_to_xy = (mouse_x, mouse_y)
                         # player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
                         # self.destinations.append([mouse_x, mouse_y])
-                        self.players_selected = []
+                        # self.players_selected = []
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
@@ -1313,27 +1354,80 @@ class ChangeTargetActor(AskUserEventHandler):
                 if hasattr(self.item.usable_properties, 'jammed'):
                     if self.item.usable_properties.jammed:
                         return actions.ClearJam(entity=player, gun=self.item.usable_properties).handle_action()
+            if self.engine.selected_players_attack:
+                for x in self.players_selected:
+                    if x.fighter.target_actor:
+                        self.attack_enemy(attacker=x)
+            else:
+                if player.fighter.target_actor:
+                    self.attack_enemy(attacker=player)
 
-            if player.fighter.target_actor:
+        elif key == tcod.event.K_a:
+            if not self.players_selected == self.engine.players:
+                self.players_selected = self.engine.players
+            else:
+                self.players_selected = []
 
-                distance_target = round(player.distance(player.fighter.target_actor.x, player.fighter.target_actor.y))
+        elif key == tcod.event.K_x:
+            if not self.engine.selected_players_attack:
+                self.engine.selected_players_attack = True
+            else:
+                self.engine.selected_players_attack = False
 
-                # attack with weapon
-                if self.item is not None:
-                    (self.item.usable_properties.get_attack_action(distance=distance_target, entity=player,
-                                                                   targeted_actor=player.fighter.target_actor,
-                                                                   targeted_bodypart=self.selected_bodypart).
-                     handle_action())
+        elif key == tcod.event.K_1:
+            self.engine.switch_to_player(index=0)
+            if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+                try:
+                    if self.engine.players[0] not in self.players_selected:
+                        self.players_selected.append(self.engine.players[0])
+                    else:
+                        self.players_selected.remove(self.engine.players[0])
+                except IndexError:
+                    pass
 
-                # unarmed attack
-                else:
-                    actions.UnarmedAttackAction(distance=distance_target, entity=player,
-                                                targeted_actor=player.fighter.target_actor,
-                                                targeted_bodypart=self.selected_bodypart,
-                                                handle_now=True).handle_action()
+        elif key == tcod.event.K_2:
+            self.engine.switch_to_player(index=1)
+            if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+                try:
+                    if self.engine.players[1] not in self.players_selected:
+                        self.players_selected.append(self.engine.players[1])
+                    else:
+                        self.players_selected.remove(self.engine.players[1])
+                except IndexError:
+                    pass
 
-                self.get_targets()
-                self.engine.render(console=self.console)
+        elif key == tcod.event.K_3:
+            self.engine.switch_to_player(index=2)
+            if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+                try:
+                    if self.engine.players[2] not in self.players_selected:
+                        self.players_selected.append(self.engine.players[2])
+                    else:
+                        self.players_selected.remove(self.engine.players[2])
+                except IndexError:
+                    pass
+
+        elif key == tcod.event.K_4:
+            self.engine.switch_to_player(index=3)
+            if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+                try:
+                    if self.engine.players[3] not in self.players_selected:
+                        self.players_selected.append(self.engine.players[3])
+                    else:
+                        self.players_selected.remove(self.engine.players[3])
+                except IndexError:
+                    pass
+
+        elif key == tcod.event.K_5:
+            self.engine.switch_to_player(index=4)
+            if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+                try:
+                    if self.engine.players[4] not in self.players_selected:
+                        self.players_selected.append(self.engine.players[4])
+                    else:
+                        self.players_selected.remove(self.engine.players[4])
+                except IndexError:
+                    pass
 
         elif key == tcod.event.K_TAB:
             self.engine.switch_player()
@@ -1366,7 +1460,7 @@ class ChangeTargetActor(AskUserEventHandler):
                     return GunOptionsIntegratedMag(engine=self.engine, gun=player.inventory.held.usable_properties,
                                                    parent_handler=self)
             except AttributeError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                self.engine.message_log.add_message("Invalid entry.", colour.WHITE)
         elif key == tcod.event.K_v:
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_g:
@@ -1392,6 +1486,26 @@ class ChangeTargetActor(AskUserEventHandler):
             # if not self.in_squad_mode:
             self.engine.squad_mode = False
             return self.parent_handler
+
+    def attack_enemy(self, attacker: Actor) -> None:
+        distance_target = round(attacker.distance(attacker.fighter.target_actor.x, attacker.fighter.target_actor.y))
+
+        # attack with weapon
+        if self.item is not None:
+            (self.item.usable_properties.get_attack_action(distance=distance_target, entity=attacker,
+                                                           targeted_actor=self.engine.player.fighter.target_actor,
+                                                           targeted_bodypart=self.selected_bodypart).
+             handle_action())
+
+        # unarmed attack
+        else:
+            actions.UnarmedAttackAction(distance=distance_target, entity=attacker,
+                                        targeted_actor=self.engine.player.fighter.target_actor,
+                                        targeted_bodypart=self.selected_bodypart,
+                                        handle_now=True).handle_action()
+
+        self.get_targets()
+        self.engine.render(console=self.console)
 
     def update_bodypart_list(self) -> None:
         # updates bodypart list
@@ -1623,8 +1737,8 @@ class GunOptionsMagFed(UserOptionsEventHandler):
             options.append('clear jam')
 
         if self.gun.loaded_magazine:
-            options += ["load magazine", "unload magazine", "check rounds in mag"]
-            # options += ["load magazine", "unload magazine"]
+            # options += ["load magazine", "unload magazine", "check rounds in mag"]
+            options += ["load magazine", "unload magazine"]
         else:
             options.append("load magazine")
 
@@ -1760,7 +1874,7 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
             try:
                 selected_item = self.options[index + (self.page * self.max_list_length)]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                self.engine.message_log.add_message("Invalid entry.", colour.WHITE)
                 return None
             return self.ev_on_option_selected(selected_item.usable_properties)
         return super().ev_keydown(event)
@@ -1807,7 +1921,7 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
             try:
                 selected_item = self.options[index + (self.page * self.max_list_length)]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                self.engine.message_log.add_message("Invalid entry.", colour.WHITE)
                 return None
             return self.ev_on_option_selected(selected_item.usable_properties)
         return super().ev_keydown(event)
@@ -1972,7 +2086,7 @@ class SelectPartToHeal(AskUserEventHandler):
             try:
                 selected_option = self.options[index]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry", colour.RED)
+                self.engine.message_log.add_message("Invalid entry", colour.WHITE)
                 return self
             return self.ev_on_option_selected(selected_option)
         return super().ev_keydown(event)
@@ -2021,7 +2135,7 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
             try:
                 selected_item = self.options[index + (self.page * self.max_list_length)]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                self.engine.message_log.add_message("Invalid entry.", colour.WHITE)
                 return None
             return self.ev_on_option_selected(selected_item)
         return super().ev_keydown(event)
@@ -2095,7 +2209,7 @@ class LoadoutEventHandler(UserOptionsWithPages):
             try:
                 selected_item = self.options[index + (self.page * self.max_list_length)]
             except IndexError:
-                self.engine.message_log.add_message("Invalid entry.", colour.RED)
+                self.engine.message_log.add_message("Invalid entry.", colour.WHITE)
                 return None
             return self.ev_on_option_selected(selected_item.usable_properties)
         return super().ev_keydown(event)
@@ -2326,7 +2440,7 @@ class CraftGun(CraftItem):
         else:
             if len(self.options) < 1:
                 self.engine.message_log.add_message(f"Missing parts: {self.parts[self.current_part_selection]}",
-                                                    colour.RED)
+                                                    colour.WHITE)
 
     def update_crafting_properties(self, option):
 
@@ -2400,7 +2514,7 @@ class CraftGun(CraftItem):
 
         # gun has no sights, cannot be crafted.
         if not self.has_optic:
-            self.engine.message_log.add_message(f"Crafting failed - missing sights", colour.RED)
+            self.engine.message_log.add_message(f"Crafting failed - missing sights", colour.WHITE)
             return self.parent_handler
 
         # all possible components with the amount required to craft
@@ -2558,9 +2672,10 @@ class SelectAttachPoint(UserOptionsWithPages):
         # if the part converts attachment points - i.e. MLOK to picrail adapter - changes the attachment point type
         # of the part the accessory is being attached to
         if hasattr(self.accessory.usable_properties, 'converts_attachment_points'):
-            self.crafting_handler.attachment_points.remove(
-                self.crafting_handler.attachment_points[self.crafting_handler.attachments_dict[
-                    self.attachment_point_item.name][option]])
+            # self.crafting_handler.attachment_points.remove(
+            #     self.crafting_handler.attachment_points[self.crafting_handler.attachments_dict[
+            #         self.attachment_point_item.name][option]])
+            self.crafting_handler.attachment_points.remove(option)
             del self.crafting_handler.attachments_dict[self.attachment_point_item.name][option]
             self.crafting_handler.attachments_dict[self.attachment_point_item.name][
                 self.accessory.usable_properties.converts_attachment_points[option]] = None
@@ -2570,9 +2685,10 @@ class SelectAttachPoint(UserOptionsWithPages):
         else:
             # sets value for the given attachment point of the part to attach to be attached part
             self.crafting_handler.attachments_dict[self.attachment_point_item.name][option] = self.accessory
-            self.crafting_handler.attachment_points.remove(
-                self.crafting_handler.attachment_points[self.crafting_handler.attachments_dict[
-                    self.attachment_point_item.name][option]])
+            # self.crafting_handler.attachment_points.remove(
+            #     self.crafting_handler.attachment_points[self.crafting_handler.attachments_dict[
+            #         self.attachment_point_item.name][option]])
+            self.crafting_handler.attachment_points.remove(option)
 
             # sets part in part dict to be the selected part
             self.crafting_handler.part_dict[self.crafting_handler.parts[self.crafting_handler.current_part_selection]] \
@@ -2613,7 +2729,7 @@ class InspectItemViewer(AskUserEventHandler):
 
         self.inspect_parts_option = False
 
-        self.max_list_length = 25
+        self.max_list_length = 50
         self.scroll_position = 0
 
         if hasattr(item.usable_properties, 'parts'):
@@ -2644,7 +2760,7 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Charge Mass (Grains) --": ('charge_mass', getattr(self.item.usable_properties, 'charge_mass', 1)),
             "-- Bullet Diameter (Inch) --": ('diameter', getattr(self.item.usable_properties, 'diameter', 1)),
             "-- Bullet Velocity (Feet/Sec) --": ('velocity', getattr(self.item.usable_properties, 'velocity', 1)),
-            "-- Shot Sound --": ('sound_modifier',
+            "-- Shot Sound Modifier --": ('sound_modifier',
                                  round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
             "-- Bullet Spread Modifier (MoA) --": ('spread_modifier',
                                              round(getattr(self.item.usable_properties, 'spread_modifier', 1) * 100,
@@ -2672,9 +2788,9 @@ class InspectItemViewer(AskUserEventHandler):
                                            round(getattr(self.item.usable_properties, 'sight_spread_modifier',
                                                          1) * 100, 3)),
 
-            "-- Handling Accuracy Modifier (MoA) --":
+            "-- Handling Accuracy Modifier --":
                 ('handling_spread_modifier', round(getattr(self.item.usable_properties, 'handling_spread_modifier',
-                                                           1) * 100, 3)),
+                                                           1), 3)),
 
             "-- Reload AP Modifier --": ('load_time_modifier',
                                          round(getattr(self.item.usable_properties, 'load_time_modifier', 1), 3)),
@@ -2704,9 +2820,6 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Muzzle Break Efficiency (%) --": ('muzzle_break_efficiency',
                                                   (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
                                                            1)) * 100),
-            "-- Bullet Velocity Modifier --": ('velocity_modifier',
-                                               getattr(self.item.usable_properties, 'velocity_modifier', 1), 3),
-
             "-- Part Condition: Accuracy (%) --": ('condition_accuracy',
                                                    round((getattr(self.item.usable_properties, 'condition_accuracy',
                                                                   1)) / 5 * 100), 3),
@@ -2717,7 +2830,7 @@ class InspectItemViewer(AskUserEventHandler):
 
             # mag fed
             "-- Compatible Magazine Type --": ('compatible_magazine_type',
-                                               getattr(self.item.usable_properties, 'compatible_magazine_type', 1)),
+                                               getattr(self.item.usable_properties, 'compat ible_magazine_type', 1)),
 
             # wearable
             "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
@@ -2801,6 +2914,16 @@ class InspectItemViewer(AskUserEventHandler):
             fire_modes = {" -- Fire Modes -- ": ('', fire_modes_str)}
             self.item_info.update(fire_modes)
 
+        if hasattr(item.usable_properties, 'velocity_modifier'):
+            vel_string = ''
+
+            for key, value in item.usable_properties.velocity_modifier.items():
+                if key in getattr(item.usable_properties, 'compatible_bullet_type'):
+                    vel_string += f"{key} - {value}, "
+
+            vel_modifiers = {" -- Bullet Velocity Modifier -- ": ('', vel_string)}
+            self.item_info.update(vel_modifiers)
+
         for key in keys_to_delete:
             del self.item_info[key]
 
@@ -2835,11 +2958,13 @@ class InspectItemViewer(AskUserEventHandler):
                 list(self.item_info.items())[self.scroll_position:self.scroll_position + self.max_list_length]:
             wrapper = textwrap.TextWrapper(width=36)
             word_list = wrapper.wrap(text=str(value[1]))
-            console.print(x=2, y=y, string=key.center(38), fg=colour.LIGHT_GREEN)
+            console.print(x=2, y=y, string=key.center(38), fg=colour.LIGHT_RED)
             y += 1
             for string in word_list:
                 console.print(x=2, y=y, string=string)
                 y += 1
+
+            y += 1
 
             if y > 2 + self.max_list_length:
                 break

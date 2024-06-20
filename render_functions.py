@@ -104,6 +104,8 @@ def render_names_at_mouse_location(
     cam_x, cam_y = game_map.get_left_top_pos(screen_shape)
 
     mouse_x, mouse_y = engine.mouse_location
+    # console.print(x=mouse_x, y=mouse_y, string='X', fg=colour.YELLOW)
+
     mouse_x += cam_x
     mouse_y += cam_y
 
@@ -128,7 +130,6 @@ def render_names_at_mouse_location(
 
     # if names_at_player != '':
     #     console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
-
     if names_at_mouse_location == "" and not names_at_player == "":
         console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
     elif not names_at_mouse_location == "":

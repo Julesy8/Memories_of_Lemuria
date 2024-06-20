@@ -721,30 +721,29 @@ class Bodypart:
 
                 self.hp -= damage
 
-                hit_dir_str = ''
+                # hit_dir_str = ''
 
-                if hit_front:
-                    hit_dir_str = ' front of the'
-                elif hit_rear:
-                    hit_dir_str = ' rear of the'
-                elif hit_left:
-                    hit_dir_str = ' left side of the'
-                elif hit_right:
-                    hit_dir_str = ' right side of the'
+                # if hit_front:
+                #     hit_dir_str = ' front of the'
+                # elif hit_rear:
+                #     hit_dir_str = ' rear of the'
+                # elif hit_left:
+                #     hit_dir_str = ' left side of the'
+                # elif hit_right:
+                #     hit_dir_str = ' right side of the'
 
-                overpen_str = ''
+                # overpen_str = ''
 
                 if total_penetration:
                     overpen_str = ' and ripping through the other side'
 
                 if attacker.player:
                     self.engine.message_log.add_message(f"{attacker.name} shoots {target_name} "
-                                                        f"[ID {self.parent.identifier}], penetrating the"
-                                                        f"{hit_dir_str} {self.name}{overpen_str}",
+                                                        f"[ID {self.parent.identifier}], penetarting the {self.name}",
                                                         colour.GREEN)
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name} shoots {target_name}, penetrating the"
-                                                        f"{hit_dir_str} {self.name}{overpen_str}",
+                    self.engine.message_log.add_message(f"{attacker.name} shoots {target_name}, penetrating the "
+                                                        f"{self.name} ",
                                                         colour.RED)
 
             # hit, no damage dealt

@@ -148,7 +148,7 @@ class MainMenu(BaseEventHandler):
 
         # noinspection PyTypeChecker
         console.print(x=console.width // 2 - 34, y=console.height // 2 + 22,
-                      string='Version 0.03 - Send Bug Reports & Suggestions to moldev196@gmail.com',
+                      string='Version 0.04 - Send Bug Reports & Suggestions to moldev196@gmail.com',
                       fg=self.fg_colour)
 
         if music:

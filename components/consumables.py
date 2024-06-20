@@ -125,7 +125,7 @@ class RepairKit(Usable):
 
         self.parent.stacking.stack_size -= 1
 
-        self.engine.message_log.add_message(f"Repair kits remaining: {self.parent.stacking.stack_size}", colour.WHITE, )
+        # self.engine.message_log.add_message(f"Repair kits remaining: {self.parent.stacking.stack_size}", colour.WHITE, )
 
         if self.parent.stacking.stack_size <= 0:
             self.consume()
@@ -244,10 +244,10 @@ class MeleeWeapon(Weapon):
         # miss
         else:
             if attacker.player:
-                return self.engine.message_log.add_message("You miss", colour.YELLOW)
+                return self.engine.message_log.add_message(f"{attacker.name} misses {target.name}", colour.YELLOW)
 
             else:
-                return self.engine.message_log.add_message(f"{attacker.name} misses", colour.LIGHT_BLUE)
+                return self.engine.message_log.add_message(f"{attacker.name} misses {target.name}", colour.LIGHT_BLUE)
 
 
 class Bullet(Usable):
@@ -348,7 +348,7 @@ class Magazine(Usable):
             self.magazine = []
 
         else:
-            return self.engine.message_log.add_message(f"{self.parent.name} is already empty", colour.RED)
+            return self.engine.message_log.add_message(f"{self.parent.name} is already empty", colour.WHITE)
 
 
 class DetachableMagazine(Magazine):
@@ -528,7 +528,7 @@ class Gun(Weapon):
                       proficiency: float, skill_range_modifier: float) -> None:
 
         if self.jammed:
-            self.engine.message_log.add_message("Attack failed: gun jammed.", colour.RED)
+            self.engine.message_log.add_message(f"{attacker.name} attack failed: gun jammed.", colour.RED)
 
         recoil_control = 1.0
 
@@ -602,7 +602,7 @@ class Gun(Weapon):
 
                     if choices(population=(True, False), weights=(round(10 - ((self.condition_function / 5) * 10) +
                                                                         mag_fail_chance), 100))[0]:
-                        self.engine.message_log.add_message("Your gun is jammed!", colour.RED)
+                        self.engine.message_log.add_message(f"{attacker.name}'s gun is jammed!", colour.YELLOW)
                         self.jammed = True
                         return
 
@@ -747,7 +747,7 @@ class Gun(Weapon):
             else:
                 self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
                 if attacker.player:
-                    self.engine.message_log.add_message(f"Out of ammo.", colour.RED)
+                    self.engine.message_log.add_message(f"{attacker.name}: out of ammo.", colour.RED)
                 break
 
         attacker.fighter.ap -= round(75 * recoil_penalty)
@@ -851,15 +851,15 @@ class Gun(Weapon):
 
             elif inventory.parent.player:
                 self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from clip",
-                                                    colour.RED)
+                                                    colour.WHITE)
 
         elif inventory.parent.player:
             self.engine.message_log.add_message(f"{inventory.parent.name}: cannot load from clip",
-                                                colour.RED)
+                                                colour.WHITE)
 
         if len(magazine.magazine) > 0 and clip.requires_gun_empty and inventory.parent.player:
             self.engine.message_log.add_message(f"{inventory.parent.name}: rounds still loaded",
-                                                colour.RED)
+                                                colour.WHITE)
 
         return False
 
@@ -1012,7 +1012,8 @@ class GunMagFed(Gun):
                 self.loaded_magazine = None
 
             else:
-                self.engine.message_log.add_message(f"{entity.name} has no magazine loaded", colour.RED)
+                self.engine.message_log.add_message(f"{inventory.parent}'s {entity.name} has no magazine loaded",
+                                                    colour.WHITE)
 
     def chamber_round(self):
 
@@ -1026,7 +1027,7 @@ class GunMagFed(Gun):
                     self.chambered_bullet = self.loaded_magazine.magazine.pop()
                 else:
                     self.engine.message_log.add_message(f"{inventory.parent.name} failed to chamber a new round",
-                                                        colour.RED)
+                                                        colour.WHITE)
 
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):

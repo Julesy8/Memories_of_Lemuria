@@ -104,18 +104,28 @@ COMBAT
 Squad mode allows you to control multiple player characters during a single turn. Squad mode can be enabled by pressing
 the space key.
 
-You can use this mode to attack enemies. On the bottom left of the screen, you can see how much AP (action points) the
-player has. Action points represent the remaining amount of time the player has to complete actions within that turn.
-Since one turn equates to one second, 1 AP = 1/100th of a second. Different actions take different amounts of time, and
-therefore AP, to complete.
+You can use this mode to attack enemies. You can select enemies to attack either by pressing the space key by left
+clicking on a target. You can then change which limb is being targeted by pressing the alt key, and attack by pressing
+the return key. On the bottom left of the screen, you can see how much AP (action points) the player has. Action points
+represent the remaining amount of time the player has to complete actions within that turn. Since one turn equates to
+one second, 1 AP = 1/100th of a second. Different actions take different amounts of time, and therefore AP, to complete.
 
 You can also move multiple players at once in squad mode by left clicking to select players, and selecting a
 destination in a seen area by pressing the right mouse button. Press any wait keys and the players will move towards
 the selected location.
 
+In this mode, multiple selected player characters can attack a single enemy by enabling the 'selected players attack'
+option by pressing [X].
+
 Space: change target
-Tab: Change character controlled
+Tab: change character controlled
+Number Keys: change character controlled
+Shift + Number Keys: select characters
+Left Mouse Button: select characters & targets
+Right Mouse Button: select destination
 Alt: change limb targeted
+A: select all players
+X: select whether to attack with all selected players.
 Enter: attack
 Movement Keys: change camera position
 Wait Keys: advance to next turn

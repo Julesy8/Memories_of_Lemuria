@@ -189,14 +189,20 @@ class GameMap:
             self.entities, key=lambda x: x.render_order.value
         )
 
+        movement_cancelled = False
+        spotted_entity_name = None
+
         for entity in entities_sorted_for_rendering:
 
             # entity is visible
             if self.visible[entity.x, entity.y]:
-                if not entity.seen:
+                if not entity.seen and isinstance(entity, Actor) and not entity in self.engine.players:
                     for player in self.engine.players:
-                        player.ai.path = []
-                        player.ai.path_to_xy = None
+                        if player.ai.path_to_xy is not None:
+                            player.ai.path = []
+                            player.ai.path_to_xy = None
+                            spotted_entity_name = entity.name
+                            movement_cancelled = True
                     entity.seen = True
                 # sets 'ghost position' at last seen location
                 entity.ghost_x = entity.x
@@ -226,6 +232,10 @@ class GameMap:
                     obj_x, obj_y = entity.ghost_x - cam_x, entity.ghost_y - cam_y
                     if 0 <= obj_x < console.width and 0 <= obj_y < console.height:
                         console.tiles_rgb[["ch", "fg"]][obj_x, obj_y] = ord(entity.char), colour.LIGHT_GRAY
+
+        if movement_cancelled:
+            self.engine.message_log.add_message(f"Movement interrupted: {spotted_entity_name} spotted",
+                                                colour.WHITE)
 
     def check_los(self, start_x: int, start_y: int, end_x: int, end_y: int):
         # checks if line of sight exists between two positions

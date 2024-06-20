@@ -207,7 +207,7 @@ def main() -> None:
                     # Then print the error to the message log.
                     if isinstance(handler, input_handlers.EventHandler):
                         handler.engine.message_log.add_message(
-                            traceback.format_exc(), colour.RED
+                            traceback.format_exc(), colour.WHITE
                         )
 
                         f = open("error_log.txt", 'a')

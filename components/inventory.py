@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import List, TYPE_CHECKING, Union
-from colour import RED
+from colour import WHITE
 
 from components.npc_templates import BaseComponent
 
@@ -39,7 +39,7 @@ class Inventory(BaseComponent):
     def add_to_inventory(self, item: Item, amount: int):
 
         if self.current_item_weight() + item.weight * amount > self.capacity:
-            self.engine.message_log.add_message("Inventory full.", RED)
+            self.engine.message_log.add_message("Inventory full.", WHITE)
 
         else:
             item.parent = self

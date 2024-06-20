@@ -53,12 +53,12 @@ class Action:
                                            self.entity.fighter.ap_per_turn_modifier))
                 self.entity.fighter.ap += turns_remaining * self.entity.fighter.ap_per_turn * self.entity.fighter.ap_per_turn_modifier
             if self.entity.player:
-                return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.RED)
+                return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.WHITE)
 
         # if entity has no AP, returns
         if not self.queued and self.entity.fighter.ap < 0:
             if self.entity.player:
-                self.engine.message_log.add_message(f"Cannot perform action: no AP", colour.RED)
+                self.engine.message_log.add_message(f"{self.entity.name} cannot perform action: no AP", colour.WHITE)
             return
 
         # queued and has AP, performs action
@@ -301,7 +301,7 @@ class UnarmedAttackAction(AttackAction):  # entity attacking without a weapon
         # miss
         else:
             if self.entity.player:
-                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.LIGHT_BLUE)
+                return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses", colour.YELLOW)
 
             else:
                 return self.engine.message_log.add_message(f"{self.entity.name}'s attack misses"
@@ -862,7 +862,7 @@ class MovementAction(ActionWithDirection):
             if self.entity.player:
                 self.engine.message_log.add_message(
                     f"{self.entity.name}'s movement was interrupted - an enemy is in the "
-                    f"way", colour.RED)
+                    f"way", colour.WHITE)
             return False
         else:
             return True
@@ -937,7 +937,7 @@ class AddToInventory(Action):
         # checks if there is enough capacity for the item
         if self.entity.inventory.current_item_weight() + self.item.weight * self.amount > \
                 self.entity.inventory.capacity:
-            self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.RED)
+            self.engine.message_log.add_message(f"{self.entity.name} - inventory full.", colour.WHITE)
             return False
 
         return True
@@ -1032,7 +1032,7 @@ class DropAction(Action):
                             self.item.place(self.entity.x, self.entity.y, self.engine.game_map)
 
                 except ValueError:
-                    self.engine.message_log.add_message("Invalid entry", colour.RED)
+                    self.engine.message_log.add_message(f"{self.entity.name}: invalid entry", colour.WHITE)
 
             else:  # item stacking, stack size = 1
                 self.entity.inventory.items.remove(self.item)
@@ -1240,7 +1240,7 @@ class CheckRoundsInMag(Action):
 
     def perform(self) -> None:
         message = self.weapon.loaded_magazine.check_rounds_in_mag()
-        self.engine.message_log.add_message(message, colour.WHITE)
+        self.engine.message_log.add_message(f"{self.entity.name}'s {self.weapon.parent.name} {message}", colour.WHITE)
 
 
 class EquipWearable(Action):
@@ -1272,7 +1272,8 @@ class EquipWearable(Action):
             if bodypart.part_type == self.wearable.fits_bodypart:
 
                 if bodypart.equipped:
-                    self.engine.message_log.add_message(f"Already wearing something there.", colour.RED)
+                    self.engine.message_log.add_message(f"{self.entity.name}: already wearing something there",
+                                                        colour.WHITE)
 
                 else:
                     if not item_removed:

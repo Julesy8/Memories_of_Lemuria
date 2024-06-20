@@ -2,14 +2,24 @@
 TO DO
 -----
 
-bugs
-reloading H015 is strange
-keyboard controls - one player moves and the rest follow
-single loading SKS
+Can now press number keys to switch to and select characters
+Can now select all characters in squad mode by pressing A
+Can now optionally attack a targeted enemy with all players selected
+Number of rounds loaded in held weapon now displayed on the main screen as well as in other menus such as loadout screen
 
+bugs
 
 priority features
-target enemies for all squad players to shoot at once 
+
+QoL request: it would be nice to have a keyboard "examine" mode where u could use the navigation keys to look around
+the map and see what items on the floor are. The roguelike Cogmind does it well, where u press a button to activate
+the examine mode, press spacebar to switch between enemies to select, and press ctrl-spacebar to switch between items
+ on the floor. Maybe something along that vein could help, since now I don't know what ammo is on the ground until i
+ walk over it
+
+single loading SKS
+grenades
+doors
 
 next weapons - Saiga 12, degtyrev, mini 14, M1 garand, BAR
 
