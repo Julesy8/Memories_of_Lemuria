@@ -81,7 +81,9 @@ class PlayerCharacter(BaseAI):
             if not self.path_to_xy == (self.entity.x, self.entity.y):
                 self.path = self.get_path_to(self.path_to_xy[0], self.path_to_xy[1])
             else:
-                self.path_to_xy = None
+                for player in self.engine.players:
+                    if player.ai.path_to_xy == self.path_to_xy:
+                        player.ai.path_to_xy = None
 
         fighter = self.entity.fighter
 

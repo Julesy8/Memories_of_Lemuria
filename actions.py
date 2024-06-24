@@ -13,7 +13,7 @@ from exceptions import Impossible
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
-    from components.consumables import Gun, GunMagFed, Magazine, Bullet, GunIntegratedMag, Weapon, MeleeWeapon, \
+    from components.consumables import Gun, GunMagFed, Magazine, GunIntegratedMag, Weapon, MeleeWeapon, \
         DetachableMagazine, Clip, Wearable
     from components.bodyparts import Bodypart
 
@@ -53,13 +53,12 @@ class Action:
                                            self.entity.fighter.ap_per_turn_modifier))
                 self.entity.fighter.ap += turns_remaining * self.entity.fighter.ap_per_turn * self.entity.fighter.ap_per_turn_modifier
             if self.entity.player:
-                return self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.WHITE)
+                self.engine.message_log.add_message(f"{self.entity.name}: action failed", colour.WHITE)
 
         # if entity has no AP, returns
         if not self.queued and self.entity.fighter.ap < 0:
             if self.entity.player:
                 self.engine.message_log.add_message(f"{self.entity.name} cannot perform action: no AP", colour.WHITE)
-            return
 
         # queued and has AP, performs action
         elif self.queued and self.entity.fighter.ap > 0:
@@ -221,7 +220,10 @@ class AttackAction(Action):
         self.attack_colour = colour.LIGHT_RED
 
         if self.targeted_bodypart:
-            self.part_index = self.targeted_actor.bodyparts.index(self.targeted_bodypart)
+            try:
+                self.part_index = self.targeted_actor.bodyparts.index(self.targeted_bodypart)
+            except ValueError:
+                self.part_index = None
 
         else:  # if no bodypart selected (should only be when entity is not player), sets value later
             self.part_index = None
@@ -556,7 +558,6 @@ class GunMagFedAttack(GunAttackAction):
 
         # alters attributes according to magazine properties
         if self.weapon.loaded_magazine is not None:
-            rounds_in_mag = len(self.weapon.loaded_magazine.magazine)
             magazine = self.weapon.loaded_magazine.magazine
 
             self.target_acquisition_ap *= self.weapon.loaded_magazine.target_acquisition_ap_mod
@@ -567,7 +568,7 @@ class GunMagFedAttack(GunAttackAction):
             self.total_weight += self.weapon.loaded_magazine.parent.weight
 
             # adds weight of rounds in magazine to total weight
-            if rounds_in_mag >= 1:
+            if len(magazine) >= 1 and magazine[0] is not None:
                 self.total_weight += (len(magazine) * magazine[0].weight)
 
 
@@ -923,10 +924,11 @@ class BumpAction(ActionWithDirection):
 
 class AddToInventory(Action):
 
-    def __init__(self, entity: Actor, item: Item, amount: int):
+    def __init__(self, entity: Actor, item: Item, amount: int, remove_from_stack: bool = True):
         super().__init__(entity)
         self.item = item
         self.amount = amount
+        self.remove_from_stack = remove_from_stack
         self.action_str = f'adding item to inventory'
 
     def calculate_ap_cost(self) -> int:
@@ -955,9 +957,11 @@ class AddToInventory(Action):
 
             # less than the full stack is being transfered
             elif self.item.stacking.stack_size >= self.amount > 0:
-                item_copy = deepcopy(self.item)
-                item_copy.stacking.stack_size = self.amount
-                self.item.stacking.stack_size -= self.amount
+                item_copy = self.item
+                if not self.remove_from_stack:
+                    item_copy = deepcopy(self.item)
+                    item_copy.stacking.stack_size = self.amount
+                    self.item.stacking.stack_size -= self.amount
                 self.entity.inventory.add_to_inventory(item=item_copy, amount=self.amount)
 
         # item not stacking, adds to inventory

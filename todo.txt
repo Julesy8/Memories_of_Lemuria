@@ -2,14 +2,12 @@
 TO DO
 -----
 
-Can now press number keys to switch to and select characters
-Can now select all characters in squad mode by pressing A
-Can now optionally attack a targeted enemy with all players selected
-Number of rounds loaded in held weapon now displayed on the main screen as well as in other menus such as loadout screen
-
 bugs
+enemies dropping weapons maybe not working?
+fucks up squad mode when trying to go down stairs with no stairs available
 
 priority features
+print player names in colour
 
 QoL request: it would be nice to have a keyboard "examine" mode where u could use the navigation keys to look around
 the map and see what items on the floor are. The roguelike Cogmind does it well, where u press a button to activate

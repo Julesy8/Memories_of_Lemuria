@@ -14,7 +14,6 @@ from components.armour import (helmet_ech, helmet_pasgt, helmet_m1,
                                helmet_ssh68, bodyarmour_pasgt, bodyarmour_improved, bodyarmour_interceptor,
                                platecarrier_3, platecarrier_4, platecarrier_3a)
 
-from components.weapons.mosin import mosin_muzzlebreak
 from components.commonitems import medkit, bandages
 
 from entity import Actor
@@ -529,7 +528,7 @@ def generate_player(current_level: int, players: list):
                    'Leonard', 'Ramon', 'Mel', 'Marcos']
 
     last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Martinez',
-                  'Taylor', 'Anderson', 'Wilson', 'Jackson', 'Wright', 'Gates', 'Archer', 'Fleming', 'Grimes', 'Duran'
+                  'Taylor', 'Anderson', 'Wilson', 'Jackson', 'Wright', 'Gates', 'Archer', 'Fleming', 'Grimes', 'Duran',
                   'Perez', 'Walker', 'Hall', 'Young', 'Allen', 'King', 'Scott', 'Green', 'Baker', 'Adams', 'House',
                   'Nelson', 'Carter', 'Mitchell', 'Perez', 'Roberts', 'Turner', 'Phillips', 'Campbell', 'Parker',
                   'Evans', 'Edwards', 'Collins', 'Stewart', 'Sanchez', 'Morris', 'Rogers', 'Reed', 'Cook', 'Morgan',

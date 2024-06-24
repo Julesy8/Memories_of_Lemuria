@@ -334,14 +334,14 @@ class Magazine(Usable):
         # unloads bullets from magazine
         inventory = entity.inventory
 
+        # TODO - keep round chambered should be for guns like open bolt mac 10?
         if isinstance(self, GunIntegratedMag):
-            if not self.keep_round_chambered:
+            if not self.keep_round_chambered and self.chambered_bullet is not None:
                 self.magazine.append(self.chambered_bullet)
                 setattr(self, "chambered_bullet", None)
 
         if len(self.magazine) > 0:
             for bullet in self.magazine:
-                # if bullet is not None:
                 actions.AddToInventory(item=bullet, amount=1,
                                        entity=inventory.parent).handle_action()
 
@@ -747,7 +747,7 @@ class Gun(Weapon):
             else:
                 self.shot_sound_activation(sound_radius=max(sound_radius_list), attacker=attacker)
                 if attacker.player:
-                    self.engine.message_log.add_message(f"{attacker.name}: out of ammo.", colour.RED)
+                    self.engine.message_log.add_message(f"{attacker.name} {self.parent.name} out of ammo.", colour.RED)
                 break
 
         attacker.fighter.ap -= round(75 * recoil_penalty)

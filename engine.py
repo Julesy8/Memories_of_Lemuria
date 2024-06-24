@@ -223,8 +223,14 @@ class Engine:
                 if self.player.inventory.held.usable_properties.loaded_magazine is None:
                     weapon_str += ' - No Mag'
                 else:
-                    weapon_str += (f" ({len(self.player.inventory.held.usable_properties.loaded_magazine.magazine)}/"
-                                   f"{self.player.inventory.held.usable_properties.loaded_magazine.mag_capacity})")
+                    if self.player.inventory.held.usable_properties.chambered_bullet is not None:
+                        weapon_str += (f""
+                                       f" "
+                                       f"({len(self.player.inventory.held.usable_properties.loaded_magazine.magazine) + 1}/"
+                                       f"{self.player.inventory.held.usable_properties.loaded_magazine.mag_capacity})")
+                    else:
+                        weapon_str += (f" ({len(self.player.inventory.held.usable_properties.loaded_magazine.magazine)}/"
+                                       f"{self.player.inventory.held.usable_properties.loaded_magazine.mag_capacity})")
 
             # for gun with integrated magazine
             elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):

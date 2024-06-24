@@ -264,15 +264,15 @@ class MainGameEventHandler(EventHandler):
             return ViewPlayer(self.engine, parent_handler=self)
 
         elif key == tcod.event.K_SPACE:
-            return ChangeTargetActor(engine=self.engine, in_squad_mode=self.engine.squad_mode, parent_handler=self)
+            return ChangeTargetActor(engine=self.engine, parent_handler=self)
 
         elif key == tcod.event.K_TAB:
             return self.engine.switch_player()
-        elif key == tcod.event.K_RALT:
-            if self.engine.squad_mode:
-                self.engine.squad_mode = False
-            else:
-                self.engine.squad_mode = True
+        # elif key == tcod.event.K_RALT:
+        #     if self.engine.squad_mode:
+        #         self.engine.squad_mode = False
+        #     else:
+        #         self.engine.squad_mode = True
         # No valid key was pressed
         return action
 
@@ -360,11 +360,11 @@ class GameWonEventHandler(EventHandler):
                       fg=colour.WHITE, bg=(0, 0, 0))
 
     def ev_keydown(self, event: tcod.event.KeyDown):
-
         key = event.sym
 
         if key == tcod.event.K_ESCAPE:
             raise exceptions.QuitToMenu
+
 
 CURSOR_Y_KEYS = {
     tcod.event.K_UP: -1,
@@ -577,9 +577,13 @@ class UserOptionsWithPages(AskUserEventHandler):
                         longest_name_len = name_len
 
                 elif hasattr(item.usable_properties, "loaded_magazine"):
-                    name_len = len(item.name) + 4 + (len(str(item.usable_properties.loaded_magazine.mag_capacity)) * 2)
-                    if name_len > longest_name_len:
-                        longest_name_len = name_len
+                    if item.usable_properties.loaded_magazine is not None:
+                        name_len = len(item.name) + 4 + (len(str(item.usable_properties.loaded_magazine.mag_capacity)) * 2)
+                        if name_len > longest_name_len:
+                            longest_name_len = name_len
+                    else:
+                        if len(item.name) > longest_name_len:
+                            longest_name_len = len(item.name) + 9
 
             # item is a string
             else:
@@ -600,7 +604,6 @@ class UserOptionsWithPages(AskUserEventHandler):
             fg=colour.WHITE,
             bg=(0, 0, 0),
         )
-
 
         if number_of_options > 0:
             console.print(x + 1, y + height - 1,
@@ -1084,9 +1087,9 @@ class DestinationMarker:
 
 class ChangeTargetActor(AskUserEventHandler):
 
-    def __init__(self, engine: Engine, in_squad_mode: bool, parent_handler: BaseEventHandler):
+    def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
         super().__init__(engine, parent_handler)
-        self.in_squad_mode = in_squad_mode
+        # self.in_squad_mode = in_squad_mode
         self.tick_counter = 0
         self.max_tick = max_fps * 3
         self.players_selected = []
@@ -1103,8 +1106,6 @@ class ChangeTargetActor(AskUserEventHandler):
         self.part_cond_colour: tuple[int, int, int] = colour.GREEN
 
         self.console = None
-
-        self.item = self.engine.player.inventory.held
 
         self.engine.squad_mode = True
 
@@ -1148,13 +1149,14 @@ class ChangeTargetActor(AskUserEventHandler):
             self.update_bodypart_list()
             self.update_part_str_colour()
 
-
             # sets targets index in target list
             self.target_index: int = self.targets.index(player.fighter.target_actor)
 
     def on_render(self, console: tcod.Console):
 
         super().on_render(console)  # Draw the main state as the background.
+
+        weapon = self.engine.player.inventory.held
 
         blink_on = True
 
@@ -1189,12 +1191,13 @@ class ChangeTargetActor(AskUserEventHandler):
                                   fg=colour.YELLOW)
 
         for player in self.players_selected:
-            player_name_list.append(player.name)
-            player_x = player.x - cam_x
-            player_y = player.y - cam_y
-            # if blink_on:
-            # console.print(player_x, player_y, player.char, player.fg_colour, (170, 255, 0))
-            console.print(player_x, player_y, player.char, colour.WHITE, player.fg_colour)
+            if player.ai is not None:
+                player_name_list.append(player.name)
+                player_x = player.x - cam_x
+                player_y = player.y - cam_y
+                # if blink_on:
+                # console.print(player_x, player_y, player.char, player.fg_colour, (170, 255, 0))
+                console.print(player_x, player_y, player.char, colour.WHITE, player.fg_colour)
 
         if len(player_name_list) > 0:
             console.print(x=0, y=4, string=f"PLAYERS SELECTED: {', '.join(player_name_list)}",
@@ -1213,14 +1216,14 @@ class ChangeTargetActor(AskUserEventHandler):
         console.print(x=0, y=1, string="SQUAD CONTROL - [ESC] TO EXIT", fg=colour.WHITE, bg=(0, 0, 0))
 
         # if gun is jammed, prints a message on the screen and instructs player on how to clear
-        if self.item is not None:
-            if hasattr(self.item.usable_properties, 'jammed'):
-                if self.item.usable_properties.jammed:
+        if weapon is not None:
+            if hasattr(weapon.usable_properties, 'jammed'):
+                if weapon.usable_properties.jammed:
                     console.print(x=0, y=console.height - 7, string="GUN JAMMED: [ENTER] TO CLEAR",
                                   fg=colour.RED, bg=(0, 0, 0))
                     return
 
-        if player.fighter.target_actor is not None:
+        if player.fighter.target_actor is not None and self.selected_bodypart is not None:
 
             target_x, target_y = player.fighter.target_actor.x - cam_x, player.fighter.target_actor.y - cam_y
 
@@ -1241,7 +1244,7 @@ class ChangeTargetActor(AskUserEventHandler):
             # if displaying armour, offsets other display information
             if self.selected_bodypart.equipped is not None:
                 console.print(x=0, y=console.height - 8, string=f"ARMOUR: "
-                                                                 f"{self.selected_bodypart.equipped.parent.name}",
+                                                                f"{self.selected_bodypart.equipped.parent.name}",
                               fg=colour.WHITE, bg=(0, 0, 0))
                 offset = 1
 
@@ -1303,6 +1306,7 @@ class ChangeTargetActor(AskUserEventHandler):
         player = self.engine.player
         key = event.sym
         modifier = event.mod
+        weapon = self.engine.player.inventory.held
 
         if key == tcod.event.K_SPACE:  # change target
 
@@ -1321,8 +1325,8 @@ class ChangeTargetActor(AskUserEventHandler):
                     self.target_index = 0
                     self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
             except TypeError:
-                if not self.in_squad_mode:
-                    self.engine.squad_mode = False
+                # if not self.in_squad_mode:
+                self.engine.squad_mode = False
                 return self.parent_handler
 
             if len(self.targets) > 0:
@@ -1342,25 +1346,32 @@ class ChangeTargetActor(AskUserEventHandler):
                     self.selected_bodypart = self.bodypartlist[0]
                     self.bodypart_index = 0
                 except IndexError:
-                    if not self.in_squad_mode:
-                        self.engine.squad_mode = False
+                    # if not self.in_squad_mode:
+                    self.engine.squad_mode = False
                     return self.parent_handler
 
             self.update_part_str_colour()
 
         elif key == tcod.event.K_RETURN:  # atttack selected target
 
-            if self.item is not None:
-                if hasattr(self.item.usable_properties, 'jammed'):
-                    if self.item.usable_properties.jammed:
-                        return actions.ClearJam(entity=player, gun=self.item.usable_properties).handle_action()
+            if weapon is not None:
+                if hasattr(weapon.usable_properties, 'jammed'):
+                    if weapon.usable_properties.jammed:
+                        return actions.ClearJam(entity=player, gun=weapon.usable_properties).handle_action()
+
             if self.engine.selected_players_attack:
-                for x in self.players_selected:
-                    if x.fighter.target_actor:
-                        self.attack_enemy(attacker=x)
+                if len(self.players_selected) > 0:
+                    for x in self.players_selected:
+                        if x.inventory.held is not None:
+                            x.fighter.target_actor = self.engine.player.fighter.target_actor
+                            if x.fighter.target_actor is not None:
+                                self.attack_enemy(attacker=x, weapon=x.inventory.held)
+                else:
+                    if player.fighter.target_actor is not None:
+                        self.attack_enemy(attacker=player, weapon=weapon)
             else:
-                if player.fighter.target_actor:
-                    self.attack_enemy(attacker=player)
+                if player.fighter.target_actor is not None:
+                    self.attack_enemy(attacker=player, weapon=weapon)
 
         elif key == tcod.event.K_a:
             if not self.players_selected == self.engine.players:
@@ -1384,6 +1395,7 @@ class ChangeTargetActor(AskUserEventHandler):
                         self.players_selected.remove(self.engine.players[0])
                 except IndexError:
                     pass
+            return self.get_targets()
 
         elif key == tcod.event.K_2:
             self.engine.switch_to_player(index=1)
@@ -1395,6 +1407,7 @@ class ChangeTargetActor(AskUserEventHandler):
                         self.players_selected.remove(self.engine.players[1])
                 except IndexError:
                     pass
+            return self.get_targets()
 
         elif key == tcod.event.K_3:
             self.engine.switch_to_player(index=2)
@@ -1406,6 +1419,7 @@ class ChangeTargetActor(AskUserEventHandler):
                         self.players_selected.remove(self.engine.players[2])
                 except IndexError:
                     pass
+            return self.get_targets()
 
         elif key == tcod.event.K_4:
             self.engine.switch_to_player(index=3)
@@ -1417,6 +1431,7 @@ class ChangeTargetActor(AskUserEventHandler):
                         self.players_selected.remove(self.engine.players[3])
                 except IndexError:
                     pass
+            return self.get_targets()
 
         elif key == tcod.event.K_5:
             self.engine.switch_to_player(index=4)
@@ -1428,10 +1443,10 @@ class ChangeTargetActor(AskUserEventHandler):
                         self.players_selected.remove(self.engine.players[4])
                 except IndexError:
                     pass
+            return self.get_targets()
 
         elif key == tcod.event.K_TAB:
             self.engine.switch_player()
-            return self.get_targets()
         elif key == tcod.event.K_c:
             return SelectItemToCraft(engine=self.engine, item_dict=self.engine.crafting_recipes, title='Crafting',
                                      parent_handler=self)
@@ -1471,8 +1486,24 @@ class ChangeTargetActor(AskUserEventHandler):
             return ShowEnemyInfo(self.engine, entity=player.fighter.target_actor, parent_handler=self)
 
         elif key in WAIT_KEYS:
-            self.get_targets()
-            self.engine.handle_turns()
+            if modifier & (tcod.event.KMOD_LCTRL | tcod.event.KMOD_RCTRL):
+
+                skip = True
+                while skip:
+                    no_ap = False
+                    for x in self.engine.players:
+                        if x.fighter.ap < 100:
+                            no_ap = True
+
+                    if no_ap:
+                        self.get_targets()
+                        self.engine.handle_turns()
+                    else:
+                        skip = False
+
+            else:
+                self.get_targets()
+                self.engine.handle_turns()
 
         elif key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -1487,14 +1518,14 @@ class ChangeTargetActor(AskUserEventHandler):
             self.engine.squad_mode = False
             return self.parent_handler
 
-    def attack_enemy(self, attacker: Actor) -> None:
+    def attack_enemy(self, attacker: Actor, weapon) -> None:
         distance_target = round(attacker.distance(attacker.fighter.target_actor.x, attacker.fighter.target_actor.y))
 
         # attack with weapon
-        if self.item is not None:
-            (self.item.usable_properties.get_attack_action(distance=distance_target, entity=attacker,
-                                                           targeted_actor=self.engine.player.fighter.target_actor,
-                                                           targeted_bodypart=self.selected_bodypart).
+        if weapon is not None:
+            (weapon.usable_properties.get_attack_action(distance=distance_target, entity=attacker,
+                                                        targeted_actor=self.engine.player.fighter.target_actor,
+                                                        targeted_bodypart=self.selected_bodypart).
              handle_action())
 
         # unarmed attack
@@ -1729,9 +1760,10 @@ class GunOptionsMagFed(UserOptionsEventHandler):
         self.gun = gun
 
         title = gun.parent.name
-        options = ['rename', ]
 
         self.firemodes = self.gun.fire_modes
+
+        options = []
 
         if self.gun.jammed:
             options.append('clear jam')
@@ -1748,6 +1780,8 @@ class GunOptionsMagFed(UserOptionsEventHandler):
         for firemode in self.firemodes:
             if not firemode == self.gun.current_fire_mode:
                 options.append(firemode)
+
+        options.append('rename')
 
         super().__init__(engine=engine, options=options, title=title, parent_handler=parent_handler)
 
@@ -2761,10 +2795,11 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Bullet Diameter (Inch) --": ('diameter', getattr(self.item.usable_properties, 'diameter', 1)),
             "-- Bullet Velocity (Feet/Sec) --": ('velocity', getattr(self.item.usable_properties, 'velocity', 1)),
             "-- Shot Sound Modifier --": ('sound_modifier',
-                                 round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
+                                          round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
             "-- Bullet Spread Modifier (MoA) --": ('spread_modifier',
-                                             round(getattr(self.item.usable_properties, 'spread_modifier', 1) * 100,
-                                                   3)),
+                                                   round(
+                                                       getattr(self.item.usable_properties, 'spread_modifier', 1) * 100,
+                                                       3)),
             "-- Ballistic Coefficient --": ('ballistic_coefficient',
                                             getattr(self.item.usable_properties, 'ballistic_coefficient', 1)),
             "-- Drag Coefficient --": ('drag_coefficient', getattr(self.item.usable_properties, 'drag_coefficient',
@@ -2927,7 +2962,7 @@ class InspectItemViewer(AskUserEventHandler):
         for key in keys_to_delete:
             del self.item_info[key]
 
-        self.menu_length = len(self.item_info.keys())
+        self.menu_length = len(self.item_info.keys()) * 2
         self.menu_length_remaining = self.menu_length
 
         for value in self.item_info.values():

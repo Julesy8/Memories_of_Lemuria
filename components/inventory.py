@@ -50,12 +50,13 @@ class Inventory(BaseComponent):
                 for i in self.items:
                     if i.name == item.name:
                         repeat_item_index = self.items.index(i)
-                        self.items[repeat_item_index].stacking.stack_size += item.stacking.stack_size
+                        self.items[repeat_item_index].stacking.stack_size += amount
                         repeat_found = True
 
                 # item of this type not already present in inventory
                 if not repeat_found:
                     self.items.append(item)
+
     def current_item_weight(self) -> float:
         loadout = self.small_magazines + self.medium_magazines + self.large_magazines
         #  returns current combined weight of items in inventory
