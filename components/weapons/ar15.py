@@ -5,6 +5,328 @@ import colour
 
 # add belt fed upper, 7.62x39 parts, 9mm/45 acp parts, P90 mag conversion thing
 
+# 1.5 seconds average to draw, aim, shoot - pistol
+# can pull trigger 4 times per second
+#
+# pistol base line - Glock 17
+# rifle base line - M4
+#
+# equip (pistol - from holster) - 75
+# equip (rifle - from sling) - 100
+# acquire target (pistol) - 50
+# acquire target (rifle) - 30
+# shoot (pistol and rifle) -
+#
+# recoil reduction
+#     stock - 45%
+#     handguard - 15%
+#     pistol grip - 10%
+#     additional 5-10% for rifle stocks with integrated pistol grip
+#
+# ap distance cost modifier
+#     stock - 0.7
+#     hand guard - 0.9
+#     pistol grip -
+#
+# spread reduction
+#     stock - 0.86
+#     handguard - 0.9
+#     pistol grip -
+#
+# target acquisition ap
+#     stock - 0.75
+#     handguard - 0.8
+#     pistol grip -
+
+
+"""
+Action
+"""
+# total action weight - 1.02 kg
+#
+# action_r700_556 = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 Action 5.56x45/.300 BLK",
+#     weight=1.02,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Action',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_parts={},
+#                                    functional_part=True,
+#                                    accuracy_part=True
+#                                    ),
+#     description='5.56x45 / .300 Blackout Remington 700 action.'
+# )
+#
+# action_r700_308 = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 Action .308",
+#     weight=1.02,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Action',
+#                                    suffix='.308',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_parts={},
+#                                    functional_part=True,
+#                                    accuracy_part=True
+#                                    ),
+#     description='.308 Remington 700 action.'
+# )
+#
+# action_r700_3006 = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 Action .30-06",
+#     weight=1.02,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Action',
+#                                    suffix='.30-06',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_parts={},
+#                                    functional_part=True,
+#                                    accuracy_part=True
+#                                    ),
+#     description='.30-06 Remington 700 action.'
+# )
+#
+#
+# """
+# Barrel
+# """
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+#
+# r700_barrel_cal_len = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_GRAY,
+#     name="R700 LEN Barrel CALIBRE",
+#     weight=,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='R700 Barrel',
+#                                    compatible_magazine_type=(, ),
+#                                    compatible_bullet_type=(,),
+#                                    is_attachment_point_types=[, ],
+#                                    barrel_length=,
+#                                    velocity_modifier={},
+#                                    functional_part=True,
+#                                    accuracy_part=True,
+#                                    ),
+#     description='LENGTH inch R700 barrel chambered in CALIBRE'
+# )
+
 """
 Lower Receivers
 """
@@ -233,7 +555,7 @@ ar_barrel_standard_556 = Item(
     usable_properties=GunComponent(part_type='AR Barrel',
                                    compatible_magazine_type=('STANAG', ),
                                    compatible_bullet_type=('5.56x45',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .223', ],
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
@@ -266,7 +588,7 @@ ar_barrel_standard_556_midlen = Item(
     usable_properties=GunComponent(part_type='AR Barrel',
                                    compatible_magazine_type=('STANAG', ),
                                    compatible_bullet_type=('5.56x45',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .223', ],
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
@@ -301,7 +623,7 @@ ar_barrel_carbine_556 = Item(
                                    suffix='Carbine',
                                    compatible_magazine_type=('STANAG', ),
                                    compatible_bullet_type=('5.56x45',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .223', ],
                                    compatible_parts={
                                        'AR Handguard': ["AR M16A1 Handguard",
                                                         "AR M16A2 Handguard",
@@ -342,7 +664,7 @@ ar_barrel_carbine_556_carblen = Item(
                                    suffix='Carbine',
                                    compatible_magazine_type=('STANAG', ),
                                    compatible_bullet_type=('5.56x45',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .223', ],
                                    compatible_parts={
                                        'AR Handguard': ["AR M16A1 Handguard",
                                                         "AR M16A2 Handguard",
@@ -383,7 +705,7 @@ ar_barrel_pistol_556 = Item(
                                    suffix='Pistol',
                                    compatible_magazine_type=('STANAG', ),
                                    compatible_bullet_type=('5.56x45',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .223', ],
                                    compatible_parts={'AR Handguard': ["AR Aero Precision Pistol Handguard",
                                                                       "AR Faxon Streamline Pistol Handguard",
                                                                       "AR M16A2 Carbine Handguard",
@@ -417,7 +739,7 @@ ar_barrel_pistol_556_pistollen = Item(
                                    suffix='Pistol',
                                    compatible_magazine_type=('STANAG', ),
                                    compatible_bullet_type=('5.56x45',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .223', ],
                                    compatible_parts={'AR Handguard': ["AR Aero Precision Pistol Handguard",
                                                                       "AR Faxon Streamline Pistol Handguard",
                                                                       "AR M16A2 Carbine Handguard",
@@ -791,7 +1113,7 @@ ar_barrel_9mm_16in = Item(
                                    compatible_magazine_type=('Glock 9mm',),
                                    suffix='9mm',
                                    compatible_bullet_type=('9mm',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .30', ],
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
@@ -829,7 +1151,7 @@ ar_barrel_9mm_11in = Item(
                                    compatible_magazine_type=('Glock 9mm',),
                                    suffix='9mm',
                                    compatible_bullet_type=('9mm',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .30', ],
                                    compatible_parts={'AR Handguard': ["AR M16A1 Handguard",
                                                                       "AR M16A2 Handguard",
                                                                       "AR M16A2 Carbine Handguard",
@@ -869,7 +1191,7 @@ ar_barrel_9mm_4in = Item(
                                    tags=['pistol barrel', ],
                                    suffix='9mm',
                                    compatible_bullet_type=('9mm',),
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .30', ],
                                    compatible_parts={'AR Handguard': ["4 Inch AR Pistol Handguard - MLOK",
                                                                       "4 Inch AR Pistol Handguard - Quad Rail",
                                                                       ]},
@@ -1842,7 +2164,7 @@ ar15_muzzle_flashhider = Item(
     weight=0.064,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   attachment_point_required=('Barrel Thread 1/2x28 - .223',),
                                    muzzle_break_efficiency=0.11,
                                    ),
     description="Flash hider designed for AR15 type 5.56x45 rifles"
@@ -1856,7 +2178,7 @@ ar15_muzzle_st6012 = Item(
     weight=0.125,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   attachment_point_required=('Barrel Thread 1/2x28 - .223',),
                                    muzzle_break_efficiency=0.5,
                                    sound_radius=1.12,
                                    ),
@@ -1871,7 +2193,7 @@ ar15_muzzle_mi_mb4 = Item(
     weight=0.085,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   attachment_point_required=('Barrel Thread 1/2x28 - .223',),
                                    muzzle_break_efficiency=0.18,
                                    sound_radius=1.05,
                                    ),
@@ -1886,7 +2208,7 @@ ar15_muzzle_cobra = Item(
     weight=0.124,
     stacking=None,
     usable_properties=GunComponent(part_type='Muzzle Device',
-                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   attachment_point_required=('Barrel Thread 1/2x28 - .223',),
                                    muzzle_break_efficiency=0.55,
                                    sound_radius=1.16,
                                    ),
@@ -2062,7 +2384,7 @@ upper_mcr = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='MCR Upper',
                                    is_attachment_point_types=['Picrail Optics Mount - Long',
-                                                              'Barrel Thread 1/2x28', 'Picrail Side Mount - Long',
+                                                              'Barrel Thread 1/2x28 - .223', 'Picrail Side Mount - Long',
                                                               'Picrail Underbarrel - Long',
                                                               'Picrail Top Mount - Long',
                                                               'Picrail Optics Mount - Long'],

@@ -390,7 +390,7 @@ m1911_barrel_gov_threaded_9mm = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    suffix='9mm',
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .30', ],
                                    compatible_parts={
                                        'M1911 Slide': ['9mm Government Length Slide']},
                                    tags=['9mm Government Length Barrel', ],
@@ -414,7 +414,7 @@ m1911_barrel_commander_threaded_9mm = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    suffix='9mm',
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .30', ],
                                    compatible_parts={
                                        'M1911 Slide': ['9mm Commander Length Slide', ]},
                                    tags=['9mm Commander Length Barrel', ],
@@ -440,7 +440,7 @@ m1911_barrel_long_threaded_9mm = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='M1911 Barrel',
                                    suffix='9mm',
-                                   is_attachment_point_types=['Barrel Thread 1/2x28', ],
+                                   is_attachment_point_types=['Barrel Thread 1/2x28 - .30', ],
                                    compatible_parts={
                                        'M1911 Slide': ['9mm Commander Length Slide', '9mm Government Length Slide',
                                                        '9mm Long SLide']},

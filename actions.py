@@ -153,7 +153,7 @@ class ActionWithDirection(Action):
         self.dy = dy
 
         if self.entity.fighter.target_actor is None:
-            orientation = 0
+            orientation = 3.141
 
             # tcod.event.K_UP: (0, -1),
             # tcod.event.K_DOWN: (0, 1),
@@ -169,22 +169,22 @@ class ActionWithDirection(Action):
                 orientation = 1.57
             # south
             elif self.dx == 0 and self.dy == 1:
-                orientation = -1.57
+                orientation = 4.712
             # east
             elif self.dx == 1 and self.dy == 0:
-                orientation = 3.141
+                orientation = 0
             # north west
             elif self.dx == -1 and self.dy == -1:
-                orientation = 0.785
+                orientation = 2.356
             # south west
             elif self.dx == -1 and self.dy == 1:
-                orientation = - 0.785
+                orientation = 3.926
             # north east
             elif self.dx == 1 and self.dy == -1:
-                orientation = -2.356
+                orientation = 0.785
             # south east
             elif self.dx == 1 and self.dy == 1:
-                orientation = 2.356
+                orientation = 5.497
 
             self.entity.orientation = orientation
 
@@ -711,6 +711,7 @@ class ReloadMagFed(Action):
             if self.gun.chambered_bullet is None:
                 self.gun.chambered_bullet = self.gun.loaded_magazine.magazine.pop()
 
+
 class ReloadFromClip(Action):
     def __init__(self, entity: Actor, gun: Gun, clip: Clip):
         super().__init__(entity)
@@ -718,6 +719,7 @@ class ReloadFromClip(Action):
         self.gun = gun
         self.clip = clip
         # TODO - shouldn't be able to reload if bullet chambered and magazine filled to max capacity - 1
+
     def action_viable(self) -> bool:
         if self.gun.clip_reload_check_viable(clip=self.clip):
             return True

@@ -198,6 +198,9 @@ class EventHandler(BaseEventHandler):
 
 
 class MainGameEventHandler(EventHandler):
+    def __init__(self, engine: Engine):
+        super().__init__(engine)
+        self.engine.squad_mode = False
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
@@ -849,7 +852,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'equip':
             try:
                 self.item.usable_properties.equip(user=self.engine.player)
-                return self.parent_handler
+                return MainGameEventHandler(engine=self.engine)
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.WHITE)
@@ -857,7 +860,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'equip to primary':
             try:
                 self.item.usable_properties.equip_to_primary(user=self.engine.player)
-                return self.parent_handler
+                return MainGameEventHandler(engine=self.engine)
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.WHITE)
@@ -865,7 +868,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'equip to secondary':
             try:
                 self.item.usable_properties.equip_to_secondary(user=self.engine.player)
-                return self.parent_handler
+                return MainGameEventHandler(engine=self.engine)
 
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.WHITE)
@@ -873,7 +876,7 @@ class ItemInteractionHandler(UserOptionsEventHandler):  # options for interactin
         elif option == 'unequip':
             try:
                 self.item.usable_properties.unequip(user=self.engine.player)
-                return self.parent_handler
+                return MainGameEventHandler(engine=self.engine)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry", colour.WHITE)
 
@@ -1100,6 +1103,9 @@ class ChangeTargetActor(AskUserEventHandler):
         self.selected_bodypart = None
         self.bodypart_index: int = 0
         self.bodypartlist: list = []
+        self.keyboard_cursor = False
+        self.keyboard_cursor_x: int = 0
+        self.keyboard_cursor_y: int = 0
 
         # string and colour associated with the condition of the selected body part
         self.part_cond_str: str = "Unharmed"
@@ -1143,7 +1149,7 @@ class ChangeTargetActor(AskUserEventHandler):
             self.engine.game_map.camera_xy = (player.fighter.target_actor.x, player.fighter.target_actor.y + 3)
 
             # selects bodypart
-            if self.selected_bodypart is None or not self.selected_bodypart in player.fighter.target_actor.bodyparts:
+            if self.selected_bodypart is None or self.selected_bodypart not in player.fighter.target_actor.bodyparts:
                 self.selected_bodypart = player.fighter.target_actor.bodyparts[0]
 
             self.update_bodypart_list()
@@ -1164,6 +1170,10 @@ class ChangeTargetActor(AskUserEventHandler):
 
         screen_shape = console.rgb.shape
         cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
+
+        # if self.keyboard_cursor:
+        #     console.print(x=self.keyboard_cursor_x - cam_x, y=self.keyboard_cursor_y - cam_y,
+        #                   string='X', fg=colour.YELLOW)
 
         self.tick_counter += 1
 
@@ -1505,9 +1515,15 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.get_targets()
                 self.engine.handle_turns()
 
-        elif key in MOVE_KEYS:
-            dx, dy = MOVE_KEYS[key]
-            self.engine.game_map.move_camera(dx, dy)
+        # elif key in MOVE_KEYS:
+        #     if not self.keyboard_cursor:
+        #         self.keyboard_cursor_x = self.engine.player.x
+        #         self.keyboard_cursor_y = self.engine.player.y
+        #         self.keyboard_cursor = True
+        #
+        #     dx, dy = MOVE_KEYS[key]
+        #
+        #     self.engine.game_map.move_camera(dx, dy)
 
         elif key == tcod.event.K_ESCAPE:
 
@@ -1721,7 +1737,7 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
         title = f"{magazine.parent.name} - ({len(self.magazine.magazine)}/" \
                 f"{self.magazine.mag_capacity})"
 
-        options = ['load bullets', 'unload bullets']
+        options = ['load rounds', 'unload rounds']
 
         inventory = engine.player.inventory
         loadout = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
@@ -1737,12 +1753,12 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
     def ev_on_option_selected(self, option: str) -> Optional[ActionOrHandler]:
         """Called when the user selects a valid item."""
         player = self.engine.player
-        # TODO - term 'bullets' technically incorrect here
-        if option == 'load bullets':
+
+        if option == 'load rounds':
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.magazine,
                                               parent_handler=self.parent_handler)
 
-        elif option == 'unload bullets':
+        elif option == 'unload rounds':
             self.magazine.unload_magazine(entity=self.engine.player)
 
         elif option == 'add to loadout':
@@ -1774,7 +1790,10 @@ class GunOptionsMagFed(UserOptionsEventHandler):
         else:
             options.append("load magazine")
 
-        if self.gun.compatible_clip is not None:
+        if self.gun.can_hand_load and self.gun.loaded_magazine is not None:
+            options.append("load rounds")
+
+        if self.gun.compatible_clip is not None and self.gun.loaded_magazine is not None:
             options.append("load from clip")
 
         for firemode in self.firemodes:
@@ -1790,6 +1809,9 @@ class GunOptionsMagFed(UserOptionsEventHandler):
 
         if option == 'load magazine':
             return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun, parent_handler=self)
+
+        elif option == 'load rounds':
+            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun.loaded_magazine, parent_handler=self)
 
         elif option == 'unload magazine':
             self.gun.unload_gun()
@@ -2852,7 +2874,7 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Action Cycling AP Cost --": ('action_cycle_ap_cost',
                                              round(getattr(self.item.usable_properties, 'action_cycle_ap_cost', 1), 3)),
 
-            "-- Muzzle Break Efficiency (%) --": ('muzzle_break_efficiency',
+            "-- Muzzle Brake Efficiency (%) --": ('muzzle_break_efficiency',
                                                   (getattr(self.item.usable_properties, 'muzzle_break_efficiency',
                                                            1)) * 100),
             "-- Part Condition: Accuracy (%) --": ('condition_accuracy',
@@ -2953,8 +2975,9 @@ class InspectItemViewer(AskUserEventHandler):
             vel_string = ''
 
             for key, value in item.usable_properties.velocity_modifier.items():
-                if key in getattr(item.usable_properties, 'compatible_bullet_type'):
-                    vel_string += f"{key} - {value}, "
+                if hasattr(item.usable_properties, 'compatible_bullet_type'):
+                    if key in getattr(item.usable_properties, 'compatible_bullet_type'):
+                        vel_string += f"{key} - {value}, "
 
             vel_modifiers = {" -- Bullet Velocity Modifier -- ": ('', vel_string)}
             self.item_info.update(vel_modifiers)

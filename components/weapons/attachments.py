@@ -650,7 +650,7 @@ suppressor_wolfman_9mm = Item(
                                    target_acquisition_ap=1.08,
                                    fire_rate_modifier=1.11,
                                    sound_radius=0.24,
-                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   attachment_point_required=('Barrel Thread 1/2x28 - .30',),
                                    is_suppressor=True,
                                    ),
     description='A large, modular suppressor for firearms with 1/2x28 barrel threading '
@@ -669,7 +669,7 @@ suppressor_obsidian_9 = Item(
                                    target_acquisition_ap=1.06,
                                    fire_rate_modifier=1.08,
                                    sound_radius=0.25,
-                                   attachment_point_required=('Barrel Thread 1/2x28',),
+                                   attachment_point_required=('Barrel Thread 1/2x28 - .30',),
                                    is_suppressor=True,
                                    ),
     description='A modular suppressor compatible with 1/2x28 barrel threading'
@@ -764,20 +764,20 @@ thread_adapter_mosin = Item(
     description='Attaches to the muzzle of the Mosin-Nagant allowing attachment of 5/8x24 muzzle devices'
 )
 
-thread_adapter_141_24mm = Item(
-    x=0, y=0,
-    char="!",
-    fg_colour=colour.LIGHT_MAGENTA,
-    name='14x1 to 24x1.5 Thread Adapter',
-    weight=0.04,
-    stacking=None,
-    usable_properties=GunComponent(part_type='Thread Adapter',
-                                   additional_required_parts=('Muzzle Device',),
-                                   converts_attachment_points={'Barrel Thread 14x1': 'Barrel Thread 24x1.5'},
-                                   attachment_point_required=('Barrel Thread 14x1',),
-                                   ),
-    description='Attaches to 14x1 threaded AK barrels, adapting it to 24x1.5 thread such as that of the AK-74'
-)
+# thread_adapter_141_24mm = Item(
+#     x=0, y=0,
+#     char="!",
+#     fg_colour=colour.LIGHT_MAGENTA,
+#     name='14x1 to 24x1.5 Thread Adapter',
+#     weight=0.04,
+#     stacking=None,
+#     usable_properties=GunComponent(part_type='Thread Adapter',
+#                                    additional_required_parts=('Muzzle Device',),
+#                                    converts_attachment_points={'Barrel Thread 14x1': 'Barrel Thread 24x1.5'},
+#                                    attachment_point_required=('Barrel Thread 14x1',),
+#                                    ),
+#     description='Attaches to 14x1 threaded AK barrels, adapting it to 24x1.5 thread such as that of the AK-74'
+# )
 
 thread_adapter_2415_5824 = Item(
     x=0, y=0,
@@ -788,7 +788,7 @@ thread_adapter_2415_5824 = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='Thread Adapter',
                                    additional_required_parts=('Muzzle Device',),
-                                   converts_attachment_points={'Barrel Thread 24x1.5': 'Barrel Thread 1/2x28'},
+                                   converts_attachment_points={'Barrel Thread 24x1.5': 'Barrel Thread 5/8x24'},
                                    attachment_point_required=('Barrel Thread 24x1.5',),
                                    ),
     description='Attaches to 24x1.5 threaded AK barrels, adapting it to 5/8×24 threading'

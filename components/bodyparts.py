@@ -461,35 +461,35 @@ class Bodypart:
         # plt.show()
 
         hit = False
-        hit_front = False
-        hit_rear = False
-        hit_left = False
-        hit_right = False
+        # hit_front = False
+        # hit_rear = False
+        # hit_left = False
+        # hit_right = False
 
         armour_coverage = 0
 
         if v_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_v
-            hit_front = True
+            # hit_front = True
             hit = True
 
         if d_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_d
-            hit_rear = True
+            # hit_rear = True
             hit = True
 
         if l_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_l
-            hit_left = True
+            # hit_left = True
             hit = True
 
         if r_int_pt:
             if self.equipped is not None:
                 armour_coverage = self.equipped.coverage_r
-            hit_right = True
+            # hit_right = True
             hit = True
 
         # does not intersect with any body surface, miss
@@ -733,9 +733,9 @@ class Bodypart:
                 #     hit_dir_str = ' right side of the'
 
                 # overpen_str = ''
-
-                if total_penetration:
-                    overpen_str = ' and ripping through the other side'
+                #
+                # if total_penetration:
+                #     overpen_str = ' and ripping through the other side'
 
                 if attacker.player:
                     self.engine.message_log.add_message(f"{attacker.name} shoots {target_name} "

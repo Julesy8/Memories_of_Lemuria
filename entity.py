@@ -115,7 +115,15 @@ class Actor(Entity):
             render_order=RenderOrder.ACTOR,
         )
 
-        self.orientation = choice((0, 0.785, 1.57, 2.356, 3.141, 3.926, 4.712, 5.497))  # 2 pi, west
+        self.orientation = choice((0,  # east
+                                   0.785,  # north east
+                                   1.57,  # north
+                                   2.356,  # north west
+                                   3.141,  # west
+                                   3.926,  # south west
+                                   4.712,  # south
+                                   5.497  # south east
+                                   ))
         self.ai = ai(self)
         self.speaks = speaks
         self.bleeds = bleeds
@@ -170,5 +178,7 @@ class Item(Entity):
 
 
 class Stacking:  # class for stacks of items
-    def __init__(self, stack_size):
+    def __init__(self, stack_size, spawn_amount_min: int = 1, spawn_amount_max: int = 1):
         self.stack_size = stack_size
+        self.spawn_amount_min = spawn_amount_min
+        self.spawn_amount_max = spawn_amount_max

@@ -68,7 +68,7 @@ round_9mm_124_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr FMJ',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='9x19mm 124gr full metal jacket round point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -91,7 +91,7 @@ round_9mm_147_fp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr FP',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='9x19mm 147gr jacketed flat point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -138,7 +138,7 @@ round_9mm_124_fmj_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr FMJ +P',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='Overpressure 9x19mm 124gr full metal jacket round point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -161,7 +161,7 @@ round_9mm_147_fp_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr FP +P',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='Overpressure 9x19mm 147gr jacketed flat point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -212,7 +212,7 @@ round_9mm_124_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr JHP',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='9x19mm 124gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -238,7 +238,7 @@ round_9mm_147_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr JHP',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='9x19mm 147gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -292,7 +292,7 @@ round_9mm_124_jhp_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 124gr JHP +P',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='Overpressure 9x19mm 124gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -318,7 +318,7 @@ round_9mm_147_jhp_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='9x19mm - 147gr JHP +P',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='Overpressure 9x19mm 147gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='9mm',
@@ -354,7 +354,7 @@ round_45_185_swc = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr Jacketed SWC',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='45 Automatic 185gr copper jacketed semi wad cutter ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -377,7 +377,7 @@ round_45_200_swc = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr Jacketed SWC',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='45 Automatic 200gr copper jacketed semi wad cutter ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -402,7 +402,7 @@ round_45_185_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr JHP',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='45 Automatic 185gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -428,7 +428,7 @@ round_45_200_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr JHP',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='45 Automatic 200gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -454,7 +454,7 @@ round_45_230_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr JHP',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='45 Automatic 230gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -482,7 +482,7 @@ round_45_200_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr FMJ',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='45 Automatic 200gr full metal jacket round point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -505,7 +505,7 @@ round_45_230_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr FMJ',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='45 Automatic 230gr full metal jacket round point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -530,7 +530,7 @@ round_45_185_swc_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr Jacketed SWC +P',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='Overpressure 45 Automatic 185gr copper jacketed semi wad cutter ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -553,7 +553,7 @@ round_45_200_swc_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr Jacketed SWC +P',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='Overpressure 45 Automatic 200gr copper jacketed semi wad cutter ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -578,7 +578,7 @@ round_45_185_jhp_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 185gr JHP +P',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='Overpressure 45 Automatic 185gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -604,7 +604,7 @@ round_45_230_jhp_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr JHP +P',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='Overpressure 45 Automatic 230gr full metal jacket hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -632,7 +632,7 @@ round_45_200_fmj_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 200gr FMJ  +P',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='Overpressure 45 Automatic 200gr full metal jacket round point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -655,7 +655,7 @@ round_45_230_fmj_pp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='45 ACP - 230gr FMJ  +P',
     weight=0.0209,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='Overpressure 45 Automatic 230gr full metal jacket round point ammunition',
     usable_properties=Bullet(
         bullet_type='.45 ACP',
@@ -686,7 +686,7 @@ round_10mm_155_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 155gr JHP',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='10mm Automatic 155gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='10mm',
@@ -712,7 +712,7 @@ round_10mm_180_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 180gr FMJ',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='10mm Automatic 180gr full metal jacket round nose ammunition',
     usable_properties=Bullet(
         bullet_type='10mm',
@@ -735,7 +735,7 @@ round_10mm_190_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 190gr JHP',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='10mm Automatic 190gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='10mm',
@@ -761,7 +761,7 @@ round_10mm_220_fp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='10mm - 220gr FP',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='10mm Automatic 190gr jacketed flat point ammunition',
     usable_properties=Bullet(
         bullet_type='10mm',
@@ -792,7 +792,7 @@ round_40sw_155_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 155gr JHP',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='40 S&W 155gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='40 S&W',
@@ -818,7 +818,7 @@ round_40sw_165_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 165gr FMJ',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='40 S&W 165 gr flat point full metal jacket ammunition',
     usable_properties=Bullet(
         bullet_type='40 S&W',
@@ -841,7 +841,7 @@ round_40sw_180_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 180gr FMJ',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='40 S&W 180gr full metal jacket round nose ammunition',
     usable_properties=Bullet(
         bullet_type='40 S&W',
@@ -864,7 +864,7 @@ round_40sw_180_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 180gr JHP',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='40 S&W 180gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='40 S&W',
@@ -890,7 +890,7 @@ round_40sw_220_fp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='40 S&W - 220gr FP',
     weight=0.015,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='40 S&W 220gr jacketed flat point ammunition',
     usable_properties=Bullet(
         bullet_type='40 S&W',
@@ -920,7 +920,7 @@ round_44_180_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 180gr JHP',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=15),
     description='44 Magnum 180gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.44 Magnum',
@@ -946,7 +946,7 @@ round_44_200_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 200gr JHP',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=15),
     description='44 Magnum 200gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.44 Magnum',
@@ -972,7 +972,7 @@ round_44_225_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 225gr SWC-JHP',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=15),
     description='44 Magnum 225gr semi-wad cutter jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.44 Magnum',
@@ -998,7 +998,7 @@ round_44_240_sp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 240gr DCHP',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=15),
     description='44 Magnum 240gr "deep curl" copper plated soft point ammunition',
     usable_properties=Bullet(
         bullet_type='.44 Magnum',
@@ -1024,7 +1024,7 @@ round_44_300_sp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='44 Magnum - 300gr DCHP',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=15),
     description='44 Magnum 300gr "deep curl" copper plated soft point ammunition',
     usable_properties=Bullet(
         bullet_type='.44 Magnum',
@@ -1055,7 +1055,7 @@ round_50gi_255_swc = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.50 GI - 255gr SWC',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='.50 GI 255gr semi-wad cutter ammunition',
     usable_properties=Bullet(
         bullet_type='.50 GI',
@@ -1078,7 +1078,7 @@ round_50gi_275_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.50 GI - 275gr JHP',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='.50 GI 275gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.50 GI',
@@ -1104,7 +1104,7 @@ round_50gi_330_rn = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.50 GI - 330gr RN',
     weight=0.0245,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='.50 GI 275gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='.50 GI',
@@ -1159,7 +1159,7 @@ round_76225_90_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x25 Tokarev - 90gr JHP',
     weight=0.0105,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='7.62x25 Tokarev 90gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x25 Tokarev',
@@ -1185,7 +1185,7 @@ round_76225_100_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x25 Tokarev - 100gr JHP',
     weight=0.0105,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='7.62x25 Tokarev 90gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x25 Tokarev',
@@ -1245,7 +1245,7 @@ round_76239_150_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x39mm - 150gr FMJ',
     weight=0.0172,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='7.62x39mm 150gr full metal jacket ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x39',
@@ -1270,7 +1270,7 @@ round_76239_123_sst = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x39mm - 123gr SST',
     weight=0.0172,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='7.62x39mm 123gr copper jacketed "super shock tip" polymer tipped ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x39',
@@ -1298,7 +1298,7 @@ round_76239_150_sp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x39mm - 150gr SP',
     weight=0.0172,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='7.62x39mm 150gr copper jacketed soft point ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x39',
@@ -1361,7 +1361,7 @@ round_556_60_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 60gr V-Max',
     weight=0.011,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='5.56x45mm NATO 60gr jacketed VMAX ammunition',
     usable_properties=Bullet(
         bullet_type='5.56x45',
@@ -1389,7 +1389,7 @@ round_556_75_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 75gr A-Max',
     weight=0.011,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='5.56x45mm NATO 75gr jacketed A-MAX polymer tipped ammunition',
     usable_properties=Bullet(
         bullet_type='5.56x45',
@@ -1417,7 +1417,7 @@ round_556_69_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 69gr HPBT',
     weight=0.011,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='5.56x45mm NATO 69gr copper jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='5.56x45',
@@ -1445,7 +1445,7 @@ round_556_80_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='5.56 NATO - 80gr HPBT',
     weight=0.011,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='5.56x45mm NATO 80gr copper jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='5.56x45',
@@ -1480,7 +1480,7 @@ round_300aac_150_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 150gr HPBT',
     weight=0.0141,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='.300 AAC Blackout 150 gr copper jacketed hollow point boat tail ammunition',
     usable_properties=Bullet(
         bullet_type='.300 Blackout',
@@ -1508,7 +1508,7 @@ round_300aac_150_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 150gr FMJ',
     weight=0.0141,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='.300 AAC Blackout 150 gr full metal jacket ammunition',
     usable_properties=Bullet(
         bullet_type='.300 Blackout',
@@ -1533,7 +1533,7 @@ round_300aac_210_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 210gr FMJ',
     weight=0.0141,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='.300 AAC Blackout 210 gr full metal jacket ammunition',
     usable_properties=Bullet(
         bullet_type='.300 Blackout',
@@ -1558,7 +1558,7 @@ round_300aac_210_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.300 Blackout - 210gr HPBT',
     weight=0.0141,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='.300 AAC Blackout 210 gr copper jacketed hollow point boat tail ammunition',
     usable_properties=Bullet(
         bullet_type='.300 Blackout',
@@ -1620,7 +1620,7 @@ round_545_63_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='5.45x39 - 63gr FMJ',
     weight=0.0107,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='5.45x39 63 gr full metal jacket ammunition',
     usable_properties=Bullet(
         bullet_type='5.45x39',
@@ -1645,7 +1645,7 @@ round_545_60_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='5.45x39 - 60gr JHP',
     weight=0.0107,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description='5.45x39 60 gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='5.45x39',
@@ -1681,7 +1681,7 @@ round_308_130_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 130gr JHP',
     weight=0.0241,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='7.62x51 130 gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x51',
@@ -1709,7 +1709,7 @@ round_308_150_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 150gr FMJ',
     weight=0.0241,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='7.62x51 150 gr full metal jacket ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x51',
@@ -1734,7 +1734,7 @@ round_308_165_sp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 165gr FMJ',
     weight=0.0241,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='7.62x51 130 gr jacketed hollow point ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x51',
@@ -1762,7 +1762,7 @@ round_308_180_tsx = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x51 - 180gr TSX',
     weight=0.0241,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='7.62x51 180 gr all-copper ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x51',
@@ -1795,7 +1795,7 @@ round_54r_174_jrn = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x54R - 174gr Jacketed RN',
     weight=0.0241,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='7.62x54R 174 gr jacketed round nose ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x54R',
@@ -1820,7 +1820,7 @@ round_54r_180_jsp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x54R - 180gr Jacketed SP',
     weight=0.0241,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='7.62x54R 150 gr jacketed soft point ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x54R',
@@ -1848,7 +1848,7 @@ round_54r_200_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='7.62x54R - 200gr Jacketed RN',
     weight=0.0241,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=20),
     description='7.62x54R 200 gr full metal jacket ammunition',
     usable_properties=Bullet(
         bullet_type='7.62x54R',
@@ -1881,7 +1881,7 @@ round_30carb_110_jhp = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.30 Carbine - 110gr Critical Defense',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description=".30 Carbine 110gr 'Critical Defense' polymer tipped ammunition",
     usable_properties=Bullet(
         bullet_type='.30 Carbine',
@@ -1909,7 +1909,7 @@ round_30carb_110_fmj = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='.30 Carbine - 110gr FMJ',
     weight=0.0127,
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=10, spawn_amount_max=30),
     description=".30 Carbine 110gr full metal jacket ammunition",
     usable_properties=Bullet(
         bullet_type='.30 Carbine',
@@ -1943,7 +1943,7 @@ round_12ga_slug = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='12-Gauge - 1 Oz Slug',
     weight=0.04,  # approx 12 grams for wad, shell, primer etc
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=5, spawn_amount_max=10),
     description="12-gauge 2.75 inch 1 oz rifled slug shotgun shell",
     usable_properties=Bullet(
         bullet_type='12 Gauge',
@@ -1968,7 +1968,7 @@ round_12ga_00buck = Item(
     fg_colour=colour.LIGHT_YELLOW,
     name='12-Gauge - 00 Buckshot',
     weight=0.04,  # approx 12 grams for wad, shell, primer etc
-    stacking=Stacking(stack_size=20),
+    stacking=Stacking(stack_size=20, spawn_amount_min=8, spawn_amount_max=15),
     description="12-gauge 2.75 inch 00 buckshot shotgun shell",
     usable_properties=Bullet(
         bullet_type='12 Gauge',

@@ -593,8 +593,10 @@ class PremadeWeapon:
 
         # checks for magazine compatibility - may not be mag compatible, therefore not necessary to select
 
-        if magazine_type is not None:
+        if hasattr(self.gun_item.usable_properties, 'mag_capacity'):
+            self.magazine = self.gun_item.usable_properties
 
+        elif magazine_type is not None:
             if isinstance(self.magazine, dict):
                 # constructs dictionary of compatible magazines
                 compatible_magazines = copy(self.magazine)
@@ -626,7 +628,6 @@ class PremadeWeapon:
         else:
             self.magazine = self.gun_item.usable_properties
 
-        # TODO - make it so can select correct bullet type given gun chambering
         if isinstance(self.bullet, dict):
             if isinstance(list(self.bullet.values())[0], tuple):
                 bullet_weights = []
@@ -1326,8 +1327,7 @@ ak47_weapon = PremadeWeapon(gun_item=ak.ak,
                                 "AK Reciever": {ak.reciever_akm: (1, 100, 10, 10, 1, 0),
                                                 ak.reciever_akm_auto: (0, 3, 1, 3, 1, 1)},
                                 "AK Barrel": {ak.barrel_ak762: 100, ak.barrel_rpk762: 5, ak.barrel_ak762_short: 10},
-                                "Thread Adapter": {None: 20,
-                                                   attachments.thread_adapter_141_24mm: 1},
+                                "Thread Adapter": None,
                                 "AK Handguard": {
                                     ak.handguard_akm: 200,
                                     ak.handguard_amd65: 15,

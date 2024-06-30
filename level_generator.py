@@ -14,7 +14,6 @@ from render_order import RenderOrder
 stairs_entity = Entity(x=0, y=0, char='>', fg_colour=colour.LIGHT_RED, name='Stairs',
                        render_order=RenderOrder.ITEM)
 
-
 class RoomPattern:
     def __init__(self,
                  file: str,
@@ -415,6 +414,10 @@ class MessyBSPTree:
                     if (self.dungeon.tiles["walkable"][x, y]
                             and not any(entity.x == x and entity.y == y for entity in self.dungeon.entities)
                             and self.dungeon.tiles[x, y] != down_stairs):
+                        if selection.stacking:
+                            if not selection.stacking.spawn_amount_max == 1:
+                                selection.stacking.stack_size = randint(selection.stacking.spawn_amount_min,
+                                                                        selection.stacking.spawn_amount_max)
                         finding_tile = False
                         selection.place(x, y, self.dungeon)
 

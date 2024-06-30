@@ -387,6 +387,7 @@ sks_integrated_mag = Item(
     stacking=None,
     usable_properties=GunComponent(part_type='SKS Internal Magazine',
                                    mag_capacity=10,
+                                   keep_round_chambered=False,
                                    ),
     description="A standard SKS 10 round internal magazine."
 )
@@ -419,7 +420,8 @@ sks = Item(
                 'today as a surplus firearm and remains a popular choice among collectors and enthusiasts.',
     usable_properties=GunMagFed(
         chambered_bullet=None,
-        keep_round_chambered=False,
+        keep_round_chambered=True,
+        can_hand_load=True,
         ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
         current_fire_mode='single shot',

@@ -59,8 +59,7 @@ class Parts:
             total_weight += part.weight
 
             if isinstance(self.parent, GunMagFed):
-                if hasattr(part.usable_properties, 'compatible_bullet_type') and hasattr(part.usable_properties,
-                                                                                         'mag_capacity'):
+                if hasattr(part.usable_properties, 'mag_capacity'):
                     self.parent = GunIntegratedMag(parts=self,
                                                    gun_type=self.parent.gun_type,
                                                    has_stock=self.parent.has_stock,
@@ -68,7 +67,7 @@ class Parts:
                                                    short_barrel=self.parent.short_barrel,
                                                    velocity_modifier=self.parent.velocity_modifier,
                                                    muzzle_break_efficiency=self.parent.muzzle_break_efficiency,
-                                                   compatible_bullet_type=part.compatible_bullet_type,
+                                                   compatible_bullet_type=self.parent.compatible_bullet_type,
                                                    current_fire_mode=self.parent.current_fire_mode,
                                                    ap_to_equip=self.parent.ap_to_equip,
                                                    mag_capacity=part.usable_properties.mag_capacity,
@@ -92,7 +91,8 @@ class Parts:
                                                    condition_function=self.parent.condition_function,
                                                    compatible_clip=self.parent.compatible_clip,
                                                    barrel_length=self.parent.barrel_length,
-                                                   action_type=self.parent.action_type
+                                                   action_type=self.parent.action_type,
+                                                   can_hand_load=self.parent.can_hand_load,
                                                    )
 
                     self.parent.parent = item
@@ -131,7 +131,8 @@ class Parts:
                                             condition_function=self.parent.condition_function,
                                             compatible_clip=self.parent.compatible_clip,
                                             barrel_length=self.parent.barrel_length,
-                                            action_type=self.parent.action_type
+                                            action_type=self.parent.action_type,
+                                            can_hand_load=self.parent.can_hand_load,
                                             )
 
                     self.parent.parent = item

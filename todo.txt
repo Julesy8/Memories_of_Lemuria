@@ -3,70 +3,71 @@ TO DO
 -----
 
 bugs
-enemies dropping weapons maybe not working?
-fucks up squad mode when trying to go down stairs with no stairs available
 
-priority features
-print player names in colour
+Done
+Random amount of bullets dropping on floor
+Fix SKS
+Enable single loading of SKS
+Enemies can decide to camp positions instead of chasing
+Fix orientation issues
+Fix gunshot sounds
+Squad display on main screen - can now see all squad members weapon, current AP or action and vital condition from main screen
+Fix threading on certain parts
+Fixed player FOV not updating when moving to a new floor
+Fixed item duplication when unequipping and then immediately equipping primary / secondary weapon
 
-QoL request: it would be nice to have a keyboard "examine" mode where u could use the navigation keys to look around
-the map and see what items on the floor are. The roguelike Cogmind does it well, where u press a button to activate
-the examine mode, press spacebar to switch between enemies to select, and press ctrl-spacebar to switch between items
- on the floor. Maybe something along that vein could help, since now I don't know what ammo is on the ground until i
- walk over it
-
-single loading SKS
-grenades
-doors
-
-next weapons - Saiga 12, degtyrev, mini 14, M1 garand, BAR
-
-ability to manually change orientation
-view based on orienation
-
-bullets can pass through entities, continue and hit others
-organ hits, tissue layers
-
-use the Y offset to deterime where the bullet intersects on the Y plane with the body part faces and use pythagoras
-theorem to determine actual depth of bodypart from where the bullet is passing through
-
-Ideal item action handling:
-
-Event handler --> consumable.get_action -> Action -> consumable.activate
-      ^        |             |
-      |        V             V
-      ------------------------
-
-New Model With Queue
-
--> = calls
-
-Event handler --> consumable.get_action -> action.consume_ap / queue action -> Action.perform -> consumable.activate
-      ^        |             |                      |
-      |        V             V                      V
-      ------------------------            consumable.get_ap_cost
-
-SQUAD MODE
-
-event_handler.handle_events -> event_handler.handle_action -> action.handle_action -> engine.handle_queued_actions
-                                                                                          (player end turn)
-                                                                                                  |
-     ----------------------------------------------------------------------------------------------
-     |
-     V
-for action.handle_action for actions in action.queue -> perform / tick down
+Goals (in order of priority)
+Keyboard squad movement
+Item inspection mode
+Magazines stay in loadout - magazines just set to none when unloaded but disappears from list when loaded into gun?
+Adding item to loadout costs AP
+Double barrel shotgun
+Re-evaluate levels - colour scheme, openness, enemy chance
+Pre-computed loot / enemy probability tables - determine how to do this
+Re-implmenet .50 cal glock
+Maadi griffin with parts dropping on floor
+High brass slugs / different rounds
+Dialogue and an option to turn it off in settings
+Lasers
+Tracer rounds - increase full auto accuracy
+Ammo pouches
+Doors
+Grenades
+Explosive ammo
+Enemies activated by other enemies being activated
 
 
-input handler: reload (consumables class) -> calls action -> reloads
 
-After that trading and other party options - reloading, ammo priority etc. Ammo priority should be a property of the
-magazine class itself.
+You have done some really interesting things here!
+
+I love how you've implemented multiple squad members and the different Individual/Squad time modes. These two are so intertwined and easy to use. It's really unique and well done.
+
+I can't believe how deep you have gone with ammo types and parts. I don't consider myself American/Russian enough to nerd out for firearms this much but I have always wondered what a roguelike with this much gun detail would be like, and wow you've really done it. I kinda want to play just because there seems the potential for a lot of fun exploring the depth of detail and maybe eventually crafting.
+
+Some suggestions: (I realise it's still early days and you might have plans for these in some way)
+
+Put help in-game. It's a reasonable expectation that hitting ? or F1 will bring up at least the keybindings. You have a manual text file, display that in a text window like you have with the message log, easy to do.
+
+Make it clearer how to shoot. This is confusing as a new player. It should probably be the second thing in the manual after movement. Explain full combat later in the manual if you prefer.
+
+Make it clearer you need to actually select multiple squad members for them to fire at the same time.
+
+Maybe make the AP cost for shooting clearer, like display it in the bottom bar, or at least higher up in weapon inspection? I feel this is the main combat cost you're interested in.
+
+Make reloading clearer. The need to add the magazine to the loadout was hard to discover. I kinda feel reloading could be easier overall, like a "reload" command which does all the magazine juggling for you. If the player has multiple viable ammunition types then prompt for which one. Maybe you intentionally do not want this.
+
+After shooting, am I intended to wait (like with period . key) until my AP regenerate?
+
+Could the vi keys be used to scroll the weapon detail screen up and down?
+
+Do you plan to implement squad movement, so both my soldiers can walk together? Maybe one could lead and the other could pathfind behind them? Maybe selecting formations could be a thing?
+
+I found 14" 1080p and 12x12 font was too small to be enjoyable. Doubling the font size to 24x24 resolved this. Thanks for implementing Dwarf Fortress style tilesets and an INI file where this can be easily set. libtcod can do integer scaling without smoothing if that's something you're interested in.
+
 
 Extended Goals
--tactical and speed reloads
--grenades
+-Corner peaking
 -dialogue
--doors
 -Trigger mods
 -unique enemies which spawn once per game
 -each weapon part has a value. Total value of the weapon determines if it will be included in future runs.
@@ -75,421 +76,5 @@ Extended Goals
 -weapon graphics
 -tracer rounds (increase full auto accuracy)
 -ability to trade with players directly adjacent to you
--random cover spawns in levels
--enemies have side weapons and limited ammo, can change weapons
+-random cover spawns in levels / half cover
 -bullets going through enemies
--adjustable sights
-
--try reducing exe size - use UPX
--grave yard (call it cemetary)
-
-dialogue
-- reloading
-- out of ammo
-- death rattle
-- pain
-- badly injured
-- killed enemy
-- leg crippled
-- arm crippled
-- gun jammed
-- idle
-- builds gun
-- squad member dies
-- sees abomination
-- enemies dead (room clear)
-- enemy spotted
-
-1.5 seconds average to draw, aim, shoot - pistol
-can pull trigger 4 times per second
-
-pistol base line - Glock 17
-rifle base line - M4
-
-equip (pistol - from holster) - 75
-equip (rifle - from sling) - 100
-acquire target (pistol) - 50
-acquire target (rifle) - 30
-shoot (pistol and rifle) -
-
-recoil reduction
-    stock - 45%
-    handguard - 15%
-    pistol grip - 10%
-    additional 5-10% for rifle stocks with integrated pistol grip
-
-ap distance cost modifier
-    stock - 0.7
-    hand guard - 0.9
-    pistol grip -
-
-spread reduction
-    stock - 0.86
-    handguard - 0.9
-    pistol grip -
-
-target acquisition ap
-    stock - 0.75
-    handguard - 0.8
-    pistol grip -
-
-# total action weight - 1.02 kg
-
-"""
-Action
-"""
-#
-# action_r700_556 = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 Action 5.56x45/.300 BLK",
-#     weight=1.02,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Action',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_parts={},
-#                                    functional_part=True,
-#                                    accuracy_part=True
-#                                    ),
-#     description='5.56x45 / .300 Blackout Remington 700 action.'
-# )
-#
-# action_r700_308 = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 Action .308",
-#     weight=1.02,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Action',
-#                                    suffix='.308',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_parts={},
-#                                    functional_part=True,
-#                                    accuracy_part=True
-#                                    ),
-#     description='.308 Remington 700 action.'
-# )
-#
-# action_r700_3006 = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 Action .30-06",
-#     weight=1.02,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Action',
-#                                    suffix='.30-06',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_parts={},
-#                                    functional_part=True,
-#                                    accuracy_part=True
-#                                    ),
-#     description='.30-06 Remington 700 action.'
-# )
-#
-#
-# """
-# Barrel
-# """
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# r700_barrel_cal_len = Item(
-#     x=0, y=0,
-#     char="!",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="R700 LEN Barrel CALIBRE",
-#     weight=,
-#     stacking=None,
-#     usable_properties=GunComponent(part_type='R700 Barrel',
-#                                    compatible_magazine_type=(, ),
-#                                    compatible_bullet_type=(,),
-#                                    is_attachment_point_types=[, ],
-#                                    barrel_length=,
-#                                    velocity_modifier={},
-#                                    functional_part=True,
-#                                    accuracy_part=True,
-#                                    ),
-#     description='LENGTH inch R700 barrel chambered in CALIBRE'
-# )
-#
-# """
-# Chassis
-# """
-#
-# ar15 = Item(
-#     x=0, y=0,
-#     char="r",
-#     fg_colour=colour.LIGHT_GRAY,
-#     name="AR",
-#     weight=1,
-#     stacking=None,
-#     description='The AR-15 rifle was first developed by the American company ArmaLite in the late 1950s as a '
-#                 'lightweight and versatile rifle for military use. It was designed by Eugene Stoner and was later '
-#                 'adopted by the United States military as the M16 rifle. The M16 saw widespread use during the '
-#                 'Vietnam War and has since become one of the most iconic rifles in American military history.',
-#     usable_properties=GunMagFed(
-#         compatible_magazine_type=('STANAG', ),
-#         chambered_bullet=None,
-#         keep_round_chambered=True,
-#         loaded_magazine=None,
-#         ap_to_equip=100,
-#         current_fire_mode='single shot',
-#         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}},
-#         parts=Parts(),
-#         compatible_bullet_type=('5.56x45',),
-#         velocity_modifier={'single projectile': 1.0},
-#         felt_recoil=1.0,
-#         sound_modifier=1.0,
-#         zero_range=25,
-#         receiver_height_above_bore=0,
-#         sight_height_above_bore=0,
-#         target_acquisition_ap=50,
-#         firing_ap_cost=50,
-#         ap_distance_cost_modifier=1.0,
-#         sight_spread_modifier=1.0,
-#         handling_spread_modifier=4.0,
-#         projectile_spread_modifier={'single projectile': 1.0},
-#         barrel_length=20,
-#         gun_type='rifle',
-#         action_type='semi-auto rifle',
-#     ))
-#
-# ardict = {
-#     "guns": {
-#         "automatic rifles": {
-#             "AR Rifle": {
-#                 "required parts": {
-#                     "AR Lower Receiver": 1,
-#                     "AR Upper Receiver": 1,
-#                     "AR Buffer Tube": 1,
-#                     "AR Buffer": 1,
-#                     "AR Barrel": 1,
-#                     "AR Handguard": 1,
-#                     "AR Grip": 1,
-#                 },
-#                 "compatible parts": {
-#                     "AR Stock": 1,
-#                     "Attachment Adapter": 1,
-#                     "Muzzle Adapter": 1,
-#                     "Front Sight": 1,
-#                     "AR Optics Mount": 1,
-#                     "Underbarrel Accessory": 1,
-#                     "Side Mounted Accessory": 1,
-#                     "Muzzle Device": 1,
-#                     "Optic": 1
-#                 },
-#                 "item": ar15
-#             },
-#         }
-#     },
-# }

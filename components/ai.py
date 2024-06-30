@@ -105,14 +105,16 @@ class PlayerCharacter(BaseAI):
                                                   end_x=self.entity.x, end_y=self.entity.y):
                 self.entity.previous_target_actor = None
                 self.entity.previously_targeted_part = None
-            else:
-                orientation = atan2(self.entity.fighter.previous_target_actor.y - self.entity.y,
-                                    self.entity.fighter.previous_target_actor.x - self.entity.x)
 
-                if orientation < 0:
-                    orientation += 6.283
+        if self.entity.fighter.target_actor is not None:
 
-                self.entity.orientation = orientation
+            orientation = atan2((self.entity.fighter.target_actor.y - self.entity.y) * - 1,
+                                self.entity.fighter.target_actor.x - self.entity.x)
+
+            if orientation < 0:
+                orientation += 6.283
+
+            self.entity.orientation = orientation
 
         if self.queued_action is not None:
             self.queued_action.handle_action()
@@ -138,6 +140,8 @@ class HostileEnemy(BaseAI):
         self.attack_radius = 1
         self.weapons_user = False
         self.roams = False
+        self.camp = False
+        self.camp_trigger = True
 
     def perform(self) -> None:
 
@@ -157,6 +161,8 @@ class HostileEnemy(BaseAI):
 
         # cannot move or attack, returns
         if self.entity.fighter.turns_attack_inactive > 0 and self.entity.fighter.turns_move_inactive > 0:
+            self.camp = False
+            self.camp_trigger = False
             return
 
         distance = 1
@@ -165,6 +171,8 @@ class HostileEnemy(BaseAI):
         if self.entity.fighter.target_actor is not None:
             if self.entity.fighter.target_actor.ai is None:
                 self.entity.fighter.target_actor = None
+                self.camp = False
+                self.camp_trigger = False
             else:
                 dx = target.x - self.entity.x
                 dy = target.y - self.entity.y
@@ -173,6 +181,9 @@ class HostileEnemy(BaseAI):
             if self.random_walk and self.entity.fighter.target_actor is not None:
                 if distance <= self.attack_radius:
                     self.attacking_target = True
+        else:
+            self.camp = False
+            self.camp_trigger = False
 
         # checks if previous target is still visible, if not resets to None
         if self.entity.fighter.previous_target_actor is not None:
@@ -181,14 +192,16 @@ class HostileEnemy(BaseAI):
                                                   end_x=self.entity.x, end_y=self.entity.y):
                 self.entity.previous_target_actor = None
                 self.entity.previously_targeted_part = None
-            else:
-                orientation = atan2(self.entity.fighter.previous_target_actor.y - self.entity.y,
-                                    self.entity.fighter.previous_target_actor.x - self.entity.x)
 
-                if orientation < 0:
-                    orientation += 6.283
+        if self.entity.fighter.target_actor is not None:
 
-                self.entity.orientation = orientation
+            orientation = atan2((self.entity.fighter.target_actor.y - self.entity.y) * - 1,
+                                self.entity.fighter.target_actor.x - self.entity.x)
+
+            if orientation < 0:
+                orientation += 6.283
+
+            self.entity.orientation = orientation
 
         # if no target, no current path and AI roams, paths to centre of a random room
         if self.entity.fighter.target_actor is None and self.roams and not self.path:
@@ -220,7 +233,8 @@ class HostileEnemy(BaseAI):
                 if target is not None:
                     # entity fleeing from target
                     if self.entity.fighter.fleeing_turns > 0:
-
+                        self.camp = False
+                        self.camp_trigger = False
                         cost = np.array(self.entity.gamemap.tiles["walkable"], dtype=np.int8)
                         distance_dijkstra = tcod.path.maxarray((self.entity.gamemap.width,
                                                                 self.entity.gamemap.height), order="F")
@@ -240,7 +254,7 @@ class HostileEnemy(BaseAI):
                             self.entity.fighter.fleeing_turns == 0:
                         self.path = self.get_path_to(target.x, target.y)
 
-                if self.path:
+                if self.path and not self.camp:
                     dest_x, dest_y = self.path.pop(0)
                     MovementAction(
                         self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
@@ -284,6 +298,9 @@ class HostileAnimal(HostileEnemy):
         self.roams = False
 
 
+camp_chance = (True, False, False, False)
+
+
 class HostileEnemyArmed(HostileEnemy):
     def __init__(self, entity: Actor):
         super().__init__(entity=entity)
@@ -292,6 +309,8 @@ class HostileEnemyArmed(HostileEnemy):
         self.random_walk = False
         self.weapons_user = True
         self.roams = True
+        self.camp = False
+        self.camp_trigger = False
 
     def attack(self, distance: int, target, attack_range) -> bool:
 
@@ -331,6 +350,13 @@ class HostileEnemyArmed(HostileEnemy):
 
             # has gun equipped
             else:
+
+                # chance to enable camping
+                if not self.camp_trigger:
+                    if choice(camp_chance):
+                        self.camp = True
+                    self.camp_trigger = True
+
                 # mag fed gun
                 if isinstance(held_item.usable_properties, GunMagFed):
 

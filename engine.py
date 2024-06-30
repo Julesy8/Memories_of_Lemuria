@@ -49,7 +49,7 @@ class Engine:
 
         self.squad_mode: bool = False
 
-        self.floor_str = f"{level_names[self.current_level]} [{self.current_floor}]"
+        self.floor_str = f"{level_names[self.current_level]} [Floor {self.current_floor}]"
 
     def handle_queued_actions(self) -> None:
         for player in self.players:
@@ -150,6 +150,9 @@ class Engine:
         self.game_map.explored |= self.game_map.visible
 
     def render(self, console: Console) -> None:
+
+        # start_time = time.time()
+
         self.game_map.render(console)
         console.draw_rect(0, console.height - 7, console.width, 7, 219, bg=(0, 0, 0))
         console.hline(0, console.height - 7, console.width)
@@ -213,6 +216,128 @@ class Engine:
                       string=f"┤{self.floor_str}├", fg=colour.WHITE,
                       bg=(0, 0, 0))
 
+        number_of_players = len(self.players)
+
+        # squad members
+        if number_of_players > 1:
+            squad_display_height = (len(self.players) * 5) + 2
+
+            longest_str = 0
+            player_index = 1
+            offset = 0
+
+            for player in self.players:
+
+                current_hp = 0
+                max_hp = 0
+                condition_colour = colour.GREEN
+                condition_str = "UNHARMED"
+
+                for bodypart in player.bodyparts[0:1]:
+                    current_hp += bodypart.hp
+                    max_hp += max_hp
+
+                if current_hp == max_hp:
+                    pass
+
+                elif max_hp * 0.75 <= current_hp <= max_hp:
+                    condition_str = "MINOR INJURY"
+                    condition_colour = colour.YELLOW
+
+                elif max_hp * 0.5 <= current_hp <= max_hp * 0.75:
+                    condition_str = "INJURED"
+                    condition_colour = colour.ORANGE
+
+                elif max_hp * 0.15 <= current_hp <= max_hp * 0.50:
+                    condition_str = "SERIOUSLY INJURED"
+                    condition_colour = colour.LIGHT_RED
+
+                elif 0 < current_hp <= max_hp * 0.15:
+                    condition_str = "CRITICALLY INJURED"
+                    condition_colour = colour.RED
+
+                elif current_hp == 0:
+                    condition_str = "DEAD"
+                    condition_colour = colour.DARK_GRAY
+
+                player_str = f"[{player_index}] {player.name}"
+                player_str_len = len(player_str)
+
+                if player_str_len > longest_str:
+                    longest_str = player_str_len
+
+                if len(condition_str) > longest_str:
+                    longest_str = len(condition_str)
+
+                weapon_str = 'UNARMED'
+
+                if player.inventory.held is not None:
+
+                    weapon_str = f"{player.inventory.held.name}"
+
+                    # for magazine fed gun
+                    if hasattr(player.inventory.held.usable_properties, "loaded_magazine"):
+                        if player.inventory.held.usable_properties.loaded_magazine is None:
+                            weapon_str += ' - No Mag'
+                        else:
+                            if player.inventory.held.usable_properties.chambered_bullet is not None:
+                                weapon_str += (f""
+                                               f" "
+                                               f"({len(player.inventory.held.usable_properties.loaded_magazine.magazine) + 1}/"
+                                               f"{player.inventory.held.usable_properties.loaded_magazine.mag_capacity})")
+                            else:
+                                weapon_str += (
+                                    f" ({len(player.inventory.held.usable_properties.loaded_magazine.magazine)}/"
+                                    f"{player.inventory.held.usable_properties.loaded_magazine.mag_capacity})")
+
+                    # for gun with integrated magazine
+                    elif hasattr(player.inventory.held.usable_properties, "mag_capacity"):
+
+                        if player.inventory.held.usable_properties.chambered_bullet is not None:
+                            weapon_str += (f" ({len(player.inventory.held.usable_properties.magazine) + 1}/"
+                                           f"{player.inventory.held.usable_properties.mag_capacity})")
+                        else:
+                            weapon_str += (f" ({len(player.inventory.held.usable_properties.magazine)}/"
+                                           f"{player.inventory.held.usable_properties.mag_capacity})")
+
+                if len(weapon_str) > longest_str:
+                    longest_str = len(weapon_str)
+
+                ap_str = f" AP: {round(player.fighter.ap)}/{player.fighter.max_ap}"
+
+                if player.ai is not None:
+                    if player.ai.queued_action:
+                        turns_remaining = ceil(abs(player.fighter.ap / player.fighter.ap_per_turn *
+                                                   player.fighter.ap_per_turn_modifier))
+                        ap_str = f" {player.ai.queued_action.action_str} ({turns_remaining})"
+
+                if len(ap_str) > longest_str:
+                    longest_str = len(ap_str)
+
+                console.print(x=console.width - player_str_len - 1,
+                              y=console.height - 7 - squad_display_height + player_index + offset,
+                              string=player_str,
+                              fg=player.fg_colour)
+
+                console.print(x=console.width - len(weapon_str) - 1,
+                              y=console.height - 7 - squad_display_height + player_index + offset + 1,
+                              string=weapon_str,
+                              fg=colour.WHITE)
+
+                console.print(x=console.width - len(ap_str) - 1,
+                              y=console.height - 7 - squad_display_height + player_index + offset + 2,
+                              string=ap_str,
+                              fg=colour.WHITE)
+
+                console.print(x=console.width - len(condition_str) - 1,
+                              y=console.height - 7 - squad_display_height + player_index + offset + 3,
+                              string=condition_str,
+                              fg=condition_colour,
+                              )
+
+                player_index += 1
+                offset = 4
+
         # displays current ammo
         if self.player.inventory.held is not None:
 
@@ -234,15 +359,6 @@ class Engine:
 
             # for gun with integrated magazine
             elif hasattr(self.player.inventory.held.usable_properties, "mag_capacity"):
-
-                #
-                # if (self.player.inventory.held.usable_properties.chambered_bullet is not None and
-                #         self.player.inventory.held.usable_properties.keep_round_chambered):
-                #     weapon_str += ' - Empty'
-                # elif not self.player.inventory.held.usable_properties.keep_round_chambered:
-                #     if (len(self.player.inventory.held.usable_properties.magazine) == 0
-                #             and self.player.inventory.held.usable_properties.mag_capacity > 1):
-                #         weapon_str += ' - Empty'
                 if self.player.inventory.held.usable_properties.chambered_bullet is not None:
                     weapon_str += (f" ({len(self.player.inventory.held.usable_properties.magazine) + 1}/"
                                    f"{self.player.inventory.held.usable_properties.mag_capacity})")
@@ -250,8 +366,11 @@ class Engine:
                     weapon_str += (f" ({len(self.player.inventory.held.usable_properties.magazine)}/"
                                    f"{self.player.inventory.held.usable_properties.mag_capacity})")
 
-
-
             console.print(x=console.width - len(weapon_str), y=console.height - 6, string=weapon_str,
                           fg=colour.WHITE, bg=(0, 0, 0))
+
         render_names_at_mouse_location(console=console, x=0, y=console.height - 5, engine=self, game_map=self.game_map)
+
+        # end_time = time.time()
+        # execution_time = start_time - end_time
+        # print("Execution time:", execution_time)

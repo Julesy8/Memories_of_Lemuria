@@ -65,7 +65,7 @@ class HealingConsumable(Usable):
                                 callback=lambda part_to_heal:
                                 actions.HealPart(entity=user,
                                                  part_to_heal=part_to_heal,
-                                                 healing_item=self.parent,),
+                                                 healing_item=self.parent, ),
                                 parent_handler=MainGameEventHandler(self.engine)
                                 )
 
@@ -458,6 +458,7 @@ class Gun(Weapon):
                  pdw_stock: bool = False,
                  has_stock: bool = False,
                  short_barrel: bool = False,
+                 can_hand_load: bool = False
                  ):
 
         """
@@ -506,6 +507,7 @@ class Gun(Weapon):
         self.condition_function = condition_function
         self.compatible_clip = compatible_clip
         self.pdw_stock = pdw_stock
+        self.can_hand_load = can_hand_load
         self.jammed = False
 
         self.manual_action = manual_action
@@ -609,7 +611,7 @@ class Gun(Weapon):
                 muzzle_velocity = self.chambered_bullet.usable_properties.velocity * velocity_modifier
 
                 # calculates 'sound radius' based on barrel pressure relative to that of a glock 17 firing 115 gr
-                # bullets, which has an arbitrary sound radius of 20 when unsuppressed
+                # bullets, which has an arbitrary sound radius of 20m when unsuppressed
                 sound_radius = ((self.chambered_bullet.usable_properties.mass * muzzle_velocity ** 2) /
                                 (2 * (pi * (self.chambered_bullet.usable_properties.diameter / 2) ** 2)
                                  * self.barrel_length) / 181039271) * 20 * self.sound_modifier
@@ -619,7 +621,7 @@ class Gun(Weapon):
 
                 # aim location coordinates (inches)
                 standard_deviation_aim = (dist_yards * attacker.fighter.ranged_accuracy * proficiency *
-                                      skill_range_modifier * (self.handling_spread_modifier * 0.01) * 1.047)
+                                          skill_range_modifier * (self.handling_spread_modifier * 0.01) * 1.047)
 
                 aim_location_x = random.normal(scale=standard_deviation_aim, size=1)[0]
                 aim_location_y = random.normal(scale=standard_deviation_aim, size=1)[0]
@@ -758,9 +760,9 @@ class Gun(Weapon):
         # shot sound alert enemies in the vicinity of where the shot was fired from
         # only needs to be computed once for the 'loudest' shot fired
 
-        for x in set(self.gamemap.actors):
+        for x in self.gamemap.actors:
 
-            if not attacker.fighter.responds_to_sound:
+            if not attacker.fighter.responds_to_sound or x.player or x == attacker:
                 continue
 
             dx = x.x - attacker.x
@@ -769,38 +771,65 @@ class Gun(Weapon):
 
             # if entity in range of the gun shot sound, starts pathing towards source of sound
             if distance <= sound_radius:
+                path = x.ai.get_path_to(attacker.x, attacker.y)
 
-                if not x.player:
-                    try:
-                        path = x.ai.get_path_to(attacker.x, attacker.y)
-                    except AttributeError:
-                        continue
-                    # TODO - this is broken
-                    except RecursionError:
-                        continue
-                    if len(path) <= sound_radius:
-                        setattr(x.ai, 'path', path)
-                        x.active = True
+                if len(path) <= sound_radius:
+                    x.ai.path = path
+                    x.active = True
+
+                # try:
+                #     path = x.ai.get_path_to(attacker.x, attacker.y)
+                # except AttributeError:
+                #     continue
+                # except RecursionError:
+                #     continue
+                # if len(path) <= sound_radius:
+                #     setattr(x.ai, 'path', path)
+                #     x.active = True
 
                 # prints to console vaguely where gunshots are coming from for the player
-                if not attacker.player and not self.gamemap.visible[attacker.x, attacker.y]:
+                # if not attacker.player and not self.gamemap.visible[attacker.x, attacker.y]:
+                #
+                #     position_str = 'north'
+                #
+                #     x_dist = abs(abs(self.engine.player.x) - (abs(attacker.x)))
+                #     y_dist = abs(abs(self.engine.player.y) - (abs(attacker.y)))
+                #
+                #     if x_dist > y_dist:
+                #         if self.engine.player.x < attacker.x:
+                #             position_str = 'east'
+                #         else:
+                #             position_str = 'west'
+                #
+                #     elif self.engine.player.y < attacker.y:
+                #         position_str = 'south'
+                #
+                #     self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
+                #                                         colour.WHITE)
 
-                    position_str = 'north'
+    def load_magazine(self, entity: Actor, ammo: Item, load_amount: int) -> None:
 
-                    x_dist = abs(abs(self.engine.player.x) - (abs(attacker.x)))
-                    y_dist = abs(abs(self.engine.player.y) - (abs(attacker.y)))
+        # loads bullets into magazine
+        single_round = ammo
 
-                    if x_dist > y_dist:
-                        if self.engine.player.x < attacker.x:
-                            position_str = 'east'
-                        else:
-                            position_str = 'west'
+        magazine = self
 
-                    elif self.engine.player.y < attacker.y:
-                        position_str = 'south'
+        if isinstance(self, GunMagFed):
+            magazine = self.loaded_magazine
 
-                    self.engine.message_log.add_message(f"You hear gun shots coming from the {position_str}",
-                                                        colour.WHITE)
+        for i in range(load_amount):
+            magazine.magazine.append(single_round)
+            if len(magazine.magazine) == \
+                    magazine.mag_capacity:
+                break
+
+        self.chamber_round()
+
+        if isinstance(self, Gun):
+            if self.clip_stays_in_gun:
+
+                if self.clip_in_gun is not None:
+                    entity.inventory.items.append(self.clip_in_gun.parent)
 
     def load_from_clip(self, clip: Clip):
 
@@ -809,8 +838,8 @@ class Gun(Weapon):
 
         magazine = self
 
-        if isinstance(self, GunIntegratedMag):
-            magazine = self
+        # if isinstance(self, GunIntegratedMag):
+        #     magazine = self
 
         if isinstance(self, GunMagFed):
             magazine = self.loaded_magazine
@@ -946,6 +975,7 @@ class GunMagFed(Gun):
                  has_stock: bool = False,
                  pdw_stock: bool = False,
                  short_barrel: bool = False,
+                 can_hand_load: bool = False,
                  ):
 
         self.compatible_magazine_type = compatible_magazine_type
@@ -989,7 +1019,8 @@ class GunMagFed(Gun):
             short_barrel=short_barrel,
             barrel_length=barrel_length,
             pdw_stock=pdw_stock,
-            projectile_spread_modifier=projectile_spread_modifier
+            projectile_spread_modifier=projectile_spread_modifier,
+            can_hand_load=can_hand_load
         )
 
     def load_gun(self, user: Actor, magazine: DetachableMagazine):
@@ -1073,6 +1104,7 @@ class GunIntegratedMag(Gun, Magazine):
                  has_stock: bool = False,
                  pdw_stock: bool = False,
                  short_barrel: bool = False,
+                 can_hand_load: bool = True,
                  ):
         self.mag_capacity = mag_capacity
 
@@ -1116,7 +1148,8 @@ class GunIntegratedMag(Gun, Magazine):
             short_barrel=short_barrel,
             barrel_length=barrel_length,
             pdw_stock=pdw_stock,
-            projectile_spread_modifier=projectile_spread_modifier
+            projectile_spread_modifier=projectile_spread_modifier,
+            can_hand_load=can_hand_load
         )
 
     def chamber_round(self):
@@ -1163,7 +1196,6 @@ class GunIntegratedMag(Gun, Magazine):
                     elif self.action_type == 'belt fed':
                         proficiency = inventory.parent.fighter.skill_belt_fed_proficiency
 
-
             proficiency = 1 - (proficiency / 4000)
 
         # adds cost of cycling manual action
@@ -1200,7 +1232,6 @@ class GunComponent(Usable):
             self.condition_function = condition_function
 
         self.__dict__.update(kwargs)
-
 
 # class RecipeUnlock(Usable):
 #

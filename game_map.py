@@ -310,3 +310,5 @@ class GameMap:
                 custom_room_chance=level_params[self.engine.current_level][11],
                 enclose_room_chance=level_params[self.engine.current_level][12]
             ).generate_level()
+
+            self.engine.update_fov()
