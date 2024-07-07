@@ -15,7 +15,7 @@ import tcod
 import tcod.sdl.video
 
 # pyinstaller -F -i "mol48.ico" main.py
-
+# nuitka --follow-imports main.py
 # to profile run times:
 # python -m cProfile main.py > cprofile_output.txt
 # kernprof -l -v main.py
@@ -28,8 +28,10 @@ config.read('settings.ini')
 font = config.get('settings', 'font')
 maximize_window_on_start = config.getboolean('settings', 'maximize_window_on_start')
 fullscreen_on_start = config.getboolean('settings', 'fullscreen_on_start')
-font_char_width = config.getint('settings', 'font_char_width')
-font_char_height = config.getint('settings', 'font_char_height')
+font_char_width = 16
+font_char_height = 16
+# font_char_width = config.getint('settings', 'font_char_width')
+# font_char_height = config.getint('settings', 'font_char_height')
 screen_pix_width = config.getint('settings', 'screen_pix_width')
 screen_pix_height = config.getint('settings', 'screen_pix_height')
 max_fps = config.getint('settings', 'max_fps')

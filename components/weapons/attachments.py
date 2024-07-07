@@ -127,7 +127,7 @@ kobra_ekp = Item(
                                    ap_to_equip=1.03,
                                    attachment_point_required=('AK Side Mount',),
                                    ),
-    description='An unmagnified russian red dot sight designed to mount to AK and SVD type rifles'
+    description='An unmagnified Russian red dot sight designed to mount to AK and SVD type rifles'
 )
 
 kobra_ekp_picrail = Item(
@@ -147,7 +147,7 @@ kobra_ekp_picrail = Item(
                                    attachment_point_required=('Picrail Optics Mount - Long',
                                                               'Picrail Optics Mount - Short'),
                                    ),
-    description='An unmagnified russian red dot sight by Axion. This version mounts to a standard picatinny rail '
+    description='An unmagnified Russian red dot sight by Axion. This version mounts to a standard picatinny rail '
                 'as opposed to the side mounted version'
 )
 
@@ -247,7 +247,7 @@ okp7 = Item(
                                    ap_to_equip=1.04,
                                    attachment_point_required=('AK Side Mount',),
                                    ),
-    description='An unmagnified russian holographic sight designed to mount to AK and SVD type rifles'
+    description='An unmagnified Russian holographic sight designed to mount to AK and SVD type rifles'
 )
 
 """ 

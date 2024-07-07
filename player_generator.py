@@ -10,6 +10,8 @@ from components.weapons.gun_maker import (g_17, g_40sw, g_10mm, ar15_weapon_300,
                                           supershorty_gun, m629_gun, m610_gun, tt33_gun, h015_gun, m3_gun,
                                           ppsh_gun, svt40_gun)
 
+# from components.weapons.kalashnikov import barrel_rpk545
+
 from components.armour import (helmet_ech, helmet_pasgt, helmet_m1,
                                helmet_ssh68, bodyarmour_pasgt, bodyarmour_improved, bodyarmour_interceptor,
                                platecarrier_3, platecarrier_4, platecarrier_3a)
@@ -595,15 +597,25 @@ def generate_player(current_level: int, players: list):
 
     medkit_item = deepcopy(medkit)
     bandage_item = deepcopy(bandages)
+    # repair_kit_item = deepcopy(repair_kit)
+    # rpk_barrel = deepcopy(barrel_rpk545)
 
     medkit_item.stacking.stack_size = 2
     bandage_item.stacking.stack_size = 6
+    # repair_kit_item.stacking.stack_size = 10
+    #
+    # rpk_barrel.usable_properties.condition_accuracy = 5
+    # rpk_barrel.usable_properties.condition_function = 1
 
     medkit_item.parent = player.inventory
     bandage_item.parent = player.inventory
+    # repair_kit_item.parent = player.inventory
+    # rpk_barrel.parent = player.inventory
 
     player.inventory.items.append(medkit_item)
     player.inventory.items.append(bandage_item)
+    # player.inventory.items.append(repair_kit_item)
+    # player.inventory.items.append(rpk_barrel)
 
     # player.inventory.add_to_inventory(item=medkit_item, item_container=None, amount=2)
     # player.inventory.add_to_inventory(item=bandage_item, item_container=None, amount=4)

@@ -1,55 +1,56 @@
----------------------------
-MEMORIES OF LEMURIA V. 0.0
----------------------------
-
-Thank you for downloading Memories of Lemuria. This is a rogue-like game centred on advanced firearms combat, ballistics
-simulation, gun crafting and squad tactics. Because of the complex nature of the gameplay, it is HIGHLY recommended
-that you read the manual in its entirety before commencing play. It may be helpful to refer back to this document
-frequently during play. As this game is in active development, you may encounter bugs throughout the course of gameplay.
-
-
-Many thanks to Blavatsky (https://blavatsky.bandcamp.com) for graciously allowing me to use his music.
-
------------------
-ACTIONS AND MENUS
------------------
-
-F11: Toggle full screen
-G: pick up item
-I: inventory
-E: interact with equipped items (i.e. armour, weapons etc)
-V: message history
-R: magazine / weapon loadout
-Q: interact with held weapon
-C: crafting
-S: change attack style
-P: player options
-T: view journal
-Z: view skills
->: use stairs
-Tab: switch character
-Space: toggle squad mode
-Escape: save and exit
-
+--------
+SETTINGS
+--------
+*
+You can change font and alter other settings through modifying the included 'settings.ini' file. Changing the font may
+be desirable if the default font appears too small. Several fonts are included for different screen sizes. It is best to
+ensure that the entire player field of view is visible with the chosen font.
+*
+*
+-------------------
+CONTROLS - OVERVIEW
+-------------------
+*
+Tab: change selected squad member
+Number keys: switch to corresponding squad member
+I - inventory
+E - interact with equipped items (i.e. armour, weapons etc)
+R - loadout (primary & secondary weapon, magazines)
+Q - interact with held weapon
+G - pick up item
+> - use stairs
+S - change attack style
+Z - view player skills
+C - crafting
+; - message history
+T - view journal
+V - toggle view mode / keyboard cursor
+F11 -  toggle full screen
+Space -  enter squad mode
+Escape -  save and exit
+*
+All menu options are also accessible by pressing [P] - helpful for when you forget the key used to access a certain menu.
+*
  - MENU NAVIGATION -
-
+*
 Use the up and down arrow keys to navigate through menu pages and press the character corresponding with the desired
-menu item to select.
-
+menu item to select it.
+*
  - WAIT KEYS -
-
-Period ('.'), Numpad 5, or Clear - skips players current turn
-
- - MOVEMENT KEYS -
-
-Use the arrow keys, numpad or vi keys to move
-
+*
+Period ('.'), Numpad 5, or Clear - advances to next turn.
+*
+ - MOVEMENT -
+*
+Use the arrow keys, numpad or vi keys to move the player character (in individual mode) or the camera (in squad or view
+mode). You can rapidly move the camera or cursor in view mode by holding shift while pressing movement keys.
+*
   NW  N  NE
     \ | /
  W -- @ -- E
     / | \
   SW  S  SE
-
+*
 N - Up Arrow, Numpad 8 or K
 S - Down Arrow, Numpad 2 or J
 E - Right Arrow, Numpad 6 or L
@@ -58,166 +59,217 @@ NE - Numpad 9 or U
 SE - Numpad 3 or N
 SW - Numpad 1 or B
 NW - Numpad 7 or Y
-
+*
+You can progress to the next floor by moving the player to the stairs found on each level (represented by a red '>'
+symbol), and pressing [>].
+*
+*
+--------------------------
+ACTION POINTS (AP) & TURNS
+--------------------------
+*
+Action points (AP) represent time, with 100 AP being equivalent to a single turn, and one second. Each action takes a
+certain amount of 'time', and therefore AP, to complete. AP is tracked for each squad member individually and is
+replenished each turn.
+*
+If the AP cost for an action exceeds the amount of available AP for the turn available to the squad member, the action
+will take multiple turns to complete.
+*
+While in individual mode, turns will advance automatically until the action is complete. For this reason, be cautious
+of performing actions taking several turns such as loading rounds into magazines or healing body parts during combat.
+*
+While in squad mode, multiple actions can be completed per turn for each squad member as long as enough AP is available
+to them. You will have to manually advance turns by pressing the wait keys to complete actions. You can also press shift
++ any of the wait keys to advance turns until each squad member's actions are complete.
+*
+*
+------------------------------
+SQUAD MODE - COMBAT & MOVEMENT
+------------------------------
+*
+To enter squad mode, allowing you to attack and move your squad members, press the space key. To exit squad mode, press
+escape. You can use the movement keys to change the camera position.
+*
+- SELECTING SQUAD MEMBERS -
+*
+Squad members can be selected and un-selected (for movement or attacking enemies) either by pressing [SHIFT] + the
+number key corresponding to a squad member, or by left clicking their tile. You can select all squad members by pressing
+[A]. The names of selected squad members is displayed on the top left hand corner of the screen, and their tiles are
+highlighted.
+*
+- COMBAT -
+*
+If enemies are visible, you can switch between which enemy you are targeting by pressing [SPACE] or by left clicking
+on their tile. You can change which of the enemy's body parts is being targeted by pressing [ALT].
+*
+You can see the name of the targeted enemy, which body part is being targeted and its condition, armour, as well as
+the distance from the target to the controlled squad member, on the bottom left of the screen. An inverted red triangle
+will also be displayed over the selected targeted. You can see more information about the targeted enemy by pressing
+[K].
+*
+While the selected squad member/s are holding weapons, you can press [ENTER] to attack. Once your AP is depleted,
+advance to the next turn by pressing any of the wait keys. You can attack a single enemy with multiple player characters
+simultaneously by enabling 'selected players attack' by pressing [X]. Only player characters which have been selected
+will attack.
+*
+- SQUAD MOVEMENT -
+*
+To move squad members while in squad mode, select the squad members you intend to move and right click on the tile you
+want the players to move to. You can also set movement commands using the keyboard by pressing [V] to toggle view mode
+and pressing [ENTER] to set destination.
+*
+Their destination is displayed as a green X symbol. Advance turns by pressing any of the wait keys and selected squad
+members will automatically navigate to the selected tile. You can remove their destinations by pressing [F].
+*
+Note: this can be used to navigate different squad members independently to different locations.
+*
+*
+----------------
+DAMAGE & HEALING
+----------------
+*
+Attacks damage specific body parts. When body parts have been sufficiently damaged, they will become crippled,
+incurring certain debuffs.
+*
+Bodyparts can be healed by using medkits and bandages and selecting the body part you want to heal. Death occurs when
+vital body parts, such as the head, are destroyed.
+*
+The health of the player's body parts is indicated by the figure at the bottom left of the screen. Green indicates that
+the body parts are unharmed, while yellow, orange and red indicate increasing levels of wounding.
+*
+*
+--------------------
+EQUIPMENT / LOAD OUT
+--------------------
+*
+Items including weapons and armour can be equipped from the inventory [I]. Equipped items can be inspected and
+un-equipped with through the equipment menu [E].
+*
+You can interact with your held weapon by pressing [Q]. Through this menu, you can perform actions such as loading and
+unloading your firearm and change its current fire mode (i.e. switch semi-automatic and fully automatic fire).
+*
+The loadout menu, which allows the player to interact with equipped magazines as well as primary and secondary weapons,
+can be accessed by pressing [R]. Equipping weapons to the primary or secondary slot allows the player to quickly
+switch between weapons during combat. To reload magazine fed guns, magazines must first be assigned to the loadout by
+interacting with them in the inventory menu.
+*
+Each squad member has a limited amount of small, medium and large magazine loadout slots. The amount of available
+magazine slots can be seen from the loadout menu. Magazines can be loaded with rounds by interacting with them from
+either the inventory or load out menus.
+*
+*
+-------------
+ATTACK STYLES
+-------------
+*
+You can change your attack style by pressing [S]. The players attack style alters the AP cost of ranged attacks,
+accuracy with firearms and the duration of fully automatic weapons fire.
+*
+In the 'Precise' attack style, attacks cost additional AP but are more accurate, best suited for longer range
+engagements. In this mode, bursts of fully automatic gun fire will also be short and controlled. In the 'Close Quarters'
+attack style, attacks cost less AP but are less accurate. In this mode, many rounds will be fired when a fully automatic
+firearm is shot. 'Measured' serves as a compromise between the two.
+*
+*
 ----
 GUNS
 ----
-
+*
 Guns are made up of weapon parts. Each weapon part has unique properties which influence how the gun behaves. A guns
-component parts can be viewed from the inspect menu. Weapons can be disassembled into their component parts through
-the interaction menu. Weapons and their parts can be found in different conditions. Accuracy condition indicates
-the condition of the parts as it pertains to accuracy of the weapon, for example condition of the bore. Guns with a
-worse accuracy condition will be less accurate in combat. Function condition indicates the condition of the parts as it
-pertains to the cycling of the action and jamming. Guns with a worse functional condition will be more prone to
-jamming. Gun parts can be repaired through the use of weapon part repair kits, which can be found throughout the map
-and are dropped by enemies. To create a gun from parts, enter the crafting menu by pressing (C).
-
+component parts can be viewed from the inspect menu. Weapons can be disassembled into their component parts through the
+interaction menu.
+*
+Weapons and their parts can be found in different conditions, which can be viewed from the inspect menu. Accuracy
+condition indicates the condition of the parts as it pertains to accuracy of the weapon, for example condition of the
+bore. Guns with a worse accuracy condition will be less accurate in combat.
+*
+Function condition indicates the condition of the parts as it pertains to the cycling of the action and jamming. Guns
+with a worse functional condition will be more prone to jamming. Gun parts can be repaired through the use of weapon
+part repair kits.
+*
+To create a gun from parts, enter the crafting menu by pressing [C].
+*
 Skills govern performance when using certain weapon types, including accuracy, recoil control, reloading speed, and
-equip speed. Skills can be trained by using the associated weapon type. The weapons type is influenced by its parts,
-and can be viewed by inspecting it. You can see your proficiency with different weapon types by using the skill menu,
-which is accessed by pressing (Z).
-
----------
-EQUIPMENT
----------
-
-Items including weapons, armour and magazines can be equipped from the inventory (I). Equipped weapons and armour can
-be viewed and interacted with through the equipment menu (E). Weapons can be equipped to the primary or secondary
-slots. This allows the player to quickly change weapons during combat, as it costs less AP to switch between primary
-and secondary weapons than to equip a weapon from the inventory.
-
-You can interact with your held weapon by pressing (Q). Through this menu, you can reload firearms and perform other
-actions, including changing its current fire mode, i.e. from semi-automatic to fully automatic. The ammunition count of
-the currently equipped weapon can be seen at the bottom right hand side of the screen.
-
-The player has a limited amount of small, medium and large magazine equipment slots in their magazine load out. The
-amount of slots for each can be altered by wearing different clothing. To reload a magazine-fed gun, an appropriate
-magazine must be equipped to the magazine load out, which can be viewed by pressing (R). Magazines can be reloaded by
-interacting with them.
-
-------
-COMBAT
-------
-
-- SQUAD MODE -
-
-Squad mode allows you to control multiple player characters during a single turn. Squad mode can be enabled by pressing
-the space key.
-
-You can use this mode to attack enemies. You can select enemies to attack either by pressing the space key by left
-clicking on a target. You can then change which limb is being targeted by pressing the alt key, and attack by pressing
-the return key. On the bottom left of the screen, you can see how much AP (action points) the player has. Action points
-represent the remaining amount of time the player has to complete actions within that turn. Since one turn equates to
-one second, 1 AP = 1/100th of a second. Different actions take different amounts of time, and therefore AP, to complete.
-
-You can also move multiple players at once in squad mode by left clicking to select players, and selecting a
-destination in a seen area by pressing the right mouse button. Press any wait keys and the players will move towards
-the selected location.
-
-In this mode, multiple selected player characters can attack a single enemy by enabling the 'selected players attack'
-option by pressing [X].
-
-Space: change target
-Tab: change character controlled
-Number Keys: change character controlled
-Shift + Number Keys: select characters
-Left Mouse Button: select characters & targets
-Right Mouse Button: select destination
-Alt: change limb targeted
-A: select all players
-X: select whether to attack with all selected players.
-Enter: attack
-Movement Keys: change camera position
-Wait Keys: advance to next turn
-
-- DAMAGE & HEALTH -
-
-Attacks will damage specific body parts. When body parts have been sufficiently damaged, they will become crippled,
-incurring certain debuffs depending on the body part. Bodyparts can be healed using medkits. Death occurs when vital
-body parts, such as the head, are destroyed.The health of the players body parts is indicated by the figure at the
-bottom left of the screen. Green indicates that the body parts are unharmed, while yellow, orange and red indicate
-increasing levels of wounding.
-
-- ATTACK STYLES -
-
-You can change your attack style by pressing (S).The players attack style alters the AP cost of ranged attacks as well
-as weapon accuracy with firearms. In the 'Precise' attack style, attacks cost additional AP but are more accurate, best
-suited for longer range engagements. In the 'Close Quarters' attack style, attacks cost less AP but are less
-accurate. 'Measured' serves as a compromise between the two.
-
+equip speed. Skills can be trained by using the associated weapon type.
+*
+The weapons type is influenced by its parts, and can be viewed by inspecting it. You can see your proficiency with
+different weapon types by using the skill menu, which is accessed by pressing [Z].
+*
+*
 ---------------
 ITEM PROPERTIES
 ---------------
-
+*
 Item properties can be viewed by selecting the 'inspect' option on an item. The following is a non-exhaustive list of
 item properties for reference.
-
+*
 - BULLETS -
-
+*
 Bullet Mass: Mass of projectile. The higher the bullets mass, the more it will penetrate armour and soft tissue at a
 given velocity
-
+*
 Charge Mass: Mass of propellant i.e. powder in the round. Higher charge mass corresponds with greater velocity, but
 causes greater recoil.
-
+*
 Bullet Diameter: The greater the diameter of the bullet, the more tissue is destroyed at the cost of less penetration
 in tissue.
-
+*
 Bullet Velocity: A projectile with greater velocity will penetrate through more armour and soft tissue.
-
+*
 Shot Sound: How far away (in metres) the round can be heard from, alerting certain enemies.
-
+*
 Bullet Spread Modifier: Alters how accurate shot placement is.
-
+*
 Ballistic Coefficient: Projectiles with a greater ballistic coefficient experience less bullet drop due to air
-air resistance. May be important for very long range shots.
-
+resistance. May be important for very long range shots.
+*
 - MAGAZINES -
-
+*
 AP to Load: AP cost to reload magazine per round
-
+*
 Failure Chance: Chance for your gun to jam during firing as a result of the magazine
-
+*
 - GUNS -
-
+*
 Zero Range: The distance at which the axis of the weapons sights intercepts the bullets flight path. The weapon will
 be most accurate at this range.
-
+*
 Sight Height Over Mount / Sight Mount Height Over Bore: Height of the weapons sights above the axis of the barrel.
 Changes trajectory of the bullet relative to the axis of the sight.
-
+*
 AP Cost Distance Modifier: Changes AP cost of attacks per metre, i.e. greater values cause longer distance shots to
 cost more AP.
-
+*
 AP Cost Target Acquisition: Changes AP cost of switching between targets.
-
-Muzzle Break Efficiency: Amount of recoil resulting from the jet effect from bullets exiting the muzzle that is
+*
+Muzzle Brake Efficiency: Amount of recoil resulting from the jet effect from bullets exiting the muzzle that is
 eliminated.
-
+*
 Part Condition (Accuracy): Physical condition of weapon parts affecting accuracy of the firearm. Weapons with lower
-accuracy condition, for example as a result of a barrel in poor condition, will suffer an accuracy penalty when fired.
-
+accuracy condition, for example as a result of a barrel in poor condition, the gun will suffer an accuracy penalty when
+fired.
+*
 Part Condition (Function): Physical condition of weapon parts affecting reliable cycling and function of the firearms.
-Weapons with lower functional condition, for example as a result of a receiver in poor condition will be more likely
-to jam when fired.
-
+Weapons with lower functional condition, for example as a result of a receiver in poor condition will be more likely to
+jam when fired.
+*
 Action Cycling AP Cost: AP cost to cycle the action after each shot, i.e. work the bolt of a bolt action rifle
-
+*
 - ARMOUR -
-
+*
 Ballistic Protection: Protection from projectile-based attacks. Equivalent to inches of mild steel.
-
+*
 Physical Protection: Protection from melee based attacks.
-
+*
 Armour Coverage: Chance that when attacked, an attack on the equipped body part will hit the armour.
-
+*
 - GUN PARTS -
-
+*
 Compatible Parts: Which parts of a given type are compatible with this part in crafting.
-
+*
 Has Attachment Points: Which attachment points for additional parts, e.g. muzzle devices, are featured on the part.
-
+*
 Additional Parts Required: Additional parts or parts of a certain part types required for successful crafting of an
 item.
-
+*
 Compatible Attachment Points: Attachment points to which a given part can be attached to.

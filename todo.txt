@@ -2,24 +2,28 @@
 TO DO
 -----
 
-bugs
+semi-auto-reload functionality -
+iterates through each magazine and integrated magazine gun in the loadout for the player
+ask whether you want to load bullets into it
+if you select to load, asks whether you want to use any available ammo or load with specific ammo
 
-Done
-Random amount of bullets dropping on floor
-Fix SKS
-Enable single loading of SKS
-Enemies can decide to camp positions instead of chasing
-Fix orientation issues
-Fix gunshot sounds
-Squad display on main screen - can now see all squad members weapon, current AP or action and vital condition from main screen
-Fix threading on certain parts
-Fixed player FOV not updating when moving to a new floor
-Fixed item duplication when unequipping and then immediately equipping primary / secondary weapon
+fully auto reload -
+magazine option to set loading preference
+can set multiple preferences in an ordered list
+option to load with any ammunition if preference not available
+options for 'any hollow point'
+pressing some button fully automatically reloads for all squad members
 
+after fully auto and semi auto reloads, should automatically skip through turns till complete.
+
+should be able to hit tab in menus to change character while in menu
+ability to label magazines
+ability to trade items between players as long as no enemies are active and they are within a certain radius of one another
+Show size of magazine somewhere
 Goals (in order of priority)
-Keyboard squad movement
-Item inspection mode
-Magazines stay in loadout - magazines just set to none when unloaded but disappears from list when loaded into gun?
+
+Display AP cost of actions
+
 Adding item to loadout costs AP
 Double barrel shotgun
 Re-evaluate levels - colour scheme, openness, enemy chance
@@ -35,35 +39,6 @@ Doors
 Grenades
 Explosive ammo
 Enemies activated by other enemies being activated
-
-
-
-You have done some really interesting things here!
-
-I love how you've implemented multiple squad members and the different Individual/Squad time modes. These two are so intertwined and easy to use. It's really unique and well done.
-
-I can't believe how deep you have gone with ammo types and parts. I don't consider myself American/Russian enough to nerd out for firearms this much but I have always wondered what a roguelike with this much gun detail would be like, and wow you've really done it. I kinda want to play just because there seems the potential for a lot of fun exploring the depth of detail and maybe eventually crafting.
-
-Some suggestions: (I realise it's still early days and you might have plans for these in some way)
-
-Put help in-game. It's a reasonable expectation that hitting ? or F1 will bring up at least the keybindings. You have a manual text file, display that in a text window like you have with the message log, easy to do.
-
-Make it clearer how to shoot. This is confusing as a new player. It should probably be the second thing in the manual after movement. Explain full combat later in the manual if you prefer.
-
-Make it clearer you need to actually select multiple squad members for them to fire at the same time.
-
-Maybe make the AP cost for shooting clearer, like display it in the bottom bar, or at least higher up in weapon inspection? I feel this is the main combat cost you're interested in.
-
-Make reloading clearer. The need to add the magazine to the loadout was hard to discover. I kinda feel reloading could be easier overall, like a "reload" command which does all the magazine juggling for you. If the player has multiple viable ammunition types then prompt for which one. Maybe you intentionally do not want this.
-
-After shooting, am I intended to wait (like with period . key) until my AP regenerate?
-
-Could the vi keys be used to scroll the weapon detail screen up and down?
-
-Do you plan to implement squad movement, so both my soldiers can walk together? Maybe one could lead and the other could pathfind behind them? Maybe selecting formations could be a thing?
-
-I found 14" 1080p and 12x12 font was too small to be enjoyable. Doubling the font size to 24x24 resolved this. Thanks for implementing Dwarf Fortress style tilesets and an INI file where this can be easily set. libtcod can do integer scaling without smoothing if that's something you're interested in.
-
 
 Extended Goals
 -Corner peaking

@@ -45,6 +45,10 @@ class Engine:
         self.game_over = False
         self.selected_players_attack = False
 
+        self.keyboard_cursor = False
+        self.keyboard_cursor_x: int = 0
+        self.keyboard_cursor_y: int = 0
+
         self.bestiary = {}
 
         self.squad_mode: bool = False
@@ -154,6 +158,12 @@ class Engine:
         # start_time = time.time()
 
         self.game_map.render(console)
+
+        if self.keyboard_cursor and not self.squad_mode:
+            console.print(x=0, y=console.height - 8, string="VIEW MODE ON - PRESS [V] TO TOGGLE",
+                          fg=colour.WHITE,
+                          bg=(0, 0, 0))
+
         console.draw_rect(0, console.height - 7, console.width, 7, 219, bg=(0, 0, 0))
         console.hline(0, console.height - 7, console.width)
 

@@ -128,14 +128,27 @@ def render_names_at_mouse_location(
         x=engine.player.x, y=engine.player.y, game_map=engine.game_map
     )
 
+    names_at_keyboard_cursor = ""
+
+    if engine.keyboard_cursor:
+
+        console.print(x=engine.keyboard_cursor_x - cam_x, y=engine.keyboard_cursor_y - cam_y,
+                      string='X', fg=colour.YELLOW)
+
+        names_at_keyboard_cursor = get_names_at_location(
+            x=engine.keyboard_cursor_x, y=engine.keyboard_cursor_y, game_map=engine.game_map
+        )
+
     # if names_at_player != '':
     #     console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
     if names_at_mouse_location == "" and not names_at_player == "":
         console.print(x=x, y=y, string=f'At Feet: {names_at_player}', fg=colour.WHITE, bg=(0, 0, 0))
-    elif not names_at_mouse_location == "":
-        console.print(x=x, y=y, string=f"Mouse: {names_at_mouse_location}",
+    elif not names_at_mouse_location == "" and not engine.keyboard_cursor:
+        console.print(x=x, y=y, string=f"Cursor: {names_at_mouse_location}",
         fg=colour.WHITE, bg=(0, 0, 0))
-
+    elif engine.keyboard_cursor and not names_at_keyboard_cursor == '':
+        console.print(x=x, y=y, string=f"Cursor: {names_at_keyboard_cursor}",
+        fg=colour.WHITE, bg=(0, 0, 0))
 
 def render_mouse_location(console: Console, engine: Engine, game_map: GameMap) -> None:
     mouse_x, mouse_y = engine.mouse_location

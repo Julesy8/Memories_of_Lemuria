@@ -134,6 +134,143 @@ class PopupMessage(BaseEventHandler):
         """Any key returns to the parent handler."""
         return self.parent
 
+class DocumentWrapper(textwrap.TextWrapper):
+
+    def wrap(self, text):
+        split_text = text.split('\n')
+
+        lines = [line for para in split_text for line in textwrap.TextWrapper.wrap(self, para)]
+        return lines
+
+"""
+I'm not sure that anything can bring long term happiness. Or even satisfaction or contentment. 
+"""
+
+class PopupMessageScrolling(BaseEventHandler):
+    """Display a popup text window."""
+
+    def __init__(self, parent_handler: BaseEventHandler, text: str, title: str):
+        self.parent = parent_handler
+        self.text = text
+        self.title = title
+        self.scroll_position = 0
+        self.menu_length = 0
+        self.menu_length_remaining = 0
+        self.height = 0
+
+        self.wrapped_text = ''
+        self.lines_text = ''
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Render the parent and dim the result, then print the message on top."""
+        self.parent.on_render(console)
+
+        self.wrapped_text = ''
+        wrapper = DocumentWrapper(width=console.width - 60)
+        # self.wrapped_text = wrapper.wrap(text=self.text)
+
+        self.wrapped_text = [sub.replace('*', '') for sub in wrapper.wrap(text=self.text)]
+
+        self.lines_text = len(self.wrapped_text)
+
+        self.height = self.lines_text
+
+        self.menu_length = self.lines_text
+        self.menu_length_remaining = self.menu_length
+
+        max_len = console.height - 17
+        width = console.width - 40
+        if self.lines_text > max_len:
+            self.height = max_len
+
+        # Draw a frame with a custom banner title.
+        console.draw_frame(20,
+                           2,
+                           width,
+                           self.height + 3, bg=(0, 0, 0),
+                           fg=colour.WHITE
+                           )
+
+        console.print_box(20,
+                          2,
+                          width,
+                          self.height + 3,
+                          f"┤{self.title}├",
+                          alignment=tcod.CENTER,
+                          bg=(0, 0, 0),
+                          fg=colour.WHITE)
+
+        y = 3
+
+        for line in self.wrapped_text[self.scroll_position:self.scroll_position + self.height]:
+            console.print(
+                21,
+                y,
+                line,
+                fg=colour.WHITE,
+                bg=(0, 0, 0),
+            )
+
+            y += 1
+
+        console.print(x=20, y=self.height + 5, string="USE MOVEMENT KEYS OR PAGE UP / DOWN TO SCROLL", bg=(0, 0, 0))
+
+        if not self.scroll_position == 0:
+            console.print(x=19, y=3, string="▲")
+
+        if self.scroll_position < self.menu_length_remaining - self.scroll_position:
+            console.print(x=19, y=self.height, string="▼")
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[BaseEventHandler]:
+        """Any key returns to the parent handler."""
+
+        key = event.sym
+
+        if key == tcod.event.K_UP or key == tcod.event.K_KP_8 or key == tcod.event.K_k:
+
+            menu_length = \
+                len(self.wrapped_text[self.scroll_position:self.scroll_position + self.menu_length])
+
+            self.menu_length_remaining = menu_length
+
+            if self.scroll_position > 0:
+                self.scroll_position -= 1
+
+        elif key == tcod.event.K_DOWN or key == tcod.event.K_KP_2 or key == tcod.event.K_j:
+
+            menu_length = \
+                len(self.wrapped_text[self.scroll_position:self.scroll_position + self.menu_length])
+
+            self.menu_length_remaining = menu_length
+
+            if self.scroll_position < self.menu_length - self.height:
+                self.scroll_position += 1
+
+        elif key == tcod.event.K_PAGEUP:
+            menu_length = \
+                len(self.wrapped_text[self.scroll_position:self.scroll_position + self.menu_length])
+
+            self.menu_length_remaining = menu_length
+
+            if self.scroll_position > 0:
+                if self.scroll_position - self.height < 0:
+                    self.scroll_position = 0
+                else:
+                    self.scroll_position -= self.height
+
+        elif key == tcod.event.K_PAGEDOWN:
+            menu_length = \
+                len(self.wrapped_text[self.scroll_position:self.scroll_position + self.menu_length])
+
+            self.menu_length_remaining = menu_length
+
+            if self.scroll_position < self.menu_length - self.height:
+                self.scroll_position += self.height
+            else:
+                self.scroll_position = self.menu_length - self.height
+
+        elif key == tcod.event.K_ESCAPE:
+            return self.parent
 
 class EventHandler(BaseEventHandler):
 
@@ -200,7 +337,14 @@ class EventHandler(BaseEventHandler):
 class MainGameEventHandler(EventHandler):
     def __init__(self, engine: Engine):
         super().__init__(engine)
+
         self.engine.squad_mode = False
+
+        # cancels player path
+        for player in self.engine.players:
+            if player.ai.path_to_xy is not None:
+                player.ai.path = []
+                player.ai.path_to_xy = None
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         action: Optional[Action] = None
@@ -216,12 +360,30 @@ class MainGameEventHandler(EventHandler):
             return actions.TakeStairsAction(player)
 
         if key in MOVE_KEYS:
+
             dx, dy = MOVE_KEYS[key]
-            action = BumpAction(player, dx, dy)
+
+            if self.engine.keyboard_cursor:
+
+                if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+                    dx *= 5
+                    dy *= 5
+
+                if self.engine.keyboard_cursor:
+                    if self.engine.game_map.in_bounds(self.engine.keyboard_cursor_x + dx,
+                                                      self.engine.keyboard_cursor_y + dy):
+                        self.engine.keyboard_cursor_x += dx
+                        self.engine.keyboard_cursor_y += dy
+
+                self.engine.game_map.move_camera(dx, dy)
+
+            else:
+                action = BumpAction(player, dx, dy)
+
         elif key in WAIT_KEYS:
             self.engine.handle_turns()
             # action = WaitAction(player)
-        elif key == tcod.event.K_v:
+        elif key == tcod.event.K_SEMICOLON:
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_g:
             return PickUpEventHandler(engine=self.engine, parent_handler=self)
@@ -265,9 +427,25 @@ class MainGameEventHandler(EventHandler):
             return Bestiary(self.engine, parent_handler=self)
         elif key == tcod.event.K_p:
             return ViewPlayer(self.engine, parent_handler=self)
-
+        elif key == tcod.event.K_z:
+            return ViewPlayerStats(self.engine, parent_handler=self)
+        elif key == tcod.event.K_SLASH and modifier & (
+                tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
+        ):
+            with open('Manual.txt', 'r') as file:
+                data = file.read()
+            return PopupMessageScrolling(parent_handler=self, text=data, title='Manual')
         elif key == tcod.event.K_SPACE:
             return ChangeTargetActor(engine=self.engine, parent_handler=self)
+        elif key == tcod.event.K_v:
+
+            if not self.engine.keyboard_cursor:
+                self.engine.keyboard_cursor = True
+                self.engine.keyboard_cursor_x = self.engine.player.x
+                self.engine.keyboard_cursor_y = self.engine.player.y
+            else:
+                self.engine.keyboard_cursor = False
+                self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y + 3)
 
         elif key == tcod.event.K_TAB:
             return self.engine.switch_player()
@@ -372,6 +550,10 @@ class GameWonEventHandler(EventHandler):
 CURSOR_Y_KEYS = {
     tcod.event.K_UP: -1,
     tcod.event.K_DOWN: 1,
+    tcod.event.K_KP_8: -1,
+    tcod.event.K_KP_2: 1,
+    tcod.event.K_k: -1,
+    tcod.event.K_j: 1,
     tcod.event.K_PAGEUP: -10,
     tcod.event.K_PAGEDOWN: 10,
 }
@@ -581,11 +763,12 @@ class UserOptionsWithPages(AskUserEventHandler):
 
                 elif hasattr(item.usable_properties, "loaded_magazine"):
                     if item.usable_properties.loaded_magazine is not None:
-                        name_len = len(item.name) + 4 + (len(str(item.usable_properties.loaded_magazine.mag_capacity)) * 2)
+                        name_len = len(item.name) + 4 + (
+                                    len(str(item.usable_properties.loaded_magazine.mag_capacity)) * 2)
                         if name_len > longest_name_len:
                             longest_name_len = name_len
                     else:
-                        if len(item.name) > longest_name_len:
+                        if len(item.name) + 9 > longest_name_len:
                             longest_name_len = len(item.name) + 9
 
             # item is a string
@@ -659,12 +842,12 @@ class UserOptionsWithPages(AskUserEventHandler):
         key = event.sym
         index = key - tcod.event.K_a
 
-        if key == tcod.event.K_DOWN:
+        if key == tcod.event.K_DOWN or key == tcod.event.K_KP_2:
             if len(self.options) > (self.page + 1) * self.max_list_length:
                 self.page += 1
                 return self
 
-        if key == tcod.event.K_UP:
+        if key == tcod.event.K_UP or key == tcod.event.K_KP_8:
             if self.page > 0:
                 self.page -= 1
                 return self
@@ -1103,9 +1286,6 @@ class ChangeTargetActor(AskUserEventHandler):
         self.selected_bodypart = None
         self.bodypart_index: int = 0
         self.bodypartlist: list = []
-        self.keyboard_cursor = False
-        self.keyboard_cursor_x: int = 0
-        self.keyboard_cursor_y: int = 0
 
         # string and colour associated with the condition of the selected body part
         self.part_cond_str: str = "Unharmed"
@@ -1171,10 +1351,6 @@ class ChangeTargetActor(AskUserEventHandler):
         screen_shape = console.rgb.shape
         cam_x, cam_y = self.engine.game_map.get_left_top_pos(screen_shape)
 
-        # if self.keyboard_cursor:
-        #     console.print(x=self.keyboard_cursor_x - cam_x, y=self.keyboard_cursor_y - cam_y,
-        #                   string='X', fg=colour.YELLOW)
-
         self.tick_counter += 1
 
         if self.tick_counter > self.max_tick - max_fps:
@@ -1198,7 +1374,7 @@ class ChangeTargetActor(AskUserEventHandler):
             for player in self.engine.players:
                 if player.ai.path_to_xy is not None:
                     console.print(x=player.ai.path_to_xy[0] - cam_x, y=player.ai.path_to_xy[1] - cam_y, string='X',
-                                  fg=colour.YELLOW)
+                                  fg=colour.GREEN)
 
         for player in self.players_selected:
             if player.ai is not None:
@@ -1265,6 +1441,10 @@ class ChangeTargetActor(AskUserEventHandler):
             console.print(x=16, y=console.height - 8 + offset, string=f"{self.part_cond_str}", fg=self.part_cond_colour,
                           bg=(0, 0, 0))
             console.print(x=0, y=2, string="PRESS [K] FOR ENEMY INFO", fg=colour.WHITE, bg=(0, 0, 0))
+            if self.engine.keyboard_cursor:
+                console.print(x=0, y=console.height - 10 + offset, string="VIEW MODE ON - PRESS [V] TO TOGGLE",
+                              fg=colour.WHITE,
+                              bg=(0, 0, 0))
 
         else:
             console.print(x=0, y=2, string="NO TARGET", fg=colour.WHITE, bg=(0, 0, 0))
@@ -1303,14 +1483,12 @@ class ChangeTargetActor(AskUserEventHandler):
 
             # moves players
             elif event.button == 3:
-
-                for player in self.players_selected:
-
-                    if self.engine.game_map.explored[mouse_x, mouse_y]:
-                        player.ai.path_to_xy = (mouse_x, mouse_y)
-                        # player.ai.path = player.ai.get_path_to(mouse_x, mouse_y)
-                        # self.destinations.append([mouse_x, mouse_y])
-                        # self.players_selected = []
+                # checks if walkable
+                if self.engine.game_map.tiles[mouse_x, mouse_y][0]:
+                    for player in self.players_selected:
+                        if player.ai is not None:
+                            if self.engine.game_map.explored[mouse_x, mouse_y]:
+                                    player.ai.path_to_xy = (mouse_x, mouse_y)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
         player = self.engine.player
@@ -1362,26 +1540,44 @@ class ChangeTargetActor(AskUserEventHandler):
 
             self.update_part_str_colour()
 
-        elif key == tcod.event.K_RETURN:  # atttack selected target
+        elif key == tcod.event.K_f:
+            for player in self.engine.players:
+                if player.ai.path_to_xy is not None:
+                    player.ai.path = []
+                    player.ai.path_to_xy = None
 
-            if weapon is not None:
-                if hasattr(weapon.usable_properties, 'jammed'):
-                    if weapon.usable_properties.jammed:
-                        return actions.ClearJam(entity=player, gun=weapon.usable_properties).handle_action()
+        elif key == tcod.event.K_RETURN:
 
-            if self.engine.selected_players_attack:
-                if len(self.players_selected) > 0:
-                    for x in self.players_selected:
-                        if x.inventory.held is not None:
-                            x.fighter.target_actor = self.engine.player.fighter.target_actor
-                            if x.fighter.target_actor is not None:
-                                self.attack_enemy(attacker=x, weapon=x.inventory.held)
+            # if keyboard cursor enabled, gives movement command
+            if self.engine.keyboard_cursor:
+                # checks if walkable
+                if self.engine.game_map.tiles[self.engine.keyboard_cursor_x, self.engine.keyboard_cursor_y][0]:
+                    for player in self.players_selected:
+                        if player.ai is not None:
+                            if self.engine.game_map.explored[self.engine.keyboard_cursor_x,
+                            self.engine.keyboard_cursor_y]:
+                                    player.ai.path_to_xy = (self.engine.keyboard_cursor_x,
+                                                            self.engine.keyboard_cursor_y)
+            else:
+                # atttack selected target
+                if weapon is not None:
+                    if hasattr(weapon.usable_properties, 'jammed'):
+                        if weapon.usable_properties.jammed:
+                            return actions.ClearJam(entity=player, gun=weapon.usable_properties).handle_action()
+
+                if self.engine.selected_players_attack:
+                    if len(self.players_selected) > 0:
+                        for x in self.players_selected:
+                            if x.inventory.held is not None:
+                                x.fighter.target_actor = self.engine.player.fighter.target_actor
+                                if x.fighter.target_actor is not None:
+                                    self.attack_enemy(attacker=x, weapon=x.inventory.held)
+                    else:
+                        if player.fighter.target_actor is not None:
+                            self.attack_enemy(attacker=player, weapon=weapon)
                 else:
                     if player.fighter.target_actor is not None:
                         self.attack_enemy(attacker=player, weapon=weapon)
-            else:
-                if player.fighter.target_actor is not None:
-                    self.attack_enemy(attacker=player, weapon=weapon)
 
         elif key == tcod.event.K_a:
             if not self.players_selected == self.engine.players:
@@ -1486,7 +1682,8 @@ class ChangeTargetActor(AskUserEventHandler):
                                                    parent_handler=self)
             except AttributeError:
                 self.engine.message_log.add_message("Invalid entry.", colour.WHITE)
-        elif key == tcod.event.K_v:
+
+        elif key == tcod.event.K_SEMICOLON:
             return HistoryViewer(self.engine, parent_handler=self)
         elif key == tcod.event.K_g:
             return PickUpEventHandler(engine=self.engine, parent_handler=self)
@@ -1515,15 +1712,32 @@ class ChangeTargetActor(AskUserEventHandler):
                 self.get_targets()
                 self.engine.handle_turns()
 
-        # elif key in MOVE_KEYS:
-        #     if not self.keyboard_cursor:
-        #         self.keyboard_cursor_x = self.engine.player.x
-        #         self.keyboard_cursor_y = self.engine.player.y
-        #         self.keyboard_cursor = True
-        #
-        #     dx, dy = MOVE_KEYS[key]
-        #
-        #     self.engine.game_map.move_camera(dx, dy)
+        elif key == tcod.event.K_v:
+
+            if not self.engine.keyboard_cursor:
+                self.engine.keyboard_cursor = True
+                self.engine.keyboard_cursor_x = self.engine.player.x
+                self.engine.keyboard_cursor_y = self.engine.player.y
+            else:
+                self.engine.keyboard_cursor = False
+                self.engine.game_map.camera_xy = (self.engine.player.x, self.engine.player.y + 3)
+
+        elif key in MOVE_KEYS:
+
+            dx, dy = MOVE_KEYS[key]
+
+            if modifier & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+                dx *= 5
+                dy *= 5
+
+            if self.engine.keyboard_cursor:
+                if self.engine.game_map.in_bounds(self.engine.keyboard_cursor_x + dx,
+                                                  self.engine.keyboard_cursor_y + dy):
+
+                    self.engine.keyboard_cursor_x += dx
+                    self.engine.keyboard_cursor_y += dy
+
+            self.engine.game_map.move_camera(dx, dy)
 
         elif key == tcod.event.K_ESCAPE:
 
@@ -1727,6 +1941,67 @@ class QuitEventHandler(AskUserEventHandler):
                 os.remove("savegame.sav")  # Deletes the active save file.
             raise exceptions.QuitToMenuWithoutSaving
 
+overview_str = "Tab: change selected squad member Number keys: switch to corresponding squad member"
+
+
+# class ManualOptions(AskUserEventHandler):
+#
+#     def on_render(self, console: tcod.Console) -> None:
+#         super().on_render(console)
+#
+#         console.draw_frame(
+#             x=console.width // 2 - 25,
+#             y=console.height // 2 - 6,
+#             width=50,
+#             height=12,
+#             clear=True,
+#             title='Manual',
+#             fg=colour.WHITE,
+#             bg=(0, 0, 0),
+#         )
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2 - 4, string="1) General Controls",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2 - 3, string="2) Action Points (AP) & Turns",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2 - 2, string="3) Squad Mode - Combat & Movement",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2 - 1, string="4) Damage & Healing",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2, string="5) Equipment - Weapons, Armour,"
+#                                                                               " Magazines, Etc",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2 + 1, string="6) Attack Styles",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2 + 2, string="7) Guns - Parts, Crafting & Skills",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#         console.print(x=console.width // 2 - 23, y=console.height // 2 + 3, string="8) Item Properties Overview",
+#                       fg=colour.WHITE, bg=(0, 0, 0))
+#
+#     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+#         action: Optional[Action] = None
+#
+#         key = event.sym
+#
+#         if key == tcod.event.K_1:
+#             return PopupMessageScrolling(parent_handler=self,
+#                                          text="Tab: change selected squad member Number keys: switch to"
+#                                               " corresponding squad member"
+#                                               ""
+#                                               "",
+#
+#
+#
+#                                          title='General Controls'
+#
+#                                          )
 
 class MagazineOptionsHandler(UserOptionsEventHandler):
 
@@ -1759,14 +2034,13 @@ class MagazineOptionsHandler(UserOptionsEventHandler):
                                               parent_handler=self.parent_handler)
 
         elif option == 'unload rounds':
-            self.magazine.unload_magazine(entity=self.engine.player)
+            actions.UnloadBulletsFromMagazine(entity=self.engine.player, magazine=self.magazine).handle_action()
 
         elif option == 'add to loadout':
-            player.inventory.add_to_magazines(magazine=self.magazine)
+            actions.AddMagToLoadout(entity=self.engine.player, magazine=self.magazine).handle_action()
 
         elif option == 'remove from loadout':
-            player.inventory.items.append(self.magazine.parent)
-            player.inventory.remove_from_magazines(magazine=self.magazine)
+            actions.RemoveMagFromLoadout(entity=self.engine.player, magazine=self.magazine).handle_action()
 
         return MainGameEventHandler(engine=self.engine)
 
@@ -1811,10 +2085,11 @@ class GunOptionsMagFed(UserOptionsEventHandler):
             return SelectMagazineToLoadIntoGun(engine=self.engine, gun=self.gun, parent_handler=self)
 
         elif option == 'load rounds':
-            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun.loaded_magazine, parent_handler=self)
+            return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun.loaded_magazine,
+                                              parent_handler=self)
 
         elif option == 'unload magazine':
-            self.gun.unload_gun()
+            return actions.UnloadMagazineFromGun(entity=self.engine.player, gun=self.gun).handle_action()
 
         elif option == 'load from clip':
             return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun, parent_handler=self)
@@ -1850,6 +2125,9 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
         if self.gun.compatible_clip is not None:
             options.append("load from clip")
 
+        if self.gun.clip_stays_in_gun is not None:
+            options.append("remove clip from gun")
+
         for firemode in self.firemodes:
             if not firemode == self.gun.current_fire_mode:
                 options.append(firemode)
@@ -1863,7 +2141,7 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
             return SelectBulletsToLoadHandler(engine=self.engine, magazine=self.gun, parent_handler=self)
 
         elif option == 'unload rounds':
-            self.gun.unload_magazine(entity=self.engine.player)
+            actions.UnloadBulletsFromMagazine(entity=self.engine.player, magazine=self.gun).handle_action()
 
         elif option == 'load from clip':
             return SelectClipToLoadIntoGun(engine=self.engine, gun=self.gun, parent_handler=self)
@@ -1874,6 +2152,9 @@ class GunOptionsIntegratedMag(UserOptionsEventHandler):
 
         elif option == 'clear jam':
             return actions.ClearJam(entity=self.engine.player, gun=self.gun).handle_action()
+
+        elif option == 'remove clip from gun':
+            return actions.UnloadClipFromGun(entity=self.engine.player, gun=self.gun).handle_action()
 
         elif option in self.firemodes:
             self.gun.current_fire_mode = option
@@ -1906,7 +2187,8 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
             engine.player.inventory.large_magazines
 
         for item in loadout:
-            if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_magazine_type'):
+            if (hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_magazine_type') and
+                    not item in engine.player.inventory.inaccessible_items):
                 if item.usable_properties.magazine_type in self.gun.compatible_magazine_type:
                     mag_list.append(item)
 
@@ -1916,12 +2198,12 @@ class SelectMagazineToLoadIntoGun(UserOptionsWithPages):
         key = event.sym
         index = key - tcod.event.K_a
 
-        if key == tcod.event.K_DOWN:
+        if key == tcod.event.K_DOWN or key == tcod.event.K_KP_2:
             if len(self.options) > (self.page + 1) * self.max_list_length:
                 self.page += 1
                 return self
 
-        if key == tcod.event.K_UP:
+        if key == tcod.event.K_UP or key == tcod.event.K_KP_8:
             if self.page > 0:
                 self.page -= 1
                 return self
@@ -1953,7 +2235,8 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
             engine.player.inventory.large_magazines
 
         for item in loadout:
-            if hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_clip'):
+            if (hasattr(item.usable_properties, 'magazine_type') and hasattr(self.gun, 'compatible_clip') and
+                    not item in engine.player.inventory.inaccessible_items):
                 if item.usable_properties.magazine_type == self.gun.compatible_clip:
                     mag_list.append(item)
 
@@ -1963,12 +2246,12 @@ class SelectClipToLoadIntoGun(UserOptionsWithPages):
         key = event.sym
         index = key - tcod.event.K_a
 
-        if key == tcod.event.K_DOWN:
+        if key == tcod.event.K_DOWN or key == tcod.event.K_KP_2:
             if len(self.options) > (self.page + 1) * self.max_list_length:
                 self.page += 1
                 return self
 
-        if key == tcod.event.K_UP:
+        if key == tcod.event.K_UP or key == tcod.event.K_KP_8:
             if self.page > 0:
                 self.page -= 1
                 return self
@@ -2052,8 +2335,8 @@ class SelectPartToRepair(UserOptionsWithPages):
                                                     f"{round(item.usable_properties.condition_function / 5 * 100)}%")
 
                 elif item.usable_properties.functional_part and item.usable_properties.accuracy_part:
-                    condition = round(item.usable_properties.condition_function +
-                                      item.usable_properties.condition_accuracy / 10 * 100)
+                    condition = round((item.usable_properties.condition_function +
+                                      item.usable_properties.condition_accuracy) / 10 * 100)
                     console.print(x + 1, y + i + 1, f"({item_key}) {item.name} - {condition}%")
 
         else:
@@ -2177,12 +2460,12 @@ class SelectBulletsToLoadHandler(UserOptionsWithPages):
         key = event.sym
         index = key - tcod.event.K_a
 
-        if key == tcod.event.K_DOWN:
+        if key == tcod.event.K_DOWN or key == tcod.event.K_KP_2:
             if len(self.options) > (self.page + 1) * self.max_list_length:
                 self.page += 1
                 return self
 
-        if key == tcod.event.K_UP:
+        if key == tcod.event.K_UP or key == tcod.event.K_KP_8:
             if self.page > 0:
                 self.page -= 1
                 return self
@@ -2241,22 +2524,163 @@ class LoadoutEventHandler(UserOptionsWithPages):
 
         items = inventory.small_magazines + inventory.medium_magazines + inventory.large_magazines
 
+        inaccessible = []
+
+        for item in items:
+            if item in engine.player.inventory.inaccessible_items:
+                inaccessible.append(item)
+
+        for item in inaccessible:
+            items.remove(item)
+
         # for item in items:
         #     if item in inventory.items:
         loadout_items += items
 
         super().__init__(engine=engine, options=loadout_items, page=0, title=title, parent_handler=parent_handler)
 
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        number_of_options = len(self.options)
+
+        width = len(self.TITLE)
+        height = number_of_options + 2
+
+        if number_of_options > self.max_list_length:
+            height = self.max_list_length + 2
+
+        x = 1
+        y = 2
+
+        index_range = self.page * self.max_list_length
+
+        longest_name_len = 0
+
+        for item in self.options[index_range:index_range + self.max_list_length]:
+
+            # item is of the Item class
+            if isinstance(item, Item):
+                stack_size = 0
+
+                if item.stacking:
+                    stack_size = 3 + len(str(item.stacking.stack_size))
+                if len(item.name) + stack_size > longest_name_len:
+                    longest_name_len = len(item.name) + stack_size
+
+                if hasattr(item.usable_properties, 'mag_capacity'):
+                    name_len = len(item.name) + 4 + (len(str(item.usable_properties.mag_capacity)) * 2)
+                    if name_len > longest_name_len:
+                        longest_name_len = name_len
+
+                elif hasattr(item.usable_properties, "loaded_magazine"):
+                    if item.usable_properties.loaded_magazine is not None:
+                        name_len = len(item.name) + 4 + (
+                                    len(str(item.usable_properties.loaded_magazine.mag_capacity)) * 2)
+                        if name_len > longest_name_len:
+                            longest_name_len = name_len
+                    else:
+                        if len(item.name) + 9 > longest_name_len:
+                            longest_name_len = len(item.name) + 9
+
+            # item is a string
+            else:
+                if len(item) > longest_name_len:
+                    longest_name_len = len(item)
+
+        if longest_name_len:
+            if longest_name_len > width:
+                width = longest_name_len
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 8,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        console.draw_frame(
+            x=x,
+            y=y + height + 1,
+            width=16,
+            height=5,
+            title='Magazines',
+            clear=True,
+            fg=colour.WHITE,
+            bg=(0, 0, 0),
+        )
+
+        console.print(x + 1, y + height + 2,
+                      f"Small  - ({len(self.engine.player.inventory.small_magazines)}/"
+                      f"{self.engine.player.inventory.small_mag_capacity})")
+        console.print(x + 1, y + height + 3,
+                      f"Medium - ({len(self.engine.player.inventory.medium_magazines)}/"
+                      f"{self.engine.player.inventory.medium_mag_capacity})")
+        console.print(x + 1, y + height + 4,
+                      f"Large  - ({len(self.engine.player.inventory.large_magazines)}/"
+                      f"{self.engine.player.inventory.large_mag_capacity})")
+
+        if number_of_options > 0:
+            console.print(x + 1, y + height - 1,
+                          f"Page {self.page + 1}/{ceil(len(self.options) / self.max_list_length)}")
+
+            for i, item in enumerate(self.options[index_range:index_range + self.max_list_length]):
+                item_key = chr(ord("a") + i)
+
+                if isinstance(item, Item):
+
+                    if (hasattr(item.usable_properties, 'mag_capacity') and not
+                    hasattr(item.usable_properties, 'part_type')):
+                        if hasattr(item.usable_properties, 'chambered_bullet'):
+                            if item.usable_properties.chambered_bullet is not None:
+                                console.print(x + 1, y + i + 1,
+                                              f"({item_key}) {item.name} ({len(item.usable_properties.magazine) + 1}"
+                                              f"/{item.usable_properties.mag_capacity})")
+                            else:
+                                console.print(x + 1, y + i + 1,
+                                              f"({item_key}) {item.name} ({len(item.usable_properties.magazine)}"
+                                              f"/{item.usable_properties.mag_capacity})")
+                        else:
+                            console.print(x + 1, y + i + 1,
+                                          f"({item_key}) {item.name} ({len(item.usable_properties.magazine)}"
+                                          f"/{item.usable_properties.mag_capacity})")
+                    elif (hasattr(item.usable_properties, "loaded_magazine") and not
+                    hasattr(item.usable_properties, 'part_type')):
+                        if not item.usable_properties.loaded_magazine is None:
+                            console.print(x + 1, y + i + 1,
+                                          f"({item_key}) {item.name} "
+                                          f"({len(item.usable_properties.loaded_magazine.magazine)}"
+                                          f"/{item.usable_properties.loaded_magazine.mag_capacity})")
+
+                        else:
+                            console.print(x + 1, y + i + 1,
+                                          f"({item_key}) {item.name} - No Mag")
+                    else:
+                        if item.stacking:
+                            console.print(x + 1, y + i + 1, f"({item_key}) {item.name} ({item.stacking.stack_size})")
+                        else:
+                            console.print(x + 1, y + i + 1, f"({item_key}) {item.name}")
+
+                else:
+                    console.print(x + 1, y + i + 1, f"({item_key}) {item}")
+
+        else:
+            console.print(x + 1, y + 1, "(Empty)")
+
     def ev_keydown(self, event: tcod.event.KeyDown):
         key = event.sym
         index = key - tcod.event.K_a
 
-        if key == tcod.event.K_DOWN:
+        if key == tcod.event.K_DOWN or key == tcod.event.K_KP_2:
             if len(self.options) > (self.page + 1) * self.max_list_length:
                 self.page += 1
                 return self
 
-        if key == tcod.event.K_UP:
+        if key == tcod.event.K_UP or key == tcod.event.K_KP_8:
             if self.page > 0:
                 self.page -= 1
                 return self
@@ -2812,56 +3236,46 @@ class InspectItemViewer(AskUserEventHandler):
 
             # bullet
             "-- Round Type --": ('bullet_type', getattr(self.item.usable_properties, 'bullet_type', 1)),
-            "-- Bullet Mass (Grains) --": ('mass', getattr(self.item.usable_properties, 'mass', 1)),
-            "-- Charge Mass (Grains) --": ('charge_mass', getattr(self.item.usable_properties, 'charge_mass', 1)),
-            "-- Bullet Diameter (Inch) --": ('diameter', getattr(self.item.usable_properties, 'diameter', 1)),
             "-- Bullet Velocity (Feet/Sec) --": ('velocity', getattr(self.item.usable_properties, 'velocity', 1)),
-            "-- Shot Sound Modifier --": ('sound_modifier',
-                                          round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
+            "-- Bullet Diameter (Inch) --": ('diameter', getattr(self.item.usable_properties, 'diameter', 1)),
+            "-- Projectile Amount --": ('projectile_no', getattr(self.item.usable_properties, 'projectile_no', 1)),
+            "-- Bullet Mass (Grains) --": ('mass', getattr(self.item.usable_properties, 'mass', 1)),
             "-- Bullet Spread Modifier (MoA) --": ('spread_modifier',
                                                    round(
                                                        getattr(self.item.usable_properties, 'spread_modifier', 1) * 100,
                                                        3)),
+            "-- Charge Mass (Grains) --": ('charge_mass', getattr(self.item.usable_properties, 'charge_mass', 1)),
+            "-- Shot Sound Modifier --": ('sound_modifier',
+                                          round(getattr(self.item.usable_properties, 'sound_modifier', 1), 3)),
             "-- Ballistic Coefficient --": ('ballistic_coefficient',
                                             getattr(self.item.usable_properties, 'ballistic_coefficient', 1)),
             "-- Drag Coefficient --": ('drag_coefficient', getattr(self.item.usable_properties, 'drag_coefficient',
                                                                    1)),
-            "-- Projectile Amount --": ('projectile_no', getattr(self.item.usable_properties, 'projectile_no', 1)),
-
             # magazine
             "-- Magazine Type --": ('magazine_type', getattr(self.item.usable_properties, 'magazine_type', 1)),
-            "-- Magazine Size --": ('magazine_size', getattr(self.item.usable_properties, 'magazine_size', 1)),
             "-- Magazine Capacity --": ('mag_capacity', getattr(self.item.usable_properties, 'mag_capacity', 1)),
             "-- Compatible Round --": ('compatible_bullet_type',
                                        getattr(self.item.usable_properties, 'compatible_bullet_type', 1)),
+            "-- Magazine Size --": ('magazine_size', getattr(self.item.usable_properties, 'magazine_size', 1)),
             "-- AP to Load --": ('ap_to_load', getattr(self.item.usable_properties, 'ap_to_load', 1)),
             "-- Failure Chance (%) --": ('failure_chance', getattr(self.item.usable_properties, 'failure_chance', 1)),
 
             # gun
+            "-- Compatible Magazine Type --": ('compatible_magazine_type',
+                                               getattr(self.item.usable_properties, 'compatible_magazine_type', 1)),
             "-- Felt Recoil Modifier --": ('felt_recoil', round(getattr(self.item.usable_properties, 'felt_recoil',
                                                                         1), 3)),
-
             "-- Sight Accuracy (MoA) --": ('sight_spread_modifier',
                                            round(getattr(self.item.usable_properties, 'sight_spread_modifier',
                                                          1) * 100, 3)),
-
             "-- Handling Accuracy Modifier --":
                 ('handling_spread_modifier', round(getattr(self.item.usable_properties, 'handling_spread_modifier',
                                                            1), 3)),
-
             "-- Reload AP Modifier --": ('load_time_modifier',
                                          round(getattr(self.item.usable_properties, 'load_time_modifier', 1), 3)),
             "-- Fire Rate Modifier --": ('fire_rate_modifier',
                                          round(getattr(self.item.usable_properties, 'fire_rate_modifier', 1), 3)),
-            "-- Barrel Length (Inch) --": ('barrel_length',
-                                           round((getattr(self.item.usable_properties, 'barrel_length', 1)), 3)),
             "-- Zero Range (Yard) --": ('zero_range', getattr(self.item.usable_properties, 'zero_range', 1)),
-            "-- Sight Height Over Mount (Inch) --": ('sight_height_above_bore',
-                                                     getattr(self.item.usable_properties, 'sight_height_above_bore',
-                                                             1)),
-            "-- Sight Mount / Over Bore (Inch) --": ('receiver_height_above_bore',
-                                                     getattr(self.item.usable_properties,
-                                                             'receiver_height_above_bore', 1)),
             "-- AP Cost Distance Modifier --": ('ap_distance_cost_modifier',
                                                 round(getattr(self.item.usable_properties, 'ap_distance_cost_modifier',
                                                               1), 3)),
@@ -2870,7 +3284,6 @@ class InspectItemViewer(AskUserEventHandler):
                                                                1), 3)),
             "-- AP Cost to Fire --": ('firing_ap_cost', round(getattr(self.item.usable_properties, 'firing_ap_cost',
                                                                       1), 3)),
-
             "-- Action Cycling AP Cost --": ('action_cycle_ap_cost',
                                              round(getattr(self.item.usable_properties, 'action_cycle_ap_cost', 1), 3)),
 
@@ -2884,26 +3297,34 @@ class InspectItemViewer(AskUserEventHandler):
             "-- Part Condition: Function (%) --": ('condition_function',
                                                    round((getattr(self.item.usable_properties, 'condition_function',
                                                                   1)) / 5 * 100), 3),
-
-            # mag fed
-            "-- Compatible Magazine Type --": ('compatible_magazine_type',
-                                               getattr(self.item.usable_properties, 'compat ible_magazine_type', 1)),
+            "-- Barrel Length (Inch) --": ('barrel_length',
+                                           round((getattr(self.item.usable_properties, 'barrel_length', 1)), 3)),
+            "-- Sight Height Over Mount (Inch) --": ('sight_height_above_bore',
+                                                     getattr(self.item.usable_properties, 'sight_height_above_bore',
+                                                             1)),
+            "-- Sight Mount / Over Bore (Inch) --": ('receiver_height_above_bore',
+                                                     getattr(self.item.usable_properties,
+                                                             'receiver_height_above_bore', 1)),
 
             # wearable
-            "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
+            # "-- Fits Bodypart --": ('fits_bodypart', getattr(self.item.usable_properties, 'fits_bodypart', 1)),
+
+            "-- Armour Coverage (%) --": ('coverage_v', round(getattr(self.item.usable_properties, 'coverage_v',
+                                                                      1) * 100)),
             "-- Ballistic Protection --": (
                 'ballistic_protection_level', getattr(self.item.usable_properties, 'protection_ballistic', 1)),
-            "-- AP Penalty (%) --": (
-                'ap_penalty', round((getattr(self.item.usable_properties, 'ap_penalty', 1) - 1) * 100)),
             "-- Physical Protection --": ('protection_physical', getattr(self.item.usable_properties,
                                                                          'protection_physical', 1)),
-            "-- Armour Coverage --": ('armour_coverage', getattr(self.item.usable_properties, 'armour_coverage', 1)),
-            "-- Large Magazine Slots --": ('large_mag_slots',
-                                           getattr(self.item.usable_properties, 'large_mag_slots', 1)),
-            "-- Medium Magazine Slots --": ('medium_mag_slots',
-                                            getattr(self.item.usable_properties, 'medium_mag_slots', 1)),
-            "-- Small Magazine Slots --": ('small_mag_slots',
-                                           getattr(self.item.usable_properties, 'small_mag_slots', 1)),
+            "-- AP Penalty (%) --": (
+                'ap_penalty', round((getattr(self.item.usable_properties, 'ap_penalty', 1) - 1) * 100)),
+
+
+            # "-- Large Magazine Slots --": ('large_mag_slots',
+            #                                getattr(self.item.usable_properties, 'large_mag_slots', 1)),
+            # "-- Medium Magazine Slots --": ('medium_mag_slots',
+            #                                 getattr(self.item.usable_properties, 'medium_mag_slots', 1)),
+            # "-- Small Magazine Slots --": ('small_mag_slots',
+            #                                getattr(self.item.usable_properties, 'small_mag_slots', 1)),
 
             # component part
             "-- Part Type --": ('part_type', getattr(self.item.usable_properties, 'part_type', 1)),
@@ -3046,7 +3467,7 @@ class InspectItemViewer(AskUserEventHandler):
             if self.inspect_parts_option:
                 return ShowParts(engine=self.engine, item=self.item, parent_handler=self)
 
-        elif key == tcod.event.K_UP:
+        elif key == tcod.event.K_UP or key == tcod.event.K_KP_8 or key == tcod.event.K_k:
 
             menu_length = \
                 len(list(self.item_info.keys())[self.scroll_position:self.scroll_position + self.max_list_length])
@@ -3060,7 +3481,7 @@ class InspectItemViewer(AskUserEventHandler):
             if self.scroll_position > 0:
                 self.scroll_position -= 1
 
-        elif key == tcod.event.K_DOWN:
+        elif key == tcod.event.K_DOWN or key == tcod.event.K_KP_2 or key == tcod.event.K_j:
 
             menu_length = \
                 len(list(self.item_info.keys())[self.scroll_position:self.scroll_position + self.max_list_length])
@@ -3101,6 +3522,23 @@ def skill_proficiency(skill_level, skill_max) -> str:
         return 'Master'
 
 
+"""
+            if self.weapon.action_type == 'bolt action':
+                proficiency_actiontype = copy(self.entity.fighter.skill_bolt_action_proficiency)
+            elif self.weapon.action_type == 'revolver':
+                proficiency_actiontype = copy(self.entity.fighter.skill_revolver_proficiency)
+            elif self.weapon.action_type == 'semi-auto rifle':
+                proficiency_actiontype = copy(self.entity.fighter.skill_sa_rifle_proficiency)
+            elif self.weapon.action_type == 'semi-auto pistol':
+                proficiency_actiontype = copy(self.entity.fighter.skill_sa_pistol_proficiency)
+            elif self.weapon.action_type == 'pump action':
+                proficiency_actiontype = copy(self.entity.fighter.skill_pumpaction_proficiency)
+            elif self.weapon.action_type == 'break action':
+                proficiency_actiontype = copy(self.entity.fighter.skill_breakaction_proficiency)
+            elif self.weapon.action_type == 'belt fed':
+                proficiency_actiontype = copy(self.entity.fighter.skill_belt_fed_proficiency)
+"""
+
 class ViewPlayerStats(EventHandler):
 
     def __init__(self, engine: Engine, parent_handler: BaseEventHandler):
@@ -3109,11 +3547,17 @@ class ViewPlayerStats(EventHandler):
         self.parent_handler = parent_handler
         self.options = {
             "Ranged Marksmanship": skill_proficiency(engine.player.fighter.skill_marksmanship, 1000),
-            "Pistol Proficiency": skill_proficiency(engine.player.fighter.skill_pistol_proficiency, 1000),
-            "PDW & SMG Proficiency": skill_proficiency(engine.player.fighter.skill_pistol_proficiency, 1000),
-            "Rifle Proficiency": skill_proficiency(engine.player.fighter.skill_rifle_proficiency, 1000),
-            "Bolt Gun Proficiency": skill_proficiency(engine.player.fighter.skill_bolt_action_proficiency, 1000),
             "Recoil Control": skill_proficiency(engine.player.fighter.skill_recoil_control, 1000),
+            "Pistol Handling": skill_proficiency(engine.player.fighter.skill_pistol_proficiency, 1000),
+            "PDW & SMG Handling": skill_proficiency(engine.player.fighter.skill_smg_proficiency, 1000),
+            "Rifle Handling": skill_proficiency(engine.player.fighter.skill_rifle_proficiency, 1000),
+            "Semi-Auto Rifle Proficiency": skill_proficiency(engine.player.fighter.skill_sa_rifle_proficiency, 1000),
+            "Semi-Auto Pistol Proficiency": skill_proficiency(engine.player.fighter.skill_sa_pistol_proficiency, 1000),
+            "Bolt Gun Proficiency": skill_proficiency(engine.player.fighter.skill_bolt_action_proficiency, 1000),
+            "Revolver Proficiency": skill_proficiency(engine.player.fighter.skill_revolver_proficiency, 1000),
+            "Pump Action Proficiency": skill_proficiency(engine.player.fighter.skill_pumpaction_proficiency, 1000),
+            "Break Action Proficiency": skill_proficiency(engine.player.fighter.skill_breakaction_proficiency, 1000),
+            "Belt Fed Proficiency": skill_proficiency(engine.player.fighter.skill_belt_fed_proficiency, 1000),
         }
 
     def on_render(self, console: tcod.Console) -> None:

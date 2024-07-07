@@ -275,6 +275,7 @@ mosin_nagant = Item(
     usable_properties=GunIntegratedMag(
         chambered_bullet=None,
         keep_round_chambered=False,
+        can_hand_load=True,
         ap_to_equip=100,
         fire_modes={'single shot': {'fire rate': 1, 'automatic': False}, },
         current_fire_mode='single shot',

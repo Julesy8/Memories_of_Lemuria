@@ -17,7 +17,7 @@ from engine import Engine
 from level_generator import MessyBSPTree
 from input_handlers import BaseEventHandler, MainGameEventHandler, PopupMessage
 from level_parameters import level_params
-from colour import LIGHT_MAGENTA
+from colour import LIGHT_MAGENTA, WHITE
 from player_generator import generate_player
 from random import choice
 from components.weapons.bullets import round_9mm_124_jhp
@@ -148,7 +148,7 @@ class MainMenu(BaseEventHandler):
 
         # noinspection PyTypeChecker
         console.print(x=console.width // 2 - 34, y=console.height // 2 + 22,
-                      string='Version 0.1.0 - Send Bug Reports & Suggestions to moldev196@gmail.com',
+                      string='Version 0.1.2 - Send Bug Reports & Suggestions to moldev196@gmail.com',
                       fg=self.fg_colour)
 
         if music:
@@ -276,6 +276,11 @@ def new_game() -> Engine:
         "The country has been taken over by extraterrestrial forces and their occultist supporters. Mission: destroy "
         "the underground military base!"
         , LIGHT_MAGENTA
+    )
+
+    engine.message_log.add_message(
+        "For help with controls, press [?] at any time to access the manual."
+        , WHITE
     )
 
     engine.update_fov()

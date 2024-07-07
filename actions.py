@@ -699,11 +699,17 @@ class ReloadMagFed(Action):
                 self.gun.chambered_bullet = None
 
             if self.gun.loaded_magazine is not None:
-                self.entity.inventory.items.append(self.gun.loaded_magazine.parent)
+
+                if self.engine.player:
+                    if self.gun.loaded_magazine.parent in self.entity.inventory.inaccessible_items:
+                        self.entity.inventory.inaccessible_items.remove(self.gun.loaded_magazine.parent)
+                    else:
+                        self.entity.inventory.items.append(self.gun.loaded_magazine.parent)
 
         if self.entity.player:
             # self.entity.inventory.items.remove(self.magazine_to_load.parent)
-            self.entity.inventory.remove_from_magazines(self.magazine_to_load)
+            self.entity.inventory.inaccessible_items.append(self.magazine_to_load.parent)
+            # self.entity.inventory.remove_from_magazines(self.magazine_to_load)
 
         self.gun.loaded_magazine = self.magazine_to_load
 
@@ -711,6 +717,38 @@ class ReloadMagFed(Action):
             if self.gun.chambered_bullet is None:
                 self.gun.chambered_bullet = self.gun.loaded_magazine.magazine.pop()
 
+class AddMagToLoadout(Action):
+    def __init__(self, entity: Actor, magazine: [Magazine or Clip]):
+        super().__init__(entity)
+        self.magazine = magazine
+        self.action_str = f'adding {magazine.parent.name} to loadout'
+
+    def calculate_ap_cost(self):
+
+        armour_ap_multiplier = 1.0
+
+        for part in self.entity.bodyparts:
+            if part.equipped is not None:
+                armour_ap_multiplier *= part.equipped.ap_penalty
+
+        # AP cost calculated
+        ap_cost = self.entity.fighter.action_ap_modifier * self.magazine.ap_to_load
+
+        return ap_cost
+
+    def perform(self) -> None:
+        self.entity.inventory.add_to_magazines(magazine=self.magazine)
+
+
+class RemoveMagFromLoadout(AddMagToLoadout):
+    def __init__(self, entity: Actor, magazine: [Magazine or Clip]):
+        super().__init__(entity, magazine)
+        self.magazine = magazine
+        self.action_str = f'removing {magazine.parent.name} from loadout'
+
+    def perform(self) -> None:
+        self.entity.inventory.items.append(self.magazine.parent)
+        self.entity.inventory.remove_from_magazines(magazine=self.magazine)
 
 class ReloadFromClip(Action):
     def __init__(self, entity: Actor, gun: Gun, clip: Clip):
@@ -718,7 +756,6 @@ class ReloadFromClip(Action):
         self.action_str = f'reloading'
         self.gun = gun
         self.clip = clip
-        # TODO - shouldn't be able to reload if bullet chambered and magazine filled to max capacity - 1
 
     def action_viable(self) -> bool:
         if self.gun.clip_reload_check_viable(clip=self.clip):
@@ -774,12 +811,16 @@ class ReloadFromClip(Action):
         if self.entity.player:
 
             if self.gun.clip_stays_in_gun:
-                self.gun.clip_in_gun = self.clip
 
                 if self.gun.clip_in_gun is not None:
-                    self.entity.inventory.items.append(self.gun.clip_in_gun.parent)
 
-                self.entity.inventory.items.remove(self.clip.parent)
+                    if self.gun.clip_in_gun.parent in self.entity.inventory.inaccessible_items:
+                        self.entity.inventory.inaccessible_items.remove(self.gun.clip_in_gun.parent)
+                    else:
+                        self.entity.inventory.items.append(self.gun.clip_in_gun.parent)
+
+                    self.gun.clip_in_gun = self.clip
+                    self.entity.inventory.inaccessible_items.append(self.clip.parent)
 
 
 class LoadBulletsIntoMagazine(Action):
@@ -839,7 +880,52 @@ class LoadBulletsIntoMagazine(Action):
         # loads bullets into gun
         self.magazine.load_magazine(entity=self.entity, ammo=self.bullet_item, load_amount=self.bullets_to_load)
 
+class UnloadBulletsFromMagazine(Action):
+    def __init__(self, entity: Actor, magazine: Magazine):
+        super().__init__(entity)
+        self.action_str = f'unloading bullets from magazine'
 
+        self.magazine = magazine
+
+    def action_viable(self) -> bool:
+        if len(self.magazine.magazine) > 0:
+            return True
+        else:
+            self.engine.message_log.add_message(f"{self.magazine.parent.name} is already empty", colour.WHITE)
+            return False
+
+    def calculate_ap_cost(self):
+        ap_cost = (self.entity.fighter.action_ap_modifier * 200)
+        return ap_cost
+
+    def perform(self) -> None:
+        self.magazine.unload_magazine(entity=self.entity)
+
+class UnloadMagazineFromGun(Action):
+    def __init__(self, entity: Actor, gun: GunMagFed):
+        super().__init__(entity)
+        self.action_str = f'unloading magazine from gun'
+        self.gun = gun
+
+    def calculate_ap_cost(self):
+        ap_cost = (self.entity.fighter.action_ap_modifier * self.gun.loaded_magazine.ap_to_load * 0.5)
+        return ap_cost
+
+    def perform(self) -> None:
+        self.gun.unload_gun()
+
+class UnloadClipFromGun(Action):
+    def __init__(self, entity: Actor, gun: GunIntegratedMag):
+        super().__init__(entity)
+        self.action_str = f'removing clip from gun'
+        self.gun = gun
+
+    def calculate_ap_cost(self):
+        ap_cost = (self.entity.fighter.action_ap_modifier * 200)
+        return ap_cost
+
+    def perform(self) -> None:
+        self.gun.unload_clip()
 class MovementAction(ActionWithDirection):
 
     def calculate_ap_cost(self):
@@ -1185,6 +1271,54 @@ class UnequipWeapon(EquipWeapon):
         inventory = self.entity.inventory
 
         inventory.items.append(self.weapon.parent)
+
+        if inventory.held == self.weapon.parent:
+            inventory.held = None
+        if inventory.primary_weapon == self.weapon.parent:
+            inventory.primary_weapon = None
+        elif inventory.secondary_weapon == self.weapon.parent:
+            inventory.secondary_weapon = None
+
+class UnequipMagFed(EquipWeapon):
+
+    def __init__(self, entity: Actor, weapon: GunMagFed):
+        super().__init__(entity, weapon)
+        self.action_str = f'unequipping {weapon.parent.name}'
+
+    def perform(self) -> None:
+
+        inventory = self.entity.inventory
+
+        inventory.items.append(self.weapon.parent)
+
+        if self.weapon.loaded_magazine is not None:
+            inventory.remove_from_magazines(self.weapon.loaded_magazine)
+
+        if self.weapon.clip_in_gun is not None:
+            inventory.remove_from_magazines(self.weapon.clip_in_gun)
+
+        if inventory.held == self.weapon.parent:
+            inventory.held = None
+        if inventory.primary_weapon == self.weapon.parent:
+            inventory.primary_weapon = None
+        elif inventory.secondary_weapon == self.weapon.parent:
+            inventory.secondary_weapon = None
+
+
+class UnequipIntegratedMag(EquipWeapon):
+
+    def __init__(self, entity: Actor, weapon: GunIntegratedMag):
+        super().__init__(entity, weapon)
+        self.action_str = f'unequipping {weapon.parent.name}'
+
+    def perform(self) -> None:
+
+        inventory = self.entity.inventory
+
+        inventory.items.append(self.weapon.parent)
+
+        if self.weapon.clip_in_gun is not None:
+            inventory.remove_from_magazines(self.weapon.clip_in_gun)
 
         if inventory.held == self.weapon.parent:
             inventory.held = None

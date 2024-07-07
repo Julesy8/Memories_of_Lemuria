@@ -35,6 +35,7 @@ class Inventory(BaseComponent):
         self.small_magazines = []
         self.medium_magazines = []
         self.large_magazines = []
+        self.inaccessible_items = []
 
     def add_to_inventory(self, item: Item, amount: int):
 
@@ -129,6 +130,9 @@ class Inventory(BaseComponent):
     #         self.ammo_pouch_shot.remove(bullet.parent)
     #
     def remove_from_magazines(self, magazine: Union[Clip, DetachableMagazine]):
+
+        if magazine.parent in self.inaccessible_items:
+            self.inaccessible_items.remove(magazine.parent)
 
         if magazine.parent in self.small_magazines:
             self.small_magazines.remove(magazine.parent)

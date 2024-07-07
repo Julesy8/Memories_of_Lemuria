@@ -11,7 +11,8 @@ from random import uniform, choices, choice
 import actions
 import colour
 import components.inventory
-from input_handlers import SelectPartToRepair, MainGameEventHandler, BaseEventHandler, SelectPartToHeal
+from input_handlers import (SelectPartToRepair, MainGameEventHandler, BaseEventHandler, SelectPartToHeal,
+                            InventoryEventHandler)
 from components.npc_templates import BaseComponent
 
 if TYPE_CHECKING:
@@ -96,7 +97,7 @@ class RepairKit(Usable):
                     if item.usable_properties.condition_accuracy < 5:
                         options.append(item)
                         continue
-                elif hasattr(item.usable_properties, 'condition_function'):
+                if hasattr(item.usable_properties, 'condition_function'):
                     if item.usable_properties.condition_function < 5:
                         options.append(item)
 
@@ -107,7 +108,9 @@ class RepairKit(Usable):
                                   actions.RepairItem(entity=user,
                                                      item_to_repair=item_to_repair,
                                                      repair_kit_item=self.parent),
-                                  parent_handler=MainGameEventHandler(self.engine))
+                                  parent_handler=InventoryEventHandler(self.engine,
+                                                                       parent_handler=MainGameEventHandler(
+                                                                           self.engine)))
 
     def activate(self, action: actions.RepairItem) -> BaseEventHandler:
         item = action.item_to_repair
@@ -334,11 +337,14 @@ class Magazine(Usable):
         # unloads bullets from magazine
         inventory = entity.inventory
 
-        # TODO - keep round chambered should be for guns like open bolt mac 10?
         if isinstance(self, GunIntegratedMag):
             if not self.keep_round_chambered and self.chambered_bullet is not None:
                 self.magazine.append(self.chambered_bullet)
                 setattr(self, "chambered_bullet", None)
+
+            if self.clip_in_gun:
+                if self.clip_in_gun.parent in inventory.inaccessible_items:
+                    inventory.inaccessible_items.remove(self.clip_in_gun.parent)
 
         if len(self.magazine) > 0:
             for bullet in self.magazine:
@@ -346,10 +352,6 @@ class Magazine(Usable):
                                        entity=inventory.parent).handle_action()
 
             self.magazine = []
-
-        else:
-            return self.engine.message_log.add_message(f"{self.parent.name} is already empty", colour.WHITE)
-
 
 class DetachableMagazine(Magazine):
     def __init__(self,
@@ -521,6 +523,26 @@ class Gun(Weapon):
             ranged=True,
             ap_to_equip=ap_to_equip,
         )
+
+    def unload_clip(self):
+
+        entity = self.parent
+        inventory = entity.parent
+
+        if isinstance(inventory, components.inventory.Inventory):
+
+            if self.clip_in_gun is not None:
+
+                if not self.keep_round_chambered:
+                    self.clip_in_gun.magazine.append(self.chambered_bullet)
+                    self.chambered_bullet = None
+
+                if self.clip_in_gun.parent in inventory.inaccessible_items:
+                    inventory.inaccessible_items.remove(self.clip_in_gun.parent)
+                else:
+                    inventory.items.append(self.clip_in_gun.parent)
+
+                self.clip_in_gun = None
 
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
@@ -1026,6 +1048,9 @@ class GunMagFed(Gun):
     def load_gun(self, user: Actor, magazine: DetachableMagazine):
         actions.ReloadMagFed(entity=user, magazine_to_load=magazine, gun=self).handle_action()
 
+    def unequip(self, user: Actor) -> None:
+        actions.UnequipMagFed(entity=user, weapon=self).handle_action()
+
     def unload_gun(self):
 
         entity = self.parent
@@ -1039,12 +1064,12 @@ class GunMagFed(Gun):
                     self.loaded_magazine.magazine.append(self.chambered_bullet)
                     self.chambered_bullet = None
 
-                inventory.items.append(self.loaded_magazine.parent)
-                self.loaded_magazine = None
+                if self.loaded_magazine.parent in inventory.inaccessible_items:
+                    inventory.inaccessible_items.remove(self.loaded_magazine.parent)
+                else:
+                    inventory.items.append(self.loaded_magazine.parent)
 
-            else:
-                self.engine.message_log.add_message(f"{inventory.parent}'s {entity.name} has no magazine loaded",
-                                                    colour.WHITE)
+                self.loaded_magazine = None
 
     def chamber_round(self):
 
@@ -1155,6 +1180,9 @@ class GunIntegratedMag(Gun, Magazine):
     def chamber_round(self):
         if len(self.magazine) > 0:
             self.chambered_bullet = self.magazine.pop()
+
+    def unequip(self, user: Actor) -> None:
+        actions.UnequipIntegratedMag(entity=user, weapon=self).handle_action()
 
     def get_attack_action(self, distance: int, entity: Actor, targeted_actor: Actor,
                           targeted_bodypart: Optional[Bodypart]):
